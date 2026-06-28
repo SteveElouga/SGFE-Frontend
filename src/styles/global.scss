@@ -1,0 +1,18 @@
+@use 'variables' as *;
+@use 'mobile' as *;
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: $spacing-sm;
+
+  @include tablet {
+    padding: $spacing-md;
+  }
+
+  @include desktop {
+    padding: $spacing-lg;
+  }
+}

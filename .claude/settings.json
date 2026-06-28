@@ -10,7 +10,21 @@
       "Bash(git -C /Users/apple/Documents/SGFE-frontend diff)",
       "Bash(git branch *)",
       "Bash(npx ng *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(gh auth *)",
+      "Bash(git checkout *)",
+      "Bash(npm install *)",
+      "Bash(npm init *)",
+      "Bash(npx create-playwright@latest --quiet --browser=chromium --lang=TypeScript --no-examples)",
+      "Bash(ls -la /Users/apple/Documents/SGFE-frontend/playwright.config.ts /tmp/.pw-config-tmp.ts 2>&1)",
+      "Read(//private/tmp/**)",
+      "Bash(mv /tmp/.pw-config-tmp.ts /Users/apple/Documents/SGFE-frontend/playwright.config.ts && cat /Users/apple/Documents/SGFE-frontend/playwright.config.ts | head -5)"
+    ],
+    "additionalDirectories": [
+      "/private/tmp"
     ]
   }
 }
