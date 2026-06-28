@@ -21,7 +21,14 @@
       "Bash(npx create-playwright@latest --quiet --browser=chromium --lang=TypeScript --no-examples)",
       "Bash(ls -la /Users/apple/Documents/SGFE-frontend/playwright.config.ts /tmp/.pw-config-tmp.ts 2>&1)",
       "Read(//private/tmp/**)",
-      "Bash(mv /tmp/.pw-config-tmp.ts /Users/apple/Documents/SGFE-frontend/playwright.config.ts && cat /Users/apple/Documents/SGFE-frontend/playwright.config.ts | head -5)"
+      "Bash(mv /tmp/.pw-config-tmp.ts /Users/apple/Documents/SGFE-frontend/playwright.config.ts && cat /Users/apple/Documents/SGFE-frontend/playwright.config.ts | head -5)",
+      "Bash(npm uninstall *)",
+      "Bash(npm view *)",
+      "Bash(npm dist-tag *)",
+      "Bash(npx playwright *)",
+      "Bash(cp /tmp/check-page.spec.ts /Users/apple/Documents/SGFE-frontend/tests/zzz-check-page.spec.ts)",
+      "Bash(pkill -f \"ng serve --port 4300\")",
+      "Bash(rm -f /tmp/check-page.spec.ts)"
     ],
     "additionalDirectories": [
       "/private/tmp"

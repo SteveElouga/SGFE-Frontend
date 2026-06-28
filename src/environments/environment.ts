@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  graphqlUrl: 'http://localhost:8000/graphql',
+  graphqlUrl: 'http://localhost:8080/graphql',
   appName: 'Facturation Eau',
 };

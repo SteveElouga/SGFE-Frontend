@@ -1,0 +1,175 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mobile' as *;
+
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  @include desktop {
+    flex-direction: row;
+  }
+}
+
+.login__brand {
+  display: none;
+  flex-direction: column;
+  padding: $spacing-xl;
+  background: linear-gradient(155deg, #0f2557 0%, $color-primary 55%, $color-accent 100%);
+  color: rgba(255, 255, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+
+  @include desktop {
+    display: flex;
+    width: 420px;
+    flex-shrink: 0;
+  }
+}
+
+.login__logo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: auto;
+}
+
+.login__logo-mark {
+  font-size: 32px;
+}
+
+.login__logo-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.login__logo-tagline {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.login__pitch {
+  margin: auto 0;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 300;
+    line-height: 1.25;
+    margin-bottom: $spacing-md;
+
+    strong {
+      font-weight: 700;
+    }
+  }
+
+  p {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: $spacing-lg;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+.login__panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-lg;
+  background: #fff;
+
+  @include desktop {
+    padding: $spacing-xl * 2;
+  }
+}
+
+.login__form {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  h2 {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0 0 $spacing-xs;
+    color: #0f172a;
+  }
+}
+
+.login__subtitle {
+  color: #64748b;
+  margin: 0 0 $spacing-sm;
+}
+
+.login__field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  font-weight: 500;
+  font-size: 13px;
+  color: #374151;
+}
+
+.login__submit {
+  width: 100%;
+  display: block;
+}
+
+.login__roles {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid #f1f5f9;
+  text-align: center;
+
+  > span {
+    display: block;
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: $spacing-sm;
+  }
+
+  > div {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-sm;
+  }
+}
+
+.login__role {
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &--admin {
+    background: #eff6ff;
+    color: $color-primary;
+  }
+
+  &--agent {
+    background: #f0fdf4;
+    color: $color-accent;
+  }
+
+  &--comptable {
+    background: #faf5ff;
+    color: #7c3aed;
+  }
+}
