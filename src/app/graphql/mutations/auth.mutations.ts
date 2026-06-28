@@ -39,3 +39,21 @@ export const LOGOUT = gql`
     logout
   }
 `;
+
+export const REQUEST_PASSWORD_RESET = gql`
+  mutation RequestPasswordReset($email: String!) {
+    requestPasswordReset(email: $email)
+  }
+`;
+
+export const ACTIVATE_ACCOUNT = gql`
+  mutation ActivateAccount($token: String!, $password: String!) {
+    activateAccount(token: $token, password: $password)
+  }
+`;
+
+export const RESET_PASSWORD = gql`
+  mutation ResetPassword($token: String!, $password: String!) {
+    resetPassword(token: $token, password: $password)
+  }
+`;

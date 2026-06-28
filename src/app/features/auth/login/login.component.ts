@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -16,7 +16,7 @@ const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
 };
 
 @Component({
-  imports: [FormsModule, ButtonModule, InputTextModule, PasswordModule, MessageModule],
+  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PasswordModule, MessageModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

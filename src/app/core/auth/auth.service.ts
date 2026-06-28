@@ -1,7 +1,14 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
-import { LOGIN, LOGOUT, REFRESH_TOKEN } from '../../graphql/mutations/auth.mutations';
+import {
+  ACTIVATE_ACCOUNT,
+  LOGIN,
+  LOGOUT,
+  REFRESH_TOKEN,
+  REQUEST_PASSWORD_RESET,
+  RESET_PASSWORD,
+} from '../../graphql/mutations/auth.mutations';
 import { AuthPayload, User } from '../../shared/models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -63,6 +70,33 @@ export class AuthService {
     } finally {
       this.clearSession();
     }
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    await firstValueFrom(
+      this.apolloClient.mutate<{ requestPasswordReset: boolean }>({
+        mutation: REQUEST_PASSWORD_RESET,
+        variables: { email },
+      }),
+    );
+  }
+
+  async activateAccount(token: string, password: string): Promise<void> {
+    await firstValueFrom(
+      this.apolloClient.mutate<{ activateAccount: boolean }>({
+        mutation: ACTIVATE_ACCOUNT,
+        variables: { token, password },
+      }),
+    );
+  }
+
+  async resetPassword(token: string, password: string): Promise<void> {
+    await firstValueFrom(
+      this.apolloClient.mutate<{ resetPassword: boolean }>({
+        mutation: RESET_PASSWORD,
+        variables: { token, password },
+      }),
+    );
   }
 
   private clearSession(): void {

@@ -43,7 +43,10 @@
       </label>
 
       <label class="login__field" for="password">
-        <span>Mot de passe</span>
+        <div class="login__field-row">
+          <span>Mot de passe</span>
+          <a class="login__forgot" routerLink="/forgot-password">Mot de passe oublié ?</a>
+        </div>
         <p-password
           inputId="password"
           [feedback]="false"
