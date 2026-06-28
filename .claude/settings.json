@@ -28,7 +28,12 @@
       "Bash(npx playwright *)",
       "Bash(cp /tmp/check-page.spec.ts /Users/apple/Documents/SGFE-frontend/tests/zzz-check-page.spec.ts)",
       "Bash(pkill -f \"ng serve --port 4300\")",
-      "Bash(rm -f /tmp/check-page.spec.ts)"
+      "Bash(rm -f /tmp/check-page.spec.ts)",
+      "Bash(python3 -c ' *)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /tmp/screenshots)",
+      "Read(//tmp/screenshots/**)",
+      "Read(//private/tmp/screenshots/**)"
     ],
     "additionalDirectories": [
       "/private/tmp"

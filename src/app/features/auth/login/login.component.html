@@ -1,28 +1,25 @@
 <div class="login">
-  <div class="login__brand">
-    <div class="login__logo">
-      <span class="login__logo-mark">💧</span>
-      <div>
-        <div class="login__logo-name">AquaBill</div>
-        <div class="login__logo-tagline">Gestion de distribution d'eau</div>
-      </div>
-    </div>
+  <app-auth-brand-panel>
+    <h1>
+      Gérez votre<br />
+      <strong>distribution d'eau</strong>
+    </h1>
+    <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
+    <ul>
+      <li>Relevés terrain sur mobile (PWA)</li>
+      <li>Facturation et envoi WhatsApp auto</li>
+      <li>Suivi des impayés en temps réel</li>
+    </ul>
+  </app-auth-brand-panel>
 
-    <div class="login__pitch">
-      <h1>
-        Gérez votre<br />
-        <strong>distribution d'eau</strong>
-      </h1>
-      <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
-      <ul>
-        <li>Relevés terrain sur mobile (PWA)</li>
-        <li>Facturation et envoi WhatsApp auto</li>
-        <li>Suivi des impayés en temps réel</li>
-      </ul>
-    </div>
+  <div class="login__mobile-header">
+    <span class="login__logo-mark">💧</span>
+    <div class="login__logo-name">AquaBill</div>
+    <div class="login__logo-tagline">Gestion de distribution d'eau</div>
   </div>
 
   <div class="login__panel">
+
     <form class="login__form" (ngSubmit)="onSubmit()">
       <h2>Bon retour 👋</h2>
       <p class="login__subtitle">Connectez-vous à votre espace de travail</p>

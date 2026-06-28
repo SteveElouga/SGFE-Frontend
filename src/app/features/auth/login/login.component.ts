@@ -7,6 +7,7 @@ import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/models/user.model';
+import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 
 const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
   ADMIN: '/dashboard',
@@ -16,7 +17,15 @@ const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
 };
 
 @Component({
-  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, PasswordModule, MessageModule],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    InputTextModule,
+    PasswordModule,
+    MessageModule,
+    AuthBrandPanelComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })

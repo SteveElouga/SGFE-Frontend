@@ -5,9 +5,28 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { AuthService } from '../../../core/auth/auth.service';
+import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
+import { AuthMobileNavComponent } from '../../../shared/components/auth-mobile-nav/auth-mobile-nav.component';
+
+function maskEmail(email: string): string {
+  const [local, domain] = email.split('@');
+  if (!domain) {
+    return email;
+  }
+  const visible = local.slice(0, local.length > 2 ? 3 : 1);
+  return `${visible}•••@${domain}`;
+}
 
 @Component({
-  imports: [FormsModule, RouterLink, ButtonModule, InputTextModule, MessageModule],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    InputTextModule,
+    MessageModule,
+    AuthBrandPanelComponent,
+    AuthMobileNavComponent,
+  ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',
 })
@@ -18,6 +37,7 @@ export class ForgotPasswordComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly canSubmit = computed(() => this.email().trim().length > 0 && !this.loading());
+  readonly maskedEmail = computed(() => maskEmail(this.email().trim()));
 
   constructor(private readonly auth: AuthService) {}
 

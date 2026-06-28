@@ -1,13 +1,27 @@
 @use 'variables' as *;
 @use 'mobile' as *;
 
-.auth-screen {
+.auth-layout {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   min-height: 100vh;
+
+  @include desktop {
+    flex-direction: row;
+  }
+}
+
+.auth-screen {
+  flex: 1;
+  display: flex;
   padding: $spacing-lg;
   background: #fff;
+
+  @include desktop {
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
 }
 
 .auth-screen__panel {
@@ -62,6 +76,16 @@
   color: $color-primary;
   text-decoration: none;
   font-size: 13px;
+}
+
+.auth-screen__back--desktop {
+  display: none;
+
+  @include desktop {
+    display: block;
+    text-align: left;
+    margin-bottom: $spacing-lg;
+  }
 }
 
 .auth-screen__success p {

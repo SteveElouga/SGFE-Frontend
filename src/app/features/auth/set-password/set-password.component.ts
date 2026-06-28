@@ -5,6 +5,8 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/auth/auth.service';
+import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
+import { AuthMobileNavComponent } from '../../../shared/components/auth-mobile-nav/auth-mobile-nav.component';
 
 export type SetPasswordMode = 'activate' | 'reset';
 
@@ -24,7 +26,15 @@ const COPY: Record<SetPasswordMode, { title: string; subtitle: string; submitLab
 };
 
 @Component({
-  imports: [FormsModule, RouterLink, ButtonModule, PasswordModule, MessageModule],
+  imports: [
+    FormsModule,
+    RouterLink,
+    ButtonModule,
+    PasswordModule,
+    MessageModule,
+    AuthBrandPanelComponent,
+    AuthMobileNavComponent,
+  ],
   templateUrl: './set-password.component.html',
   styleUrl: './set-password.component.scss',
 })
