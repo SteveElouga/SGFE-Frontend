@@ -37,7 +37,9 @@
       "Bash(git restore *)",
       "Bash(grep -o '\"form\"\\\\|,form:\\\\|{form:\\\\| form:{' /Users/apple/Documents/SGFE-frontend/node_modules/@primeuix/themes/dist/aura/base/index.mjs)",
       "Bash(grep -o \"background:[a-zA-Z0-9.\\\\$\\\\{\\\\}\\\\-]*var\\([^\\)]*button-primary-background[^\\)]*\\)\" /Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-button.mjs)",
-      "Bash(grep -n \"^var style\\\\|^const style\\\\|style = \\\\`\" /Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-button.mjs)"
+      "Bash(grep -n \"^var style\\\\|^const style\\\\|style = \\\\`\" /Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-button.mjs)",
+      "WebFetch(domain:primeng.org)",
+      "Bash(curl -s -i -X POST http://localhost:4200/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"{__typename}\"}')"
     ],
     "additionalDirectories": [
       "/private/tmp"
