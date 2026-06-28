@@ -33,7 +33,8 @@
       "Read(//tmp/**)",
       "Bash(mkdir -p /tmp/screenshots)",
       "Read(//tmp/screenshots/**)",
-      "Read(//private/tmp/screenshots/**)"
+      "Read(//private/tmp/screenshots/**)",
+      "Bash(git restore *)"
     ],
     "additionalDirectories": [
       "/private/tmp"

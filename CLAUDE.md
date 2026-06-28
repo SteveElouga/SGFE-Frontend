@@ -218,26 +218,28 @@ export const appConfig: ApplicationConfig = {
 
 ### Configuration Apollo
 
+> ⚠️ `APOLLO_OPTIONS` seul ne suffit pas : il faut `provideApollo()`
+> (apollo-angular ≥ 14), qui enregistre aussi le service `Apollo`
+> lui-même. L'oublier produit une erreur silencieuse au démarrage
+> (`NG0201: No provider found for Apollo`) et un écran blanc.
+
 ```typescript
 // core/graphql/apollo.config.ts
-import { ApolloClientOptions, InMemoryCache } from '@apollo/client/core';
-import { APOLLO_OPTIONS } from 'apollo-angular';
+import { inject } from '@angular/core';
+import { ApolloClient, InMemoryCache } from '@apollo/client/core';
+import { provideApollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
+import { environment } from '../../../environments/environment';
 
-export function apolloFactory(httpLink: HttpLink): ApolloClientOptions<unknown> {
+function apolloOptionsFactory(): ApolloClient.Options {
+  const httpLink = inject(HttpLink);
   return {
-    link: httpLink.create({ uri: '/graphql' }),
+    link: httpLink.create({ uri: environment.graphqlUrl, withCredentials: true }),
     cache: new InMemoryCache(),
   };
 }
 
-export const apolloProviders = [
-  {
-    provide: APOLLO_OPTIONS,
-    useFactory: apolloFactory,
-    deps: [HttpLink],
-  },
-];
+export const apolloProviders = [provideApollo(apolloOptionsFactory)];
 ```
 
 ### Pattern Query GraphQL
@@ -473,18 +475,44 @@ L'interface agent (`features/terrain/`) est la plus critique du projet.
 
 ## Variables d'environnement
 
+> ⚠️ `graphqlUrl` est toujours un chemin **relatif** (`/graphql`), jamais une
+> URL absolue. Voir « Proxy de développement » ci-dessous : le frontend et
+> l'API Gateway doivent être vus comme la **même origine** par le
+> navigateur (le cookie `refresh_token` est `SameSite=Strict`).
+
 ```typescript
 // environments/environment.ts
 export const environment = {
   production: false,
-  graphqlUrl: 'http://localhost:8000/graphql',
+  graphqlUrl: '/graphql',
   appName: 'Facturation Eau',
 };
 
 // environments/environment.prod.ts
 export const environment = {
   production: true,
-  graphqlUrl: 'https://[VOTRE_URL_NGROK]/graphql',
+  graphqlUrl: '/graphql',
   appName: 'Facturation Eau',
 };
 ```
+
+### Proxy de développement
+
+`ng serve` (port 4200) et l'API Gateway (`localhost:8080`) sont deux
+origines distinctes pour le navigateur. Pour que `/graphql` reste
+same-origin en développement, le serveur de dev Angular proxyfie cette
+route vers la Gateway via `proxy.conf.json` (racine du projet) :
+
+```json
+{
+  "/graphql": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
+```
+
+Câblé dans `angular.json` (`architect.serve.options.proxyConfig`). En
+production, c'est nginx (devant la Gateway) qui joue ce rôle en servant le
+build Angular et en proxyfiant `/graphql` sous le même domaine.

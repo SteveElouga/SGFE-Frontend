@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  graphqlUrl: 'https://[VOTRE_URL_NGROK]/graphql',
+  graphqlUrl: '/graphql',
   appName: 'Facturation Eau',
 };

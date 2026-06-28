@@ -65,9 +65,65 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+h1 {
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 1.25;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+
+  strong {
+    font-weight: 700;
+    color: #fff;
+  }
+}
+
+.login__divider {
+  width: 48px;
+  height: 3px;
+  background: $color-accent;
+  border-radius: 2px;
+  margin: $spacing-sm 0 $spacing-md;
+}
+
+.auth-brand__pitch > p {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.login__checklist {
+  list-style: none;
+  padding: 0;
+  margin: $spacing-md 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+}
+
+.login__check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(14, 159, 110, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .login__panel {
   flex: 1;
   display: flex;
+  position: relative;
   padding: $spacing-lg;
   background: #fff;
 
@@ -75,6 +131,33 @@
     align-items: center;
     justify-content: center;
     padding: $spacing-xl * 2;
+  }
+}
+
+.login__help {
+  display: none;
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 13px;
+
+  @include desktop {
+    display: block;
+    position: absolute;
+    top: $spacing-lg;
+    right: $spacing-lg;
+  }
+}
+
+.login__version {
+  display: none;
+  color: #cbd5e1;
+  font-size: 11px;
+
+  @include desktop {
+    display: block;
+    position: absolute;
+    bottom: $spacing-lg;
+    left: $spacing-xl * 2;
   }
 }
 
