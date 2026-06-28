@@ -78,7 +78,7 @@
       <label class="login__field" for="username">
         <span>Nom d'utilisateur</span>
         <p-iconfield>
-          <p-inputicon class="pi pi-user" />
+          <p-inputicon styleClass="pi pi-user" />
           <input
             id="username"
             type="text"
@@ -99,7 +99,9 @@
           <a class="login__forgot" routerLink="/forgot-password">Mot de passe oublié ?</a>
         </div>
         <p-iconfield>
-          <p-inputicon class="pi pi-lock" [class.login__icon--invalid]="!!errorMessage()" />
+          <p-inputicon
+            [styleClass]="'pi pi-lock' + (errorMessage() ? ' login__icon--invalid' : '')"
+          />
           <p-password
             inputId="password"
             [feedback]="false"
@@ -115,7 +117,12 @@
       </label>
 
       @if (errorMessage()) {
-        <p-message severity="error" icon="pi pi-exclamation-circle" [text]="errorMessage()!" />
+        <p-message
+          severity="error"
+          size="small"
+          icon="pi pi-exclamation-circle"
+          [text]="errorMessage()!"
+        />
       }
 
       <p-button
