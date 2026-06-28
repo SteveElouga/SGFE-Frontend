@@ -3,7 +3,14 @@
     "allow": [
       "Bash(npx -y @angular/cli@latest new --help)",
       "Bash(npx -y @angular/cli@latest new sgfe-frontend --directory=. --routing --style=scss --zoneless --test-runner=vitest --skip-git --defaults --package-manager=npm --dry-run)",
-      "Bash(npx -y @angular/cli@latest new sgfe-frontend --directory=. --routing --style=scss --zoneless --ssr=false --test-runner=vitest --defaults --package-manager=npm)"
+      "Bash(npx -y @angular/cli@latest new sgfe-frontend --directory=. --routing --style=scss --zoneless --ssr=false --test-runner=vitest --defaults --package-manager=npm)",
+      "Bash(git -C /Users/apple/Documents/SGFE-frontend log --oneline -5)",
+      "Bash(git -C /Users/apple/Documents/SGFE-frontend status)",
+      "Bash(git -C /Users/apple/Documents/SGFE-frontend diff --stat)",
+      "Bash(git -C /Users/apple/Documents/SGFE-frontend diff)",
+      "Bash(git branch *)",
+      "Bash(npx ng *)",
+      "Bash(git add *)"
     ]
   }
 }
