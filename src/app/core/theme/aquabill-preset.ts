@@ -17,5 +17,45 @@ export const AquaBillPreset = definePreset(Aura, {
       900: '#1e3a8a',
       950: '#172554',
     },
+    formField: {
+      paddingX: '14px',
+      paddingY: '13px',
+      borderRadius: '8px',
+    },
+    colorScheme: {
+      light: {
+        primary: {
+          color: '{primary.600}',
+          hoverColor: '{primary.700}',
+          activeColor: '{primary.800}',
+        },
+        formField: {
+          background: '#f8fafc',
+          borderColor: '#e2e8f0',
+          hoverBorderColor: '#cbd5e1',
+          invalidBorderColor: '#ef4444',
+          placeholderColor: '#cbd5e1',
+        },
+      },
+    },
+  },
+  components: {
+    button: {
+      root: {
+        raisedShadow: '0 4px 14px rgba(26, 86, 219, .4)',
+      },
+      colorScheme: {
+        light: {
+          root: {
+            primary: {
+              background: 'linear-gradient(135deg, #1a56db, #1d4ed8)',
+              hoverBackground: 'linear-gradient(135deg, #1d4ed8, #1a56db)',
+              borderColor: '#1a56db',
+              hoverBorderColor: '#1d4ed8',
+            },
+          },
+        },
+      },
+    },
   },
 });

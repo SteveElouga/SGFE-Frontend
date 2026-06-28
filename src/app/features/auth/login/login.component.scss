@@ -66,10 +66,10 @@
 }
 
 h1 {
-  font-size: 32px;
+  font-size: 38px;
   font-weight: 300;
   line-height: 1.25;
-  margin: 0;
+  margin: 0 0 8px;
   color: rgba(255, 255, 255, 0.9);
 
   strong {
@@ -83,35 +83,36 @@ h1 {
   height: 3px;
   background: $color-accent;
   border-radius: 2px;
-  margin: $spacing-sm 0 $spacing-md;
+  margin: 0 0 20px;
 }
 
 .auth-brand__pitch > p {
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.7);
-  margin: 0;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 36px;
 }
 
 .login__checklist {
   list-style: none;
   padding: 0;
-  margin: $spacing-md 0 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 14px;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.8);
 
   li {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: 12px;
   }
 }
 
 .login__check {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: rgba(14, 159, 110, 0.25);
   display: flex;
@@ -201,6 +202,10 @@ h1 {
   font-weight: 500;
   font-size: 13px;
   color: #374151;
+}
+
+.login__icon--invalid {
+  color: $color-error;
 }
 
 .login__submit {

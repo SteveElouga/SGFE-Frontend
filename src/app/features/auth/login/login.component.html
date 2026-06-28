@@ -99,12 +99,13 @@
           <a class="login__forgot" routerLink="/forgot-password">Mot de passe oublié ?</a>
         </div>
         <p-iconfield>
-          <p-inputicon class="pi pi-lock" />
+          <p-inputicon class="pi pi-lock" [class.login__icon--invalid]="!!errorMessage()" />
           <p-password
             inputId="password"
             [feedback]="false"
             [toggleMask]="true"
             [fluid]="true"
+            [invalid]="!!errorMessage()"
             autocomplete="current-password"
             [ngModel]="password()"
             (ngModelChange)="password.set($event)"
@@ -114,7 +115,7 @@
       </label>
 
       @if (errorMessage()) {
-        <p-message severity="error" [text]="errorMessage()!" />
+        <p-message severity="error" icon="pi pi-exclamation-circle" [text]="errorMessage()!" />
       }
 
       <p-button
@@ -124,6 +125,7 @@
         iconPos="right"
         [loading]="loading()"
         [disabled]="!canSubmit()"
+        [raised]="true"
         styleClass="login__submit"
       />
 
