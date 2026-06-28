@@ -58,8 +58,10 @@ export class LoginComponent {
 
     try {
       await this.auth.login(this.username().trim(), this.password());
-    } catch {
-      this.errorMessage.set('Identifiants incorrects. Veuillez réessayer.');
+    } catch (error) {
+      this.errorMessage.set(
+        error instanceof Error ? error.message : 'Identifiants incorrects. Veuillez réessayer.',
+      );
       this.loading.set(false);
       return;
     }

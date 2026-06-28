@@ -1,4 +1,5 @@
 import { Injectable, computed, signal } from '@angular/core';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import {
@@ -10,6 +11,13 @@ import {
   RESET_PASSWORD,
 } from '../../graphql/mutations/auth.mutations';
 import { AuthPayload, User } from '../../shared/models/user.model';
+
+function extractServerErrorMessage(error: unknown, fallback: string): string {
+  if (CombinedGraphQLErrors.is(error)) {
+    return error.errors[0]?.message || fallback;
+  }
+  return fallback;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -31,37 +39,45 @@ export class AuthService {
   }
 
   async login(username: string, password: string): Promise<void> {
-    const result = await firstValueFrom(
-      this.apolloClient.mutate<{ login: AuthPayload }>({
-        mutation: LOGIN,
-        variables: { username, password },
-      }),
-    );
+    try {
+      const result = await firstValueFrom(
+        this.apolloClient.mutate<{ login: AuthPayload }>({
+          mutation: LOGIN,
+          variables: { username, password },
+        }),
+      );
 
-    const payload = result.data?.login;
-    if (!payload) {
-      throw new Error('Échec de la connexion');
+      const payload = result.data?.login;
+      if (!payload) {
+        throw new Error('Échec de la connexion');
+      }
+
+      this._accessToken.set(payload.accessToken);
+      this._user.set(payload.user);
+    } catch (error) {
+      throw new Error(extractServerErrorMessage(error, 'Identifiants incorrects. Veuillez réessayer.'));
     }
-
-    this._accessToken.set(payload.accessToken);
-    this._user.set(payload.user);
   }
 
   async refreshToken(): Promise<void> {
-    const result = await firstValueFrom(
-      this.apolloClient.mutate<{ refreshToken: AuthPayload }>({
-        mutation: REFRESH_TOKEN,
-      }),
-    );
+    try {
+      const result = await firstValueFrom(
+        this.apolloClient.mutate<{ refreshToken: AuthPayload }>({
+          mutation: REFRESH_TOKEN,
+        }),
+      );
 
-    const payload = result.data?.refreshToken;
-    if (!payload) {
+      const payload = result.data?.refreshToken;
+      if (!payload) {
+        throw new Error('Impossible de rafraîchir la session');
+      }
+
+      this._accessToken.set(payload.accessToken);
+      this._user.set(payload.user);
+    } catch (error) {
       this.clearSession();
-      throw new Error('Impossible de rafraîchir la session');
+      throw error;
     }
-
-    this._accessToken.set(payload.accessToken);
-    this._user.set(payload.user);
   }
 
   async logout(): Promise<void> {

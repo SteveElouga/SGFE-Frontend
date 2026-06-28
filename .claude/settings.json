@@ -39,7 +39,13 @@
       "Bash(grep -o \"background:[a-zA-Z0-9.\\\\$\\\\{\\\\}\\\\-]*var\\([^\\)]*button-primary-background[^\\)]*\\)\" /Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-button.mjs)",
       "Bash(grep -n \"^var style\\\\|^const style\\\\|style = \\\\`\" /Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-button.mjs)",
       "WebFetch(domain:primeng.org)",
-      "Bash(curl -s -i -X POST http://localhost:4200/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"{__typename}\"}')"
+      "Bash(curl -s -i -X POST http://localhost:4200/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"{__typename}\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"mutation { login\\(username: \\\\\"admin\\\\\", password: \\\\\"wrongpass\\\\\"\\) { accessToken } }\"}')",
+      "Bash(timeout 10 curl -s -i -X POST http://localhost:8080/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"mutation { refreshToken { accessToken } }\"}')",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(curl -s --max-time 8 -i -X POST http://localhost:8080/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"mutation { refreshToken { accessToken } }\"}')",
+      "Bash(echo \"CURL_EXIT: $?\")",
+      "Bash(pkill -f \"ng serve\")"
     ],
     "additionalDirectories": [
       "/private/tmp"
