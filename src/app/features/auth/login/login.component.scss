@@ -25,14 +25,34 @@
   padding: $spacing-lg $spacing-lg $spacing-xl;
   background: linear-gradient(155deg, #0f1c3d 0%, $color-primary 60%, $color-accent 100%);
   color: #fff;
+  position: relative;
+  overflow: hidden;
 
   @include desktop {
     display: none;
   }
 }
 
-.login__logo-mark {
-  font-size: 32px;
+.login__mobile-header-deco {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  &--top {
+    top: -40px;
+    right: -40px;
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &--bottom {
+    bottom: -20px;
+    left: -20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(14, 159, 110, 0.1);
+  }
 }
 
 .login__logo-name {

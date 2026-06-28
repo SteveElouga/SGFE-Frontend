@@ -1,13 +1,37 @@
-<div class="auth-brand">
-  <div class="auth-brand__logo">
-    <span class="auth-brand__logo-mark">💧</span>
-    <div>
-      <div class="auth-brand__logo-name">AquaBill</div>
-      <div class="auth-brand__logo-tagline">Gestion de distribution d'eau</div>
-    </div>
-  </div>
+<div class="auth-brand__deco auth-brand__deco--top"></div>
+<div class="auth-brand__deco auth-brand__deco--bottom"></div>
+<div class="auth-brand__deco auth-brand__deco--accent"></div>
 
-  <div class="auth-brand__pitch">
-    <ng-content />
+<div class="auth-brand__logo">
+  <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
+    <path
+      d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z"
+      fill="white"
+      fill-opacity=".95"
+    />
+    <path
+      d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z"
+      fill="#0e9f6e"
+      fill-opacity=".8"
+    />
+  </svg>
+  <div>
+    <div class="auth-brand__logo-name">AquaBill</div>
+    <div class="auth-brand__logo-tagline">Gestion de distribution d'eau</div>
   </div>
 </div>
+
+<div class="auth-brand__pitch">
+  <ng-content />
+</div>
+
+<svg class="auth-brand__wave" viewBox="0 0 440 72" preserveAspectRatio="none">
+  <path
+    d="M0 50 C80 20 180 65 280 40 C360 20 420 55 440 35 L440 72 L0 72Z"
+    fill="rgba(255,255,255,.05)"
+  />
+  <path
+    d="M0 60 C100 40 200 72 320 55 C390 44 430 65 440 50 L440 72 L0 72Z"
+    fill="rgba(255,255,255,.04)"
+  />
+</svg>

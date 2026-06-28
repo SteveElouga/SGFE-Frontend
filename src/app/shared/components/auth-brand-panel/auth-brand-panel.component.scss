@@ -17,16 +17,42 @@
   }
 }
 
+.auth-brand__deco {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  &--top {
+    top: -80px;
+    right: -80px;
+    width: 260px;
+    height: 260px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  &--bottom {
+    bottom: 60px;
+    left: -60px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  &--accent {
+    top: 180px;
+    right: -30px;
+    width: 120px;
+    height: 120px;
+    background: rgba(14, 159, 110, 0.15);
+  }
+}
+
 .auth-brand__logo {
   display: flex;
   align-items: center;
   gap: $spacing-sm;
   margin-bottom: auto;
   position: relative;
-}
-
-.auth-brand__logo-mark {
-  font-size: 32px;
 }
 
 .auth-brand__logo-name {
@@ -43,4 +69,12 @@
 .auth-brand__pitch {
   margin: auto 0;
   position: relative;
+}
+
+.auth-brand__wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: block;
 }
