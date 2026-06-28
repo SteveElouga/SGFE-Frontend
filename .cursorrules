@@ -1,0 +1,469 @@
+# .cursorrules — Frontend Angular 22
+# Système de Gestion de Facturation d'Eau
+# PWA Mobile-first + GraphQL + Signals
+
+## CONTEXTE
+
+Tu travailles sur le frontend Angular 22 d'un système de gestion de facturation d'eau.
+C'est une PWA mobile-first utilisée par des agents de terrain sur smartphone.
+L'API est GraphQL (Apollo Client) — un seul endpoint /graphql.
+
+Lis toujours le fichier CLAUDE.md avant de commencer.
+
+---
+
+## RÈGLES ABSOLUES — NE JAMAIS ENFREINDRE
+
+### Angular 22 — Fonctionnalités obligatoires
+- TOUJOURS utiliser les Signals pour l'état — JAMAIS NgRx, BehaviorSubject ou Subject pour l'état local
+- TOUJOURS utiliser Signal Forms — JAMAIS ReactiveFormsModule ni FormsModule
+- TOUJOURS créer des Selectorless Components — JAMAIS de `selector: 'app-...'`
+- TOUJOURS utiliser l'architecture Zoneless — JAMAIS importer zone.js
+- TOUJOURS utiliser `inject()` — JAMAIS le constructeur pour l'injection de dépendances
+- TOUJOURS utiliser `standalone: true` — JAMAIS de NgModules
+
+### GraphQL
+- TOUJOURS passer par Apollo Client pour les données — JAMAIS d'appels HTTP directs
+- TOUJOURS définir les queries et mutations dans src/app/graphql/
+- JAMAIS de logique métier dans les queries GraphQL
+- TOUJOURS gérer les états loading, error et success
+
+### Sécurité
+- JAMAIS de JWT dans le localStorage (XSS) — utiliser les cookies httpOnly ou la mémoire
+- JAMAIS de logique de rôle dans les templates — utiliser les guards et les Signals
+- JAMAIS d'appels GraphQL sans vérification du token
+
+### TypeScript
+- TOUJOURS typer explicitement — `any` est interdit
+- TOUJOURS utiliser les interfaces pour les modèles GraphQL
+- TOUJOURS utiliser les types stricts TypeScript 5.9
+
+---
+
+## ARCHITECTURE ANGULAR 22
+
+### Structure des composants
+
+```typescript
+// ✅ BON — Composant Angular 22 complet
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Apollo } from 'apollo-angular';
+
+@Component({
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    @if (loading()) {
+      <app-loading />
+    } @else if (error()) {
+      <app-error-message [message]="error()!" />
+    } @else {
+      <div class="liste">
+        @for (item of items(); track item.id) {
+          <div class="item">{{ item.nom }}</div>
+        }
+      </div>
+    }
+  `,
+})
+export class MonComposant implements OnInit {
+  private apollo = inject(Apollo);
+
+  // Signals
+  items = signal<MonType[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
+
+  // Computed
+  nbItems = computed(() => this.items().length);
+
+  ngOnInit(): void {
+    this.charger();
+  }
+
+  private charger(): void {
+    this.loading.set(true);
+    this.error.set(null);
+    // appel Apollo...
+  }
+}
+```
+
+### Formulaires avec Signal Forms
+
+```typescript
+// ✅ BON — Signal Forms Angular 22
+import { signalForm, signalInput, required, min } from '@angular/forms';
+
+@Component({ standalone: true, template: `...` })
+export class SaisirIndexComponent {
+  form = signalForm({
+    nouveauIndex: signalInput<number>({
+      validators: [required(), min(0)],
+    }),
+    observation: signalInput<string | null>({ initialValue: null }),
+  });
+
+  soumettre(): void {
+    if (!this.form.valid()) return;
+    const valeurs = this.form.value();
+    // traitement...
+  }
+}
+
+// ❌ MAUVAIS — NE PAS UTILISER
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+// ReactiveFormsModule est obsolète en Angular 22
+```
+
+### Injection de dépendances
+
+```typescript
+// ✅ BON — inject() dans Angular 22
+export class MonService {
+  private apollo = inject(Apollo);
+  private auth = inject(AuthService);
+  private router = inject(Router);
+}
+
+// ❌ MAUVAIS — constructeur (ancienne façon)
+export class MonService {
+  constructor(private apollo: Apollo) {}
+}
+```
+
+### Syntax des templates Angular 22
+
+```html
+<!-- ✅ BON — Nouvelle syntax @if @for @switch (Angular 22) -->
+@if (isLoading()) {
+  <app-spinner />
+} @else if (hasError()) {
+  <p class="erreur">{{ errorMessage() }}</p>
+} @else {
+  @for (abonne of abonnes(); track abonne.id) {
+    <app-abonne-card [abonne]="abonne" />
+  } @empty {
+    <p>Aucun abonné trouvé</p>
+  }
+}
+
+<!-- ❌ MAUVAIS — Ancienne syntax (Angular < 17) -->
+<div *ngIf="isLoading">...</div>
+<div *ngFor="let abonne of abonnes">...</div>
+```
+
+---
+
+## MOBILE-FIRST OBLIGATOIRE
+
+### Règle des 3 taps (interface terrain)
+
+L'interface agent doit être utilisable en maximum 3 interactions.
+Toujours designer pour les pouces, pas pour la souris.
+
+```scss
+// ✅ BON — Mobile-first
+.bouton-action {
+  // Mobile (défaut — toujours en premier)
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  min-height: 56px;   // Taille minimale pour les doigts
+
+  // Tablet+
+  @include tablet {
+    width: auto;
+    padding: 12px 24px;
+  }
+}
+
+// ❌ MAUVAIS — Desktop-first (à éviter)
+.bouton-action {
+  width: auto;
+  @media (max-width: 768px) { width: 100%; }
+}
+```
+
+### Tailles minimales des éléments interactifs
+
+```scss
+// Toujours appliquer ces minimums pour le tactile terrain
+button, a, [role="button"] {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+// Champ de saisie d'index — clavier numérique
+input[type="number"] {
+  font-size: 2rem;        // Lisible sur petit écran
+  text-align: center;
+  padding: 16px;
+  inputmode: numeric;     // Ouvre le clavier numérique sur mobile
+}
+```
+
+---
+
+## GRAPHQL — PATTERNS OBLIGATOIRES
+
+### Définition des queries
+
+```typescript
+// ✅ BON — Query GraphQL typée
+import { gql } from '@apollo/client/core';
+import { TypedDocumentNode } from '@apollo/client/core';
+
+interface GetAbonnesData {
+  abonnes: Abonne[];
+}
+interface GetAbonnesVariables {
+  statut?: StatutAbonne;
+}
+
+export const GET_ABONNES: TypedDocumentNode<GetAbonnesData, GetAbonnesVariables> = gql`
+  query GetAbonnes($statut: StatutAbonne) {
+    abonnes(statut: $statut) {
+      id
+      numeroAbonne
+      nom
+      prenom
+      telephoneWhatsapp
+      statut
+      compteur {
+        numeroCompteur
+        quartier
+        camp
+      }
+    }
+  }
+`;
+```
+
+### Utilisation Apollo avec Signals
+
+```typescript
+// ✅ BON — Pattern Apollo + Signals complet
+export class AbonnesComponent implements OnInit {
+  private apollo = inject(Apollo);
+
+  abonnes = signal<Abonne[]>([]);
+  loading = signal(false);
+  error = signal<string | null>(null);
+
+  ngOnInit(): void { this.chargerAbonnes(); }
+
+  chargerAbonnes(): void {
+    this.loading.set(true);
+    this.apollo
+      .watchQuery({ query: GET_ABONNES })
+      .valueChanges
+      .subscribe({
+        next: ({ data, loading }) => {
+          this.abonnes.set(data.abonnes);
+          this.loading.set(loading);
+        },
+        error: (err) => {
+          this.error.set('Impossible de charger les abonnés');
+          this.loading.set(false);
+          console.error(err);
+        },
+      });
+  }
+
+  executerMutation(input: SaisirIndexInput): void {
+    this.apollo.mutate({
+      mutation: SAISIR_INDEX,
+      variables: { input },
+      // Mettre à jour le cache Apollo après mutation
+      refetchQueries: [{ query: GET_PROGRESSION, variables: { campagneId: input.campagneId } }],
+    }).subscribe({
+      next: () => { /* succès */ },
+      error: () => { this.error.set('Erreur lors de la saisie'); },
+    });
+  }
+}
+```
+
+---
+
+## GESTION DES RÔLES — PATTERNS
+
+### Guard de rôle
+
+```typescript
+// core/auth/role.guard.ts
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthService } from './auth.service';
+
+export function roleGuard(roles: Role[]): CanActivateFn {
+  return () => {
+    const auth = inject(AuthService);
+    const router = inject(Router);
+
+    if (roles.includes(auth.role()!)) return true;
+
+    router.navigate(['/non-autorise']);
+    return false;
+  };
+}
+```
+
+### Affichage conditionnel par rôle dans les templates
+
+```typescript
+// ✅ BON — Signal pour le rôle dans le template
+@Component({
+  template: `
+    @if (auth.isAdmin()) {
+      <button (click)="cloturerCampagne()">Clôturer</button>
+    }
+    @if (auth.isAgent()) {
+      <button (click)="saisirIndex()">Saisir Index</button>
+    }
+  `
+})
+export class CampagneComponent {
+  auth = inject(AuthService);
+}
+```
+
+---
+
+## GESTION DES ERREURS — STANDARD
+
+```typescript
+// ✅ BON — Gestion d'erreur GraphQL structurée
+import { ApolloError } from '@apollo/client/core';
+
+function extraireMessageErreur(error: ApolloError): string {
+  if (error.graphQLErrors.length > 0) {
+    return error.graphQLErrors[0].message;
+  }
+  if (error.networkError) {
+    return 'Erreur réseau. Vérifiez votre connexion.';
+  }
+  return 'Une erreur inattendue est survenue.';
+}
+```
+
+---
+
+## PERFORMANCE — RÈGLES OBLIGATOIRES
+
+```typescript
+// ✅ Toujours utiliser trackBy dans @for
+@for (item of items(); track item.id) { ... }
+
+// ✅ Toujours lazy-loader les routes
+loadComponent: () => import('./feature/feature.component')
+
+// ✅ Toujours utiliser OnPush (défaut Angular 22, mais expliciter)
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  ...
+})
+
+// ✅ Images — toujours spécifier width et height pour éviter le layout shift
+<img [src]="logo" width="120" height="40" alt="Logo société" loading="lazy" />
+```
+
+---
+
+## ACCESSIBILITÉ — OBLIGATOIRE (interface terrain)
+
+```html
+<!-- ✅ Toujours des labels pour les inputs -->
+<label for="nouveauIndex">Nouvel index (m³)</label>
+<input id="nouveauIndex" type="number" inputmode="numeric"
+       aria-describedby="aide-index" />
+<span id="aide-index">Valeur affichée sur le compteur</span>
+
+<!-- ✅ Boutons avec aria-label si pas de texte visible -->
+<button aria-label="Confirmer la saisie" (click)="valider()">✓</button>
+
+<!-- ✅ Feedback sonore/visuel après action -->
+<div role="status" aria-live="polite">{{ feedbackMessage() }}</div>
+```
+
+---
+
+## TESTS — VITEST (défaut Angular 22)
+
+```typescript
+// ✅ BON — Test avec Vitest
+import { describe, it, expect, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+
+describe('CampagneService', () => {
+  it('doit calculer la consommation correctement', () => {
+    const consommation = calculerConsommation(100, 115);
+    expect(consommation).toBe(15);
+  });
+
+  it('doit rejeter si nouveau index inférieur à ancien', () => {
+    expect(() => calculerConsommation(200, 100)).toThrow();
+  });
+});
+
+// Configuration vite.config.ts
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['src/test-setup.ts'],
+  },
+});
+```
+
+---
+
+## PIPES MÉTIER — À CRÉER
+
+```typescript
+// shared/pipes/fcfa.pipe.ts
+import { Pipe, PipeTransform } from '@angular/core';
+
+@Pipe({ name: 'fcfa', standalone: true, pure: true })
+export class FcfaPipe implements PipeTransform {
+  transform(valeur: number): string {
+    return new Intl.NumberFormat('fr-CM', {
+      style: 'decimal',
+      minimumFractionDigits: 0,
+    }).format(valeur) + ' FCFA';
+  }
+}
+
+// Usage : {{ facture.montant | fcfa }}
+// Résultat : "6 000 FCFA"
+
+// shared/pipes/m3.pipe.ts
+@Pipe({ name: 'm3', standalone: true, pure: true })
+export class M3Pipe implements PipeTransform {
+  transform(valeur: number): string {
+    return `${valeur} m³`;
+  }
+}
+// Usage : {{ releve.consommation | m3 }}
+// Résultat : "12 m³"
+```
+
+---
+
+## CE QUE CURSOR NE DOIT PAS FAIRE
+
+- Ne pas créer de NgModules (Angular 22 = standalone uniquement)
+- Ne pas utiliser NgRx ou BehaviorSubject pour l'état local
+- Ne pas utiliser ReactiveFormsModule ou FormsModule
+- Ne pas mettre de selector dans les composants
+- Ne pas utiliser zone.js
+- Ne pas utiliser le constructeur pour l'injection de dépendances
+- Ne pas utiliser *ngIf, *ngFor, *ngSwitch (ancienne syntaxe)
+- Ne pas faire d'appels HTTP directs (tout passe par Apollo GraphQL)
+- Ne pas stocker le JWT dans le localStorage
+- Ne pas utiliser `any` dans les types TypeScript
+- Ne pas créer de composants non-responsive (toujours mobile-first)
+- Ne pas ignorer les états loading et error
+- Ne pas utiliser Karma (Vitest est le défaut Angular 22)

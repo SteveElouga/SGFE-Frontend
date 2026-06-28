@@ -1,0 +1,121 @@
+# .cursorignore — Frontend Angular 22
+# Système de Gestion de Facturation d'Eau
+
+# =============================================
+# DÉPENDANCES — NE PAS INDEXER
+# =============================================
+
+node_modules/
+.pnp
+.pnp.js
+
+# =============================================
+# BUILD ET CACHE ANGULAR
+# =============================================
+
+# Build de production
+dist/
+build/
+
+# Cache Angular CLI (Vite/ESBuild)
+.angular/
+.angular/cache/
+
+# Cache Vite
+.vite/
+
+# =============================================
+# FICHIERS GÉNÉRÉS — NE PAS INDEXER
+# =============================================
+
+# Fichiers Apollo générés (si codegen utilisé)
+src/app/graphql/generated/
+**/*.generated.ts
+
+# Types GraphQL générés automatiquement
+src/app/graphql/types.ts
+
+# Service Worker généré par Angular PWA
+src/ngsw-worker.js
+ngsw.json
+src/ngsw.json
+
+# =============================================
+# COUVERTURE ET RAPPORTS DE TESTS
+# =============================================
+
+coverage/
+.nyc_output/
+
+# Rapports Vitest
+vitest-report/
+test-results/
+
+# =============================================
+# FICHIERS SENSIBLES
+# =============================================
+
+# Variables d'environnement avec vraies valeurs
+.env
+.env.local
+.env.development.local
+.env.production.local
+
+# Fichiers d'environnement Angular avec secrets
+src/environments/environment.local.ts
+src/environments/environment.secrets.ts
+
+# =============================================
+# ASSETS VOLUMINEUX — INUTILES POUR L'IA
+# =============================================
+
+# Images et icônes (l'IA n'a pas besoin de les indexer)
+src/assets/icons/
+src/assets/images/
+src/assets/logo/
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+**/*.svg
+**/*.ico
+
+# Polices
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+
+# =============================================
+# FICHIERS SYSTÈMES
+# =============================================
+
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# =============================================
+# LOGS ET TEMPORAIRES
+# =============================================
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =============================================
+# GARDER (fichiers importants à indexer)
+# =============================================
+
+# Ces fichiers DOIVENT être indexés par Cursor :
+# src/app/**/*.ts          (composants, services, guards)
+# src/app/**/*.html        (templates)
+# src/app/**/*.scss        (styles)
+# src/environments/*.ts    (config sans secrets)
+# angular.json             (configuration Angular CLI)
+# tsconfig.json            (configuration TypeScript)
+# vite.config.ts           (configuration Vitest)
+# package.json             (dépendances)
+# CLAUDE.md                (contexte projet)
+# .cursorrules             (règles Cursor)

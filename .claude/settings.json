@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx -y @angular/cli@latest new --help)",
+      "Bash(npx -y @angular/cli@latest new sgfe-frontend --directory=. --routing --style=scss --zoneless --test-runner=vitest --skip-git --defaults --package-manager=npm --dry-run)",
+      "Bash(npx -y @angular/cli@latest new sgfe-frontend --directory=. --routing --style=scss --zoneless --ssr=false --test-runner=vitest --defaults --package-manager=npm)"
+    ]
+  }
+}
