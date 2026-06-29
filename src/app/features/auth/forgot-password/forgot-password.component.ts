@@ -1,12 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
 import { AuthService } from '../../../core/auth/auth.service';
 import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 import { AuthMobileNavComponent } from '../../../shared/components/auth-mobile-nav/auth-mobile-nav.component';
+import { AuthBackLinkComponent } from '../../../shared/components/auth-back-link/auth-back-link.component';
+import { AuthFieldComponent } from '../../../shared/components/auth-field/auth-field.component';
+import { AuthErrorMessageComponent } from '../../../shared/components/auth-error-message/auth-error-message.component';
+import { AuthSubmitButtonComponent } from '../../../shared/components/auth-submit-button/auth-submit-button.component';
+import { AuthSuccessHeaderComponent } from '../../../shared/components/auth-success-header/auth-success-header.component';
 
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@');
@@ -20,12 +22,14 @@ function maskEmail(email: string): string {
 @Component({
   imports: [
     FormsModule,
-    RouterLink,
-    ButtonModule,
     InputTextModule,
-    MessageModule,
     AuthBrandPanelComponent,
     AuthMobileNavComponent,
+    AuthBackLinkComponent,
+    AuthFieldComponent,
+    AuthErrorMessageComponent,
+    AuthSubmitButtonComponent,
+    AuthSuccessHeaderComponent,
   ],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.scss',

@@ -154,12 +154,6 @@
   margin: 0 0 $spacing-sm;
 }
 
-.login__field-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
 .login__forgot {
   color: $color-primary;
   text-decoration: none;
@@ -167,22 +161,8 @@
   font-weight: 400;
 }
 
-.login__field {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-  font-weight: 500;
-  font-size: 13px;
-  color: #374151;
-}
-
 .login__icon--invalid {
   color: $color-error;
-}
-
-.login__submit {
-  width: 100%;
-  display: block;
 }
 
 .login__roles {

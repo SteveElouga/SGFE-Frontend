@@ -1,0 +1,19 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mobile' as *;
+
+.auth-back-link {
+  text-align: center;
+  color: $color-primary;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+:host(.auth-back-link--desktop-only) {
+  display: none;
+
+  @include desktop {
+    display: block;
+    text-align: left;
+    margin-bottom: $spacing-lg;
+  }
+}

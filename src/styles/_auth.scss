@@ -34,27 +34,18 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+}
 
-  h2 {
-    font-size: 26px;
-    font-weight: 700;
-    margin: 0 0 $spacing-xs;
-    color: #0f172a;
-  }
+.auth-screen__form h2 {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 $spacing-xs;
+  color: #0f172a;
 }
 
 .auth-screen__subtitle {
   color: #64748b;
   margin: 0 0 $spacing-sm;
-}
-
-.auth-screen__field {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-  font-weight: 500;
-  font-size: 13px;
-  color: #374151;
 }
 
 .auth-screen__hint {
@@ -63,28 +54,6 @@
 
   &--error {
     color: $color-error;
-  }
-}
-
-.auth-screen__submit {
-  width: 100%;
-  display: block;
-}
-
-.auth-screen__back {
-  text-align: center;
-  color: $color-primary;
-  text-decoration: none;
-  font-size: 13px;
-}
-
-.auth-screen__back--desktop {
-  display: none;
-
-  @include desktop {
-    display: block;
-    text-align: left;
-    margin-bottom: $spacing-lg;
   }
 }
 

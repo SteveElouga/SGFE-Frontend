@@ -7,45 +7,22 @@
     <div class="auth-brand__divider"></div>
     <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
     <ul class="login__checklist">
-      <li>
-        <span class="login__check"
-          ><svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path
-              d="M2 6.5l3 3 6-6"
-              stroke="#0e9f6e"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            /></svg
-        ></span>
-        Relevés terrain sur mobile (PWA)
-      </li>
-      <li>
-        <span class="login__check"
-          ><svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path
-              d="M2 6.5l3 3 6-6"
-              stroke="#0e9f6e"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            /></svg
-        ></span>
-        Facturation et envoi WhatsApp auto
-      </li>
-      <li>
-        <span class="login__check"
-          ><svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-            <path
-              d="M2 6.5l3 3 6-6"
-              stroke="#0e9f6e"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            /></svg
-        ></span>
-        Suivi des impayés en temps réel
-      </li>
+      @for (item of checklist; track item) {
+        <li>
+          <span class="login__check">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path
+                d="M2 6.5l3 3 6-6"
+                stroke="#0e9f6e"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          {{ item }}
+        </li>
+      }
     </ul>
   </app-auth-brand-panel>
 
@@ -75,8 +52,7 @@
       <h2>Bon retour 👋</h2>
       <p class="login__subtitle">Connectez-vous à votre espace de travail</p>
 
-      <label class="login__field" for="username">
-        <span>Nom d'utilisateur</span>
+      <app-auth-field label="Nom d'utilisateur">
         <p-iconfield>
           <p-inputicon styleClass="pi pi-user" />
           <input
@@ -91,13 +67,12 @@
             name="username"
           />
         </p-iconfield>
-      </label>
+      </app-auth-field>
 
-      <label class="login__field" for="password">
-        <div class="login__field-row">
-          <span>Mot de passe</span>
-          <a class="login__forgot" routerLink="/forgot-password">Mot de passe oublié ?</a>
-        </div>
+      <app-auth-field label="Mot de passe">
+        <a authFieldExtra class="login__forgot" routerLink="/forgot-password">
+          Mot de passe oublié ?
+        </a>
         <p-iconfield>
           <p-inputicon
             [styleClass]="'pi pi-lock' + (errorMessage() ? ' login__icon--invalid' : '')"
@@ -114,30 +89,11 @@
             name="password"
           />
         </p-iconfield>
-      </label>
+      </app-auth-field>
 
-      @if (errorMessage()) {
-        <p-message
-          severity="error"
-          size="small"
-          icon="pi pi-exclamation-circle"
-          [text]="errorMessage()!"
-          [closable]="true"
-        />
-      }
+      <app-auth-error-message [text]="errorMessage()" />
 
-      <p-button
-        type="submit"
-        label="Se connecter"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        [loading]="loading()"
-        [disabled]="!canSubmit()"
-        [raised]="true"
-        styleClass="login__submit w-full"
-        loadingIcon="pi pi-spinner pi-spin"
-        [style]="{ width: '100%' }"
-      />
+      <app-auth-submit-button label="Se connecter" [loading]="loading()" [disabled]="!canSubmit()" />
 
       <div class="login__roles">
         <span>ACCÈS SELON VOTRE RÔLE</span>

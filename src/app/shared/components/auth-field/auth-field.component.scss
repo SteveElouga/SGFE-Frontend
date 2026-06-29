@@ -1,0 +1,16 @@
+@use '../../../../styles/variables' as *;
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  font-weight: 500;
+  font-size: 13px;
+  color: #374151;
+}
+
+.auth-field__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}

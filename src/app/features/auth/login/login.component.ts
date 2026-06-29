@@ -1,15 +1,16 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { MessageModule } from 'primeng/message';
 import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/models/user.model';
 import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
+import { AuthFieldComponent } from '../../../shared/components/auth-field/auth-field.component';
+import { AuthErrorMessageComponent } from '../../../shared/components/auth-error-message/auth-error-message.component';
+import { AuthSubmitButtonComponent } from '../../../shared/components/auth-submit-button/auth-submit-button.component';
 
 const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
   ADMIN: '/dashboard',
@@ -22,18 +23,25 @@ const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
   imports: [
     FormsModule,
     RouterLink,
-    ButtonModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
     PasswordModule,
-    MessageModule,
     AuthBrandPanelComponent,
+    AuthFieldComponent,
+    AuthErrorMessageComponent,
+    AuthSubmitButtonComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  readonly checklist = [
+    'Relevés terrain sur mobile (PWA)',
+    'Facturation et envoi WhatsApp auto',
+    'Suivi des impayés en temps réel',
+  ];
+
   readonly username = signal('');
   readonly password = signal('');
   readonly loading = signal(false);
