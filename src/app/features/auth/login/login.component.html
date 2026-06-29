@@ -4,7 +4,7 @@
       Gérez votre<br />
       <strong>distribution d'eau</strong>
     </h1>
-    <div class="login__divider"></div>
+    <div class="auth-brand__divider"></div>
     <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
     <ul class="login__checklist">
       <li>
@@ -122,6 +122,7 @@
           size="small"
           icon="pi pi-exclamation-circle"
           [text]="errorMessage()!"
+          [closable]="true"
         />
       }
 
@@ -133,7 +134,9 @@
         [loading]="loading()"
         [disabled]="!canSubmit()"
         [raised]="true"
-        styleClass="login__submit"
+        styleClass="login__submit w-full"
+        loadingIcon="pi pi-spinner pi-spin"
+        [style]="{ width: '100%' }"
       />
 
       <div class="login__roles">

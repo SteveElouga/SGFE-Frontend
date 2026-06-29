@@ -65,34 +65,6 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-h1 {
-  font-size: 38px;
-  font-weight: 300;
-  line-height: 1.25;
-  margin: 0 0 8px;
-  color: rgba(255, 255, 255, 0.9);
-
-  strong {
-    font-weight: 700;
-    color: #fff;
-  }
-}
-
-.login__divider {
-  width: 48px;
-  height: 3px;
-  background: $color-accent;
-  border-radius: 2px;
-  margin: 0 0 20px;
-}
-
-.auth-brand__pitch > p {
-  font-size: 15px;
-  line-height: 1.65;
-  color: rgba(255, 255, 255, 0.65);
-  margin: 0 0 36px;
-}
-
 .login__checklist {
   list-style: none;
   padding: 0;

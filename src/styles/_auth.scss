@@ -92,3 +92,33 @@
   color: #64748b;
   line-height: 1.6;
 }
+
+.auth-brand__pitch {
+  h1 {
+    font-size: 38px;
+    font-weight: 300;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    color: rgba(255, 255, 255, 0.9);
+
+    strong {
+      font-weight: 700;
+      color: #fff;
+    }
+  }
+
+  > p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 36px;
+  }
+}
+
+.auth-brand__divider {
+  width: 48px;
+  height: 3px;
+  background: $color-accent;
+  border-radius: 2px;
+  margin: 0 0 20px;
+}

@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -36,10 +36,10 @@ export class ForgotPasswordComponent {
   readonly submitted = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  readonly auth = inject(AuthService);
+
   readonly canSubmit = computed(() => this.email().trim().length > 0 && !this.loading());
   readonly maskedEmail = computed(() => maskEmail(this.email().trim()));
-
-  constructor(private readonly auth: AuthService) {}
 
   async onSubmit(): Promise<void> {
     if (!this.canSubmit()) {

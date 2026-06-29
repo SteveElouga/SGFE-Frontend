@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -39,14 +39,12 @@ export class LoginComponent {
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  readonly auth = inject(AuthService);
+  readonly router = inject(Router);
+
   readonly canSubmit = computed(
     () => this.username().trim().length > 0 && this.password().length > 0 && !this.loading(),
   );
-
-  constructor(
-    private readonly auth: AuthService,
-    private readonly router: Router,
-  ) {}
 
   async onSubmit(): Promise<void> {
     if (!this.canSubmit()) {

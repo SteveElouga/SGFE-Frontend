@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -62,10 +62,9 @@ export class SetPasswordComponent {
       this.password() === this.confirmPassword(),
   );
 
-  constructor(
-    route: ActivatedRoute,
-    private readonly auth: AuthService,
-  ) {
+  readonly auth = inject(AuthService);
+
+  constructor(route: ActivatedRoute) {
     this.mode = (route.snapshot.data['mode'] as SetPasswordMode) ?? 'reset';
     this.token = route.snapshot.queryParamMap.get('token');
     this.copy = COPY[this.mode];

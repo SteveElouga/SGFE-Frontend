@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
@@ -32,7 +32,7 @@ export class AuthService {
   isAgent = computed(() => this.role() === 'AGENT');
   isComptable = computed(() => this.role() === 'COMPTABLE');
 
-  constructor(private readonly apolloClient: Apollo) {}
+  private readonly apolloClient = inject(Apollo);
 
   accessToken(): string | null {
     return this._accessToken();
