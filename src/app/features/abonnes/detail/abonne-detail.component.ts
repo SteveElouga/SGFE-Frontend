@@ -125,7 +125,11 @@ export class AbonneDetailComponent {
       .subscribe({
         next: ({ data, loading }) => {
           this.loading.set(loading);
-          if (data?.abonne) this.abonne.set(data.abonne as Abonne);
+          if (data?.abonne) {
+            this.abonne.set(data.abonne as Abonne);
+          } else if (!loading) {
+            this.error.set(this.translate.instant('ERRORS.LOAD_ABONNE'));
+          }
         },
         error: (err: unknown) => {
           const { code, message } = extractGqlError(err);

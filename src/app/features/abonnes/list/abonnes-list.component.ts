@@ -132,9 +132,20 @@ export class AbonnesListComponent implements OnInit {
 
     this.abonnesQuery.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(({ data, loading }) => {
-        this.loading.set(loading);
-        if (data?.abonnes) this.abonnes.set(data.abonnes as Abonne[]);
+      .subscribe({
+        next: ({ data, loading }) => {
+          this.loading.set(loading);
+          if (data?.abonnes) {
+            this.abonnes.set(data.abonnes as Abonne[]);
+          } else if (!loading) {
+            this.error.set(this.translate.instant('ERRORS.LOAD_ABONNES'));
+          }
+        },
+        error: (err: unknown) => {
+          const { message } = extractGqlError(err);
+          this.error.set(message || this.translate.instant('ERRORS.LOAD_ABONNES'));
+          this.loading.set(false);
+        },
       });
 
     this.abonnesQuery.subscribeToMore<{ abonneUpdated: Abonne }>({
