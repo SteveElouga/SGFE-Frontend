@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 import { AuthMobileNavComponent } from '../../../shared/components/auth-mobile-nav/auth-mobile-nav.component';
@@ -21,6 +22,7 @@ const OTP_VALIDITY_SECONDS = 600; // 10 minutes
   selector: 'app-activate-otp',
   imports: [
     RouterLink,
+    FormsModule,
     AuthBrandPanelComponent,
     AuthMobileNavComponent,
     AuthFieldComponent,
