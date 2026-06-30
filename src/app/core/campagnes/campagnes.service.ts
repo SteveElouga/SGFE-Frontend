@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { Apollo } from 'apollo-angular';
+import { Apollo, QueryRef } from 'apollo-angular';
 import {
   Campagne,
   CreateCampagneInput,
@@ -29,21 +29,15 @@ import {
 export class CampagnesService {
   private readonly apollo = inject(Apollo);
 
-  async getCampagnes(): Promise<Campagne[]> {
-    const result = await firstValueFrom(
-      this.apollo.query<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES }),
-    );
-    return result.data!.campagnes;
+  watchCampagnes(): QueryRef<{ campagnes: Campagne[] }> {
+    return this.apollo.watchQuery<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES });
   }
 
-  async getCampagne(campagneId: string): Promise<Campagne> {
-    const result = await firstValueFrom(
-      this.apollo.query<{ campagne: Campagne }>({
-        query: GET_CAMPAGNE,
-        variables: { campagneId },
-      }),
-    );
-    return result.data!.campagne;
+  watchCampagne(campagneId: string): QueryRef<{ campagne: Campagne }> {
+    return this.apollo.watchQuery<{ campagne: Campagne }>({
+      query: GET_CAMPAGNE,
+      variables: { campagneId },
+    });
   }
 
   async getReleves(campagneId: string): Promise<Releve[]> {
@@ -51,7 +45,6 @@ export class CampagnesService {
       this.apollo.query<{ releves: Releve[] }>({
         query: GET_RELEVES,
         variables: { campagneId },
-        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.releves;
@@ -62,7 +55,6 @@ export class CampagnesService {
       this.apollo.query<{ progression: Progression }>({
         query: GET_PROGRESSION,
         variables: { campagneId },
-        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.progression;
@@ -85,16 +77,7 @@ export class CampagnesService {
         variables: { input },
       }),
     );
-    const created = result.data!.creerCampagne;
-    // Ajouter au cache list
-    const cached = this.apollo.client.readQuery<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES });
-    if (cached) {
-      this.apollo.client.writeQuery({
-        query: GET_CAMPAGNES,
-        data: { campagnes: [created, ...cached.campagnes] },
-      });
-    }
-    return created;
+    return result.data!.creerCampagne;
   }
 
   async affecterAgent(campagneId: string, agentId: string): Promise<Campagne> {
@@ -107,27 +90,13 @@ export class CampagnesService {
     return result.data!.affecterAgent;
   }
 
-  async cloturerCampagne(campagneId: string): Promise<Campagne> {
-    const result = await firstValueFrom(
+  async cloturerCampagne(campagneId: string): Promise<void> {
+    await firstValueFrom(
       this.apollo.mutate<{ cloturerCampagne: Campagne }>({
         mutation: CLOTURER_CAMPAGNE,
         variables: { campagneId },
       }),
     );
-    const updated = result.data!.cloturerCampagne;
-    // Patch le statut dans le cache list
-    const cached = this.apollo.client.readQuery<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES });
-    if (cached) {
-      this.apollo.client.writeQuery({
-        query: GET_CAMPAGNES,
-        data: {
-          campagnes: cached.campagnes.map((c) =>
-            c.campagneId === updated.campagneId ? { ...c, ...updated } : c,
-          ),
-        },
-      });
-    }
-    return updated;
   }
 
   async saisirIndex(input: SaisirIndexInput): Promise<Releve> {

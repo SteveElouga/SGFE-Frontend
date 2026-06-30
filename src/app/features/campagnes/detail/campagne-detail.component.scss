@@ -5,11 +5,11 @@
 
 .detail-page {
   padding: 0 $spacing-xl $spacing-xl;
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
-// ── Topbar ─────────────────────────────────────────────────────────────────
+// ── Fil d'ariane ─────────────────────────────────────────────────────────────
 
 .detail-topbar {
   display: flex;
@@ -42,19 +42,28 @@
 
 .detail-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
-  margin-bottom: $spacing-lg;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: $spacing-lg $spacing-xl;
+  margin-bottom: $spacing-md;
 }
 
-.detail-header__left {}
+.detail-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
 
 .detail-header__nom {
   font-size: 22px;
   font-weight: 700;
   color: #0f172a;
-  margin: 0 0 6px;
+  margin: 0;
 }
 
 .detail-header__meta {
@@ -63,16 +72,9 @@
   margin: 0;
 }
 
-.detail-header__meta-sep { margin: 0 6px; color: #cbd5e1; }
+.meta-sep { margin: 0 6px; color: #cbd5e1; }
 
-.detail-header__right {
-  display: flex;
-  align-items: center;
-  gap: $spacing-sm;
-  flex-shrink: 0;
-}
-
-// ── Statut badges ─────────────────────────────────────────────────────────────
+// ── Badges statut ─────────────────────────────────────────────────────────────
 
 .statut-badge {
   display: inline-flex;
@@ -84,98 +86,138 @@
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
+  flex-shrink: 0;
 
-  &--planifiee { background: #eff6ff; color: #1d4ed8; }
-  &--en_cours  { background: #f0fdf4; color: #16a34a; }
-  &--cloturee  { background: #f8fafc; color: #64748b; }
+  &--planifiee { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+  &--en_cours  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+  &--cloturee  { background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
 }
 
-// ── Onglets ───────────────────────────────────────────────────────────────────
+// ── Boutons ───────────────────────────────────────────────────────────────────
 
-.detail-tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 2px solid #e2e8f0;
-  margin-bottom: $spacing-lg;
-}
-
-.detail-tab {
-  background: none;
-  border: none;
-  padding: 10px 20px;
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
-  color: #64748b;
+  font-weight: 600;
   cursor: pointer;
-  position: relative;
-  transition: color 0.15s;
+  border: none;
+  flex-shrink: 0;
+  transition: background 0.15s;
 
-  &--active {
-    color: $color-primary;
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: $color-primary;
-      border-radius: 2px 2px 0 0;
-    }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--danger {
+    background: #dc2626;
+    color: #fff;
+    &:hover:not(:disabled) { background: #b91c1c; }
   }
-
-  &:hover:not(&--active) { color: #334155; }
 }
 
-// ── KPIs ──────────────────────────────────────────────────────────────────────
+// ── Carte de progression ──────────────────────────────────────────────────────
 
-.progress-kpis {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: $spacing-md;
-  margin-bottom: $spacing-lg;
-
-  @media (max-width: 700px) { grid-template-columns: repeat(2, 1fr); }
-}
-
-.kpi {
+.progress-card {
+  display: flex;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: $spacing-md;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  border-radius: 14px;
+  margin-bottom: $spacing-md;
+  overflow: hidden;
+  align-items: stretch;
 
-  &--success { border-left: 3px solid $color-accent; }
-  &--warn { border-left: 3px solid $color-warning; }
-  &--accent { border-left: 3px solid $color-primary; }
-
-  &__value {
-    font-size: 28px;
-    font-weight: 700;
-    color: #0f172a;
+  &__left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-xl;
+    min-width: 160px;
+    flex-shrink: 0;
+    border-right: 1px solid #f1f5f9;
+    background: #fafbff;
   }
 
-  &__label {
+  &__pct-wrap {
+    display: flex;
+    align-items: flex-start;
+    line-height: 1;
+  }
+
+  &__pct {
+    font-size: 64px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    letter-spacing: -3px;
+  }
+
+  &__pct-symbol {
+    font-size: 24px;
+    font-weight: 700;
+    color: #64748b;
+    padding-top: 12px;
+    margin-left: 2px;
+  }
+
+  &__sub {
     font-size: 12px;
     color: #64748b;
+    margin-top: 10px;
+    text-align: center;
     font-weight: 500;
+  }
+
+  &__right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: $spacing-lg $spacing-xl;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+    &__left {
+      border-right: none;
+      border-bottom: 1px solid #f1f5f9;
+      padding: $spacing-lg;
+      flex-direction: row;
+      gap: $spacing-md;
+      min-width: unset;
+    }
   }
 }
 
-// ── Barre de progression ──────────────────────────────────────────────────────
+// ── Label progression + barre ─────────────────────────────────────────────────
 
-.progress-bar-section {
+.progress-label-row {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  justify-content: space-between;
+}
+
+.progress-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.progress-pct-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-primary;
 }
 
 .progress-bar {
-  flex: 1;
+  width: 100%;
   height: 10px;
-  background: #f1f5f9;
+  background: #e2e8f0;
   border-radius: 999px;
   overflow: hidden;
 
@@ -189,11 +231,172 @@
   }
 }
 
-.progress-bar__label {
+// ── Boîtes de statistiques ────────────────────────────────────────────────────
+
+.stat-boxes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+
+  @media (max-width: 700px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-box {
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--releve     { background: #f0fdf4; .stat-box__value { color: #16a34a; } }
+  &--estime     { background: #fffbeb; .stat-box__value { color: #d97706; } }
+  &--non-releve { background: #fef2f2; .stat-box__value { color: #dc2626; } }
+  &--a-relever  { background: #f8fafc; .stat-box__value { color: #475569; } }
+}
+
+// ── Section relevés ───────────────────────────────────────────────────────────
+
+.releves-section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  &__filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}
+
+// ── Table relevés ─────────────────────────────────────────────────────────────
+
+.releves-table-wrap { overflow-x: auto; }
+
+.releves-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 13px;
-  font-weight: 600;
-  color: #374151;
+
+  thead th {
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #64748b;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  tbody tr:hover td { background: #f8fafc; }
+
+  &__row--muted td { color: #94a3b8; }
+}
+
+.col-abonne {
+  font-weight: 500;
+  min-width: 140px;
+
+  &--muted { color: #94a3b8 !important; font-weight: 400; }
+}
+
+.col-meta {
+  color: #64748b;
   white-space: nowrap;
+}
+
+.col-num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-anc-index { color: #94a3b8; }
+
+.col-nouv-index,
+.col-conso {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.col-dash { color: #cbd5e1; }
+
+.id-fallback {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+// ── Chips statut relevé ───────────────────────────────────────────────────────
+
+.releve-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &--releve                    { background: #dcfce7; color: #166534; }
+  &--estime                    { background: #e0e7ff; color: #3730a3; }
+  &--non_releve, &--non-releve { background: #fee2e2; color: #991b1b; }
+  &--a_relever, &--a-relever   { background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
+}
+
+.releves-empty-row {
+  text-align: center !important;
+  padding: 48px !important;
+  color: #94a3b8;
+
+  .pi { display: block; font-size: 28px; margin-bottom: 8px; }
 }
 
 // ── Squelettes ────────────────────────────────────────────────────────────────
@@ -203,146 +406,12 @@
   flex-direction: column;
   gap: $spacing-md;
 
-  &__header {
-    height: 80px;
-    background: #e2e8f0;
-    border-radius: 12px;
-    animation: shimmer 1.5s infinite ease-in-out;
-  }
-
-  &__body {
-    height: 200px;
-    background: #e2e8f0;
-    border-radius: 12px;
-    animation: shimmer 1.5s infinite ease-in-out;
-  }
-}
-
-.releves-skeleton {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  &__row {
-    height: 48px;
-    background: #e2e8f0;
-    border-radius: 8px;
-    animation: shimmer 1.5s infinite ease-in-out;
-  }
+  &__header  { height: 88px;  background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
+  &__progress{ height: 160px; background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
+  &__table   { height: 320px; background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
 }
 
 @keyframes shimmer {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-// ── Relevés ───────────────────────────────────────────────────────────────────
-
-.releves-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: $spacing-md;
-}
-
-.releve-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-
-  &--a-relever, &--a_relever { background: #fef9c3; color: #a16207; }
-  &--releve    { background: #dcfce7; color: #166534; }
-  &--non-releve, &--non_releve { background: #fee2e2; color: #991b1b; }
-  &--estime    { background: #e0e7ff; color: #3730a3; }
-}
-
-.releves-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.releve-row {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  padding: 12px $spacing-md;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  flex-wrap: wrap;
-
-  &--done { border-left: 3px solid $color-accent; }
-
-  &__id {
-    font-family: monospace;
-    font-size: 12px;
-    color: #94a3b8;
-    min-width: 90px;
-  }
-
-  &__indexes {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    flex: 1;
-  }
-
-  &__old { color: #64748b; }
-  &__new { font-weight: 600; color: #0f172a; }
-  &__conso { color: $color-accent; font-weight: 500; }
-
-  &__status { margin-left: auto; }
-
-  &__obs {
-    width: 100%;
-    font-size: 12px;
-    color: #64748b;
-    font-style: italic;
-    padding-top: 4px;
-    border-top: 1px dashed #e2e8f0;
-    margin-top: 4px;
-  }
-}
-
-.releves-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 48px;
-  color: #94a3b8;
-  font-size: 14px;
-
-  .pi { font-size: 28px; }
-}
-
-// ── Boutons ───────────────────────────────────────────────────────────────────
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  transition: background 0.15s;
-
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  &--danger {
-    background: #fef2f2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-    &:hover:not(:disabled) { background: #fee2e2; }
-  }
+  50%       { opacity: 0.5; }
 }

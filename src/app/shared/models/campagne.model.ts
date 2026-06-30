@@ -1,6 +1,10 @@
 export type StatutCampagne = 'PLANIFIEE' | 'EN_COURS' | 'CLOTUREE';
 export type StatutReleve = 'A_RELEVER' | 'RELEVE' | 'NON_RELEVE' | 'ESTIME';
 
+export interface CampagneAgent {
+  username: string;
+}
+
 export interface Campagne {
   campagneId: string;
   nom: string;
@@ -10,11 +14,20 @@ export interface Campagne {
   datePlanifiee: string;
   dateCreation: string;
   dateCloture: string;
+  agents?: CampagneAgent[];
+}
+
+export interface ReleveAbonne {
+  nom: string;
+  prenom: string;
+  quartier: string;
+  camp: number;
 }
 
 export interface Releve {
   releveId: string;
   abonneId: string;
+  abonne?: ReleveAbonne;
   ancienIndex: number;
   nouveauIndex: number;
   consommation: number;
