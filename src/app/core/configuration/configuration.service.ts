@@ -13,20 +13,20 @@ export class ConfigurationService {
     const result = await firstValueFrom(
       this.apollo.query<{ infosSociete: InfosSociete }>({
         query: GET_INFOS_SOCIETE,
-        fetchPolicy: 'network-only',
+        // cache-first par défaut (apollo.config.ts) — réseau seulement si absent du cache
       }),
     );
-    return result.data.infosSociete;
+    return result.data!.infosSociete;
   }
 
   async getConfigs(): Promise<ConfigParam[]> {
     const result = await firstValueFrom(
       this.apollo.query<{ configs: ConfigParam[] }>({
         query: GET_CONFIGS,
-        fetchPolicy: 'network-only',
+        // cache-first par défaut (apollo.config.ts)
       }),
     );
-    return result.data.configs;
+    return result.data!.configs;
   }
 
   async updateInfosSociete(input: UpdateInfosSocieteInput): Promise<InfosSociete> {
@@ -36,7 +36,13 @@ export class ConfigurationService {
         variables: { input },
       }),
     );
-    return result.data!.updateInfosSociete;
+    const updated = result.data!.updateInfosSociete;
+    // Mise à jour manuelle du cache (InfosSociete n'a pas d'id, Apollo ne le fait pas seul)
+    this.apollo.client.writeQuery({
+      query: GET_INFOS_SOCIETE,
+      data: { infosSociete: updated },
+    });
+    return updated;
   }
 
   async updateConfig(cle: string, valeur: string): Promise<ConfigParam> {
@@ -46,6 +52,19 @@ export class ConfigurationService {
         variables: { cle, valeur },
       }),
     );
-    return result.data!.updateConfig;
+    const updated = result.data!.updateConfig;
+    // Patch de la liste dans le cache sans tout recharger
+    const cached = this.apollo.client.readQuery<{ configs: ConfigParam[] }>({
+      query: GET_CONFIGS,
+    });
+    if (cached) {
+      this.apollo.client.writeQuery({
+        query: GET_CONFIGS,
+        data: {
+          configs: cached.configs.map((c) => (c.cle === updated.cle ? updated : c)),
+        },
+      });
+    }
+    return updated;
   }
 }
