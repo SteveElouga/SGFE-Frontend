@@ -1,0 +1,20 @@
+@use '../../../../styles/mobile' as *;
+@use '../../../../styles/variables' as *;
+
+.auth-back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+:host(.auth-back-link--desktop-only) {
+  display: none;
+
+  @include desktop {
+    display: block;
+    margin-bottom: $spacing-lg;
+  }
+}

@@ -1,0 +1,16 @@
+<div class="auth-otp-resend">
+  @if (cooldownDisplay()) {
+    <span class="auth-otp-resend__countdown">
+      {{ countdownPrefix() }} <strong>{{ cooldownDisplay() }}</strong>
+    </span>
+  } @else {
+    <button
+      type="button"
+      class="auth-otp-resend__btn"
+      [disabled]="loading()"
+      (click)="resend.emit()"
+    >
+      {{ resendLabel() }}
+    </button>
+  }
+</div>

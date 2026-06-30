@@ -1,0 +1,53 @@
+@use '../../../../styles/variables' as *;
+
+.auth-phone-field {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: $color-primary;
+    box-shadow: 0 0 0 2px rgba($color-primary, 0.15);
+  }
+
+  &--valid {
+    border-color: $color-accent;
+
+    &:focus-within {
+      border-color: $color-accent;
+      box-shadow: 0 0 0 2px rgba($color-accent, 0.15);
+    }
+  }
+
+  &--invalid {
+    border-color: $color-error;
+
+    &:focus-within {
+      border-color: $color-error;
+      box-shadow: 0 0 0 2px rgba($color-error, 0.12);
+    }
+  }
+
+  input {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    flex: 1;
+  }
+}
+
+.auth-phone-field__prefix {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  background: #f8fafc;
+  border-right: 1px solid #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  white-space: nowrap;
+  user-select: none;
+}

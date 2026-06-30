@@ -1,0 +1,118 @@
+<div class="login">
+  <app-auth-brand-panel>
+    <h1>
+      Gérez votre<br />
+      <strong>distribution d'eau</strong>
+    </h1>
+    <div class="auth-brand__divider"></div>
+    <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
+    <ul class="login__checklist">
+      @for (item of checklist; track item) {
+        <li>
+          <span class="login__check">
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path
+                d="M2 6.5l3 3 6-6"
+                stroke="#0e9f6e"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </span>
+          {{ item }}
+        </li>
+      }
+    </ul>
+  </app-auth-brand-panel>
+
+  <div class="login__mobile-header">
+    <div class="login__mobile-header-deco login__mobile-header-deco--top"></div>
+    <div class="login__mobile-header-deco login__mobile-header-deco--bottom"></div>
+    <svg width="40" height="40" viewBox="0 0 38 38" fill="none">
+      <path
+        d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z"
+        fill="white"
+        fill-opacity=".95"
+      />
+      <path
+        d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z"
+        fill="#0e9f6e"
+        fill-opacity=".85"
+      />
+    </svg>
+    <div class="login__logo-name">AquaBill</div>
+    <div class="login__logo-tagline">Gestion de distribution d'eau</div>
+  </div>
+
+  <div class="login__panel">
+    <a class="login__help" href="mailto:support@aquabill.app">Besoin d'aide ?</a>
+
+    <form class="login__form" (ngSubmit)="onSubmit()">
+      <h2>Bon retour 👋</h2>
+      <p class="login__subtitle">Connectez-vous à votre espace de travail</p>
+
+      <app-auth-field label="Nom d'utilisateur ou Téléphone">
+        <p-iconfield>
+          <p-inputicon [styleClass]="identifierIconClass()" />
+          <input
+            id="identifier"
+            type="text"
+            pInputText
+            [fluid]="true"
+            autocomplete="username"
+            placeholder="jean.dupont ou 612345678"
+            [invalid]="identifierInvalid() || !!errorMessage()"
+            [ngModel]="identifier()"
+            (ngModelChange)="identifier.set($event)"
+            (blur)="identifierTouched.set(true)"
+            name="identifier"
+          />
+        </p-iconfield>
+        @if (identifierInvalid()) {
+          <span class="login__field-hint">Ce champ est obligatoire.</span>
+        }
+      </app-auth-field>
+
+      <app-auth-field label="Mot de passe">
+        <a authFieldExtra class="login__forgot" routerLink="/forgot-password">
+          Mot de passe oublié ?
+        </a>
+        <p-iconfield>
+          <p-inputicon [styleClass]="lockIconClass()" />
+          <p-password
+            inputId="password"
+            placeholder="••••••••"
+            [feedback]="false"
+            [toggleMask]="true"
+            [fluid]="true"
+            [invalid]="passwordInvalid() || !!errorMessage()"
+            autocomplete="current-password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            (onBlur)="passwordTouched.set(true)"
+            name="password"
+          />
+        </p-iconfield>
+        @if (passwordInvalid()) {
+          <span class="login__field-hint">Ce champ est obligatoire.</span>
+        }
+      </app-auth-field>
+
+      <app-auth-error-message [text]="errorMessage()" />
+
+      <app-auth-submit-button label="Se connecter" [loading]="loading()" [disabled]="!canSubmit()" />
+
+      <div class="login__roles">
+        <span>ACCÈS SELON VOTRE RÔLE</span>
+        <div>
+          <span class="login__role login__role--admin">ADMIN</span>
+          <span class="login__role login__role--agent">AGENT</span>
+          <span class="login__role login__role--comptable">COMPTABLE</span>
+        </div>
+      </div>
+    </form>
+
+    <div class="login__version">AquaBill v1.0.0</div>
+  </div>
+</div>

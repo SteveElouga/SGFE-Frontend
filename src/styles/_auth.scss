@@ -1,0 +1,151 @@
+@use 'variables' as *;
+@use 'mobile' as *;
+
+.auth-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  @include desktop {
+    flex-direction: row;
+  }
+}
+
+.auth-screen {
+  flex: 1;
+  display: flex;
+  padding: $spacing-lg;
+  background: #fff;
+
+  @include desktop {
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+}
+
+.auth-screen__panel {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-screen__form,
+.auth-screen__success {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.auth-screen__form h2 {
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.auth-screen__subtitle {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+
+.auth-screen__hint {
+  font-size: 12px;
+  margin-top: $spacing-xs;
+
+  &--error {
+    color: $color-error;
+  }
+}
+
+.auth-screen__success p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.auth-screen__success-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.auth-screen__success-lead {
+  font-size: 14px;
+  font-weight: 500;
+  color: #166534;
+  margin: 0 0 8px;
+}
+
+.auth-screen__success-detail {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #15803d;
+  margin: 0 0 14px;
+}
+
+.auth-screen__success-actions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.auth-screen__action-btn {
+  flex: 1;
+  height: 38px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  &--primary {
+    background: $color-accent;
+    color: #fff;
+    border: none;
+  }
+
+  &--outline {
+    background: #fff;
+    color: $color-accent;
+    border: 1.5px solid $color-accent;
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.auth-brand__pitch {
+  h1 {
+    font-size: 38px;
+    font-weight: 300;
+    line-height: 1.25;
+    margin: 0 0 8px;
+    color: rgba(255, 255, 255, 0.9);
+
+    strong {
+      font-weight: 700;
+      color: #fff;
+    }
+  }
+
+  > p {
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 36px;
+  }
+}
+
+.auth-brand__divider {
+  width: 48px;
+  height: 3px;
+  background: $color-accent;
+  border-radius: 2px;
+  margin: 0 0 20px;
+}

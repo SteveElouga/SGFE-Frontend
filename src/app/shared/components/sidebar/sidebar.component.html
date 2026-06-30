@@ -1,0 +1,57 @@
+<aside class="sidebar">
+
+  <!-- Logo -->
+  <div class="sidebar__logo">
+    <svg width="28" height="28" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+      <path d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z" fill="white" fill-opacity=".95"/>
+      <path d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z" fill="#0e9f6e" fill-opacity=".85"/>
+    </svg>
+    <div>
+      <span class="sidebar__logo-name">AquaBill</span>
+      <span class="sidebar__logo-tagline">Facturation eau</span>
+    </div>
+  </div>
+
+  <!-- Campagne active -->
+  @if (campagneActive()) {
+    <div class="sidebar__campaign">
+      <p class="sidebar__campaign-label">Campagne active</p>
+      <p class="sidebar__campaign-period">{{ campagnePeriode() }}</p>
+      <div class="sidebar__campaign-bar">
+        <div
+          class="sidebar__campaign-bar-fill"
+          [style.width.%]="campagneProgression()!.pourcentage"
+        ></div>
+      </div>
+      <p class="sidebar__campaign-stats">{{ campagneProgression()!.label }}</p>
+    </div>
+  }
+
+  <!-- Navigation -->
+  <nav class="sidebar__nav">
+    @for (item of visibleNavItems(); track item.route) {
+      @if (item.disabled) {
+        <span class="sidebar__nav-item sidebar__nav-item--disabled">
+          <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
+          <span class="sidebar__nav-label">{{ item.label }}</span>
+        </span>
+      } @else {
+        <a
+          class="sidebar__nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="sidebar__nav-item--active"
+        >
+          <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
+          <span class="sidebar__nav-label">{{ item.label }}</span>
+          @if (item.badge) {
+            <span class="sidebar__nav-badge">{{ item.badge }}</span>
+          }
+        </a>
+      }
+    }
+  </nav>
+
+  <!-- User menu (footer) -->
+  <app-user-menu />
+
+</aside>

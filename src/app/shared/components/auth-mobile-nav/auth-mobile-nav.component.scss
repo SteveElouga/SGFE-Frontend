@@ -1,0 +1,24 @@
+@use '../../../../styles/variables' as *;
+@use '../../../../styles/mobile' as *;
+
+:host {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  background: #0f1c3d;
+  padding: $spacing-md $spacing-lg;
+
+  @include desktop {
+    display: none;
+  }
+}
+
+.auth-mobile-nav__back {
+  display: flex;
+}
+
+.auth-mobile-nav__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}

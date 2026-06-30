@@ -1,0 +1,822 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+// ── Topbar fil d'ariane ───────────────────────────────────────────────────────
+
+.abonne-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 54px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.abonne-topbar__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.12s;
+
+  &:hover { color: $color-primary; }
+}
+
+.abonne-topbar__sep {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.abonne-topbar__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+
+  &--loading { color: #94a3b8; font-weight: 400; }
+}
+
+// ── Contenu scrollable ────────────────────────────────────────────────────────
+
+.abonne-content {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f1f5f9;
+  min-height: calc(100% - 54px);
+}
+
+// ── Squelette chargement ──────────────────────────────────────────────────────
+
+.abonne-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: skeleton-pulse 1.4s ease infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.abonne-skeleton__header {
+  height: 94px;
+  background: #e2e8f0;
+  border-radius: 12px;
+}
+
+.abonne-skeleton__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.abonne-skeleton__kpi {
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.abonne-skeleton__body {
+  height: 260px;
+  background: #e2e8f0;
+  border-radius: 12px;
+}
+
+// ── Bannière d'erreur ─────────────────────────────────────────────────────────
+
+.abonne-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #b91c1c;
+}
+
+.abonne-error__retry {
+  margin-left: auto;
+  background: none;
+  border: 1px solid #dc2626;
+  color: #b91c1c;
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover { background: #fef2f2; }
+}
+
+// ── Carte en-tête abonné ──────────────────────────────────────────────────────
+
+.abonne-header-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.abonne-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.abonne-header-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.abonne-header-card__name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.abonne-header-card__name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.abonne-header-card__sub {
+  font-size: 12px;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.abonne-header-card__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+// ── Badges statut ─────────────────────────────────────────────────────────────
+
+.abonne-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  white-space: nowrap;
+
+  &--actif {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+  }
+
+  &--suspendu {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+  }
+
+  &--resilie {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+  }
+}
+
+// ── Boutons d'action ──────────────────────────────────────────────────────────
+
+.abonne-action-btn {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+
+  &:hover:not(:disabled) {
+    border-color: $color-primary;
+    color: $color-primary;
+    background: #eff6ff;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--danger {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+
+    &:hover:not(:disabled) {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #b91c1c;
+    }
+  }
+
+  &--danger-outline {
+    color: #dc2626;
+    border-color: #fecaca;
+
+    &:hover:not(:disabled) {
+      background: #fef2f2;
+    }
+  }
+
+  &--success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+
+    &:hover:not(:disabled) {
+      background: #dcfce7;
+    }
+  }
+
+  &--ghost {
+    color: #64748b;
+
+    &:hover:not(:disabled) {
+      border-color: #cbd5e1;
+      color: #334155;
+      background: #f8fafc;
+    }
+  }
+}
+
+// ── Bloc KPI ──────────────────────────────────────────────────────────────────
+
+.abonne-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.abonne-kpi {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border-top-width: 3px;
+
+  &--blue   { border-top-color: $color-primary; }
+  &--green  { border-top-color: $color-accent; }
+  &--slate  { border-top-color: #94a3b8; }
+}
+
+.abonne-kpi__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.abonne-kpi__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.abonne-kpi__sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  min-height: 14px;
+}
+
+// ── Carte onglets ─────────────────────────────────────────────────────────────
+
+.abonne-tabs-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.abonne-tabs__nav {
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 20px;
+}
+
+.abonne-tabs__tab {
+  padding: 13px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.12s, border-color 0.12s;
+
+  &:hover:not(&--active) { color: #475569; }
+
+  &--active {
+    font-weight: 600;
+    color: $color-primary;
+    border-bottom-color: $color-primary;
+  }
+}
+
+// ── Grille informations (Contact + Compteur) ──────────────────────────────────
+
+.abonne-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 20px;
+}
+
+.abonne-info-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.abonne-info-card__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.abonne-info-card__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.abonne-info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.abonne-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+
+  &__label {
+    font-size: 12px;
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0f172a;
+    text-align: right;
+    text-decoration: none;
+
+    &--muted { color: #475569; }
+    &--mono  { font-weight: 600; font-variant-numeric: tabular-nums; }
+  }
+
+  a.abonne-info-row__value {
+    color: $color-primary;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Section Dernières factures ────────────────────────────────────────────────
+
+.abonne-invoices {
+  padding: 0 20px 20px;
+}
+
+.abonne-invoices__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.abonne-invoices__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: #f8fafc;
+  }
+
+  th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+
+    &.text-right { text-align: right; }
+  }
+
+  td {
+    padding: 9px 12px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12px;
+
+    &.text-right { text-align: right; }
+  }
+}
+
+.abonne-invoices__empty {
+  color: #94a3b8;
+  font-size: 12px;
+  text-align: center !important;
+  padding: 20px 12px !important;
+}
+
+.abonne-invoices__see-all {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: $color-primary;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ── Placeholder onglets à venir ───────────────────────────────────────────────
+
+.abonne-tab-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+// ── Formulaires modals ────────────────────────────────────────────────────────
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 4px 0;
+}
+
+.edit-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  input[pInputText] { width: 100%; }
+}
+
+.edit-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.dialog-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--ghost {
+    background: none;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+
+    &:hover:not(:disabled) { background: #f8fafc; }
+  }
+
+  &--primary {
+    background: linear-gradient(135deg, #1a56db, #1d4ed8);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(26, 86, 219, 0.3);
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
+}
+
+// ── Onglet Compteurs — Historique ─────────────────────────────────────────────
+
+.hist-tab {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Skeleton
+.hist-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: hist-pulse 1.4s ease infinite;
+}
+
+@keyframes hist-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.hist-skeleton__card {
+  height: 110px;
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+.hist-skeleton__entry {
+  height: 80px;
+  background: #e2e8f0;
+  border-radius: 8px;
+}
+
+// Erreur
+.hist-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #b91c1c;
+}
+
+// Compteur actuel
+.hist-current {
+  background: linear-gradient(135deg, rgba(26,86,219,0.05), rgba(14,159,110,0.04));
+  border: 1px solid rgba($color-primary, 0.15);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.hist-current__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.hist-current__label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: $color-primary;
+}
+
+.hist-current__badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba($color-accent, 0.1);
+  color: $color-accent;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.hist-current__number {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 10px;
+}
+
+.hist-current__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hist-current__row {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.hist-current__key {
+  color: #94a3b8;
+  min-width: 90px;
+}
+
+.hist-current__val {
+  color: #334155;
+  font-weight: 500;
+}
+
+// État vide
+.hist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 20px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+// Titre section
+.hist-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #475569;
+}
+
+.hist-section-count {
+  background: #e2e8f0;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+
+// Timeline
+.hist-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 2px solid #e2e8f0;
+  margin-left: 7px;
+}
+
+.hist-entry {
+  position: relative;
+  padding: 0 0 20px 20px;
+}
+
+.hist-entry__dot {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: $color-primary;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+}
+
+.hist-entry__body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hist-entry__date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.hist-entry__idx-label {
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 4px;
+}
+
+.hist-entry__idx-val {
+  font-weight: 600;
+  color: #334155;
+  font-variant-numeric: tabular-nums;
+}
+
+// Cartes ancien/nouveau
+.hist-entry__cards {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hist-meter {
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  &--old {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  &--new {
+    background: rgba($color-accent, 0.05);
+    border: 1px solid rgba($color-accent, 0.2);
+  }
+}
+
+.hist-meter__tag {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  .hist-meter--old & { color: #94a3b8; }
+  .hist-meter--new & { color: $color-accent; }
+}
+
+.hist-meter__num {
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  .hist-meter--old & { color: #64748b; }
+  .hist-meter--new & { color: #0f172a; }
+}
+
+.hist-meter__loc {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.hist-meter__sub {
+  font-size: 10px;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: #94a3b8;
+}

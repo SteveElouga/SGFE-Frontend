@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: #0f172a;
+  }
+}
+
+.auth-success-header__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

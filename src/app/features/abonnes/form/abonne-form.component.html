@@ -1,0 +1,377 @@
+<p-toast />
+
+<!-- ── Topbar fil d'ariane ── -->
+<header class="af-topbar">
+  <a routerLink="/abonnes" class="af-topbar__back">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Abonnés
+  </a>
+  <span class="af-topbar__sep">/</span>
+  @if (mode === 'create') {
+    <span class="af-topbar__title">Nouvel abonné</span>
+    <span class="af-topbar__badge af-topbar__badge--create">CRÉATION</span>
+  } @else {
+    <span class="af-topbar__title">Modifier {{ numeroAbonneDisplay() }}</span>
+    <span class="af-topbar__badge af-topbar__badge--edit">MODIFICATION</span>
+  }
+</header>
+
+<!-- ── Contenu ── -->
+<div class="af-content">
+
+  <!-- Squelette chargement (mode édition) -->
+  @if (pageLoading()) {
+    <div class="af-skeleton">
+      <div class="af-skeleton__title"></div>
+      <div class="af-skeleton__section"></div>
+      <div class="af-skeleton__section"></div>
+      <div class="af-skeleton__section af-skeleton__section--short"></div>
+    </div>
+  }
+
+  <!-- Erreur de chargement -->
+  @if (!pageLoading() && loadError()) {
+    <div class="af-load-error">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="7" stroke="#b91c1c" stroke-width="1.3"/>
+        <path d="M8 5v3.5M8 10.5v.5" stroke="#b91c1c" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      {{ loadError() }}
+    </div>
+  }
+
+  <!-- Formulaire -->
+  @if (!pageLoading() && !loadError()) {
+    <div class="af-card">
+
+      <!-- En-tête -->
+      <div class="af-card__header">
+        <div class="af-card__title">
+          @if (mode === 'create') { Nouvel abonné } @else { Modifier l'abonné }
+        </div>
+        <div class="af-card__subtitle">
+          En mode création, le N° est attribué automatiquement · Les champs * sont obligatoires
+        </div>
+      </div>
+
+      <!-- ── Section Identité ── -->
+      <section class="af-section">
+        <div class="af-section__title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="5" r="2.5" stroke="#1a56db" stroke-width="1.2"/>
+            <path d="M2 12.5c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#1a56db" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Identité
+        </div>
+        <div class="af-grid-2">
+
+          <!-- N° Abonné (readonly) -->
+          <div class="af-field">
+            <span class="af-label">N° Abonné</span>
+            <div class="af-readonly">
+              <span class="af-readonly__value">
+                @if (mode === 'edit') { {{ numeroAbonneDisplay() }} } @else { — }
+              </span>
+              <span class="af-readonly__badge">auto</span>
+            </div>
+          </div>
+
+          <!-- Statut (edit uniquement) -->
+          @if (mode === 'edit') {
+            <div class="af-field">
+              <span class="af-label">Statut</span>
+              @if (isResilie()) {
+                <div class="af-readonly af-readonly--badge">
+                  <span class="af-status-badge af-status-badge--resilie">RÉSILIÉ</span>
+                </div>
+              } @else {
+                <p-select
+                  [options]="statutOptions"
+                  [ngModel]="selectedStatut()"
+                  (ngModelChange)="selectedStatut.set($event)"
+                  optionLabel="label"
+                  optionValue="value"
+                  styleClass="af-select"
+                />
+              }
+            </div>
+          }
+
+          <!-- Nom -->
+          <div class="af-field" [class.af-field--error]="nomFieldError()">
+            <label class="af-label" for="afNom">Nom *</label>
+            <input
+              pInputText
+              id="afNom"
+              type="text"
+              [ngModel]="nom()"
+              (ngModelChange)="nom.set($event)"
+              (blur)="nomTouched.set(true)"
+              name="afNom"
+              placeholder="ex. Diallo"
+              autocomplete="family-name"
+              [class.ng-invalid]="nomFieldError()"
+            />
+            @if (nomFieldError()) {
+              <span class="af-field__error">{{ nomFieldError() }}</span>
+            }
+          </div>
+
+          <!-- Prénom -->
+          <div class="af-field" [class.af-field--error]="prenomFieldError()">
+            <label class="af-label" for="afPrenom">Prénom *</label>
+            <input
+              pInputText
+              id="afPrenom"
+              type="text"
+              [ngModel]="prenom()"
+              (ngModelChange)="prenom.set($event)"
+              (blur)="prenomTouched.set(true)"
+              name="afPrenom"
+              placeholder="ex. Amadou"
+              autocomplete="given-name"
+              [class.ng-invalid]="prenomFieldError()"
+            />
+            @if (prenomFieldError()) {
+              <span class="af-field__error">{{ prenomFieldError() }}</span>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Section Localisation ── -->
+      <section class="af-section">
+        <div class="af-section__title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="6" r="2" stroke="#0e9f6e" stroke-width="1.2"/>
+            <path d="M7 1.5c-2.5 0-4.5 2-4.5 4.5C2.5 9.5 7 12.5 7 12.5s4.5-3 4.5-6.5C11.5 3.5 9.5 1.5 7 1.5z" stroke="#0e9f6e" stroke-width="1.2"/>
+          </svg>
+          Localisation
+        </div>
+        <div class="af-grid-2">
+
+          <!-- Quartier -->
+          <div class="af-field" [class.af-field--error]="quartierFieldError()">
+            <label class="af-label" for="afQuartier">Quartier *</label>
+            <input
+              pInputText
+              id="afQuartier"
+              type="text"
+              [ngModel]="quartier()"
+              (ngModelChange)="quartier.set($event)"
+              (blur)="quartierTouched.set(true)"
+              name="afQuartier"
+              placeholder="ex. Bastos"
+              [class.ng-invalid]="quartierFieldError()"
+            />
+            @if (quartierFieldError()) {
+              <span class="af-field__error">{{ quartierFieldError() }}</span>
+            }
+          </div>
+
+          <!-- Camp -->
+          <div class="af-field" [class.af-field--error]="campFieldError()">
+            <label class="af-label" for="afCamp">Camp *</label>
+            <input
+              pInputText
+              id="afCamp"
+              type="number"
+              min="1"
+              [ngModel]="camp()"
+              (ngModelChange)="camp.set($event)"
+              (blur)="campTouched.set(true)"
+              name="afCamp"
+              placeholder="ex. 3"
+              [class.ng-invalid]="campFieldError()"
+            />
+            @if (campFieldError()) {
+              <span class="af-field__error">{{ campFieldError() }}</span>
+            }
+          </div>
+
+          <!-- Adresse (pleine largeur, optionnelle) -->
+          <div class="af-field af-field--full">
+            <label class="af-label" for="afAdresse">Adresse (rue, N°)</label>
+            <input
+              pInputText
+              id="afAdresse"
+              type="text"
+              [ngModel]="adresse()"
+              (ngModelChange)="adresse.set($event)"
+              name="afAdresse"
+              placeholder="ex. Rue 14B"
+            />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Section Contact ── -->
+      <section class="af-section">
+        <div class="af-section__title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <rect x="1" y="2" width="12" height="10" rx="1.5" stroke="#64748b" stroke-width="1.2"/>
+            <path d="M1 5l6 4 6-4" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Contact
+        </div>
+        <div class="af-grid-2">
+
+          <!-- Téléphone / WhatsApp -->
+          <div class="af-field" [class.af-field--error]="phoneFieldError()">
+            <label class="af-label" for="afTel">Téléphone / WhatsApp *</label>
+            <input
+              pInputText
+              id="afTel"
+              type="tel"
+              [ngModel]="telephoneWhatsapp()"
+              (ngModelChange)="telephoneWhatsapp.set($event)"
+              (blur)="phoneTouched.set(true)"
+              name="afTel"
+              placeholder="6XX XXX XXX"
+              autocomplete="tel"
+              [class.ng-invalid]="phoneFieldError()"
+            />
+            @if (phoneFieldError()) {
+              <span class="af-field__error">{{ phoneFieldError() }}</span>
+            } @else {
+              <span class="af-field__hint">Format Cameroun · +237 ajouté automatiquement</span>
+            }
+          </div>
+
+          <!-- Date de souscription -->
+          <div class="af-field" [class.af-field--error]="datePoseFieldError()">
+            <label class="af-label" for="afDate">
+              Date de souscription @if (mode === 'create') { * }
+            </label>
+            @if (mode === 'create') {
+              <div class="af-date-wrapper">
+                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="#94a3b8" stroke-width="1.2"/>
+                  <path d="M5 1v2M9 1v2M1 6h12" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <input
+                  pInputText
+                  id="afDate"
+                  type="date"
+                  [ngModel]="datePose()"
+                  (ngModelChange)="datePose.set($event)"
+                  (blur)="datePoseTouched.set(true)"
+                  name="afDate"
+                  [class.ng-invalid]="datePoseFieldError()"
+                />
+              </div>
+              @if (datePoseFieldError()) {
+                <span class="af-field__error">{{ datePoseFieldError() }}</span>
+              }
+            } @else {
+              <div class="af-readonly">
+                <span class="af-readonly__value">{{ dateSouscriptionDisplay() }}</span>
+              </div>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Section Compteur ── -->
+      <section class="af-section">
+        <div class="af-section__title">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="5.5" stroke="#64748b" stroke-width="1.2"/>
+            <path d="M7 4v3l2 2" stroke="#64748b" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          Compteur
+        </div>
+        <div class="af-grid-2">
+
+          <!-- N° Compteur -->
+          <div class="af-field" [class.af-field--error]="numeroCompteurFieldError()">
+            <label class="af-label" for="afNumero">
+              N° Compteur @if (mode === 'create') { * }
+            </label>
+            @if (mode === 'create') {
+              <input
+                pInputText
+                id="afNumero"
+                type="number"
+                min="1"
+                [ngModel]="numeroCompteur()"
+                (ngModelChange)="numeroCompteur.set($event)"
+                (blur)="numeroCompteurTouched.set(true)"
+                name="afNumero"
+                placeholder="ex. 1042"
+                [class.ng-invalid]="numeroCompteurFieldError()"
+              />
+              @if (numeroCompteurFieldError()) {
+                <span class="af-field__error">{{ numeroCompteurFieldError() }}</span>
+              }
+            } @else {
+              <div class="af-readonly">
+                <span class="af-readonly__value af-readonly__value--mono">{{ compteurDisplay() }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Index initial -->
+          <div class="af-field">
+            <label class="af-label" for="afIndex">
+              Index initial (m³)
+              @if (mode === 'create') {
+                <span class="af-label__sub">création seult.</span>
+              }
+            </label>
+            @if (mode === 'create') {
+              <input
+                pInputText
+                id="afIndex"
+                type="number"
+                min="0"
+                step="0.001"
+                [ngModel]="indexInitial()"
+                (ngModelChange)="indexInitial.set($event)"
+                name="afIndex"
+              />
+            } @else {
+              <div class="af-readonly af-readonly--disabled">
+                <span class="af-readonly__value af-readonly__value--muted">Non modifiable après création</span>
+                <span class="af-readonly__badge">readonly</span>
+              </div>
+            }
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── Actions ── -->
+      <div class="af-actions">
+        <button
+          class="af-btn af-btn--primary"
+          type="button"
+          (click)="submit()"
+          [disabled]="saving()"
+        >
+          @if (saving()) {
+            Enregistrement…
+          } @else if (mode === 'create') {
+            Créer l'abonné
+          } @else {
+            Enregistrer les modifications
+          }
+        </button>
+        <button
+          class="af-btn af-btn--ghost"
+          type="button"
+          (click)="cancel()"
+          [disabled]="saving()"
+        >
+          Annuler
+        </button>
+      </div>
+
+    </div>
+  }
+</div>

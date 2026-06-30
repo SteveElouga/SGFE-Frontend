@@ -1,0 +1,387 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+// ── Topbar fil d'ariane ───────────────────────────────────────────────────────
+
+.af-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 54px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.af-topbar__back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.12s;
+
+  &:hover { color: $color-primary; }
+}
+
+.af-topbar__sep {
+  color: #e2e8f0;
+  font-size: 14px;
+}
+
+.af-topbar__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.af-topbar__badge {
+  margin-left: 8px;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+
+  &--create {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+  }
+
+  &--edit {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+  }
+}
+
+// ── Contenu scrollable ────────────────────────────────────────────────────────
+
+.af-content {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #f1f5f9;
+  min-height: calc(100% - 54px);
+}
+
+// ── Squelette chargement ──────────────────────────────────────────────────────
+
+.af-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: af-pulse 1.4s ease infinite;
+}
+
+@keyframes af-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.af-skeleton__title {
+  height: 28px;
+  width: 240px;
+  background: #e2e8f0;
+  border-radius: 6px;
+}
+
+.af-skeleton__section {
+  height: 140px;
+  background: #e2e8f0;
+  border-radius: 12px;
+
+  &--short { height: 90px; }
+}
+
+// ── Bannière erreur de chargement ─────────────────────────────────────────────
+
+.af-load-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #b91c1c;
+}
+
+// ── Carte principale ──────────────────────────────────────────────────────────
+
+.af-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.af-card__header {
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.af-card__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+
+.af-card__subtitle {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+// ── Sections ──────────────────────────────────────────────────────────────────
+
+.af-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.af-section__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+// ── Grille 2 colonnes ─────────────────────────────────────────────────────────
+
+.af-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+// ── Champs de formulaire ──────────────────────────────────────────────────────
+
+.af-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+
+  input[pInputText] {
+    width: 100%;
+    height: 40px;
+  }
+}
+
+.af-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.af-label__sub {
+  font-size: 10px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.af-field__hint {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.af-field__error {
+  font-size: 11px;
+  color: #b91c1c;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.af-field--error {
+  input[pInputText].ng-invalid,
+  input[pInputText].ng-invalid:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+  }
+}
+
+// ── Champ date avec icône ─────────────────────────────────────────────────────
+
+.af-date-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  svg {
+    position: absolute;
+    left: 14px;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  input[pInputText] {
+    padding-left: 36px;
+  }
+}
+
+// ── Affichage readonly ────────────────────────────────────────────────────────
+
+.af-readonly {
+  height: 40px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  &--disabled {
+    background: #f8fafc;
+    border-color: #f1f5f9;
+  }
+
+  &--badge {
+    justify-content: flex-start;
+  }
+}
+
+.af-readonly__value {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+
+  &--mono {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #0f172a;
+  }
+
+  &--muted {
+    font-size: 12px;
+    font-weight: 400;
+    color: #94a3b8;
+  }
+}
+
+.af-readonly__badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+// ── Badge statut (readonly) ───────────────────────────────────────────────────
+
+.af-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+
+  &--actif {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #15803d;
+  }
+
+  &--suspendu {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #b45309;
+  }
+
+  &--resilie {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #b91c1c;
+  }
+}
+
+// ── Boutons d'action ──────────────────────────────────────────────────────────
+
+.af-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.af-btn {
+  height: 46px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    flex: 1;
+    background: linear-gradient(135deg, #1a56db, #1d4ed8);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
+
+  &--ghost {
+    padding: 0 22px;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    color: #475569;
+
+    &:hover:not(:disabled) {
+      border-color: #cbd5e1;
+      color: #334155;
+      background: #f8fafc;
+    }
+  }
+}

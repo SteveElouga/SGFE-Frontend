@@ -1,1 +1,14 @@
+@use 'styles/global';
+
+@import 'primeicons/primeicons.css';
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
 /* You can add global styles to this file, and also import other style files */
