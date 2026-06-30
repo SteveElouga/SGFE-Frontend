@@ -1,0 +1,136 @@
+<p-toast />
+
+<div class="user-form-page">
+  <nav class="user-form-page__breadcrumb">
+    <a routerLink="/utilisateurs" class="user-form-page__back">
+      <i class="pi pi-arrow-left"></i>
+      Retour aux utilisateurs
+    </a>
+  </nav>
+
+  <div class="user-form-page__card">
+    <h1 class="user-form-page__title">
+      {{ mode() === 'create' ? 'Nouvel utilisateur' : 'Modifier l\'utilisateur' }}
+    </h1>
+    <p class="user-form-page__subtitle">
+      @if (mode() === 'create') {
+        Un code d'activation sera envoyé par WhatsApp au numéro renseigné.
+      } @else {
+        Le nom d'utilisateur ne peut pas être modifié.
+      }
+    </p>
+
+    @if (loadingUser()) {
+      <div class="user-form-page__loading">
+        <i class="pi pi-spinner pi-spin"></i>
+        Chargement…
+      </div>
+    } @else {
+      <form class="user-form" (ngSubmit)="onSubmit()">
+
+        @if (mode() === 'create') {
+          <app-auth-field label="Nom d'utilisateur *">
+            <input
+              id="username"
+              type="text"
+              pInputText
+              [fluid]="true"
+              autocomplete="off"
+              placeholder="jean.dupont"
+              aria-label="Nom d'utilisateur"
+              [ngModel]="username()"
+              (ngModelChange)="username.set($event)"
+              name="username"
+            />
+            @if (username().trim().length > 0 && username().trim().length < 3) {
+              <span class="user-form__hint--error">Minimum 3 caractères</span>
+            }
+          </app-auth-field>
+        }
+
+        <app-auth-field label="Numéro de téléphone *">
+          <div
+            class="user-form__phone-field"
+            [class.user-form__phone-field--valid]="isPhoneValid()"
+            [class.user-form__phone-field--invalid]="phone().trim().length > 0 && !isPhoneValid()"
+          >
+            <span class="user-form__phone-prefix">+237</span>
+            <input
+              id="phoneNumber"
+              type="tel"
+              pInputText
+              [fluid]="true"
+              autocomplete="tel"
+              placeholder="612345678"
+              aria-label="Numéro de téléphone"
+              inputmode="numeric"
+              maxlength="9"
+              [invalid]="phone().trim().length > 0 && !isPhoneValid()"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              name="phoneNumber"
+            />
+          </div>
+          @if (phone().trim().length > 0 && !isPhoneValid()) {
+            <span class="user-form__hint--error">9 chiffres commençant par 6 (ex. 612345678)</span>
+          }
+        </app-auth-field>
+
+        <app-auth-field label="Rôle *">
+          <p-select
+            inputId="role"
+            [options]="roleOptions"
+            optionLabel="label"
+            optionValue="value"
+            [fluid]="true"
+            placeholder="Sélectionner un rôle"
+            aria-label="Rôle"
+            [ngModel]="role()"
+            (ngModelChange)="role.set($event)"
+            name="role"
+          />
+        </app-auth-field>
+
+        @if (requiresEmail()) {
+          <app-auth-field label="Email *">
+            <input
+              id="email"
+              type="email"
+              pInputText
+              [fluid]="true"
+              autocomplete="email"
+              placeholder="admin@regie.ci"
+              aria-label="Email"
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              name="email"
+            />
+          </app-auth-field>
+        }
+
+        @if (errorMessage()) {
+          <div class="user-form__error">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="user-form__actions">
+          <a routerLink="/utilisateurs" class="user-form__cancel">Annuler</a>
+          <button
+            type="submit"
+            class="user-form__submit"
+            [disabled]="!isFormValid()"
+          >
+            @if (loading()) {
+              <i class="pi pi-spinner pi-spin"></i>
+            } @else {
+              <i class="pi pi-check"></i>
+            }
+            {{ mode() === 'create' ? 'Créer le compte' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>

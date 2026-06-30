@@ -1,0 +1,37 @@
+@use 'variables' as *;
+@use 'mobile' as *;
+@use 'auth';
+
+// Montserrat comme police par défaut sur toute l'app
+:root {
+  --p-font-family: 'Montserrat', sans-serif;
+}
+
+html,
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+// Les éléments de formulaire n'héritent pas automatiquement font-family
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  padding: $spacing-sm;
+
+  @include tablet {
+    padding: $spacing-md;
+  }
+
+  @include desktop {
+    padding: $spacing-lg;
+  }
+}

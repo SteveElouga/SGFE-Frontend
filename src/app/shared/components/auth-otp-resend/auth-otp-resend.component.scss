@@ -1,0 +1,30 @@
+@use '../../../../styles/variables' as *;
+
+.auth-otp-resend {
+  display: flex;
+  justify-content: center;
+}
+
+.auth-otp-resend__countdown {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.auth-otp-resend__btn {
+  background: none;
+  border: none;
+  color: $color-accent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

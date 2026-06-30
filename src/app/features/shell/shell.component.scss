@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  height: 100dvh;
+}
+
+.shell {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.shell__content {
+  flex: 1;
+  overflow-y: auto;
+  background: #eef2f7;
+}

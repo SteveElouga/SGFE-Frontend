@@ -1,0 +1,77 @@
+<div class="auth-layout">
+  <app-auth-brand-panel>
+    <h1>
+      Activez<br />
+      <strong>votre compte<br />AquaBill</strong>
+    </h1>
+    <div class="auth-brand__divider"></div>
+    <p>Votre administrateur vous a créé un accès. Entrez le code reçu par WhatsApp pour activer votre compte.</p>
+    <app-auth-steps-card
+      title="Processus d'activation"
+      [steps]="stepsForCard"
+      [currentStep]="currentStep()"
+    />
+  </app-auth-brand-panel>
+
+  <app-auth-mobile-nav title="Activation du compte" backTo="/login" />
+
+  <div class="auth-screen">
+    <div class="auth-screen__panel">
+
+      @if (!submitted()) {
+        <form class="auth-screen__form" (ngSubmit)="onSubmit()">
+          <h2>Activez votre compte</h2>
+          <p class="auth-screen__subtitle">
+            Entrez le code à 6 chiffres reçu par WhatsApp ainsi que votre nouveau mot de passe.
+          </p>
+
+          <app-auth-field label="Numéro de téléphone *">
+            <app-auth-phone-input inputId="activate-phone" [(value)]="phone" />
+          </app-auth-field>
+
+          <app-auth-field label="Code OTP *">
+            <app-auth-otp-code-input inputId="activate-otp" [(value)]="otpCode" />
+          </app-auth-field>
+
+          <app-auth-otp-resend
+            [cooldownDisplay]="cooldownDisplay()"
+            [loading]="loading()"
+            countdownPrefix="Code valable encore"
+            resendLabel="Renvoyer le code par WhatsApp"
+            (resend)="onResend()"
+          />
+
+          <app-auth-password-pair
+            newPasswordId="activate-password"
+            confirmPasswordId="activate-confirm"
+            [(password)]="password"
+            [(confirmPassword)]="confirmPassword"
+          />
+
+          <app-auth-error-message [text]="errorMessage()" />
+
+          <app-auth-submit-button
+            label="Activer mon compte"
+            icon="pi pi-check"
+            [loading]="loading()"
+            [disabled]="!canSubmit()"
+          />
+        </form>
+      } @else {
+        <div class="auth-screen__success">
+          <app-auth-success-header title="Compte activé !" />
+          <div class="auth-screen__success-box">
+            <p class="auth-screen__success-lead">Votre mot de passe a bien été défini.</p>
+            <p class="auth-screen__success-detail">
+              Vous pouvez maintenant vous connecter avec votre identifiant et votre nouveau mot de
+              passe.
+            </p>
+            <div class="auth-screen__success-actions">
+              <a class="auth-screen__gmail-btn" routerLink="/login">Se connecter</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
