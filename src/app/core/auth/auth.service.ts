@@ -14,15 +14,32 @@ import {
 } from '../../graphql/mutations/auth.mutations';
 import { AuthPayload, OtpSentPayload, User } from '../../shared/models/user.model';
 
+// Patterns that indicate a technical backend/network message not suitable for display.
+// Return '' so callers fall back to their own user-friendly message.
+const TECHNICAL_MESSAGE_PATTERNS = [
+  /^INTERNAL_SERVER_ERROR/i,
+  /^Failed to fetch/i,
+  /^Network error/i,
+  /^HTTP\s+\d+/i,
+  /^Cannot query field/i,
+  /^Unexpected token/i,
+  /^ApolloError/i,
+  /^Error:/i,
+];
+
+function sanitizeGqlMessage(raw: string): string {
+  return TECHNICAL_MESSAGE_PATTERNS.some((p) => p.test(raw)) ? '' : raw;
+}
+
 export function extractGqlError(error: unknown): { code: string; message: string } {
   if (CombinedGraphQLErrors.is(error)) {
     const gqlError = error.errors[0];
     return {
       code: (gqlError?.extensions?.['code'] as string) ?? '',
-      message: gqlError?.message ?? '',
+      message: sanitizeGqlMessage(gqlError?.message ?? ''),
     };
   }
-  return { code: '', message: error instanceof Error ? error.message : '' };
+  return { code: '', message: sanitizeGqlMessage(error instanceof Error ? error.message : '') };
 }
 
 function extractServerErrorMessage(error: unknown, fallback: string): string {
