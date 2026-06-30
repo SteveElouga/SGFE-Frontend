@@ -1,5 +1,4 @@
 <p-toast />
-<p-confirmdialog />
 
 <!-- ── Topbar fil d'ariane ── -->
 <header class="abonne-topbar">
@@ -369,6 +368,39 @@
     </div>
   }
 </div>
+
+<!-- ══ Modal Résiliation ══ -->
+<p-dialog
+  [visible]="resilierDialogVisible()"
+  (visibleChange)="resilierDialogVisible.set($event)"
+  header="Résilier l'abonnement ?"
+  [modal]="true"
+  [style]="{ width: '420px' }"
+  [draggable]="false"
+>
+  <div class="confirm-body">
+    <svg class="confirm-body__icon" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+      <circle cx="20" cy="20" r="19" stroke="#fca5a5" stroke-width="1.5"/>
+      <path d="M20 13v8M20 25v1" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <p class="confirm-body__text">
+      Cette action est <strong>irréversible</strong>. L'abonné sera définitivement résilié et exclu de toutes les campagnes futures.
+    </p>
+  </div>
+
+  <ng-template #footer>
+    <button class="dialog-btn dialog-btn--ghost"
+      (click)="resilierDialogVisible.set(false)"
+      [disabled]="statutLoading()">
+      Annuler
+    </button>
+    <button class="dialog-btn dialog-btn--danger"
+      (click)="resilier()"
+      [disabled]="statutLoading()">
+      @if (statutLoading()) { Résiliation… } @else { Résilier }
+    </button>
+  </ng-template>
+</p-dialog>
 
 <!-- ══ Modal Remplacer compteur ══ -->
 <p-dialog

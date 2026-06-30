@@ -9,9 +9,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
@@ -25,19 +23,16 @@ import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.quer
     FormsModule,
     RouterLink,
     ToastModule,
-    ConfirmDialogModule,
     DialogModule,
-    ButtonModule,
     InputTextModule,
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [MessageService],
   templateUrl: './abonne-detail.component.html',
   styleUrl: './abonne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
 
@@ -58,6 +53,9 @@ export class AbonneDetailComponent {
   readonly historiqueLoaded = signal(false);
   readonly historiqueError = signal<string | null>(null);
 
+
+  // Modal résiliation
+  readonly resilierDialogVisible = signal(false);
 
   // Modal remplacer compteur
   readonly remplacerVisible = signal(false);
@@ -229,22 +227,15 @@ export class AbonneDetailComponent {
   }
 
   confirmerResiliation(): void {
-    this.confirmationService.confirm({
-      header: 'Résilier l\'abonnement ?',
-      message: 'Cette action est irréversible. L\'abonné sera définitivement résilié.',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Résilier',
-      rejectLabel: 'Annuler',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.resilier(),
-    });
+    this.resilierDialogVisible.set(true);
   }
 
-  private async resilier(): Promise<void> {
+  async resilier(): Promise<void> {
     this.statutLoading.set(true);
     try {
       const updated = await this.abonnesService.resilierAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
+      this.resilierDialogVisible.set(false);
       this.messageService.add({ severity: 'info', summary: 'Abonnement résilié' });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
