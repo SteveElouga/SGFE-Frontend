@@ -1,5 +1,6 @@
 import { Injector } from '@angular/core';
-import { CombinedGraphQLErrors, ErrorLink } from '@apollo/client/link/error';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
+import { ErrorLink } from '@apollo/client/link/error';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
