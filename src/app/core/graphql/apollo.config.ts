@@ -39,7 +39,17 @@ function apolloOptionsFactory(): ApolloClient.Options {
       createGlobalErrorLink(injector),
       transportLink,
     ]),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Campagne:     { keyFields: ['campagneId'] },
+        Releve:       { keyFields: ['releveId'] },
+        Progression:  { keyFields: ['campagneId'] },
+        DernierIndex: { keyFields: ['abonneId'] },
+        // Objets imbriqués sans identifiant unique — stockés inline, pas normalisés
+        CampagneAgent: { keyFields: false },
+        ReleveAbonne:  { keyFields: false },
+      },
+    }),
     defaultOptions: {
       watchQuery: { fetchPolicy: 'cache-first' },
       query: { fetchPolicy: 'cache-first' },
