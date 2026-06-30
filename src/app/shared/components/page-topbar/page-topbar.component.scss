@@ -1,0 +1,57 @@
+.page-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 54px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.page-topbar__left {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.page-topbar__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.page-topbar__subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+// Classe utilitaire pour le bouton/lien d'action projeté (button ou <a>)
+.page-topbar-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  background: linear-gradient(135deg, #1a56db, #1d4ed8);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(26, 86, 219, 0.3);
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &:hover { opacity: 0.88; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
