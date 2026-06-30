@@ -26,6 +26,8 @@ import { Abonne, StatutAbonne } from '../../../shared/models/abonne.model';
 import { ABONNE_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 
 @Component({
@@ -42,6 +44,8 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
+    PageTopbarComponent,
+    PageFiltersComponent,
     CompteurPipe,
     TranslatePipe,
   ],

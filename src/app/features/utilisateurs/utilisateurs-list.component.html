@@ -1,28 +1,26 @@
 <p-toast />
 <p-confirmdialog />
 
-<div class="users-page">
-  <header class="users-page__header">
-    <div>
-      <h1 class="users-page__title">{{ 'UTILISATEURS.TITLE' | translate }}</h1>
-      <p class="users-page__subtitle">
-        {{ users().length === 1
-          ? ('UTILISATEURS.SUBTITLE_SINGULAR' | translate:{ count: users().length })
-          : ('UTILISATEURS.SUBTITLE_PLURAL' | translate:{ count: users().length }) }}
-      </p>
-    </div>
-    <a routerLink="/utilisateurs/nouveau" class="users-page__new-btn">
-      <i class="pi pi-plus"></i>
-      {{ 'UTILISATEURS.NEW' | translate }}
-    </a>
-  </header>
+<app-page-topbar
+  [title]="'UTILISATEURS.TITLE' | translate"
+  [subtitle]="subtitle()"
+>
+  <a routerLink="/utilisateurs/nouveau" class="page-topbar-action">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+      <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    {{ 'UTILISATEURS.NEW' | translate }}
+  </a>
+</app-page-topbar>
+
+<div class="users-content">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="loadUsers()" />
   }
 
-  <div class="users-page__toolbar">
-    <p-iconfield>
+  <app-page-filters>
+    <p-iconfield class="users-filters__search">
       <p-inputicon styleClass="pi pi-search" />
       <input
         type="text"
@@ -33,84 +31,107 @@
         (ngModelChange)="searchTerm.set($event)"
       />
     </p-iconfield>
-  </div>
 
-  <p-table
-    [value]="filteredUsers()"
-    [loading]="loading()"
-    [paginator]="filteredUsers().length > 20"
-    [rows]="20"
-    styleClass="users-table"
-    [rowHover]="true"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th>{{ 'UTILISATEURS.USERNAME' | translate }}</th>
-        <th>{{ 'UTILISATEURS.PHONE' | translate }}</th>
-        <th>{{ 'UTILISATEURS.ROLE' | translate }}</th>
-        <th>{{ 'COMMON.STATUS' | translate }}</th>
-        <th>{{ 'UTILISATEURS.CREATED_AT' | translate }}</th>
-        <th></th>
-      </tr>
-    </ng-template>
+    <p-select
+      class="users-filters__select"
+      [options]="roleOptions()"
+      [ngModel]="filtreRole()"
+      (ngModelChange)="filtreRole.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'UTILISATEURS.FILTRE_ROLE' | translate"
+      [showClear]="true"
+    />
 
-    <ng-template pTemplate="body" let-user>
-      <tr>
-        <td>
-          <div class="users-table__user">
-            <span class="users-table__username">{{ user.username }}</span>
-            @if (user.email) {
-              <span class="users-table__email">{{ user.email }}</span>
-            }
-          </div>
-        </td>
-        <td class="users-table__phone">{{ user.phoneNumber }}</td>
-        <td>
-          <p-tag
-            [value]="'UTILISATEURS.ROLES.' + user.role | translate"
-            [severity]="roleSeverity(user.role)"
-          />
-        </td>
-        <td>
-          <app-status-badge [status]="user.isActive ? 'ACTIVE' : 'INACTIVE'" />
-        </td>
-        <td class="users-table__date">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
-        <td>
-          <div class="users-table__actions">
-            <button
-              type="button"
-              class="users-table__action-btn"
-              [appTooltip]="('COMMON.EDIT' | translate) + ' ' + user.username"
-              (click)="editUser(user)"
-            >
-              <i class="pi pi-pencil"></i>
-            </button>
-            @if (user.isActive) {
+    <p-select
+      class="users-filters__select"
+      [options]="statutOptions()"
+      [ngModel]="filtreStatut()"
+      (ngModelChange)="filtreStatut.set($event)"
+      optionLabel="label"
+      optionValue="value"
+    />
+  </app-page-filters>
+
+  <div class="users-card">
+    <p-table
+      [value]="filteredUsers()"
+      [loading]="loading()"
+      [paginator]="filteredUsers().length > 20"
+      [rows]="20"
+      styleClass="users-table"
+      [rowHover]="true"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">{{ 'UTILISATEURS.USERNAME' | translate }}</th>
+          <th scope="col">{{ 'UTILISATEURS.PHONE' | translate }}</th>
+          <th scope="col">{{ 'UTILISATEURS.ROLE' | translate }}</th>
+          <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
+          <th scope="col">{{ 'UTILISATEURS.CREATED_AT' | translate }}</th>
+          <th scope="col"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="users-table__user">
+              <span class="users-table__username">{{ user.username }}</span>
+              @if (user.email) {
+                <span class="users-table__email">{{ user.email }}</span>
+              }
+            </div>
+          </td>
+          <td class="users-table__phone">{{ user.phoneNumber }}</td>
+          <td>
+            <p-tag
+              [value]="'UTILISATEURS.ROLES.' + user.role | translate"
+              [severity]="roleSeverity(user.role)"
+            />
+          </td>
+          <td>
+            <app-status-badge [status]="user.isActive ? 'ACTIVE' : 'INACTIVE'" />
+          </td>
+          <td class="users-table__date">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <div class="users-table__actions">
               <button
                 type="button"
-                class="users-table__action-btn users-table__action-btn--danger"
-                [appTooltip]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
-                [tooltipPosition]="'left'"
-                (click)="confirmDeactivate(user)"
+                class="users-table__action-btn"
+                [appTooltip]="('COMMON.EDIT' | translate) + ' ' + user.username"
+                (click)="editUser(user)"
               >
-                <i class="pi pi-ban"></i>
+                <i class="pi pi-pencil"></i>
               </button>
-            }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
+              @if (user.isActive) {
+                <button
+                  type="button"
+                  class="users-table__action-btn users-table__action-btn--danger"
+                  [appTooltip]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
+                  [tooltipPosition]="'left'"
+                  (click)="confirmDeactivate(user)"
+                >
+                  <i class="pi pi-ban"></i>
+                </button>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="6" class="users-table__empty">
-          @if (searchTerm()) {
-            {{ 'UTILISATEURS.NO_RESULT_SEARCH' | translate:{ term: searchTerm() } }}
-          } @else {
-            {{ 'UTILISATEURS.NO_RESULT' | translate }}
-          }
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="users-table__empty">
+            @if (searchTerm()) {
+              {{ 'UTILISATEURS.NO_RESULT_SEARCH' | translate:{ term: searchTerm() } }}
+            } @else {
+              {{ 'UTILISATEURS.NO_RESULT' | translate }}
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
 </div>

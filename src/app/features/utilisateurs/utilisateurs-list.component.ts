@@ -14,6 +14,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -23,6 +24,8 @@ import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { PageFiltersComponent } from '../../shared/components/page-filters/page-filters.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
@@ -47,7 +50,10 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
+    PageTopbarComponent,
+    PageFiltersComponent,
     TooltipDirective,
+    SelectModule,
     TranslatePipe,
   ],
   providers: [ConfirmationService, MessageService],
@@ -66,16 +72,55 @@ export class UtilisateursListComponent implements OnInit {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searchTerm = signal('');
+  readonly filtreRole = signal<Role | null>(null);
+  readonly filtreStatut = signal<'TOUS' | 'ACTIF' | 'INACTIF'>('TOUS');
+
+  readonly subtitle = computed(() => {
+    const count = this.users().length;
+    const key = count === 1 ? 'UTILISATEURS.SUBTITLE_SINGULAR' : 'UTILISATEURS.SUBTITLE_PLURAL';
+    return this.translate.instant(key, { count });
+  });
+
+  readonly roleOptions = computed(() => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('UTILISATEURS.ROLES.AGENT', {}, lang), value: 'AGENT' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.COMPTABLE', {}, lang), value: 'COMPTABLE' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.SUPERVISEUR', {}, lang), value: 'SUPERVISEUR' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.ADMIN', {}, lang), value: 'ADMIN' },
+    ];
+  });
+
+  readonly statutOptions = computed(() => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('UTILISATEURS.STATUT.TOUS', {}, lang), value: 'TOUS' },
+      { label: this.translate.instant('UTILISATEURS.STATUT.ACTIF', {}, lang), value: 'ACTIF' },
+      { label: this.translate.instant('UTILISATEURS.STATUT.INACTIF', {}, lang), value: 'INACTIF' },
+    ];
+  });
 
   readonly filteredUsers = computed(() => {
+    let list = this.users();
+
     const term = this.searchTerm().toLowerCase().trim();
-    if (!term) return this.users();
-    return this.users().filter(
-      (u) =>
-        u.username.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term) ||
-        u.phoneNumber.includes(term),
-    );
+    if (term) {
+      list = list.filter(
+        (u) =>
+          u.username.toLowerCase().includes(term) ||
+          (u.email ?? '').toLowerCase().includes(term) ||
+          u.phoneNumber.includes(term),
+      );
+    }
+
+    const role = this.filtreRole();
+    if (role) list = list.filter((u) => u.role === role);
+
+    const statut = this.filtreStatut();
+    if (statut === 'ACTIF') list = list.filter((u) => u.isActive);
+    if (statut === 'INACTIF') list = list.filter((u) => !u.isActive);
+
+    return list;
   });
 
   readonly roleSeverity = (role: Role) => ROLE_SEVERITY[role];
