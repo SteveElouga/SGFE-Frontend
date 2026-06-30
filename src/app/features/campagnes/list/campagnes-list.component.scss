@@ -1,0 +1,207 @@
+@use 'sass:color';
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.campagnes-page {
+  padding: $spacing-lg $spacing-xl;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.campagnes-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.campagnes-page__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.campagnes-page__subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+// ── Toolbar ───────────────────────────────────────────────────────────────────
+
+.campagnes-page__toolbar {
+  margin-bottom: $spacing-md;
+}
+
+.filtre-select { width: 200px; }
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+
+.campagne-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &__nom {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  &__periode {
+    font-size: 12px;
+    color: #64748b;
+  }
+}
+
+.campagnes-table__date {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.campagnes-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.campagnes-table__empty {
+  text-align: center;
+  padding: 48px !important;
+  color: #94a3b8;
+  font-size: 14px;
+
+  .pi {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+}
+
+// ── Statut badges ─────────────────────────────────────────────────────────────
+
+.statut-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+
+  &--planifiee {
+    background: #eff6ff;
+    color: #1d4ed8;
+  }
+
+  &--en_cours {
+    background: #f0fdf4;
+    color: #16a34a;
+  }
+
+  &--cloturee {
+    background: #f8fafc;
+    color: #64748b;
+  }
+}
+
+// ── Boutons ───────────────────────────────────────────────────────────────────
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, opacity 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--primary {
+    background: $color-primary;
+    color: #fff;
+    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    &:hover:not(:disabled) { background: #f1f5f9; }
+  }
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--voir {
+    background: color.adjust($color-primary, $alpha: -0.9);
+    color: $color-primary;
+    &:hover { background: color.adjust($color-primary, $alpha: -0.8); }
+  }
+
+  &--cloturer {
+    background: #fef2f2;
+    color: #dc2626;
+    &:hover:not(:disabled) { background: #fee2e2; }
+  }
+}
+
+// ── Form dialog ───────────────────────────────────────────────────────────────
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: 4px 0 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+  }
+
+  &__input { width: 100%; }
+
+  &__hint {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+}
