@@ -1,45 +1,74 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/data-table' as *;
 
 :host { display: block; }
 
-.campagnes-page {
-  padding: $spacing-lg $spacing-xl;
-  max-width: 1100px;
-  margin: 0 auto;
-}
+// Topbar → PageTopbarComponent  |  Filtres → PageFiltersComponent
 
-// ── Header ────────────────────────────────────────────────────────────────────
+// ── Contenu scrollable ────────────────────────────────────────────────────────
 
-.campagnes-page__header {
+.campagnes-content {
+  padding: 20px 24px;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: $spacing-lg;
+  flex-direction: column;
+  gap: 14px;
+  background: #f1f5f9;
+  min-height: calc(100% - 54px);
 }
 
-.campagnes-page__title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 4px;
+// ── Filtre ────────────────────────────────────────────────────────────────────
+
+.campagnes-filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
 }
 
-.campagnes-page__subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
+// ── Barre de filtres ──────────────────────────────────────────────────────────
+
+.campagnes-filters__search {
+  flex: 1;
+
+  input[pInputText] {
+    width: 100%;
+    background: #f8fafc;
+  }
 }
 
-// ── Toolbar ───────────────────────────────────────────────────────────────────
+// ── Carte tableau ─────────────────────────────────────────────────────────────
 
-.campagnes-page__toolbar {
-  margin-bottom: $spacing-md;
+.campagnes-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.filtre-select { width: 200px; }
+// ── Styles PrimeNG table ──────────────────────────────────────────────────────
 
-// ── Table ─────────────────────────────────────────────────────────────────────
+@include data-table('campagnes-table');
+
+// Hover conditionnel : ligne active (EN_COURS) vs standard
+:host ::ng-deep .campagnes-table {
+  .p-datatable-tbody > tr.campagnes-row--active > td {
+    background: #f8fbff;
+  }
+
+  .p-datatable-tbody > tr:not(.campagnes-row--active):hover > td {
+    background: #f5f7fa;
+  }
+
+  .p-datatable-tbody > tr.campagnes-row--active:hover > td {
+    background: #eef4ff;
+  }
+}
+
+// ── Cellule campagne ──────────────────────────────────────────────────────────
 
 .campagne-cell {
   display: flex;
@@ -48,25 +77,47 @@
 
   &__nom {
     font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 700;
+    color: #0f172a;
+
+    &--muted {
+      font-weight: 600;
+      color: #64748b;
+    }
   }
 
-  &__periode {
-    font-size: 12px;
-    color: #64748b;
+  &__meta {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
   }
 }
 
+// ── Cellules secondaires ──────────────────────────────────────────────────────
+
 .campagnes-table__date {
-  font-size: 13px;
-  color: #64748b;
+  font-size: 12px;
+  color: #475569;
+}
+
+.campagnes-table__agents {
+  font-size: 12px;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.campagnes-table__muted {
+  color: #94a3b8 !important;
+}
+
+.campagnes-table__avancement {
+  text-align: center;
 }
 
 .campagnes-table__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   white-space: nowrap;
 }
 
@@ -83,14 +134,63 @@
   }
 }
 
-// ── Statut badges ─────────────────────────────────────────────────────────────
+// ── Mini barre d'avancement ───────────────────────────────────────────────────
+
+.mini-bar {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 80px;
+
+  &__track {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    background: #1a56db;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+
+    &--done { background: #0e9f6e; }
+  }
+
+  &__label {
+    font-size: 10px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: #64748b;
+
+    &--muted { color: #94a3b8; }
+  }
+
+  &__skeleton {
+    display: block;
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    animation: shimmer 1.5s infinite ease-in-out;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+// ── Badges statut ─────────────────────────────────────────────────────────────
 
 .statut-badge {
   display: inline-flex;
   align-items: center;
-  height: 22px;
-  padding: 0 10px;
-  border-radius: 999px;
+  padding: 3px 10px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -98,21 +198,57 @@
 
   &--planifiee {
     background: #eff6ff;
+    border: 1px solid #bfdbfe;
     color: #1d4ed8;
   }
 
   &--en_cours {
-    background: #f0fdf4;
-    color: #16a34a;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8;
   }
 
   &--cloturee {
-    background: #f8fafc;
-    color: #64748b;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
   }
 }
 
-// ── Boutons ───────────────────────────────────────────────────────────────────
+// ── Boutons d'action ──────────────────────────────────────────────────────────
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--voir {
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    &:hover:not(:disabled) { border-color: $color-primary; color: $color-primary; background: #eff6ff; }
+  }
+
+  &--cloturer {
+    border: 1px solid #fecaca;
+    background: #fff;
+    color: #dc2626;
+    transition: border-color 0.12s, color 0.12s, background 0.12s;
+    &:hover:not(:disabled) { background: #fef2f2; border-color: #fca5a5; }
+  }
+}
+
+// ── Boutons dialog ────────────────────────────────────────────────────────────
 
 .btn {
   display: inline-flex;
@@ -140,35 +276,6 @@
     color: #64748b;
     border: 1px solid #e2e8f0;
     &:hover:not(:disabled) { background: #f1f5f9; }
-  }
-}
-
-.btn-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  height: 30px;
-  padding: 0 12px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  transition: background 0.15s;
-
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  &--voir {
-    background: color.adjust($color-primary, $alpha: -0.9);
-    color: $color-primary;
-    &:hover { background: color.adjust($color-primary, $alpha: -0.8); }
-  }
-
-  &--cloturer {
-    background: #fef2f2;
-    color: #dc2626;
-    &:hover:not(:disabled) { background: #fee2e2; }
   }
 }
 
