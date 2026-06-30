@@ -1,13 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { QueryRef } from 'apollo-angular';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -20,6 +23,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { Abonne, StatutAbonne } from '../../../shared/models/abonne.model';
+import {
+  ABONNE_UPDATED_SUB,
+} from '../../../graphql/queries/abonnes.queries';
 
 @Component({
   selector: 'app-abonnes-list',
@@ -45,6 +51,9 @@ export class AbonnesListComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+
+  private abonnesQuery!: QueryRef<{ abonnes: Abonne[] }>;
 
   readonly abonnes = signal<Abonne[]>([]);
   readonly loading = signal(false);
@@ -100,20 +109,36 @@ export class AbonnesListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.loadAbonnes();
+    this.abonnesQuery = this.abonnesService.watchAbonnes();
+
+    this.abonnesQuery.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ data, loading }) => {
+        this.loading.set(loading);
+        if (data?.abonnes) this.abonnes.set(data.abonnes as Abonne[]);
+      });
+
+    this.abonnesQuery.subscribeToMore<{ abonneUpdated: Abonne }>({
+      document: ABONNE_UPDATED_SUB,
+      updateQuery: (prev, { subscriptionData }): void | { abonnes: Abonne[] } => {
+        const updated = subscriptionData.data?.abonneUpdated;
+        if (!updated) return;
+        return {
+          abonnes: (prev.abonnes ?? []).map((a) =>
+            a?.id === updated.id ? updated : (a as Abonne),
+          ),
+        } as { abonnes: Abonne[] };
+      },
+    });
   }
 
   async loadAbonnes(): Promise<void> {
-    this.loading.set(true);
     this.error.set(null);
     try {
-      const abonnes = await this.abonnesService.getAbonnes();
-      this.abonnes.set(abonnes);
+      await this.abonnesQuery.refetch();
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.error.set(message || 'Impossible de charger la liste des abonnés.');
-    } finally {
-      this.loading.set(false);
     }
   }
 

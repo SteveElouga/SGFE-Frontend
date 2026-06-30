@@ -1,13 +1,14 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { QueryRef } from 'apollo-angular';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -16,7 +17,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
-import { Abonne } from '../../../shared/models/abonne.model';
+import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
+import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 
 @Component({
   imports: [
@@ -33,13 +35,14 @@ import { Abonne } from '../../../shared/models/abonne.model';
   styleUrl: './abonne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AbonneDetailComponent implements OnInit {
+export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
 
   private readonly abonneId: string;
+  private readonly abonneQuery: QueryRef<{ abonne: Abonne }>;
 
   readonly abonne = signal<Abonne | null>(null);
   readonly loading = signal(true);
@@ -48,6 +51,12 @@ export class AbonneDetailComponent implements OnInit {
 
   // Onglets
   readonly activeTab = signal(0);
+
+  // Historique compteur (tab 4 — lazy)
+  readonly historique = signal<HistoriqueCompteurEntry[]>([]);
+  readonly historiqueLoading = signal(false);
+  readonly historiqueLoaded = signal(false);
+  readonly historiqueError = signal<string | null>(null);
 
 
   // Modal remplacer compteur
@@ -93,17 +102,41 @@ export class AbonneDetailComponent implements OnInit {
 
   constructor(route: ActivatedRoute) {
     this.abonneId = route.snapshot.paramMap.get('id')!;
-  }
+    this.abonneQuery = this.abonnesService.watchAbonne(this.abonneId);
 
-  ngOnInit(): void {
-    this.loadAbonne();
+    this.abonneQuery.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: ({ data, loading }) => {
+          this.loading.set(loading);
+          if (data?.abonne) this.abonne.set(data.abonne as Abonne);
+        },
+        error: (err: unknown) => {
+          const { code, message } = extractGqlError(err);
+          if (code === 'NOT_FOUND') {
+            this.router.navigateByUrl('/abonnes');
+          } else {
+            this.error.set(message || 'Impossible de charger la fiche abonné.');
+            this.loading.set(false);
+          }
+        },
+      });
+
+    this.abonneQuery.subscribeToMore<{ abonneUpdated: Abonne }>({
+      document: ABONNE_DETAIL_UPDATED_SUB,
+      variables: { id: this.abonneId },
+      updateQuery: (_, { subscriptionData }): void | { abonne: Abonne } => {
+        const updated = subscriptionData.data?.abonneUpdated;
+        if (!updated) return;
+        return { abonne: updated };
+      },
+    });
   }
 
   async loadAbonne(): Promise<void> {
-    this.loading.set(true);
     this.error.set(null);
     try {
-      this.abonne.set(await this.abonnesService.getAbonne(this.abonneId));
+      await this.abonneQuery.refetch();
     } catch (err: unknown) {
       const { code, message } = extractGqlError(err);
       if (code === 'NOT_FOUND') {
@@ -111,8 +144,6 @@ export class AbonneDetailComponent implements OnInit {
       } else {
         this.error.set(message || 'Impossible de charger la fiche abonné.');
       }
-    } finally {
-      this.loading.set(false);
     }
   }
 
@@ -131,6 +162,34 @@ export class AbonneDetailComponent implements OnInit {
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  // ── Onglets ──────────────────────────────────────────────────────────────────
+
+  setActiveTab(index: number): void {
+    this.activeTab.set(index);
+    if (index === 4 && !this.historiqueLoaded()) {
+      this.loadHistorique();
+    }
+  }
+
+  private async loadHistorique(): Promise<void> {
+    this.historiqueLoading.set(true);
+    this.historiqueError.set(null);
+    try {
+      const data = await this.abonnesService.getHistoriqueCompteur(this.abonneId);
+      this.historique.set(data);
+      this.historiqueLoaded.set(true);
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.historiqueError.set(message || 'Impossible de charger l\'historique.');
+    } finally {
+      this.historiqueLoading.set(false);
+    }
+  }
+
+  fmtCompteurNum(n: number): string {
+    return `C-${String(n).padStart(4, '0')}`;
   }
 
   // ── Navigation formulaire ────────────────────────────────────────────────────
