@@ -45,7 +45,20 @@
       "Bash(echo \"EXIT: $?\")",
       "Bash(curl -s --max-time 8 -i -X POST http://localhost:8080/graphql -H \"Content-Type: application/json\" -d '{\"query\":\"mutation { refreshToken { accessToken } }\"}')",
       "Bash(echo \"CURL_EXIT: $?\")",
-      "Bash(pkill -f \"ng serve\")"
+      "Bash(pkill -f \"ng serve\")",
+      "Bash(xargs ls -la)",
+      "Bash(node -e \"const p = require\\('./node_modules/primeng/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(node -e \"const m = require\\('/Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-select.mjs'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.endsWith\\('Module'\\) || k === 'Select'\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const m = require\\('/Users/apple/Documents/SGFE-frontend/node_modules/primeng/fesm2022/primeng-table.mjs'\\); console.log\\(Object.keys\\(m\\).filter\\(k => k.endsWith\\('Module'\\)\\).join\\(', '\\)\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(node -e \"const p=require\\('/Users/apple/Documents/SGFE-frontend/node_modules/primeng/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(grep -E \"^select$|^dropdown$\")",
+      "Bash(node -e \"const p=require\\('/Users/apple/Documents/SGFE-frontend/node_modules/primeng/package.json'\\); console.log\\(Object.keys\\(p.exports\\).filter\\(k=>k.includes\\('select'\\)||k.includes\\('drop'\\)||k.includes\\('list'\\)\\).join\\('\\\\n'\\)\\)\")",
+      "Bash(node -e \"const p=require\\('/Users/apple/Documents/SGFE-frontend/node_modules/primeng/package.json'\\); const e=p.exports['./select']; console.log\\(JSON.stringify\\(e\\)\\)\")",
+      "Bash(node -e \"const p=require\\('/Users/apple/Documents/SGFE-frontend/node_modules/@angular/core/package.json'\\); console.log\\(p.version\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); t=d['projects']['frontend']['architect'].get\\('test',{}\\); print\\(json.dumps\\(t.get\\('options',{}\\), indent=2\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")"
     ],
     "additionalDirectories": [
       "/private/tmp"

@@ -1,0 +1,161 @@
+<p-toast />
+<p-confirmdialog />
+
+<!-- Topbar — sticky, blanc, border-bottom -->
+<header class="abonnes-topbar">
+  <div class="abonnes-topbar__left">
+    <span class="abonnes-topbar__title">Abonnés</span>
+    @if (statutSummary()) {
+      <span class="abonnes-topbar__subtitle">{{ statutSummary() }}</span>
+    }
+  </div>
+  <a routerLink="/abonnes/nouveau" class="abonnes-topbar__btn">
+    <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+      <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+    Nouvel abonné
+  </a>
+</header>
+
+<!-- Contenu scrollable -->
+<div class="abonnes-content">
+
+  @if (error()) {
+    <div class="abonnes-error">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+      <button class="abonnes-error__retry" (click)="loadAbonnes()">Réessayer</button>
+    </div>
+  }
+
+  <!-- Carte filtres -->
+  <div class="abonnes-filters">
+    <p-iconfield class="abonnes-filters__search">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Rechercher nom, AB-XXXX…"
+        aria-label="Rechercher"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </p-iconfield>
+
+    <p-select
+      [options]="statutOptions"
+      [ngModel]="statutFilter()"
+      (ngModelChange)="statutFilter.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Statut"
+      [showClear]="true"
+    />
+
+    <p-select
+      [options]="quartiersOptions()"
+      [ngModel]="quartierFilter()"
+      (ngModelChange)="quartierFilter.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Quartier"
+      [showClear]="true"
+    />
+  </div>
+
+  <!-- Carte tableau -->
+  <div class="abonnes-card">
+    <p-table
+      [value]="filteredAbonnes()"
+      [loading]="loading()"
+      [paginator]="filteredAbonnes().length > 5"
+      [rows]="5"
+      [rowHover]="true"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage {first}–{last} de {totalRecords} abonnés"
+      styleClass="abonnes-table"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">N° Abonné</th>
+          <th scope="col" class="th-wrap">Nom Prénom</th>
+          <th scope="col">Quartier · Camp</th>
+          <th scope="col">N° Compteur</th>
+          <th scope="col">Statut</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-abonne let-rowIndex="rowIndex">
+        <tr [class.abonnes-row--even]="rowIndex % 2 !== 0">
+          <td>
+            <span class="abonnes-table__numero">{{ abonne.numeroAbonne }}</span>
+          </td>
+          <td>
+            <div class="abonnes-table__nom">{{ abonne.nom }} {{ abonne.prenom }}</div>
+          </td>
+          <td class="abonnes-table__localisation">
+            @if (abonne.compteur) {
+              {{ abonne.compteur.quartier }} · Camp {{ abonne.compteur.camp }}
+            } @else {
+              <span class="abonnes-table__dash">—</span>
+            }
+          </td>
+          <td>
+            @if (abonne.compteur) {
+              <span class="abonnes-table__compteur">{{ formatNumeroCompteur(abonne.compteur.numeroCompteur) }}</span>
+            } @else {
+              <span class="abonnes-table__dash">—</span>
+            }
+          </td>
+          <td>
+            <span
+              class="abonnes-table__statut"
+              [class.abonnes-table__statut--actif]="abonne.statut === 'ACTIF'"
+              [class.abonnes-table__statut--suspendu]="abonne.statut === 'SUSPENDU'"
+              [class.abonnes-table__statut--resilie]="abonne.statut === 'RESILIE'"
+            >{{ abonne.statut }}</span>
+          </td>
+          <td>
+            <div class="abonnes-table__actions">
+              <button
+                type="button"
+                class="abonnes-table__action-btn"
+                (click)="voirAbonne(abonne.id)"
+              >Voir</button>
+
+              @if (abonne.statut === 'ACTIF') {
+                <button
+                  type="button"
+                  class="abonnes-table__action-btn"
+                  (click)="modifierAbonne(abonne.id)"
+                >Modifier</button>
+              }
+
+              @if (abonne.statut === 'SUSPENDU') {
+                <button
+                  type="button"
+                  class="abonnes-table__action-btn abonnes-table__action-btn--reactiver"
+                  (click)="confirmReactiver(abonne)"
+                >Réactiver</button>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="abonnes-table__empty">
+            @if (searchTerm() || statutFilter() || quartierFilter()) {
+              Aucun résultat pour les filtres sélectionnés
+            } @else {
+              Aucun abonné enregistré
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>

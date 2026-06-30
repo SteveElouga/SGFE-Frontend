@@ -1,0 +1,119 @@
+<p-toast />
+<p-confirmdialog />
+
+<div class="users-page">
+  <header class="users-page__header">
+    <div>
+      <h1 class="users-page__title">Utilisateurs</h1>
+      <p class="users-page__subtitle">{{ users().length }} compte{{ users().length > 1 ? 's' : '' }} enregistré{{ users().length > 1 ? 's' : '' }}</p>
+    </div>
+    <a routerLink="/utilisateurs/nouveau" class="users-page__new-btn">
+      <i class="pi pi-plus"></i>
+      Nouvel utilisateur
+    </a>
+  </header>
+
+  @if (error()) {
+    <div class="users-page__error">
+      <i class="pi pi-exclamation-circle"></i>
+      {{ error() }}
+      <button class="users-page__retry" (click)="loadUsers()">Réessayer</button>
+    </div>
+  }
+
+  <div class="users-page__toolbar">
+    <p-iconfield>
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Rechercher un utilisateur…"
+        aria-label="Rechercher"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event)"
+      />
+    </p-iconfield>
+  </div>
+
+  <p-table
+    [value]="filteredUsers()"
+    [loading]="loading()"
+    [paginator]="filteredUsers().length > 20"
+    [rows]="20"
+    styleClass="users-table"
+    [rowHover]="true"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Utilisateur</th>
+        <th>Téléphone</th>
+        <th>Rôle</th>
+        <th>Statut</th>
+        <th>Créé le</th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-user>
+      <tr>
+        <td>
+          <div class="users-table__user">
+            <span class="users-table__username">{{ user.username }}</span>
+            @if (user.email) {
+              <span class="users-table__email">{{ user.email }}</span>
+            }
+          </div>
+        </td>
+        <td class="users-table__phone">{{ user.phoneNumber }}</td>
+        <td>
+          <p-tag
+            [value]="roleLabel(user.role)"
+            [severity]="roleSeverity(user.role)"
+          />
+        </td>
+        <td>
+          @if (user.isActive) {
+            <span class="users-table__badge users-table__badge--active">Actif</span>
+          } @else {
+            <span class="users-table__badge users-table__badge--inactive">Inactif</span>
+          }
+        </td>
+        <td class="users-table__date">{{ user.createdAt | date:'dd/MM/yyyy' }}</td>
+        <td>
+          <div class="users-table__actions">
+            <button
+              type="button"
+              class="users-table__action-btn"
+              title="Modifier"
+              (click)="editUser(user)"
+            >
+              <i class="pi pi-pencil"></i>
+            </button>
+            @if (user.isActive) {
+              <button
+                type="button"
+                class="users-table__action-btn users-table__action-btn--danger"
+                title="Désactiver"
+                (click)="confirmDeactivate(user)"
+              >
+                <i class="pi pi-ban"></i>
+              </button>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="users-table__empty">
+          @if (searchTerm()) {
+            Aucun résultat pour « {{ searchTerm() }} »
+          } @else {
+            Aucun utilisateur enregistré
+          }
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
