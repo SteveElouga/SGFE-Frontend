@@ -1,0 +1,359 @@
+@use 'sass:color';
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.config-page {
+  padding: $spacing-lg $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// ── Header ────────────────────────────────────────────────────────────────────
+
+.config-page__header {
+  margin-bottom: $spacing-lg;
+}
+
+.config-page__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.config-page__subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+.config-page__skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.skeleton-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-block {
+  background: #e2e8f0;
+  border-radius: 6px;
+  animation: shimmer 1.5s infinite ease-in-out;
+
+  &--title {
+    height: 20px;
+    width: 40%;
+  }
+
+  &--field {
+    height: 40px;
+    width: 100%;
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+// ── Grid ──────────────────────────────────────────────────────────────────────
+
+.config-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ── Card ──────────────────────────────────────────────────────────────────────
+
+.config-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.config-card__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid #f1f5f9;
+  background: #f8fafc;
+}
+
+.config-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: color.adjust($color-primary, $alpha: -0.88);
+  border-radius: 8px;
+  color: $color-primary;
+  font-size: 15px;
+}
+
+.config-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.config-card__body {
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  &--flush {
+    padding: 0;
+  }
+}
+
+.config-card__updated {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 4px 0 0;
+
+  .pi {
+    font-size: 11px;
+  }
+}
+
+.config-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid #f1f5f9;
+}
+
+// ── Form fields ───────────────────────────────────────────────────────────────
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-field__input {
+  width: 100%;
+  height: 40px;
+  font-size: 14px;
+}
+
+// ── Param list ────────────────────────────────────────────────────────────────
+
+.param-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: $spacing-lg;
+  color: #94a3b8;
+  font-size: 14px;
+
+  .pi {
+    font-size: 20px;
+  }
+}
+
+.param-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.param-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: 14px $spacing-lg;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f8fafc;
+  }
+
+  &--editing {
+    background: #f8fafc;
+    flex-wrap: wrap;
+  }
+}
+
+.param-item__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.param-item__key {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+}
+
+.param-item__desc {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.param-item__view-row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.param-item__value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.param-item__edit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.param-item__input {
+  width: 160px;
+  height: 36px;
+  font-size: 13px;
+}
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s, opacity 0.15s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: $color-primary;
+    color: #fff;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($color-primary, $lightness: -8%);
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+
+    &:hover:not(:disabled) {
+      background: #f1f5f9;
+    }
+  }
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 13px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--edit {
+    background: transparent;
+    color: #64748b;
+
+    &:hover {
+      background: #f1f5f9;
+      color: $color-primary;
+    }
+  }
+
+  &--confirm {
+    background: color.adjust($color-accent, $alpha: -0.88);
+    color: $color-accent;
+
+    &:hover:not(:disabled) {
+      background: color.adjust($color-accent, $alpha: -0.75);
+    }
+  }
+
+  &--cancel {
+    background: #fee2e2;
+    color: #ef4444;
+
+    &:hover {
+      background: #fecaca;
+    }
+  }
+}

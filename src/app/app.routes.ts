@@ -118,6 +118,14 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'configuration',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () =>
+          import('./features/configuration/configuration.component').then(
+            (m) => m.ConfigurationComponent,
+          ),
+      },
     ],
   },
 

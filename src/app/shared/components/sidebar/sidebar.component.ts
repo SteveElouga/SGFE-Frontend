@@ -61,7 +61,7 @@ export class SidebarComponent implements OnInit {
     { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', disabled: true },
     { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', disabled: true },
     { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', disabled: true },
-    { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'], disabled: true },
+    { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'] },
   ];
 
   readonly visibleNavItems = computed(() =>

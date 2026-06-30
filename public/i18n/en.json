@@ -146,7 +146,7 @@
       "PRENOM": "First name",
       "TELEPHONE": "WhatsApp phone",
       "ADRESSE": "Address (optional)",
-      "SECTION_COMPTEUR": "Current meter",
+      "SECTION_COMPTEUR": "Meter",
       "NUMERO_COMPTEUR": "Meter #",
       "QUARTIER": "Area",
       "CAMP": "Camp",
@@ -161,7 +161,6 @@
       "SECTION_IDENTITE": "Identity",
       "SECTION_LOCALISATION": "Location",
       "SECTION_CONTACT": "Contact",
-      "SECTION_COMPTEUR": "Meter",
       "BADGE_CREATE": "CREATE",
       "BADGE_EDIT": "EDIT",
       "CARD_SUBTITLE": "In create mode, the number is assigned automatically · Fields marked * are required",
@@ -273,5 +272,24 @@
     "ABONNES_DESC": "Manage subscribers and their water meters",
     "USERS_TITLE": "Users",
     "USERS_DESC": "Manage agent, accountant and administrator accounts"
+  },
+  "CONFIGURATION": {
+    "TITLE": "Configuration",
+    "SUBTITLE": "Utility settings",
+    "SECTION_SOCIETE": "Company information",
+    "SECTION_PARAMS": "System parameters",
+    "NOM": "Company name",
+    "ADRESSE": "Address",
+    "TELEPHONE": "Phone number",
+    "LOGO_PATH": "Logo path",
+    "LOGO_PATH_PLACEHOLDER": "e.g. /assets/logo/logo.png",
+    "SAVE": "Save",
+    "SAVING": "Saving…",
+    "EDIT": "Edit",
+    "UPDATED_AT": "Last updated:",
+    "SUCCESS_SOCIETE": "Company information updated",
+    "SUCCESS_PARAM": "Parameter updated",
+    "ERROR_LOAD": "Failed to load configuration",
+    "PARAMS_EMPTY": "No parameters configured"
   }
 }
