@@ -1,0 +1,33 @@
+<div class="auth-steps-card">
+  <div class="auth-steps-card__title">{{ title() }}</div>
+  <ol class="auth-steps-card__list">
+    @for (step of resolvedSteps(); track step.label) {
+      <li
+        [class.auth-steps-card__item--active]="step.isActive"
+        [class.auth-steps-card__item--done]="step.isDone"
+      >
+        <span
+          class="auth-steps-card__number"
+          [class.auth-steps-card__number--active]="step.isActive"
+          [class.auth-steps-card__number--done]="step.isDone"
+          [class.auth-steps-card__number--pending]="!step.isDone && !step.isActive"
+        >
+          @if (step.isDone) {
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path
+                d="M1.5 5l2.5 2.5L8.5 2"
+                stroke="#fff"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          } @else {
+            {{ step.stepNum }}
+          }
+        </span>
+        {{ step.label }}
+      </li>
+    }
+  </ol>
+</div>

@@ -6,6 +6,7 @@ export const ME = gql`
       id
       username
       email
+      phoneNumber
       role
       isActive
       createdAt

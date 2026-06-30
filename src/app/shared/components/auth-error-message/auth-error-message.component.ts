@@ -1,20 +1,13 @@
-import { Component, input } from '@angular/core';
-import { MessageModule } from 'primeng/message';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   selector: 'app-auth-error-message',
-  imports: [MessageModule],
-  template: `
-    @if (text()) {
-      <p-message
-        severity="error"
-        size="small"
-        icon="pi pi-exclamation-circle"
-        [closable]="true"
-        [text]="text()!"
-      />
-    }
-  `,
+  templateUrl: './auth-error-message.component.html',
+  styleUrl: './auth-error-message.component.scss',
+  host: {
+    '[style.display]': 'text() ? "flex" : "none"',
+  },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthErrorMessageComponent {
   readonly text = input<string | null>(null);

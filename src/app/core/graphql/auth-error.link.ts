@@ -18,7 +18,13 @@ export function createAuthErrorLink(injector: Injector): ErrorLink {
     const isUnauthenticated = error.errors.some(
       (graphQLError) => graphQLError.extensions?.['code'] === 'UNAUTHENTICATED',
     );
-    if (!isUnauthenticated || operation.getContext()[AUTH_RETRIED_CONTEXT_KEY]) {
+    // Never retry the refresh-token operation itself: that would create a
+    // circular dependency where the refresh waits on itself to resolve.
+    if (
+      !isUnauthenticated ||
+      operation.getContext()[AUTH_RETRIED_CONTEXT_KEY] ||
+      operation.operationName === 'RefreshToken'
+    ) {
       return;
     }
 

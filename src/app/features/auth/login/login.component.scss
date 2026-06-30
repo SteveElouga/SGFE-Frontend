@@ -165,6 +165,17 @@
   color: $color-error;
 }
 
+.login__icon--valid {
+  color: $color-accent !important;
+}
+
+.login__field-hint {
+  display: block;
+  font-size: 12px;
+  color: $color-error;
+  margin-top: $spacing-xs;
+}
+
 .login__roles {
   margin-top: $spacing-md;
   padding-top: $spacing-md;

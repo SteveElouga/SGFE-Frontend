@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-auth-submit-button',
   imports: [ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-button
       type="submit"

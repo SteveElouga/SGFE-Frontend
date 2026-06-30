@@ -1,9 +1,11 @@
-@use '../../../../styles/variables' as *;
 @use '../../../../styles/mobile' as *;
+@use '../../../../styles/variables' as *;
 
 .auth-back-link {
-  text-align: center;
-  color: $color-primary;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #64748b;
   text-decoration: none;
   font-size: 13px;
 }
@@ -13,7 +15,6 @@
 
   @include desktop {
     display: block;
-    text-align: left;
     margin-bottom: $spacing-lg;
   }
 }

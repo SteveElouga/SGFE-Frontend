@@ -8,15 +8,26 @@ import {
   LOGOUT,
   REFRESH_TOKEN,
   REQUEST_PASSWORD_RESET,
+  REQUEST_PHONE_OTP,
   RESET_PASSWORD,
+  VERIFY_OTP_AND_SET_PASSWORD,
 } from '../../graphql/mutations/auth.mutations';
-import { AuthPayload, User } from '../../shared/models/user.model';
+import { AuthPayload, OtpSentPayload, User } from '../../shared/models/user.model';
+
+export function extractGqlError(error: unknown): { code: string; message: string } {
+  if (CombinedGraphQLErrors.is(error)) {
+    const gqlError = error.errors[0];
+    return {
+      code: (gqlError?.extensions?.['code'] as string) ?? '',
+      message: gqlError?.message ?? '',
+    };
+  }
+  return { code: '', message: error instanceof Error ? error.message : '' };
+}
 
 function extractServerErrorMessage(error: unknown, fallback: string): string {
-  if (CombinedGraphQLErrors.is(error)) {
-    return error.errors[0]?.message || fallback;
-  }
-  return fallback;
+  const { message } = extractGqlError(error);
+  return message || fallback;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -38,12 +49,12 @@ export class AuthService {
     return this._accessToken();
   }
 
-  async login(username: string, password: string): Promise<void> {
+  async login(identifier: string, password: string): Promise<void> {
     try {
       const result = await firstValueFrom(
         this.apolloClient.mutate<{ login: AuthPayload }>({
           mutation: LOGIN,
-          variables: { username, password },
+          variables: { identifier, password },
         }),
       );
 
@@ -57,6 +68,25 @@ export class AuthService {
     } catch (error) {
       throw new Error(extractServerErrorMessage(error, 'Identifiants incorrects. Veuillez réessayer.'));
     }
+  }
+
+  async requestPhoneOtp(phoneNumber: string): Promise<string> {
+    const result = await firstValueFrom(
+      this.apolloClient.mutate<{ requestPhoneOtp: OtpSentPayload }>({
+        mutation: REQUEST_PHONE_OTP,
+        variables: { phoneNumber },
+      }),
+    );
+    return result.data?.requestPhoneOtp.maskedPhone ?? '';
+  }
+
+  async verifyOtpAndSetPassword(phoneNumber: string, otpCode: string, password: string): Promise<void> {
+    await firstValueFrom(
+      this.apolloClient.mutate<{ verifyOtpAndSetPassword: boolean }>({
+        mutation: VERIFY_OTP_AND_SET_PASSWORD,
+        variables: { phoneNumber, otpCode, password },
+      }),
+    );
   }
 
   async refreshToken(): Promise<void> {

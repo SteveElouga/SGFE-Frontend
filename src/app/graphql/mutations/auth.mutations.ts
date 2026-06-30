@@ -1,34 +1,38 @@
 import { gql } from '@apollo/client';
 
+const USER_FIELDS = gql`
+  fragment UserFields on User {
+    id
+    username
+    email
+    phoneNumber
+    role
+    isActive
+    createdAt
+  }
+`;
+
 export const LOGIN = gql`
-  mutation Login($username: String!, $password: String!) {
-    login(username: $username, password: $password) {
+  ${USER_FIELDS}
+  mutation Login($identifier: String!, $password: String!) {
+    login(identifier: $identifier, password: $password) {
       accessToken
       expiresIn
       user {
-        id
-        username
-        email
-        role
-        isActive
-        createdAt
+        ...UserFields
       }
     }
   }
 `;
 
 export const REFRESH_TOKEN = gql`
+  ${USER_FIELDS}
   mutation RefreshToken {
     refreshToken {
       accessToken
       expiresIn
       user {
-        id
-        username
-        email
-        role
-        isActive
-        createdAt
+        ...UserFields
       }
     }
   }
@@ -55,5 +59,27 @@ export const ACTIVATE_ACCOUNT = gql`
 export const RESET_PASSWORD = gql`
   mutation ResetPassword($token: String!, $password: String!) {
     resetPassword(token: $token, password: $password)
+  }
+`;
+
+export const REQUEST_PHONE_OTP = gql`
+  mutation RequestPhoneOtp($phoneNumber: String!) {
+    requestPhoneOtp(phoneNumber: $phoneNumber) {
+      maskedPhone
+    }
+  }
+`;
+
+export const VERIFY_OTP_AND_SET_PASSWORD = gql`
+  mutation VerifyOtpAndSetPassword(
+    $phoneNumber: String!
+    $otpCode: String!
+    $password: String!
+  ) {
+    verifyOtpAndSetPassword(
+      phoneNumber: $phoneNumber
+      otpCode: $otpCode
+      password: $password
+    )
   }
 `;

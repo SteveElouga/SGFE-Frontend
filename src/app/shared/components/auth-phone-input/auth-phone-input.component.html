@@ -1,0 +1,27 @@
+<div
+  class="auth-phone-field"
+  [class.auth-phone-field--valid]="isValid()"
+  [class.auth-phone-field--invalid]="showError()"
+>
+  <span class="auth-phone-field__prefix">+237</span>
+  <input
+    [id]="inputId()"
+    type="tel"
+    pInputText
+    [fluid]="true"
+    autocomplete="tel"
+    placeholder="612345678"
+    aria-label="Numéro de téléphone"
+    inputmode="numeric"
+    maxlength="9"
+    [invalid]="showError()"
+    [ngModel]="value()"
+    (ngModelChange)="value.set($event)"
+    [name]="name()"
+  />
+</div>
+@if (showError()) {
+  <span class="auth-screen__hint auth-screen__hint--error">
+    9 chiffres commençant par 6 (ex. 612345678)
+  </span>
+}

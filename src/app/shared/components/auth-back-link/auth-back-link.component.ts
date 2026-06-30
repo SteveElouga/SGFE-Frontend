@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
   host: {
     '[class.auth-back-link--desktop-only]': 'desktopOnly()',
   },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AuthBackLinkComponent {
   readonly to = input('/login');

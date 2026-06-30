@@ -52,21 +52,26 @@
       <h2>Bon retour 👋</h2>
       <p class="login__subtitle">Connectez-vous à votre espace de travail</p>
 
-      <app-auth-field label="Nom d'utilisateur">
+      <app-auth-field label="Nom d'utilisateur ou Téléphone">
         <p-iconfield>
-          <p-inputicon styleClass="pi pi-user" />
+          <p-inputicon [styleClass]="identifierIconClass()" />
           <input
-            id="username"
+            id="identifier"
             type="text"
             pInputText
             [fluid]="true"
             autocomplete="username"
-            placeholder="prenom.nom"
-            [ngModel]="username()"
-            (ngModelChange)="username.set($event)"
-            name="username"
+            placeholder="jean.dupont ou 612345678"
+            [invalid]="identifierInvalid() || !!errorMessage()"
+            [ngModel]="identifier()"
+            (ngModelChange)="identifier.set($event)"
+            (blur)="identifierTouched.set(true)"
+            name="identifier"
           />
         </p-iconfield>
+        @if (identifierInvalid()) {
+          <span class="login__field-hint">Ce champ est obligatoire.</span>
+        }
       </app-auth-field>
 
       <app-auth-field label="Mot de passe">
@@ -74,21 +79,24 @@
           Mot de passe oublié ?
         </a>
         <p-iconfield>
-          <p-inputicon
-            [styleClass]="'pi pi-lock' + (errorMessage() ? ' login__icon--invalid' : '')"
-          />
+          <p-inputicon [styleClass]="lockIconClass()" />
           <p-password
             inputId="password"
+            placeholder="••••••••"
             [feedback]="false"
             [toggleMask]="true"
             [fluid]="true"
-            [invalid]="!!errorMessage()"
+            [invalid]="passwordInvalid() || !!errorMessage()"
             autocomplete="current-password"
             [ngModel]="password()"
             (ngModelChange)="password.set($event)"
+            (onBlur)="passwordTouched.set(true)"
             name="password"
           />
         </p-iconfield>
+        @if (passwordInvalid()) {
+          <span class="login__field-hint">Ce champ est obligatoire.</span>
+        }
       </app-auth-field>
 
       <app-auth-error-message [text]="errorMessage()" />
