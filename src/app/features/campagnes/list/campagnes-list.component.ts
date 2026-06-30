@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
@@ -28,7 +28,7 @@ const MOIS_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ label: '', value: i
   selector: 'app-campagnes-list',
   imports: [
     RouterLink,
-    DatePipe,
+    LowerCasePipe,
     FormsModule,
     ToastModule,
     TableModule,

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -24,7 +24,7 @@ import { extractGqlError } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-campagne-detail',
-  imports: [RouterLink, DatePipe, ToastModule, ErrorBannerComponent, TranslatePipe],
+  imports: [RouterLink, DatePipe, DecimalPipe, LowerCasePipe, SlicePipe, ToastModule, ErrorBannerComponent, TranslatePipe],
   providers: [MessageService],
   templateUrl: './campagne-detail.component.html',
   styleUrl: './campagne-detail.component.scss',

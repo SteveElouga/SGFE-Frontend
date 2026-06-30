@@ -107,7 +107,7 @@ export class SidebarComponent implements OnInit {
         campagneId: enCours.campagneId,
         periodeMois: enCours.periodeMois,
         periodeAnnee: enCours.periodeAnnee,
-        progression: progResult.data.progression,
+        progression: progResult.data!.progression,
       });
     } catch {
       // La sidebar reste fonctionnelle sans le widget campagne
