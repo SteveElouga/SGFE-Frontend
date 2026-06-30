@@ -39,6 +39,14 @@ export const routes: Routes = [
         (m) => m.ActivateOtpComponent,
       ),
   },
+  {
+    // Alias pour les liens WhatsApp : /activer-compte?phone=%2B237...
+    path: 'activer-compte',
+    loadComponent: () =>
+      import('./features/auth/activate-otp/activate-otp.component').then(
+        (m) => m.ActivateOtpComponent,
+      ),
+  },
 
   // ── Authenticated shell ────────────────────────────────────────────────────
   {
