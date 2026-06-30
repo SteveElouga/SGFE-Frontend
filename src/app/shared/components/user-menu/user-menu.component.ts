@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Popover, PopoverModule } from 'primeng/popover';
+import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
@@ -20,12 +21,14 @@ import { AuthService } from '../../../core/auth/auth.service';
 export class UserMenuComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   private readonly menuRef = viewChild<Popover>('menu');
 
   readonly isOpen = signal(false);
   readonly user = this.auth.user;
   readonly isAdmin = this.auth.isAdmin;
+  readonly currentLang = this.translate.currentLang;
 
   readonly userInitial = computed(() => {
     const u = this.user();
@@ -52,6 +55,10 @@ export class UserMenuComponent {
 
   close(): void {
     this.menuRef()?.hide();
+  }
+
+  setLang(lang: 'fr' | 'en'): void {
+    this.translate.use(lang);
   }
 
   async logout(): Promise<void> {

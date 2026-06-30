@@ -189,3 +189,58 @@ $text-muted:       rgba(255, 255, 255, 0.35);
   width: 16px;
   flex-shrink: 0;
 }
+
+// ── Sélecteur de langue ───────────────────────────────────────────────────────
+
+.um-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+
+  &__icon {
+    font-size: 14px;
+    width: 16px;
+    flex-shrink: 0;
+    color: #64748b;
+  }
+
+  &__label {
+    flex: 1;
+  }
+
+  &__toggle {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  &__btn {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background 0.12s, color 0.12s;
+
+    &:hover:not(&--active) {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    &--active {
+      background: #fff;
+      color: $color-primary;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+  }
+}

@@ -35,7 +35,7 @@ export function extractGqlError(error: unknown): { code: string; message: string
   if (CombinedGraphQLErrors.is(error)) {
     const gqlError = error.errors[0];
     return {
-      code: (gqlError?.extensions?.['code'] as string) ?? '',
+      code: ((gqlError?.extensions?.['grpc_code'] ?? gqlError?.extensions?.['code']) as string) ?? '',
       message: sanitizeGqlMessage(gqlError?.message ?? ''),
     };
   }
