@@ -119,6 +119,26 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'campagnes',
+        canActivate: [roleGuard(['ADMIN', 'SUPERVISEUR', 'AGENT'])],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/campagnes/list/campagnes-list.component').then(
+                (m) => m.CampagnesListComponent,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/campagnes/detail/campagne-detail.component').then(
+                (m) => m.CampagneDetailComponent,
+              ),
+          },
+        ],
+      },
+      {
         path: 'configuration',
         canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () =>

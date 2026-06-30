@@ -40,7 +40,8 @@
     "CREATED_AT": "Created on",
     "STATUS": "Status",
     "MIN_2_CHARS": "Minimum 2 characters",
-    "INTEGER_MIN_1": "Integer ≥ 1 required"
+    "INTEGER_MIN_1": "Integer ≥ 1 required",
+    "SEE": "View"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -293,5 +294,66 @@
     "SUCCESS_PARAM": "Parameter updated",
     "ERROR_LOAD": "Failed to load configuration",
     "PARAMS_EMPTY": "No parameters configured"
+  },
+  "CAMPAGNES": {
+    "TITLE": "Campaigns",
+    "NEW": "New campaign",
+    "EMPTY": "No campaigns found",
+    "ERROR_LOAD": "Failed to load campaigns",
+    "STATS_EN_COURS": "{{count}} in progress",
+    "STATS_CLOTUREES": "{{count}} closed",
+    "STATS_EMPTY": "No campaigns",
+    "COL_CAMPAGNE": "Campaign",
+    "COL_PLANIFIEE": "Planned date",
+    "COL_STATUT": "Status",
+    "CLOTURER": "Close",
+    "SUCCESS_CREE": "Campaign created successfully",
+    "SUCCESS_CLOTUREE": "Campaign closed",
+    "CREE_LE": "Created on",
+    "CLOTURE_LE": "Closed on",
+    "TAB_PROGRESSION": "Progress",
+    "TAB_RELEVES": "Readings",
+    "KPI_TOTAL": "Total subscribers",
+    "KPI_RELEVES": "Read",
+    "KPI_EN_ATTENTE": "Pending",
+    "KPI_AVANCEMENT": "Progress",
+    "RELEVES_EMPTY": "No readings for this campaign",
+    "STATUT": {
+      "PLANIFIEE": "Planned",
+      "EN_COURS": "In progress",
+      "CLOTUREE": "Closed"
+    },
+    "RELEVE_STATUT": {
+      "A_RELEVER": "To read",
+      "RELEVE": "Read",
+      "NON_RELEVE": "Not read",
+      "ESTIME": "Estimated"
+    },
+    "FILTRE": {
+      "TOUTES": "All"
+    },
+    "MOIS": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    },
+    "FORM": {
+      "NOM": "Campaign name",
+      "NOM_PLACEHOLDER": "E.g. June 2026 Reading",
+      "MOIS": "Month",
+      "ANNEE": "Year",
+      "DATE_PLANIFIEE": "Planned date (optional)",
+      "DATE_HINT": "Leave empty to start immediately",
+      "SUBMIT": "Create campaign"
+    }
   }
 }

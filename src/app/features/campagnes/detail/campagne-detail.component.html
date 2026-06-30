@@ -1,0 +1,178 @@
+<p-toast />
+
+<div class="detail-page">
+
+  <!-- Topbar fil d'ariane -->
+  <header class="detail-topbar">
+    <a routerLink="/campagnes" class="detail-topbar__back">
+      <i class="pi pi-chevron-left"></i>
+      {{ 'CAMPAGNES.TITLE' | translate }}
+    </a>
+    <span class="detail-topbar__sep">/</span>
+    @if (campagne()) {
+      <span class="detail-topbar__name">{{ campagne()!.nom }}</span>
+    } @else {
+      <span class="detail-topbar__name detail-topbar__name--loading">{{ 'COMMON.LOADING' | translate }}</span>
+    }
+  </header>
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="load()" />
+  }
+
+  @if (loading()) {
+    <div class="detail-skeleton">
+      <div class="detail-skeleton__header"></div>
+      <div class="detail-skeleton__body"></div>
+    </div>
+  } @else if (campagne()) {
+    @let c = campagne()!;
+
+    <!-- En-tête campagne -->
+    <div class="detail-header">
+      <div class="detail-header__left">
+        <h1 class="detail-header__nom">{{ c.nom }}</h1>
+        <p class="detail-header__meta">
+          {{ periode() }}
+          <span class="detail-header__meta-sep">·</span>
+          {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yyyy' }}
+          @if (c.dateCloture) {
+            <span class="detail-header__meta-sep">·</span>
+            {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yyyy' }}
+          }
+        </p>
+      </div>
+      <div class="detail-header__right">
+        <span class="statut-badge statut-badge--{{ c.statut | lowercase }}">
+          {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
+        </span>
+        @if (c.statut === 'EN_COURS' && canActOnCampagne()) {
+          <button
+            class="btn btn--danger"
+            [disabled]="cloturant()"
+            (click)="cloturer()"
+          >
+            @if (cloturant()) { <i class="pi pi-spin pi-spinner"></i> }
+            {{ 'CAMPAGNES.CLOTURER' | translate }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div class="detail-tabs">
+      <button
+        class="detail-tab"
+        [class.detail-tab--active]="activeTab() === 0"
+        (click)="setActiveTab(0)"
+      >{{ 'CAMPAGNES.TAB_PROGRESSION' | translate }}</button>
+      <button
+        class="detail-tab"
+        [class.detail-tab--active]="activeTab() === 1"
+        (click)="setActiveTab(1)"
+      >{{ 'CAMPAGNES.TAB_RELEVES' | translate }}</button>
+    </div>
+
+    <!-- Onglet 0 : Progression -->
+    @if (activeTab() === 0) {
+      <div class="tab-progression">
+        @if (progression()) {
+          @let p = progression()!;
+
+          <div class="progress-kpis">
+            <div class="kpi">
+              <span class="kpi__value">{{ p.totalAbonnes }}</span>
+              <span class="kpi__label">{{ 'CAMPAGNES.KPI_TOTAL' | translate }}</span>
+            </div>
+            <div class="kpi kpi--success">
+              <span class="kpi__value">{{ p.nbReleves }}</span>
+              <span class="kpi__label">{{ 'CAMPAGNES.KPI_RELEVES' | translate }}</span>
+            </div>
+            <div class="kpi kpi--warn">
+              <span class="kpi__value">{{ p.nbEnAttente }}</span>
+              <span class="kpi__label">{{ 'CAMPAGNES.KPI_EN_ATTENTE' | translate }}</span>
+            </div>
+            <div class="kpi kpi--accent">
+              <span class="kpi__value">{{ pourcentageAffiche() }}%</span>
+              <span class="kpi__label">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</span>
+            </div>
+          </div>
+
+          <div class="progress-bar-section">
+            <div class="progress-bar">
+              <div
+                class="progress-bar__fill"
+                [style.width.%]="pourcentageAffiche()"
+                [class.progress-bar__fill--complete]="pourcentageAffiche() === 100"
+              ></div>
+            </div>
+            <span class="progress-bar__label">{{ p.nbReleves }} / {{ p.totalAbonnes }}</span>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Onglet 1 : Relevés -->
+    @if (activeTab() === 1) {
+      <div class="tab-releves">
+        @if (relevesLoading()) {
+          <div class="releves-skeleton">
+            @for (_ of [1,2,3,4,5]; track $index) {
+              <div class="releves-skeleton__row"></div>
+            }
+          </div>
+        } @else {
+          <div class="releves-stats">
+            <span class="releve-chip releve-chip--a-relever">
+              {{ relevesByStatut().aRelever }} {{ 'CAMPAGNES.RELEVE_STATUT.A_RELEVER' | translate }}
+            </span>
+            <span class="releve-chip releve-chip--releve">
+              {{ relevesByStatut().releve }} {{ 'CAMPAGNES.RELEVE_STATUT.RELEVE' | translate }}
+            </span>
+            @if (relevesByStatut().nonReleve > 0) {
+              <span class="releve-chip releve-chip--non-releve">
+                {{ relevesByStatut().nonReleve }} {{ 'CAMPAGNES.RELEVE_STATUT.NON_RELEVE' | translate }}
+              </span>
+            }
+            @if (relevesByStatut().estime > 0) {
+              <span class="releve-chip releve-chip--estime">
+                {{ relevesByStatut().estime }} {{ 'CAMPAGNES.RELEVE_STATUT.ESTIME' | translate }}
+              </span>
+            }
+          </div>
+
+          <div class="releves-list">
+            @for (r of releves(); track r.releveId) {
+              <div class="releve-row" [class.releve-row--done]="r.statut === 'RELEVE'">
+                <div class="releve-row__id">{{ r.abonneId | slice:0:8 }}…</div>
+                <div class="releve-row__indexes">
+                  <span class="releve-row__old">{{ r.ancienIndex | number:'1.0-1' }} m³</span>
+                  @if (r.statut === 'RELEVE') {
+                    <i class="pi pi-arrow-right"></i>
+                    <span class="releve-row__new">{{ r.nouveauIndex | number:'1.0-1' }} m³</span>
+                    <span class="releve-row__conso">({{ r.consommation | number:'1.0-1' }} m³)</span>
+                  }
+                </div>
+                <div class="releve-row__status">
+                  <span class="releve-chip releve-chip--{{ r.statut | lowercase }}">
+                    {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
+                  </span>
+                </div>
+                @if (r.observation) {
+                  <div class="releve-row__obs">{{ r.observation }}</div>
+                }
+              </div>
+            }
+
+            @if (releves().length === 0) {
+              <div class="releves-empty">
+                <i class="pi pi-list"></i>
+                {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

@@ -40,7 +40,8 @@
     "CREATED_AT": "Créé le",
     "STATUS": "Statut",
     "MIN_2_CHARS": "Minimum 2 caractères",
-    "INTEGER_MIN_1": "Entier ≥ 1 requis"
+    "INTEGER_MIN_1": "Entier ≥ 1 requis",
+    "SEE": "Voir"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -293,5 +294,66 @@
     "SUCCESS_PARAM": "Paramètre mis à jour",
     "ERROR_LOAD": "Impossible de charger la configuration",
     "PARAMS_EMPTY": "Aucun paramètre configuré"
+  },
+  "CAMPAGNES": {
+    "TITLE": "Campagnes",
+    "NEW": "Nouvelle campagne",
+    "EMPTY": "Aucune campagne trouvée",
+    "ERROR_LOAD": "Impossible de charger les campagnes",
+    "STATS_EN_COURS": "{{count}} en cours",
+    "STATS_CLOTUREES": "{{count}} clôturée{{count, plural, =1{}other{s}}}",
+    "STATS_EMPTY": "Aucune campagne",
+    "COL_CAMPAGNE": "Campagne",
+    "COL_PLANIFIEE": "Date planifiée",
+    "COL_STATUT": "Statut",
+    "CLOTURER": "Clôturer",
+    "SUCCESS_CREE": "Campagne créée avec succès",
+    "SUCCESS_CLOTUREE": "Campagne clôturée",
+    "CREE_LE": "Créée le",
+    "CLOTURE_LE": "Clôturée le",
+    "TAB_PROGRESSION": "Progression",
+    "TAB_RELEVES": "Relevés",
+    "KPI_TOTAL": "Total abonnés",
+    "KPI_RELEVES": "Relevés",
+    "KPI_EN_ATTENTE": "En attente",
+    "KPI_AVANCEMENT": "Avancement",
+    "RELEVES_EMPTY": "Aucun relevé pour cette campagne",
+    "STATUT": {
+      "PLANIFIEE": "Planifiée",
+      "EN_COURS": "En cours",
+      "CLOTUREE": "Clôturée"
+    },
+    "RELEVE_STATUT": {
+      "A_RELEVER": "À relever",
+      "RELEVE": "Relevé",
+      "NON_RELEVE": "Non relevé",
+      "ESTIME": "Estimé"
+    },
+    "FILTRE": {
+      "TOUTES": "Toutes"
+    },
+    "MOIS": {
+      "1": "Janvier",
+      "2": "Février",
+      "3": "Mars",
+      "4": "Avril",
+      "5": "Mai",
+      "6": "Juin",
+      "7": "Juillet",
+      "8": "Août",
+      "9": "Septembre",
+      "10": "Octobre",
+      "11": "Novembre",
+      "12": "Décembre"
+    },
+    "FORM": {
+      "NOM": "Nom de la campagne",
+      "NOM_PLACEHOLDER": "Ex : Relevé Juin 2026",
+      "MOIS": "Mois",
+      "ANNEE": "Année",
+      "DATE_PLANIFIEE": "Date planifiée (optionnelle)",
+      "DATE_HINT": "Laisser vide pour démarrer immédiatement",
+      "SUBMIT": "Créer la campagne"
+    }
   }
 }
