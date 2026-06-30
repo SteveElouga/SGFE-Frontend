@@ -11,6 +11,22 @@ export interface Compteur {
   statut: StatutCompteur;
 }
 
+export interface CompteurSnapshot {
+  numeroCompteur: number;
+  quartier: string;
+  camp: number;
+  indexInitial: number;
+}
+
+export interface HistoriqueCompteurEntry {
+  id: string;
+  indexFermeture: number;
+  dateRemplacement: string;
+  createdAt: string;
+  ancienCompteur: CompteurSnapshot;
+  nouveauCompteur: CompteurSnapshot;
+}
+
 export interface Abonne {
   id: string;
   numeroAbonne: string;

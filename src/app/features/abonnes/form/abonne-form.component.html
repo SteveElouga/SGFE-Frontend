@@ -67,7 +67,7 @@
         </div>
         <div class="af-grid-2">
 
-          <!-- N° Abonné (toujours readonly) -->
+          <!-- N° Abonné (readonly) -->
           <div class="af-field">
             <span class="af-label">N° Abonné</span>
             <div class="af-readonly">
@@ -83,7 +83,6 @@
             <div class="af-field">
               <span class="af-label">Statut</span>
               @if (isResilie()) {
-                <!-- RÉSILIÉ : irréversible, non modifiable depuis le formulaire -->
                 <div class="af-readonly af-readonly--badge">
                   <span class="af-status-badge af-status-badge--resilie">RÉSILIÉ</span>
                 </div>
@@ -101,7 +100,7 @@
           }
 
           <!-- Nom -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="nomFieldError()">
             <label class="af-label" for="afNom">Nom *</label>
             <input
               pInputText
@@ -109,14 +108,19 @@
               type="text"
               [ngModel]="nom()"
               (ngModelChange)="nom.set($event)"
+              (blur)="nomTouched.set(true)"
               name="afNom"
               placeholder="ex. Diallo"
               autocomplete="family-name"
+              [class.ng-invalid]="nomFieldError()"
             />
+            @if (nomFieldError()) {
+              <span class="af-field__error">{{ nomFieldError() }}</span>
+            }
           </div>
 
           <!-- Prénom -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="prenomFieldError()">
             <label class="af-label" for="afPrenom">Prénom *</label>
             <input
               pInputText
@@ -124,10 +128,15 @@
               type="text"
               [ngModel]="prenom()"
               (ngModelChange)="prenom.set($event)"
+              (blur)="prenomTouched.set(true)"
               name="afPrenom"
               placeholder="ex. Amadou"
               autocomplete="given-name"
+              [class.ng-invalid]="prenomFieldError()"
             />
+            @if (prenomFieldError()) {
+              <span class="af-field__error">{{ prenomFieldError() }}</span>
+            }
           </div>
 
         </div>
@@ -145,7 +154,7 @@
         <div class="af-grid-2">
 
           <!-- Quartier -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="quartierFieldError()">
             <label class="af-label" for="afQuartier">Quartier *</label>
             <input
               pInputText
@@ -153,13 +162,18 @@
               type="text"
               [ngModel]="quartier()"
               (ngModelChange)="quartier.set($event)"
+              (blur)="quartierTouched.set(true)"
               name="afQuartier"
               placeholder="ex. Bastos"
+              [class.ng-invalid]="quartierFieldError()"
             />
+            @if (quartierFieldError()) {
+              <span class="af-field__error">{{ quartierFieldError() }}</span>
+            }
           </div>
 
           <!-- Camp -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="campFieldError()">
             <label class="af-label" for="afCamp">Camp *</label>
             <input
               pInputText
@@ -168,12 +182,17 @@
               min="1"
               [ngModel]="camp()"
               (ngModelChange)="camp.set($event)"
+              (blur)="campTouched.set(true)"
               name="afCamp"
               placeholder="ex. 3"
+              [class.ng-invalid]="campFieldError()"
             />
+            @if (campFieldError()) {
+              <span class="af-field__error">{{ campFieldError() }}</span>
+            }
           </div>
 
-          <!-- Adresse (pleine largeur) -->
+          <!-- Adresse (pleine largeur, optionnelle) -->
           <div class="af-field af-field--full">
             <label class="af-label" for="afAdresse">Adresse (rue, N°)</label>
             <input
@@ -202,7 +221,7 @@
         <div class="af-grid-2">
 
           <!-- Téléphone / WhatsApp -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="phoneFieldError()">
             <label class="af-label" for="afTel">Téléphone / WhatsApp *</label>
             <input
               pInputText
@@ -210,15 +229,21 @@
               type="tel"
               [ngModel]="telephoneWhatsapp()"
               (ngModelChange)="telephoneWhatsapp.set($event)"
+              (blur)="phoneTouched.set(true)"
               name="afTel"
-              placeholder="+237 6X XX XX XX XX"
+              placeholder="6XX XXX XXX"
               autocomplete="tel"
+              [class.ng-invalid]="phoneFieldError()"
             />
-            <span class="af-field__hint">Utilisé pour l'envoi des factures WhatsApp</span>
+            @if (phoneFieldError()) {
+              <span class="af-field__error">{{ phoneFieldError() }}</span>
+            } @else {
+              <span class="af-field__hint">Format Cameroun · +237 ajouté automatiquement</span>
+            }
           </div>
 
           <!-- Date de souscription -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="datePoseFieldError()">
             <label class="af-label" for="afDate">
               Date de souscription @if (mode === 'create') { * }
             </label>
@@ -234,9 +259,14 @@
                   type="date"
                   [ngModel]="datePose()"
                   (ngModelChange)="datePose.set($event)"
+                  (blur)="datePoseTouched.set(true)"
                   name="afDate"
+                  [class.ng-invalid]="datePoseFieldError()"
                 />
               </div>
+              @if (datePoseFieldError()) {
+                <span class="af-field__error">{{ datePoseFieldError() }}</span>
+              }
             } @else {
               <div class="af-readonly">
                 <span class="af-readonly__value">{{ dateSouscriptionDisplay() }}</span>
@@ -259,7 +289,7 @@
         <div class="af-grid-2">
 
           <!-- N° Compteur -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--error]="numeroCompteurFieldError()">
             <label class="af-label" for="afNumero">
               N° Compteur @if (mode === 'create') { * }
             </label>
@@ -271,9 +301,14 @@
                 min="1"
                 [ngModel]="numeroCompteur()"
                 (ngModelChange)="numeroCompteur.set($event)"
+                (blur)="numeroCompteurTouched.set(true)"
                 name="afNumero"
                 placeholder="ex. 1042"
+                [class.ng-invalid]="numeroCompteurFieldError()"
               />
+              @if (numeroCompteurFieldError()) {
+                <span class="af-field__error">{{ numeroCompteurFieldError() }}</span>
+              }
             } @else {
               <div class="af-readonly">
                 <span class="af-readonly__value af-readonly__value--mono">{{ compteurDisplay() }}</span>
@@ -315,8 +350,9 @@
       <div class="af-actions">
         <button
           class="af-btn af-btn--primary"
+          type="button"
           (click)="submit()"
-          [disabled]="!canSubmit()"
+          [disabled]="saving()"
         >
           @if (saving()) {
             Enregistrement…

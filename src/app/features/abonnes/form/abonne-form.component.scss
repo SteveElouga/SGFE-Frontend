@@ -215,7 +215,28 @@
 .af-field__error {
   font-size: 11px;
   color: #b91c1c;
-  margin-top: 1px;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+.af-field--error {
+  input[pInputText].ng-invalid,
+  input[pInputText].ng-invalid:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+  }
 }
 
 // ── Champ date avec icône ─────────────────────────────────────────────────────
@@ -280,7 +301,7 @@
 .af-readonly__badge {
   font-size: 10px;
   font-weight: 500;
-  color: #cbd5e1;
+  color: #64748b;
   background: #f1f5f9;
   padding: 2px 7px;
   border-radius: 4px;
