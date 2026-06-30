@@ -6,7 +6,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -25,7 +26,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, UserMenuComponent],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,23 +34,10 @@ interface NavItem {
 export class SidebarComponent implements OnInit {
   private readonly apollo = inject(Apollo);
   private readonly auth = inject(AuthService);
-  private readonly router = inject(Router);
 
-  readonly user = this.auth.user;
-  readonly role = this.auth.role;
+  private readonly role = this.auth.role;
 
   readonly campagneActive = signal<CampagneActive | null>(null);
-
-  readonly userInitial = computed(() => {
-    const u = this.user();
-    return u ? u.username.charAt(0).toUpperCase() : '?';
-  });
-
-  readonly avatarColor = computed(() => {
-    const colors = ['#0d9488', '#7c3aed', '#db2777', '#d97706', '#0284c7'];
-    const code = (this.user()?.username.codePointAt(0) ?? 0) % colors.length;
-    return colors[code];
-  });
 
   readonly campagnePeriode = computed(() => {
     const c = this.campagneActive();
@@ -100,8 +88,4 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-  async logout(): Promise<void> {
-    await this.auth.logout();
-    this.router.navigateByUrl('/login');
-  }
 }

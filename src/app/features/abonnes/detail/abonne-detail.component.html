@@ -126,23 +126,28 @@
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 0"
-          (click)="activeTab.set(0)"
+          (click)="setActiveTab(0)"
         >Informations</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 1"
-          (click)="activeTab.set(1)"
+          (click)="setActiveTab(1)"
         >Factures</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 2"
-          (click)="activeTab.set(2)"
+          (click)="setActiveTab(2)"
         >Historique conso</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 3"
-          (click)="activeTab.set(3)"
+          (click)="setActiveTab(3)"
         >Impayés</button>
+        <button
+          class="abonne-tabs__tab"
+          [class.abonne-tabs__tab--active]="activeTab() === 4"
+          (click)="setActiveTab(4)"
+        >Compteurs</button>
       </div>
 
       <!-- ── Onglet Informations ── -->
@@ -246,13 +251,119 @@
       }
 
       <!-- ── Onglets à venir ── -->
-      @if (activeTab() !== 0) {
+      @if (activeTab() === 1 || activeTab() === 2 || activeTab() === 3) {
         <div class="abonne-tab-placeholder">
           <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
             <rect x="2" y="4" width="32" height="28" rx="4" stroke="#cbd5e1" stroke-width="1.5"/>
             <path d="M9 13h18M9 18h12M9 23h8" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
           <span>Fonctionnalité à venir</span>
+        </div>
+      }
+
+      <!-- ── Onglet Compteurs ── -->
+      @if (activeTab() === 4) {
+        <div class="hist-tab">
+
+          <!-- Skeleton chargement -->
+          @if (historiqueLoading()) {
+            <div class="hist-skeleton">
+              <div class="hist-skeleton__card"></div>
+              <div class="hist-skeleton__entry"></div>
+              <div class="hist-skeleton__entry"></div>
+            </div>
+          }
+
+          <!-- Erreur -->
+          @if (!historiqueLoading() && historiqueError()) {
+            <div class="hist-error">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="6" stroke="#b91c1c" stroke-width="1.2"/>
+                <path d="M7 4.5v3M7 9.5v.5" stroke="#b91c1c" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              {{ historiqueError() }}
+            </div>
+          }
+
+          @if (!historiqueLoading() && !historiqueError()) {
+
+            <!-- Compteur actuel -->
+            @if (a.compteur) {
+              <div class="hist-current">
+                <div class="hist-current__header">
+                  <span class="hist-current__label">Compteur actuel</span>
+                  <span class="hist-current__badge">{{ a.compteur.statut }}</span>
+                </div>
+                <div class="hist-current__number">{{ fmtCompteur(a.compteur.numeroCompteur) }}</div>
+                <div class="hist-current__rows">
+                  <div class="hist-current__row">
+                    <span class="hist-current__key">Localisation</span>
+                    <span class="hist-current__val">{{ a.compteur.quartier }} · Camp {{ a.compteur.camp }}</span>
+                  </div>
+                  <div class="hist-current__row">
+                    <span class="hist-current__key">Index initial</span>
+                    <span class="hist-current__val">{{ a.compteur.indexInitial.toFixed(3) }} m³</span>
+                  </div>
+                  <div class="hist-current__row">
+                    <span class="hist-current__key">Date de pose</span>
+                    <span class="hist-current__val">{{ fmtDate(a.compteur.datePose) }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Timeline des remplacements -->
+            @if (historique().length === 0) {
+              <div class="hist-empty">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <rect x="2" y="7" width="28" height="18" rx="3" stroke="#cbd5e1" stroke-width="1.5"/>
+                  <path d="M2 13h28" stroke="#cbd5e1" stroke-width="1.5"/>
+                </svg>
+                <span>Aucun remplacement enregistré</span>
+              </div>
+            } @else {
+              <div class="hist-section-title">
+                <span>Historique des remplacements</span>
+                <span class="hist-section-count">{{ historique().length }}</span>
+              </div>
+              <ol class="hist-timeline">
+                @for (entry of historique(); track entry.id) {
+                  <li class="hist-entry">
+                    <div class="hist-entry__dot"></div>
+                    <div class="hist-entry__body">
+                      <div class="hist-entry__date">
+                        {{ fmtDate(entry.dateRemplacement) }}
+                        <span class="hist-entry__idx-label">Index fermeture :</span>
+                        <span class="hist-entry__idx-val">{{ entry.indexFermeture.toFixed(3) }} m³</span>
+                      </div>
+                      <div class="hist-entry__cards">
+                        <!-- Ancien compteur -->
+                        <div class="hist-meter hist-meter--old">
+                          <span class="hist-meter__tag">Ancien</span>
+                          <span class="hist-meter__num">{{ fmtCompteurNum(entry.ancienCompteur.numeroCompteur) }}</span>
+                          <span class="hist-meter__loc">{{ entry.ancienCompteur.quartier }} · Camp {{ entry.ancienCompteur.camp }}</span>
+                          <span class="hist-meter__sub">Index initial : {{ entry.ancienCompteur.indexInitial.toFixed(3) }} m³</span>
+                        </div>
+                        <!-- Flèche -->
+                        <div class="hist-arrow" aria-hidden="true">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 10h12M12 6l4 4-4 4" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <!-- Nouveau compteur -->
+                        <div class="hist-meter hist-meter--new">
+                          <span class="hist-meter__tag">Nouveau</span>
+                          <span class="hist-meter__num">{{ fmtCompteurNum(entry.nouveauCompteur.numeroCompteur) }}</span>
+                          <span class="hist-meter__loc">{{ entry.nouveauCompteur.quartier }} · Camp {{ entry.nouveauCompteur.camp }}</span>
+                          <span class="hist-meter__sub">Index initial : {{ entry.nouveauCompteur.indexInitial.toFixed(3) }} m³</span>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                }
+              </ol>
+            }
+          }
         </div>
       }
     </div>

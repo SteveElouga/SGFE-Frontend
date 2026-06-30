@@ -24,6 +24,7 @@
     "@primeuix/themes": "^2.0.3",
     "apollo-angular": "^14.1.0",
     "graphql": "^16.14.2",
+    "graphql-ws": "^6.0.8",
     "primeicons": "^7.0.0",
     "primeng": "^21.1.9",
     "rxjs": "~7.8.0",

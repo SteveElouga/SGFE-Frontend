@@ -20,7 +20,11 @@ import {
   UpdateCompteurInput,
 } from '../../../core/abonnes/abonnes.service';
 import { Abonne } from '../../../shared/models/abonne.model';
-import { normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
+import {
+  isValidCameroonPhone,
+  normalizePhone,
+  toLocalPhone,
+} from '../../../shared/utils/phone.utils';
 
 type FormMode = 'create' | 'edit';
 
@@ -43,49 +47,128 @@ export class AbonneFormComponent implements OnInit {
   readonly pageLoading = signal(false);
   readonly saving = signal(false);
   readonly loadError = signal<string | null>(null);
+  readonly submitAttempted = signal(false);
 
-  // ── Champs abonné (création + modification) ───────────────────────────────
+  // ── Champs ────────────────────────────────────────────────────────────────
   readonly nom = signal('');
   readonly prenom = signal('');
   readonly telephoneWhatsapp = signal('');
   readonly adresse = signal('');
-
-  // Statut — modification uniquement (ACTIF ↔ SUSPENDU, RÉSILIÉ est readonly)
   readonly selectedStatut = signal<'ACTIF' | 'SUSPENDU'>('ACTIF');
+  readonly quartier = signal('');
+  readonly camp = signal('');
+  readonly datePose = signal(new Date().toISOString().slice(0, 10));
+  readonly numeroCompteur = signal('');
+  readonly indexInitial = signal('0');
+
   readonly statutOptions: { label: string; value: 'ACTIF' | 'SUSPENDU' }[] = [
     { label: 'ACTIF', value: 'ACTIF' },
     { label: 'SUSPENDU', value: 'SUSPENDU' },
   ];
 
-  // ── Champs compteur (création + modification) ─────────────────────────────
-  readonly quartier = signal('');
-  readonly camp = signal('');
+  // ── État touched par champ ────────────────────────────────────────────────
+  readonly nomTouched = signal(false);
+  readonly prenomTouched = signal(false);
+  readonly phoneTouched = signal(false);
+  readonly quartierTouched = signal(false);
+  readonly campTouched = signal(false);
+  readonly datePoseTouched = signal(false);
+  readonly numeroCompteurTouched = signal(false);
 
-  // Création uniquement
-  readonly datePose = signal(new Date().toISOString().slice(0, 10));
-  readonly numeroCompteur = signal('');
-  readonly indexInitial = signal('0');
-
-  // ── Computed ──────────────────────────────────────────────────────────────
-
-  readonly canSubmit = computed(() => {
-    if (this.saving()) return false;
-    const base =
-      this.nom().trim().length > 0 &&
-      this.prenom().trim().length > 0 &&
-      this.telephoneWhatsapp().trim().length > 0;
-    if (this.mode === 'create') {
-      return (
-        base &&
-        this.quartier().trim().length > 0 &&
-        !!this.camp() &&
-        this.datePose().length > 0 &&
-        !!this.numeroCompteur()
-      );
-    }
-    return base;
+  // ── Règles de validation ──────────────────────────────────────────────────
+  private readonly nomError = computed(() => {
+    const v = this.nom().trim();
+    if (!v) return 'Le nom est requis';
+    if (v.length < 2) return 'Minimum 2 caractères';
+    return null;
   });
 
+  private readonly prenomError = computed(() => {
+    const v = this.prenom().trim();
+    if (!v) return 'Le prénom est requis';
+    if (v.length < 2) return 'Minimum 2 caractères';
+    return null;
+  });
+
+  private readonly phoneError = computed(() => {
+    const local = toLocalPhone(this.telephoneWhatsapp().trim());
+    if (!local) return 'Le téléphone est requis';
+    if (!isValidCameroonPhone(local)) return 'Format invalide — ex. 655 123 456';
+    return null;
+  });
+
+  private readonly quartierError = computed(() => {
+    const v = this.quartier().trim();
+    if (!v) return 'Le quartier est requis';
+    if (v.length < 2) return 'Minimum 2 caractères';
+    return null;
+  });
+
+  private readonly campError = computed(() => {
+    const raw = String(this.camp()).trim();
+    if (!raw) return 'Le camp est requis';
+    const n = Number.parseInt(raw, 10);
+    if (Number.isNaN(n) || n < 1) return 'Entier ≥ 1 requis';
+    return null;
+  });
+
+  private readonly datePoseError = computed(() => {
+    if (this.mode !== 'create') return null;
+    if (!this.datePose()) return 'La date est requise';
+    return null;
+  });
+
+  private readonly numeroCompteurError = computed(() => {
+    if (this.mode !== 'create') return null;
+    const raw = String(this.numeroCompteur()).trim();
+    if (!raw) return 'Le N° de compteur est requis';
+    const n = Number.parseInt(raw, 10);
+    if (Number.isNaN(n) || n < 1) return 'Entier ≥ 1 requis';
+    return null;
+  });
+
+  // ── Erreurs affichées (after blur ou after submit) ─────────────────────────
+  readonly nomFieldError = computed(() =>
+    this.nomTouched() || this.submitAttempted() ? this.nomError() : null,
+  );
+  readonly prenomFieldError = computed(() =>
+    this.prenomTouched() || this.submitAttempted() ? this.prenomError() : null,
+  );
+  readonly phoneFieldError = computed(() =>
+    this.phoneTouched() || this.submitAttempted() ? this.phoneError() : null,
+  );
+  readonly quartierFieldError = computed(() =>
+    this.quartierTouched() || this.submitAttempted() ? this.quartierError() : null,
+  );
+  readonly campFieldError = computed(() =>
+    this.campTouched() || this.submitAttempted() ? this.campError() : null,
+  );
+  readonly datePoseFieldError = computed(() =>
+    this.datePoseTouched() || this.submitAttempted() ? this.datePoseError() : null,
+  );
+  readonly numeroCompteurFieldError = computed(() =>
+    this.numeroCompteurTouched() || this.submitAttempted()
+      ? this.numeroCompteurError()
+      : null,
+  );
+
+  // ── Validité globale ──────────────────────────────────────────────────────
+  readonly canSubmit = computed(() => {
+    if (this.saving()) return false;
+    const baseValid = !this.nomError() && !this.prenomError() && !this.phoneError();
+    if (this.mode === 'create') {
+      return (
+        baseValid &&
+        !this.quartierError() &&
+        !this.campError() &&
+        !this.datePoseError() &&
+        !this.numeroCompteurError()
+      );
+    }
+    return baseValid;
+  });
+
+  // ── Computed d'affichage ──────────────────────────────────────────────────
   readonly numeroAbonneDisplay = computed(() => this.abonne()?.numeroAbonne ?? '');
   readonly isResilie = computed(() => this.abonne()?.statut === 'RESILIE');
 
@@ -120,7 +203,6 @@ export class AbonneFormComponent implements OnInit {
       const a = await this.abonnesService.getAbonne(id);
       this.abonne.set(a);
 
-      // Champs abonné
       this.nom.set(a.nom);
       this.prenom.set(a.prenom);
       this.telephoneWhatsapp.set(toLocalPhone(a.telephoneWhatsapp));
@@ -128,8 +210,6 @@ export class AbonneFormComponent implements OnInit {
       if (a.statut === 'ACTIF' || a.statut === 'SUSPENDU') {
         this.selectedStatut.set(a.statut);
       }
-
-      // Champs compteur
       if (a.compteur) {
         this.quartier.set(a.compteur.quartier);
         this.camp.set(String(a.compteur.camp));
@@ -156,7 +236,9 @@ export class AbonneFormComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
+    this.submitAttempted.set(true);
     if (!this.canSubmit()) return;
+
     this.saving.set(true);
     try {
       if (this.mode === 'create') {
@@ -178,7 +260,6 @@ export class AbonneFormComponent implements OnInit {
         const id = this.abonneId;
         if (!id) return;
 
-        // 1 — Mise à jour des champs abonné
         const abonneInput: UpdateAbonneInput = {
           nom: this.nom().trim(),
           prenom: this.prenom().trim(),
@@ -187,7 +268,6 @@ export class AbonneFormComponent implements OnInit {
         };
         await this.abonnesService.updateAbonne(id, abonneInput);
 
-        // 2 — Changement de statut si nécessaire (ACTIF ↔ SUSPENDU)
         const originalStatut = this.abonne()?.statut;
         const newStatut = this.selectedStatut();
         if (originalStatut !== newStatut) {
@@ -198,7 +278,6 @@ export class AbonneFormComponent implements OnInit {
           }
         }
 
-        // 3 — Mise à jour du compteur si quartier/camp ont changé
         const original = this.abonne()?.compteur;
         if (original) {
           const newQuartier = this.quartier().trim();

@@ -51,20 +51,7 @@
     }
   </nav>
 
-  <!-- User footer -->
-  @if (user()) {
-    <div class="sidebar__user">
-      <div class="sidebar__user-avatar">{{ userInitial() }}</div>
-      <div class="sidebar__user-info">
-        <span class="sidebar__user-name">{{ user()!.username }}</span>
-        <span class="sidebar__user-role">{{ user()!.role }} · {{ user()!.username }}</span>
-      </div>
-      <button class="sidebar__user-logout" (click)="logout()" title="Se déconnecter">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-          <path d="M4.5 5.5l2.5 2.5 2.5-2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
-  }
+  <!-- User menu (footer) -->
+  <app-user-menu />
 
 </aside>

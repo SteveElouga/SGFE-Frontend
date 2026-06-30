@@ -1,0 +1,64 @@
+<!-- Bouton déclencheur — même visuel que l'ancien footer sidebar -->
+<button class="um-trigger" type="button" (click)="toggle($event)">
+  <div class="um-trigger__avatar">{{ userInitial() }}</div>
+  @if (user(); as u) {
+    <div class="um-trigger__info">
+      <span class="um-trigger__name">{{ u.username }}</span>
+      <span class="um-trigger__role">{{ u.role }}</span>
+    </div>
+  }
+  <i class="pi pi-chevron-down um-trigger__chevron" [class.um-trigger__chevron--open]="isOpen()"></i>
+</button>
+
+<!-- Panneau overlay -->
+<p-popover #menu styleClass="um-popover" (onShow)="onShow()" (onHide)="onHide()">
+
+  <!-- En-tête utilisateur -->
+  @if (user(); as u) {
+    <div class="um-header">
+      <span class="um-header__avatar">
+        {{ userInitial() }}
+      </span>
+      <div class="um-header__info">
+        <span class="um-header__name">{{ u.username }}</span>
+        <span class="um-header__sub">{{ u.role }} · {{ u.username }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="um-divider"></div>
+
+  <!-- Navigation -->
+  <nav class="um-nav">
+    <a
+      class="um-item"
+      routerLink="/profil"
+      routerLinkActive="um-item--active"
+      (click)="close()"
+    >
+      <i class="pi pi-user um-item__icon"></i>
+      <span>Mon profil</span>
+    </a>
+
+    @if (isAdmin()) {
+      <a
+        class="um-item"
+        routerLink="/utilisateurs"
+        routerLinkActive="um-item--active"
+        (click)="close()"
+      >
+        <i class="pi pi-users um-item__icon"></i>
+        <span>Gestion utilisateurs</span>
+      </a>
+    }
+  </nav>
+
+  <div class="um-divider"></div>
+
+  <!-- Déconnexion -->
+  <button class="um-item um-item--logout" type="button" (click)="logout()">
+    <i class="pi pi-sign-out um-item__icon"></i>
+    <span>Se déconnecter</span>
+  </button>
+
+</p-popover>

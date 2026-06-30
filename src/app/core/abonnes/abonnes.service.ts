@@ -1,7 +1,11 @@
 import { Injectable, inject } from '@angular/core';
-import { Apollo } from 'apollo-angular';
+import { Apollo, QueryRef } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
-import { GET_ABONNE, GET_ABONNES } from '../../graphql/queries/abonnes.queries';
+import {
+  GET_ABONNE,
+  GET_ABONNES,
+  GET_HISTORIQUE_COMPTEUR,
+} from '../../graphql/queries/abonnes.queries';
 import {
   CREATE_ABONNE,
   REACTIVER_ABONNE,
@@ -11,7 +15,12 @@ import {
   UPDATE_ABONNE,
   UPDATE_COMPTEUR,
 } from '../../graphql/mutations/abonnes.mutations';
-import { Abonne, Compteur, StatutAbonne } from '../../shared/models/abonne.model';
+import {
+  Abonne,
+  Compteur,
+  HistoriqueCompteurEntry,
+  StatutAbonne,
+} from '../../shared/models/abonne.model';
 
 export interface RemplacerCompteurInput {
   numeroCompteur: number;
@@ -50,6 +59,20 @@ export interface UpdateCompteurInput {
 @Injectable({ providedIn: 'root' })
 export class AbonnesService {
   private readonly apollo = inject(Apollo);
+
+  watchAbonnes(statut?: StatutAbonne): QueryRef<{ abonnes: Abonne[] }> {
+    return this.apollo.watchQuery<{ abonnes: Abonne[] }>({
+      query: GET_ABONNES,
+      variables: statut ? { statut } : {},
+    });
+  }
+
+  watchAbonne(id: string): QueryRef<{ abonne: Abonne }> {
+    return this.apollo.watchQuery<{ abonne: Abonne }>({
+      query: GET_ABONNE,
+      variables: { id },
+    });
+  }
 
   async getAbonnes(statut?: StatutAbonne): Promise<Abonne[]> {
     const result = await firstValueFrom(
@@ -157,5 +180,16 @@ export class AbonnesService {
     const compteur = result.data?.remplacerCompteur;
     if (!compteur) throw new Error('Réponse invalide du serveur');
     return compteur;
+  }
+
+  async getHistoriqueCompteur(abonneId: string): Promise<HistoriqueCompteurEntry[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ historiqueCompteur: HistoriqueCompteurEntry[] }>({
+        query: GET_HISTORIQUE_COMPTEUR,
+        variables: { id: abonneId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data?.historiqueCompteur ?? [];
   }
 }
