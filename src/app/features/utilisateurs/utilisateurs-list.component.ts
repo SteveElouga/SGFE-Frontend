@@ -22,6 +22,7 @@ import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 
 const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrateur',
@@ -52,6 +53,7 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
+    TooltipDirective,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './utilisateurs-list.component.html',
