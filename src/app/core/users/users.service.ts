@@ -26,7 +26,6 @@ export class UsersService {
     const result = await firstValueFrom(
       this.apollo.query<{ users: User[] }>({
         query: GET_USERS,
-        fetchPolicy: 'network-only',
       }),
     );
     return result.data?.users ?? [];
