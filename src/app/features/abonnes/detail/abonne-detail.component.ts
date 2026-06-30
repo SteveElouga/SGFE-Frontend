@@ -20,6 +20,7 @@ import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.m
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 
 @Component({
   imports: [
@@ -31,6 +32,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
     DatePipe,
     CompteurPipe,
     ErrorBannerComponent,
+    TooltipDirective,
   ],
   providers: [MessageService],
   templateUrl: './abonne-detail.component.html',

@@ -76,7 +76,7 @@
             <button
               type="button"
               class="users-table__action-btn"
-              title="Modifier"
+              [appTooltip]="'Modifier ' + user.username"
               (click)="editUser(user)"
             >
               <i class="pi pi-pencil"></i>
@@ -85,7 +85,8 @@
               <button
                 type="button"
                 class="users-table__action-btn users-table__action-btn--danger"
-                title="Désactiver"
+                [appTooltip]="'Désactiver ' + user.username + ' — l\'utilisateur ne pourra plus se connecter'"
+                [tooltipPosition]="'left'"
                 (click)="confirmDeactivate(user)"
               >
                 <i class="pi pi-ban"></i>

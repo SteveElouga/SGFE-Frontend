@@ -53,12 +53,16 @@
         <div class="abonne-header-card__sub">{{ localisationLine() }}</div>
       </div>
       <div class="abonne-header-card__actions">
-        <button class="abonne-action-btn" (click)="goToEditForm()" [disabled]="statutLoading()">
-          Modifier
-        </button>
+        <button
+          class="abonne-action-btn"
+          [appTooltip]="'Modifier les informations de l\'abonné'"
+          (click)="goToEditForm()"
+          [disabled]="statutLoading()"
+        >Modifier</button>
         @if (a.statut === 'ACTIF') {
           <button
             class="abonne-action-btn abonne-action-btn--danger"
+            [appTooltip]="'Bloquer temporairement l\'accès à l\'eau sans résilier le contrat'"
             (click)="suspendre()"
             [disabled]="statutLoading()"
           >Suspendre</button>
@@ -66,6 +70,7 @@
         @if (a.statut === 'SUSPENDU') {
           <button
             class="abonne-action-btn abonne-action-btn--success"
+            [appTooltip]="'Rétablir l\'accès à l\'eau'"
             (click)="reactiver()"
             [disabled]="statutLoading()"
           >Réactiver</button>
@@ -73,6 +78,7 @@
         @if (a.statut !== 'RESILIE') {
           <button
             class="abonne-action-btn abonne-action-btn--danger-outline"
+            [appTooltip]="'Mettre fin définitivement au contrat — action irréversible'"
             (click)="confirmerResiliation()"
             [disabled]="statutLoading()"
           >Résilier</button>
@@ -80,6 +86,7 @@
         @if (a.statut === 'ACTIF') {
           <button
             class="abonne-action-btn abonne-action-btn--ghost"
+            [appTooltip]="'Enregistrer le remplacement du compteur physique'"
             (click)="openRemplacerModal()"
             [disabled]="statutLoading()"
           >Remplacer compteur</button>
@@ -89,22 +96,26 @@
 
     <!-- ── Bloc KPI ── -->
     <div class="abonne-kpi-grid">
-      <div class="abonne-kpi abonne-kpi--blue">
+      <div class="abonne-kpi abonne-kpi--blue"
+        [appTooltip]="'Consommation moyenne calculée sur les 6 derniers mois'">
         <div class="abonne-kpi__label">Conso moy.</div>
         <div class="abonne-kpi__value">— m³</div>
         <div class="abonne-kpi__sub">/ mois</div>
       </div>
-      <div class="abonne-kpi abonne-kpi--green">
+      <div class="abonne-kpi abonne-kpi--green"
+        [appTooltip]="'Nombre total de factures générées depuis la souscription'">
         <div class="abonne-kpi__label">Factures émises</div>
         <div class="abonne-kpi__value">—</div>
         <div class="abonne-kpi__sub">depuis souscription</div>
       </div>
-      <div class="abonne-kpi abonne-kpi--green">
+      <div class="abonne-kpi abonne-kpi--green"
+        [appTooltip]="'Total des factures émises et non encore réglées'">
         <div class="abonne-kpi__label">Solde impayé</div>
         <div class="abonne-kpi__value">— FCFA</div>
         <div class="abonne-kpi__sub">&nbsp;</div>
       </div>
-      <div class="abonne-kpi abonne-kpi--slate">
+      <div class="abonne-kpi abonne-kpi--slate"
+        [appTooltip]="'Date de création du dossier abonné'">
         <div class="abonne-kpi__label">Abonné depuis</div>
         <div class="abonne-kpi__value">{{ abonneDepuis() }}</div>
         <div class="abonne-kpi__sub">{{ moisDepuis() }}</div>
