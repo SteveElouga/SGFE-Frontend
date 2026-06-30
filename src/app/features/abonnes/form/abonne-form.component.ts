@@ -31,7 +31,7 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [DatePipe, FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, ErrorBannerComponent],
+  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, ErrorBannerComponent],
   providers: [MessageService, DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
