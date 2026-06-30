@@ -9,6 +9,8 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
@@ -47,5 +49,7 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    ...provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+    ...provideTranslateHttpLoader({ prefix: '/i18n/' }),
   ],
 };

@@ -21,6 +21,7 @@ import {
   UpdateCompteurInput,
 } from '../../../core/abonnes/abonnes.service';
 import { Abonne } from '../../../shared/models/abonne.model';
+import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import {
   isValidCameroonPhone,
   normalizePhone,
@@ -30,7 +31,7 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [DatePipe, FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule],
+  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, ErrorBannerComponent],
   providers: [MessageService, DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
