@@ -1,0 +1,27 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+
+  &--actif,
+  &--active {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  &--suspendu,
+  &--inactive {
+    background: #fef9c3;
+    color: #854d0e;
+  }
+
+  &--resilie {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+}

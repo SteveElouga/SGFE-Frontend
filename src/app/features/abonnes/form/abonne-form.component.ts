@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -29,8 +30,8 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule],
-  providers: [MessageService],
+  imports: [DatePipe, FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule],
+  providers: [MessageService, DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +40,7 @@ export class AbonneFormComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly datePipe = inject(DatePipe);
 
   readonly mode: FormMode;
   readonly abonneId: string | null;
@@ -178,9 +180,10 @@ export class AbonneFormComponent implements OnInit {
     return `C-${String(n).padStart(4, '0')}`;
   });
 
-  readonly dateSouscriptionDisplay = computed(() =>
-    this.fmtDate(this.abonne()?.compteur?.datePose),
-  );
+  readonly dateSouscriptionDisplay = computed(() => {
+    const d = this.abonne()?.compteur?.datePose;
+    return d ? (this.datePipe.transform(d, 'dd/MM/yyyy') ?? '—') : '—';
+  });
 
   constructor(route: ActivatedRoute) {
     this.mode = route.snapshot.data['mode'] as FormMode;
@@ -224,11 +227,6 @@ export class AbonneFormComponent implements OnInit {
     } finally {
       this.pageLoading.set(false);
     }
-  }
-
-  fmtDate(dateStr: string | undefined): string {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR');
   }
 
   private normalizedTelephone(): string {

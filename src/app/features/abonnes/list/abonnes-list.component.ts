@@ -11,7 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -23,9 +22,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { Abonne, StatutAbonne } from '../../../shared/models/abonne.model';
-import {
-  ABONNE_UPDATED_SUB,
-} from '../../../graphql/queries/abonnes.queries';
+import { ABONNE_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
+import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 
 @Component({
   selector: 'app-abonnes-list',
@@ -33,13 +33,15 @@ import {
     FormsModule,
     RouterLink,
     TableModule,
-    ButtonModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
     SelectModule,
     ConfirmDialogModule,
     ToastModule,
+    ErrorBannerComponent,
+    StatusBadgeComponent,
+    CompteurPipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './abonnes-list.component.html',
@@ -140,10 +142,6 @@ export class AbonnesListComponent implements OnInit {
       const { message } = extractGqlError(error);
       this.error.set(message || 'Impossible de charger la liste des abonnés.');
     }
-  }
-
-  formatNumeroCompteur(n: number): string {
-    return `C-${String(n).padStart(4, '0')}`;
   }
 
   voirAbonne(id: string): void {

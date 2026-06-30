@@ -9,7 +9,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,6 +20,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 
 const ROLE_LABELS: Record<Role, string> = {
   ADMIN: 'Administrateur',
@@ -44,12 +45,13 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     RouterLink,
     TableModule,
     TagModule,
-    ButtonModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
     ConfirmDialogModule,
     ToastModule,
+    ErrorBannerComponent,
+    StatusBadgeComponent,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './utilisateurs-list.component.html',

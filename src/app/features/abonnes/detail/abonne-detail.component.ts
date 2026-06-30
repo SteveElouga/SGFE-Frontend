@@ -13,10 +13,13 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
+import { DatePipe } from '@angular/common';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
 import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
+import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
+import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 
 @Component({
   imports: [
@@ -25,6 +28,9 @@ import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.quer
     ToastModule,
     DialogModule,
     InputTextModule,
+    DatePipe,
+    CompteurPipe,
+    ErrorBannerComponent,
   ],
   providers: [MessageService],
   templateUrl: './abonne-detail.component.html',
@@ -76,7 +82,7 @@ export class AbonneDetailComponent {
     if (!a) return '';
     const parts = [a.numeroAbonne];
     if (a.compteur) {
-      parts.push(`Compteur ${this.fmtCompteur(a.compteur.numeroCompteur)}`);
+      parts.push(`Compteur C-${String(a.compteur.numeroCompteur).padStart(4, '0')}`);
       parts.push(`${a.compteur.quartier}, Camp ${a.compteur.camp}`);
     }
     parts.push(a.telephoneWhatsapp);
@@ -145,22 +151,6 @@ export class AbonneDetailComponent {
     }
   }
 
-  fmtCompteur(n: number): string {
-    return `C-${String(n).padStart(4, '0')}`;
-  }
-
-  fmtDate(dateStr: string | undefined): string {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleDateString('fr-FR');
-  }
-
-  fmtCreatedAt(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  }
 
   // ── Onglets ──────────────────────────────────────────────────────────────────
 
@@ -186,9 +176,6 @@ export class AbonneDetailComponent {
     }
   }
 
-  fmtCompteurNum(n: number): string {
-    return `C-${String(n).padStart(4, '0')}`;
-  }
 
   // ── Navigation formulaire ────────────────────────────────────────────────────
 
