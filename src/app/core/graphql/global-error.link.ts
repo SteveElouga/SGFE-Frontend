@@ -1,5 +1,5 @@
 import { Injector } from '@angular/core';
-import { ErrorLink } from '@apollo/client/link/error';
+import { CombinedGraphQLErrors, ErrorLink } from '@apollo/client/link/error';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -16,14 +16,14 @@ const COMPONENT_HANDLED = new Set([
 ]);
 
 export function createGlobalErrorLink(injector: Injector): ErrorLink {
-  return new ErrorLink(({ graphQLErrors }) => {
-    if (!graphQLErrors?.length) return;
+  return new ErrorLink(({ error }) => {
+    if (!CombinedGraphQLErrors.is(error)) return;
 
     // Resolve lazily — avoids circular DI at factory time
     const toast = injector.get(MessageService);
     const translate = injector.get(TranslateService);
 
-    for (const err of graphQLErrors) {
+    for (const err of error.errors) {
       const code = (err.extensions?.['code'] as string | undefined) ?? 'INTERNAL_ERROR';
       if (COMPONENT_HANDLED.has(code)) continue;
 
