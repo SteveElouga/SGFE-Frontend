@@ -21,6 +21,8 @@ const TECHNICAL_MESSAGE_PATTERNS = [
   /^Failed to fetch/i,
   /^Network error/i,
   /^HTTP\s+\d+/i,
+  /Received status code \d+/i,
+  /^Response not successful/i,
   /^Cannot query field/i,
   /^Unexpected token/i,
   /^ApolloError/i,

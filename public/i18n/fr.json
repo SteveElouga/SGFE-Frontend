@@ -263,7 +263,9 @@
     "LOAD_ABONNES": "Impossible de charger la liste des abonnés.",
     "LOAD_USERS": "Impossible de charger la liste des utilisateurs.",
     "LOAD_ABONNE": "Impossible de charger les données de l'abonné.",
-    "LOAD_HISTORIQUE": "Impossible de charger l'historique."
+    "LOAD_HISTORIQUE": "Impossible de charger l'historique.",
+    "PERMISSION_DENIED": "Accès refusé",
+    "SERVICE_UNAVAILABLE": "Service momentanément indisponible"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -272,5 +274,24 @@
     "ABONNES_DESC": "Gérer les abonnés et leurs compteurs d'eau",
     "USERS_TITLE": "Utilisateurs",
     "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs"
+  },
+  "CONFIGURATION": {
+    "TITLE": "Configuration",
+    "SUBTITLE": "Paramètres de la régie",
+    "SECTION_SOCIETE": "Informations de la société",
+    "SECTION_PARAMS": "Paramètres système",
+    "NOM": "Nom de la régie",
+    "ADRESSE": "Adresse",
+    "TELEPHONE": "Téléphone",
+    "LOGO_PATH": "Chemin du logo",
+    "LOGO_PATH_PLACEHOLDER": "ex: /assets/logo/logo.png",
+    "SAVE": "Enregistrer",
+    "SAVING": "Enregistrement…",
+    "EDIT": "Modifier",
+    "UPDATED_AT": "Dernière mise à jour :",
+    "SUCCESS_SOCIETE": "Informations de la société mises à jour",
+    "SUCCESS_PARAM": "Paramètre mis à jour",
+    "ERROR_LOAD": "Impossible de charger la configuration",
+    "PARAMS_EMPTY": "Aucun paramètre configuré"
   }
 }

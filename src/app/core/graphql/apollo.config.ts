@@ -8,6 +8,7 @@ import { HttpLink } from 'apollo-angular/http';
 import { createClient } from 'graphql-ws';
 import { environment } from '../../../environments/environment';
 import { createAuthErrorLink } from './auth-error.link';
+import { createGlobalErrorLink } from './global-error.link';
 
 function apolloOptionsFactory(): ApolloClient.Options {
   const httpLink = inject(HttpLink);
@@ -35,6 +36,7 @@ function apolloOptionsFactory(): ApolloClient.Options {
   return {
     link: ApolloLink.from([
       createAuthErrorLink(injector),
+      createGlobalErrorLink(injector),
       transportLink,
     ]),
     cache: new InMemoryCache(),

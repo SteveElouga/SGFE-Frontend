@@ -19,6 +19,7 @@ import { apolloProviders } from './core/graphql/apollo.config';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { AquaBillPreset } from './core/theme/aquabill-preset';
 import { provideServiceWorker } from '@angular/service-worker';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,6 +28,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideHttpClient(withInterceptors([jwtInterceptor])),
     ...apolloProviders,
+    MessageService,
     // Silently restore the session from the refresh_token cookie on app
     // boot — the access token only ever lives in memory, so it's lost on
     // every page reload. Failure here just means "not logged in", not an
