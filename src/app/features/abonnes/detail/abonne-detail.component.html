@@ -196,7 +196,7 @@
               <div class="abonne-info-rows">
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">N° compteur</span>
-                  <span class="abonne-info-row__value abonne-info-row__value--mono">{{ fmtCompteur(a.compteur.numeroCompteur) }}</span>
+                  <span class="abonne-info-row__value abonne-info-row__value--mono">{{ a.compteur.numeroCompteur | compteur }}</span>
                 </div>
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">Index initial</span>
@@ -204,7 +204,7 @@
                 </div>
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">Date de pose</span>
-                  <span class="abonne-info-row__value abonne-info-row__value--muted">{{ fmtDate(a.compteur.datePose) }}</span>
+                  <span class="abonne-info-row__value abonne-info-row__value--muted">{{ a.compteur.datePose ? (a.compteur.datePose | date:'dd/MM/yyyy') : '—' }}</span>
                 </div>
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">Statut</span>
@@ -293,7 +293,7 @@
                   <span class="hist-current__label">Compteur actuel</span>
                   <span class="hist-current__badge">{{ a.compteur.statut }}</span>
                 </div>
-                <div class="hist-current__number">{{ fmtCompteur(a.compteur.numeroCompteur) }}</div>
+                <div class="hist-current__number">{{ a.compteur.numeroCompteur | compteur }}</div>
                 <div class="hist-current__rows">
                   <div class="hist-current__row">
                     <span class="hist-current__key">Localisation</span>
@@ -305,7 +305,7 @@
                   </div>
                   <div class="hist-current__row">
                     <span class="hist-current__key">Date de pose</span>
-                    <span class="hist-current__val">{{ fmtDate(a.compteur.datePose) }}</span>
+                    <span class="hist-current__val">{{ a.compteur.datePose ? (a.compteur.datePose | date:'dd/MM/yyyy') : '—' }}</span>
                   </div>
                 </div>
               </div>
@@ -331,7 +331,7 @@
                     <div class="hist-entry__dot"></div>
                     <div class="hist-entry__body">
                       <div class="hist-entry__date">
-                        {{ fmtDate(entry.dateRemplacement) }}
+                        {{ entry.dateRemplacement ? (entry.dateRemplacement | date:'dd/MM/yyyy') : '—' }}
                         <span class="hist-entry__idx-label">Index fermeture :</span>
                         <span class="hist-entry__idx-val">{{ entry.indexFermeture.toFixed(3) }} m³</span>
                       </div>
@@ -339,7 +339,7 @@
                         <!-- Ancien compteur -->
                         <div class="hist-meter hist-meter--old">
                           <span class="hist-meter__tag">Ancien</span>
-                          <span class="hist-meter__num">{{ fmtCompteurNum(entry.ancienCompteur.numeroCompteur) }}</span>
+                          <span class="hist-meter__num">{{ entry.ancienCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.ancienCompteur.quartier }} · Camp {{ entry.ancienCompteur.camp }}</span>
                           <span class="hist-meter__sub">Index initial : {{ entry.ancienCompteur.indexInitial.toFixed(3) }} m³</span>
                         </div>
@@ -352,7 +352,7 @@
                         <!-- Nouveau compteur -->
                         <div class="hist-meter hist-meter--new">
                           <span class="hist-meter__tag">Nouveau</span>
-                          <span class="hist-meter__num">{{ fmtCompteurNum(entry.nouveauCompteur.numeroCompteur) }}</span>
+                          <span class="hist-meter__num">{{ entry.nouveauCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.nouveauCompteur.quartier }} · Camp {{ entry.nouveauCompteur.camp }}</span>
                           <span class="hist-meter__sub">Index initial : {{ entry.nouveauCompteur.indexInitial.toFixed(3) }} m³</span>
                         </div>

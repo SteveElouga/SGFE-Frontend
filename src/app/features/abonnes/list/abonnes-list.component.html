@@ -21,11 +21,7 @@
 <div class="abonnes-content">
 
   @if (error()) {
-    <div class="abonnes-error">
-      <i class="pi pi-exclamation-circle"></i>
-      {{ error() }}
-      <button class="abonnes-error__retry" (click)="loadAbonnes()">Réessayer</button>
-    </div>
+    <app-error-banner [message]="error()!" (retry)="loadAbonnes()" />
   }
 
   <!-- Carte filtres -->
@@ -103,18 +99,13 @@
           </td>
           <td>
             @if (abonne.compteur) {
-              <span class="abonnes-table__compteur">{{ formatNumeroCompteur(abonne.compteur.numeroCompteur) }}</span>
+              <span class="abonnes-table__compteur">{{ abonne.compteur.numeroCompteur | compteur }}</span>
             } @else {
               <span class="abonnes-table__dash">—</span>
             }
           </td>
           <td>
-            <span
-              class="abonnes-table__statut"
-              [class.abonnes-table__statut--actif]="abonne.statut === 'ACTIF'"
-              [class.abonnes-table__statut--suspendu]="abonne.statut === 'SUSPENDU'"
-              [class.abonnes-table__statut--resilie]="abonne.statut === 'RESILIE'"
-            >{{ abonne.statut }}</span>
+            <app-status-badge [status]="abonne.statut" />
           </td>
           <td>
             <div class="abonnes-table__actions">

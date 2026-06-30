@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
@@ -33,7 +32,6 @@ export const ROLE_OPTIONS: { label: string; value: Role }[] = [
     RouterLink,
     InputTextModule,
     SelectModule,
-    ButtonModule,
     ToastModule,
     AuthFieldComponent,
   ],
