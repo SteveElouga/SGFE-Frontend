@@ -14,6 +14,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { DatePipe } from '@angular/common';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
 import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
@@ -30,6 +31,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     DialogModule,
     InputTextModule,
     DatePipe,
+    TranslatePipe,
     CompteurPipe,
     ErrorBannerComponent,
     TooltipDirective,
@@ -43,6 +45,7 @@ export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   private readonly abonneId: string;
   private readonly abonneQuery: QueryRef<{ abonne: Abonne }>;
@@ -81,11 +84,14 @@ export class AbonneDetailComponent {
 
   readonly localisationLine = computed(() => {
     const a = this.abonne();
+    const lang = this.translate.currentLang() ?? undefined;
     if (!a) return '';
     const parts = [a.numeroAbonne];
     if (a.compteur) {
-      parts.push(`Compteur C-${String(a.compteur.numeroCompteur).padStart(4, '0')}`);
-      parts.push(`${a.compteur.quartier}, Camp ${a.compteur.camp}`);
+      const compteurLabel = this.translate.instant('ABONNES.DETAIL.COMPTEUR', {}, lang);
+      const campLabel = this.translate.instant('ABONNES.FORM.CAMP', {}, lang);
+      parts.push(`${compteurLabel} C-${String(a.compteur.numeroCompteur).padStart(4, '0')}`);
+      parts.push(`${a.compteur.quartier}, ${campLabel} ${a.compteur.camp}`);
     }
     parts.push(a.telephoneWhatsapp);
     return parts.join(' · ');
@@ -93,17 +99,21 @@ export class AbonneDetailComponent {
 
   readonly abonneDepuis = computed(() => {
     const a = this.abonne();
+    const lang = this.translate.currentLang() ?? 'fr';
     if (!a) return '—';
-    return new Date(a.createdAt).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+    const locale = lang === 'en' ? 'en-US' : 'fr-FR';
+    return new Date(a.createdAt).toLocaleDateString(locale, { month: 'short', year: 'numeric' });
   });
 
   readonly moisDepuis = computed(() => {
     const a = this.abonne();
+    const lang = this.translate.currentLang() ?? undefined;
     if (!a) return '';
     const d = new Date(a.createdAt);
     const now = new Date();
     const m = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
-    return `${m} mois`;
+    const key = m <= 1 ? 'ABONNES.DETAIL.MONTHS_AGO_SINGULAR' : 'ABONNES.DETAIL.MONTHS_AGO_PLURAL';
+    return this.translate.instant(key, { count: m }, lang);
   });
 
   constructor(route: ActivatedRoute) {
@@ -122,7 +132,7 @@ export class AbonneDetailComponent {
           if (code === 'NOT_FOUND') {
             this.router.navigateByUrl('/abonnes');
           } else {
-            this.error.set(message || 'Impossible de charger la fiche abonné.');
+            this.error.set(message || this.translate.instant('ERRORS.LOAD_ABONNE'));
             this.loading.set(false);
           }
         },
@@ -148,7 +158,7 @@ export class AbonneDetailComponent {
       if (code === 'NOT_FOUND') {
         this.router.navigateByUrl('/abonnes');
       } else {
-        this.error.set(message || 'Impossible de charger la fiche abonné.');
+        this.error.set(message || this.translate.instant('ERRORS.LOAD_ABONNE'));
       }
     }
   }
@@ -172,7 +182,7 @@ export class AbonneDetailComponent {
       this.historiqueLoaded.set(true);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.historiqueError.set(message || 'Impossible de charger l\'historique.');
+      this.historiqueError.set(message || this.translate.instant('ERRORS.LOAD_HISTORIQUE'));
     } finally {
       this.historiqueLoading.set(false);
     }
@@ -192,10 +202,10 @@ export class AbonneDetailComponent {
     try {
       const updated = await this.abonnesService.suspendreAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.messageService.add({ severity: 'warn', summary: 'Abonné suspendu' });
+      this.messageService.add({ severity: 'warn', summary: this.translate.instant('ABONNES.DETAIL.TOAST_SUSPENDED') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || 'Erreur' });
+      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
     } finally {
       this.statutLoading.set(false);
     }
@@ -206,10 +216,10 @@ export class AbonneDetailComponent {
     try {
       const updated = await this.abonnesService.reactiverAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.messageService.add({ severity: 'success', summary: 'Abonné réactivé' });
+      this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || 'Erreur' });
+      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
     } finally {
       this.statutLoading.set(false);
     }
@@ -225,10 +235,10 @@ export class AbonneDetailComponent {
       const updated = await this.abonnesService.resilierAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
       this.resilierDialogVisible.set(false);
-      this.messageService.add({ severity: 'info', summary: 'Abonnement résilié' });
+      this.messageService.add({ severity: 'info', summary: this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || 'Erreur' });
+      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
     } finally {
       this.statutLoading.set(false);
     }
@@ -264,10 +274,10 @@ export class AbonneDetailComponent {
       const newCompteur = await this.abonnesService.remplacerCompteur(this.abonneId, input);
       this.abonne.update((a) => (a ? { ...a, compteur: newCompteur } : a));
       this.remplacerVisible.set(false);
-      this.messageService.add({ severity: 'success', summary: 'Compteur remplacé avec succès' });
+      this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.DETAIL.TOAST_METER_REPLACED') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || 'Erreur lors du remplacement' });
+      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
     } finally {
       this.remplacerLoading.set(false);
     }

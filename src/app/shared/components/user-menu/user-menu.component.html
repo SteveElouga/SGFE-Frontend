@@ -37,7 +37,7 @@
       (click)="close()"
     >
       <i class="pi pi-user um-item__icon"></i>
-      <span>Mon profil</span>
+      <span>{{ 'USER_MENU.PROFILE' | translate }}</span>
     </a>
 
     @if (isAdmin()) {
@@ -48,7 +48,7 @@
         (click)="close()"
       >
         <i class="pi pi-users um-item__icon"></i>
-        <span>Gestion utilisateurs</span>
+        <span>{{ 'USER_MENU.USERS' | translate }}</span>
       </a>
     }
   </nav>
@@ -58,7 +58,7 @@
   <!-- Langue -->
   <div class="um-lang">
     <i class="pi pi-globe um-lang__icon"></i>
-    <span class="um-lang__label">Langue</span>
+    <span class="um-lang__label">{{ 'USER_MENU.LANG' | translate }}</span>
     <div class="um-lang__toggle">
       <button
         class="um-lang__btn"
@@ -80,7 +80,7 @@
   <!-- Déconnexion -->
   <button class="um-item um-item--logout" type="button" (click)="logout()">
     <i class="pi pi-sign-out um-item__icon"></i>
-    <span>Se déconnecter</span>
+    <span>{{ 'USER_MENU.LOGOUT' | translate }}</span>
   </button>
 
 </p-popover>

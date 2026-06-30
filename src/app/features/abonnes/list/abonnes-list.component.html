@@ -4,7 +4,7 @@
 <!-- Topbar — sticky, blanc, border-bottom -->
 <header class="abonnes-topbar">
   <div class="abonnes-topbar__left">
-    <span class="abonnes-topbar__title">Abonnés</span>
+    <span class="abonnes-topbar__title">{{ 'ABONNES.TITLE' | translate }}</span>
     @if (statutSummary()) {
       <span class="abonnes-topbar__subtitle">{{ statutSummary() }}</span>
     }
@@ -13,7 +13,7 @@
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
     </svg>
-    Nouvel abonné
+    {{ 'ABONNES.NEW' | translate }}
   </a>
 </header>
 
@@ -31,20 +31,20 @@
       <input
         type="text"
         pInputText
-        placeholder="Rechercher nom, AB-XXXX…"
-        aria-label="Rechercher"
+        [placeholder]="'ABONNES.SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'COMMON.SEARCH' | translate"
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
       />
     </p-iconfield>
 
     <p-select
-      [options]="statutOptions"
+      [options]="statutOptions()"
       [ngModel]="statutFilter()"
       (ngModelChange)="statutFilter.set($event)"
       optionLabel="label"
       optionValue="value"
-      placeholder="Statut"
+      [placeholder]="'ABONNES.STATUT_FILTER' | translate"
       [showClear]="true"
     />
 
@@ -54,7 +54,7 @@
       (ngModelChange)="quartierFilter.set($event)"
       optionLabel="label"
       optionValue="value"
-      placeholder="Quartier"
+      [placeholder]="'ABONNES.QUARTIER_FILTER' | translate"
       [showClear]="true"
     />
   </div>
@@ -68,17 +68,17 @@
       [rows]="5"
       [rowHover]="true"
       [showCurrentPageReport]="true"
-      currentPageReportTemplate="Affichage {first}–{last} de {totalRecords} abonnés"
+      [currentPageReportTemplate]="'ABONNES.TABLE_SUMMARY' | translate"
       styleClass="abonnes-table"
     >
       <ng-template pTemplate="header">
         <tr>
-          <th scope="col">N° Abonné</th>
-          <th scope="col" class="th-wrap">Nom Prénom</th>
-          <th scope="col">Quartier · Camp</th>
-          <th scope="col">N° Compteur</th>
-          <th scope="col">Statut</th>
-          <th scope="col">Actions</th>
+          <th scope="col">{{ 'ABONNES.NUMERO' | translate }}</th>
+          <th scope="col" class="th-wrap">{{ 'ABONNES.NOM_PRENOM' | translate }}</th>
+          <th scope="col">{{ 'ABONNES.QUARTIER_CAMP' | translate }}</th>
+          <th scope="col">{{ 'ABONNES.NUMERO_COMPTEUR' | translate }}</th>
+          <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
+          <th scope="col">{{ 'COMMON.ACTIONS' | translate }}</th>
         </tr>
       </ng-template>
 
@@ -113,14 +113,14 @@
                 type="button"
                 class="abonnes-table__action-btn"
                 (click)="voirAbonne(abonne.id)"
-              >Voir</button>
+              >{{ 'ABONNES.VOIR' | translate }}</button>
 
               @if (abonne.statut === 'ACTIF') {
                 <button
                   type="button"
                   class="abonnes-table__action-btn"
                   (click)="modifierAbonne(abonne.id)"
-                >Modifier</button>
+                >{{ 'ABONNES.MODIFIER' | translate }}</button>
               }
 
               @if (abonne.statut === 'SUSPENDU') {
@@ -128,7 +128,7 @@
                   type="button"
                   class="abonnes-table__action-btn abonnes-table__action-btn--reactiver"
                   (click)="confirmReactiver(abonne)"
-                >Réactiver</button>
+                >{{ 'ABONNES.REACTIVER' | translate }}</button>
               }
             </div>
           </td>
@@ -139,9 +139,9 @@
         <tr>
           <td colspan="6" class="abonnes-table__empty">
             @if (searchTerm() || statutFilter() || quartierFilter()) {
-              Aucun résultat pour les filtres sélectionnés
+              {{ 'ABONNES.NO_RESULT_FILTERS' | translate }}
             } @else {
-              Aucun abonné enregistré
+              {{ 'ABONNES.NO_RESULT' | translate }}
             }
           </td>
         </tr>

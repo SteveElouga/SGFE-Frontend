@@ -4,12 +4,16 @@
 <div class="users-page">
   <header class="users-page__header">
     <div>
-      <h1 class="users-page__title">Utilisateurs</h1>
-      <p class="users-page__subtitle">{{ users().length }} compte{{ users().length > 1 ? 's' : '' }} enregistré{{ users().length > 1 ? 's' : '' }}</p>
+      <h1 class="users-page__title">{{ 'UTILISATEURS.TITLE' | translate }}</h1>
+      <p class="users-page__subtitle">
+        {{ users().length === 1
+          ? ('UTILISATEURS.SUBTITLE_SINGULAR' | translate:{ count: users().length })
+          : ('UTILISATEURS.SUBTITLE_PLURAL' | translate:{ count: users().length }) }}
+      </p>
     </div>
     <a routerLink="/utilisateurs/nouveau" class="users-page__new-btn">
       <i class="pi pi-plus"></i>
-      Nouvel utilisateur
+      {{ 'UTILISATEURS.NEW' | translate }}
     </a>
   </header>
 
@@ -23,8 +27,8 @@
       <input
         type="text"
         pInputText
-        placeholder="Rechercher un utilisateur…"
-        aria-label="Rechercher"
+        [placeholder]="'UTILISATEURS.SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'COMMON.SEARCH' | translate"
         [ngModel]="searchTerm()"
         (ngModelChange)="searchTerm.set($event)"
       />
@@ -41,11 +45,11 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th>Utilisateur</th>
-        <th>Téléphone</th>
-        <th>Rôle</th>
-        <th>Statut</th>
-        <th>Créé le</th>
+        <th>{{ 'UTILISATEURS.USERNAME' | translate }}</th>
+        <th>{{ 'UTILISATEURS.PHONE' | translate }}</th>
+        <th>{{ 'UTILISATEURS.ROLE' | translate }}</th>
+        <th>{{ 'COMMON.STATUS' | translate }}</th>
+        <th>{{ 'UTILISATEURS.CREATED_AT' | translate }}</th>
         <th></th>
       </tr>
     </ng-template>
@@ -63,7 +67,7 @@
         <td class="users-table__phone">{{ user.phoneNumber }}</td>
         <td>
           <p-tag
-            [value]="roleLabel(user.role)"
+            [value]="'UTILISATEURS.ROLES.' + user.role | translate"
             [severity]="roleSeverity(user.role)"
           />
         </td>
@@ -76,7 +80,7 @@
             <button
               type="button"
               class="users-table__action-btn"
-              [appTooltip]="'Modifier ' + user.username"
+              [appTooltip]="('COMMON.EDIT' | translate) + ' ' + user.username"
               (click)="editUser(user)"
             >
               <i class="pi pi-pencil"></i>
@@ -85,7 +89,7 @@
               <button
                 type="button"
                 class="users-table__action-btn users-table__action-btn--danger"
-                [appTooltip]="'Désactiver ' + user.username + ' — l\'utilisateur ne pourra plus se connecter'"
+                [appTooltip]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
                 [tooltipPosition]="'left'"
                 (click)="confirmDeactivate(user)"
               >
@@ -101,9 +105,9 @@
       <tr>
         <td colspan="6" class="users-table__empty">
           @if (searchTerm()) {
-            Aucun résultat pour « {{ searchTerm() }} »
+            {{ 'UTILISATEURS.NO_RESULT_SEARCH' | translate:{ term: searchTerm() } }}
           } @else {
-            Aucun utilisateur enregistré
+            {{ 'UTILISATEURS.NO_RESULT' | translate }}
           }
         </td>
       </tr>

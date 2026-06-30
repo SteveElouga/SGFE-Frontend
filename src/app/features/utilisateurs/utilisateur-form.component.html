@@ -4,32 +4,32 @@
   <nav class="user-form-page__breadcrumb">
     <a routerLink="/utilisateurs" class="user-form-page__back">
       <i class="pi pi-arrow-left"></i>
-      Retour aux utilisateurs
+      {{ 'UTILISATEURS.FORM.BACK' | translate }}
     </a>
   </nav>
 
   <div class="user-form-page__card">
     <h1 class="user-form-page__title">
-      {{ mode() === 'create' ? 'Nouvel utilisateur' : 'Modifier l\'utilisateur' }}
+      {{ mode() === 'create' ? ('UTILISATEURS.FORM.CREATE_TITLE' | translate) : ('UTILISATEURS.FORM.EDIT_TITLE' | translate) }}
     </h1>
     <p class="user-form-page__subtitle">
       @if (mode() === 'create') {
-        Un code d'activation sera envoyé par WhatsApp au numéro renseigné.
+        {{ 'UTILISATEURS.FORM.SUBTITLE_CREATE' | translate }}
       } @else {
-        Le nom d'utilisateur ne peut pas être modifié.
+        {{ 'UTILISATEURS.FORM.SUBTITLE_EDIT' | translate }}
       }
     </p>
 
     @if (loadingUser()) {
       <div class="user-form-page__loading">
         <i class="pi pi-spinner pi-spin"></i>
-        Chargement…
+        {{ 'UTILISATEURS.FORM.LOADING' | translate }}
       </div>
     } @else {
       <form class="user-form" (ngSubmit)="onSubmit()">
 
         @if (mode() === 'create') {
-          <app-auth-field label="Nom d'utilisateur *">
+          <app-auth-field [label]="'UTILISATEURS.FORM.USERNAME' | translate">
             <input
               id="username"
               type="text"
@@ -43,12 +43,12 @@
               name="username"
             />
             @if (username().trim().length > 0 && username().trim().length < 3) {
-              <span class="user-form__hint--error">Minimum 3 caractères</span>
+              <span class="user-form__hint--error">{{ 'UTILISATEURS.FORM.USERNAME_ERROR' | translate }}</span>
             }
           </app-auth-field>
         }
 
-        <app-auth-field label="Numéro de téléphone *">
+        <app-auth-field [label]="'UTILISATEURS.FORM.PHONE' | translate">
           <div
             class="user-form__phone-field"
             [class.user-form__phone-field--valid]="isPhoneValid()"
@@ -72,18 +72,18 @@
             />
           </div>
           @if (phone().trim().length > 0 && !isPhoneValid()) {
-            <span class="user-form__hint--error">9 chiffres commençant par 6 (ex. 612345678)</span>
+            <span class="user-form__hint--error">{{ 'UTILISATEURS.FORM.PHONE_ERROR' | translate }}</span>
           }
         </app-auth-field>
 
-        <app-auth-field label="Rôle *">
+        <app-auth-field [label]="'UTILISATEURS.FORM.ROLE' | translate">
           <p-select
             inputId="role"
-            [options]="roleOptions"
+            [options]="roleOptions()"
             optionLabel="label"
             optionValue="value"
             [fluid]="true"
-            placeholder="Sélectionner un rôle"
+            [placeholder]="'UTILISATEURS.FORM.ROLE_PLACEHOLDER' | translate"
             aria-label="Rôle"
             [ngModel]="role()"
             (ngModelChange)="role.set($event)"
@@ -92,7 +92,7 @@
         </app-auth-field>
 
         @if (requiresEmail()) {
-          <app-auth-field label="Email *">
+          <app-auth-field [label]="'UTILISATEURS.FORM.EMAIL' | translate">
             <input
               id="email"
               type="email"
@@ -116,7 +116,7 @@
         }
 
         <div class="user-form__actions">
-          <a routerLink="/utilisateurs" class="user-form__cancel">Annuler</a>
+          <a routerLink="/utilisateurs" class="user-form__cancel">{{ 'UTILISATEURS.FORM.CANCEL' | translate }}</a>
           <button
             type="submit"
             class="user-form__submit"
@@ -127,7 +127,7 @@
             } @else {
               <i class="pi pi-check"></i>
             }
-            {{ mode() === 'create' ? 'Créer le compte' : 'Enregistrer' }}
+            {{ mode() === 'create' ? ('UTILISATEURS.FORM.SUBMIT_CREATE' | translate) : ('UTILISATEURS.FORM.SUBMIT_EDIT' | translate) }}
           </button>
         </div>
       </form>

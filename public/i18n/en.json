@@ -3,11 +3,21 @@
     "DASHBOARD": "Dashboard",
     "ABONNES": "Subscribers",
     "CAMPAGNES": "Campaigns",
-    "FACTURATION": "Billing",
+    "FACTURES": "Invoices",
     "PAIEMENTS": "Payments",
-    "UTILISATEURS": "Users",
+    "IMPAYES": "Unpaid",
+    "CONFIGURATION": "Settings",
     "TERRAIN": "Field",
     "PARAMETRES": "Settings"
+  },
+  "USER_MENU": {
+    "PROFILE": "My profile",
+    "USERS": "User management",
+    "LOGOUT": "Sign out",
+    "LANG": "Language"
+  },
+  "SIDEBAR": {
+    "CAMPAIGN_ACTIVE": "Active campaign"
   },
   "COMMON": {
     "LOADING": "Loading…",
@@ -28,7 +38,9 @@
     "BACK": "Back",
     "SEE_ALL": "See all",
     "CREATED_AT": "Created on",
-    "STATUS": "Status"
+    "STATUS": "Status",
+    "MIN_2_CHARS": "Minimum 2 characters",
+    "INTEGER_MIN_1": "Integer ≥ 1 required"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -41,6 +53,10 @@
     "TITLE": "Subscribers",
     "SUBTITLE_SINGULAR": "{{ count }} subscriber",
     "SUBTITLE_PLURAL": "{{ count }} subscribers",
+    "SUMMARY_ACTIF_SINGULAR": "{{ count }} active",
+    "SUMMARY_ACTIF_PLURAL": "{{ count }} active",
+    "SUMMARY_SUSPENDU_SINGULAR": "{{ count }} suspended",
+    "SUMMARY_SUSPENDU_PLURAL": "{{ count }} suspended",
     "SEARCH_PLACEHOLDER": "Search name, AB-XXXX…",
     "NEW": "New subscriber",
     "NUMERO": "Subscriber #",
@@ -93,7 +109,35 @@
       "HIST_INDEX_FERMETURE": "Closing index:",
       "INDEX_INITIAL_UNIT": "m³",
       "LOCALISATION": "Location",
-      "COMING_SOON": "Coming soon"
+      "COMING_SOON": "Coming soon",
+      "RESILIATION_TITLE": "Terminate subscription?",
+      "RESILIATION_MSG": "This action is irreversible. The subscriber will be permanently terminated and excluded from all future campaigns.",
+      "RESILIER_LOADING": "Terminating…",
+      "REPLACEMENT_LOADING": "Replacing…",
+      "HIST_INDEX_INITIAL": "Initial index:",
+      "NEW_METER_NUMBER": "New meter # *",
+      "QUARTIER_LABEL": "Area *",
+      "CAMP_LABEL": "Camp *",
+      "INDEX_INITIAL_M3": "Initial index (m³)",
+      "DATE_POSE_LABEL": "Installation date *",
+      "INVOICE_PERIOD": "Period",
+      "INVOICE_CONSO": "Consumption",
+      "INVOICE_AMOUNT": "Amount",
+      "TOAST_SUSPENDED": "Subscriber suspended",
+      "TOAST_REACTIVATED": "Subscriber reactivated",
+      "TOAST_RESILIE": "Subscription terminated",
+      "TOAST_METER_REPLACED": "Meter replaced successfully",
+      "TOOLTIP_MODIFIER": "Edit subscriber information",
+      "TOOLTIP_SUSPENDRE": "Temporarily block water access without terminating the contract",
+      "MONTHS_AGO_SINGULAR": "{{ count }} month",
+      "MONTHS_AGO_PLURAL": "{{ count }} months",
+      "TOOLTIP_REACTIVER": "Restore water access",
+      "TOOLTIP_RESILIER": "Permanently end the contract — irreversible action",
+      "TOOLTIP_REMPLACER": "Record the physical meter replacement",
+      "TOOLTIP_KPI_CONSO": "Average consumption calculated over the last 6 months",
+      "TOOLTIP_KPI_FACTURES": "Total number of invoices generated since subscription",
+      "TOOLTIP_KPI_SOLDE": "Total invoices issued and not yet paid",
+      "TOOLTIP_KPI_SINCE": "Date the subscriber record was created"
     },
     "FORM": {
       "CREATE_TITLE": "New subscriber",
@@ -113,7 +157,34 @@
       "SUBMIT_CREATE": "Create subscriber",
       "SUBMIT_EDIT": "Save",
       "SUCCESS_CREATE": "Subscriber created",
-      "SUCCESS_EDIT": "Subscriber updated"
+      "SUCCESS_EDIT": "Subscriber updated",
+      "SECTION_IDENTITE": "Identity",
+      "SECTION_LOCALISATION": "Location",
+      "SECTION_CONTACT": "Contact",
+      "SECTION_COMPTEUR": "Meter",
+      "BADGE_CREATE": "CREATE",
+      "BADGE_EDIT": "EDIT",
+      "CARD_SUBTITLE": "In create mode, the number is assigned automatically · Fields marked * are required",
+      "PHONE_LABEL_FULL": "Phone / WhatsApp *",
+      "PHONE_HINT_FULL": "Cameroon format · +237 added automatically",
+      "DATE_SOUSCRIPTION": "Subscription date",
+      "INDEX_READONLY": "Cannot be changed after creation",
+      "CREATION_ONLY": "create only",
+      "AUTO_BADGE": "auto",
+      "SAVING": "Saving…",
+      "SUBMIT_SAVE": "Save changes",
+      "NOM_REQUIRED": "Last name is required",
+      "PRENOM_REQUIRED": "First name is required",
+      "PHONE_REQUIRED": "Phone number is required",
+      "PHONE_INVALID": "Invalid format — e.g. 655 123 456",
+      "QUARTIER_REQUIRED": "Area is required",
+      "CAMP_REQUIRED": "Camp is required",
+      "CAMP_INVALID": "Integer ≥ 1 required",
+      "DATE_REQUIRED": "Date is required",
+      "NUMERO_REQUIRED": "Meter number is required",
+      "NUMERO_INVALID": "Integer ≥ 1 required",
+      "SUCCESS_CREATE_MSG": "Subscriber created successfully",
+      "SUCCESS_EDIT_MSG": "Changes saved"
     }
   },
   "UTILISATEURS": {
@@ -148,7 +219,19 @@
       "USERNAME_HINT": "Minimum 3 characters",
       "PHONE_HINT": "9 digits starting with 6 (e.g. 612345678)",
       "SUBMIT_CREATE": "Create account",
-      "SUBMIT_EDIT": "Save"
+      "SUBMIT_EDIT": "Save",
+      "BACK": "Back to users",
+      "SUBTITLE_CREATE": "An activation code will be sent via WhatsApp to the registered number.",
+      "SUBTITLE_EDIT": "The username cannot be changed.",
+      "ROLE_PLACEHOLDER": "Select a role",
+      "LOADING": "Loading…",
+      "SUCCESS_CREATE": "Account created",
+      "SUCCESS_CREATE_DETAIL": "{{ username }} will receive an activation code via WhatsApp.",
+      "SUCCESS_EDIT": "Account updated",
+      "SUCCESS_EDIT_DETAIL": "Changes have been saved.",
+      "PHONE_ERROR": "9 digits starting with 6 (e.g. 612345678)",
+      "USERNAME_ERROR": "Minimum 3 characters",
+      "CANCEL": "Cancel"
     }
   },
   "AUTH": {
@@ -160,7 +243,17 @@
     "FORGOT_PASSWORD": "Forgot password?",
     "OTP_TITLE": "Verification code",
     "OTP_SUBTITLE": "Enter the code received via WhatsApp",
-    "LOGOUT": "Sign out"
+    "LOGOUT": "Sign out",
+    "IDENTIFIER_LABEL": "Username or Phone",
+    "IDENTIFIER_PLACEHOLDER": "john.doe or 612345678",
+    "FIELD_REQUIRED": "This field is required.",
+    "HELP_LINK": "Need help?",
+    "LOGIN_WELCOME": "Welcome back 👋",
+    "LOGIN_SUBTITLE": "Sign in to your workspace",
+    "ACCESS_BY_ROLE": "Access by role",
+    "CHECKLIST_1": "Field meter readings on mobile (PWA)",
+    "CHECKLIST_2": "Billing and automatic WhatsApp delivery",
+    "CHECKLIST_3": "Real-time unpaid invoice tracking"
   },
   "ERRORS": {
     "GENERIC": "An error occurred. Please try again.",
@@ -172,5 +265,13 @@
     "LOAD_USERS": "Unable to load the user list.",
     "LOAD_ABONNE": "Unable to load subscriber data.",
     "LOAD_HISTORIQUE": "Unable to load history."
+  },
+  "DASHBOARD": {
+    "TITLE": "Dashboard",
+    "WELCOME": "Hello, {{ username }}",
+    "ABONNES_TITLE": "Subscribers",
+    "ABONNES_DESC": "Manage subscribers and their water meters",
+    "USERS_TITLE": "Users",
+    "USERS_DESC": "Manage agent, accountant and administrator accounts"
   }
 }

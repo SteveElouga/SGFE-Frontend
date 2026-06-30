@@ -6,13 +6,13 @@
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
       <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    Abonnés
+    {{ 'ABONNES.TITLE' | translate }}
   </a>
   <span class="abonne-topbar__sep">/</span>
   @if (abonne()) {
     <span class="abonne-topbar__name">{{ abonne()!.nom }} {{ abonne()!.prenom }}</span>
   } @else {
-    <span class="abonne-topbar__name abonne-topbar__name--loading">Chargement…</span>
+    <span class="abonne-topbar__name abonne-topbar__name--loading">{{ 'COMMON.LOADING' | translate }}</span>
   }
 </header>
 
@@ -55,41 +55,41 @@
       <div class="abonne-header-card__actions">
         <button
           class="abonne-action-btn"
-          [appTooltip]="'Modifier les informations de l\'abonné'"
+          [appTooltip]="'ABONNES.DETAIL.TOOLTIP_MODIFIER' | translate"
           (click)="goToEditForm()"
           [disabled]="statutLoading()"
-        >Modifier</button>
+        >{{ 'ABONNES.MODIFIER' | translate }}</button>
         @if (a.statut === 'ACTIF') {
           <button
             class="abonne-action-btn abonne-action-btn--danger"
-            [appTooltip]="'Bloquer temporairement l\'accès à l\'eau sans résilier le contrat'"
+            [appTooltip]="'ABONNES.DETAIL.TOOLTIP_SUSPENDRE' | translate"
             (click)="suspendre()"
             [disabled]="statutLoading()"
-          >Suspendre</button>
+          >{{ 'ABONNES.SUSPENDRE' | translate }}</button>
         }
         @if (a.statut === 'SUSPENDU') {
           <button
             class="abonne-action-btn abonne-action-btn--success"
-            [appTooltip]="'Rétablir l\'accès à l\'eau'"
+            [appTooltip]="'ABONNES.DETAIL.TOOLTIP_REACTIVER' | translate"
             (click)="reactiver()"
             [disabled]="statutLoading()"
-          >Réactiver</button>
+          >{{ 'ABONNES.REACTIVER' | translate }}</button>
         }
         @if (a.statut !== 'RESILIE') {
           <button
             class="abonne-action-btn abonne-action-btn--danger-outline"
-            [appTooltip]="'Mettre fin définitivement au contrat — action irréversible'"
+            [appTooltip]="'ABONNES.DETAIL.TOOLTIP_RESILIER' | translate"
             (click)="confirmerResiliation()"
             [disabled]="statutLoading()"
-          >Résilier</button>
+          >{{ 'ABONNES.RESILIER' | translate }}</button>
         }
         @if (a.statut === 'ACTIF') {
           <button
             class="abonne-action-btn abonne-action-btn--ghost"
-            [appTooltip]="'Enregistrer le remplacement du compteur physique'"
+            [appTooltip]="'ABONNES.DETAIL.TOOLTIP_REMPLACER' | translate"
             (click)="openRemplacerModal()"
             [disabled]="statutLoading()"
-          >Remplacer compteur</button>
+          >{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</button>
         }
       </div>
     </div>
@@ -97,26 +97,26 @@
     <!-- ── Bloc KPI ── -->
     <div class="abonne-kpi-grid">
       <div class="abonne-kpi abonne-kpi--blue"
-        [appTooltip]="'Consommation moyenne calculée sur les 6 derniers mois'">
-        <div class="abonne-kpi__label">Conso moy.</div>
+        [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_CONSO' | translate">
+        <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_CONSO_MOY' | translate }}</div>
         <div class="abonne-kpi__value">— m³</div>
-        <div class="abonne-kpi__sub">/ mois</div>
+        <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_CONSO_UNIT' | translate }}</div>
       </div>
       <div class="abonne-kpi abonne-kpi--green"
-        [appTooltip]="'Nombre total de factures générées depuis la souscription'">
-        <div class="abonne-kpi__label">Factures émises</div>
+        [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_FACTURES' | translate">
+        <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_FACTURES' | translate }}</div>
         <div class="abonne-kpi__value">—</div>
-        <div class="abonne-kpi__sub">depuis souscription</div>
+        <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_FACTURES_SINCE' | translate }}</div>
       </div>
       <div class="abonne-kpi abonne-kpi--green"
-        [appTooltip]="'Total des factures émises et non encore réglées'">
-        <div class="abonne-kpi__label">Solde impayé</div>
+        [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SOLDE' | translate">
+        <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SOLDE' | translate }}</div>
         <div class="abonne-kpi__value">— FCFA</div>
         <div class="abonne-kpi__sub">&nbsp;</div>
       </div>
       <div class="abonne-kpi abonne-kpi--slate"
-        [appTooltip]="'Date de création du dossier abonné'">
-        <div class="abonne-kpi__label">Abonné depuis</div>
+        [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SINCE' | translate">
+        <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SINCE' | translate }}</div>
         <div class="abonne-kpi__value">{{ abonneDepuis() }}</div>
         <div class="abonne-kpi__sub">{{ moisDepuis() }}</div>
       </div>
@@ -130,27 +130,27 @@
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 0"
           (click)="setActiveTab(0)"
-        >Informations</button>
+        >{{ 'ABONNES.DETAIL.TAB_INFO' | translate }}</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 1"
           (click)="setActiveTab(1)"
-        >Factures</button>
+        >{{ 'ABONNES.DETAIL.TAB_FACTURES' | translate }}</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 2"
           (click)="setActiveTab(2)"
-        >Historique conso</button>
+        >{{ 'ABONNES.DETAIL.TAB_CONSO' | translate }}</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 3"
           (click)="setActiveTab(3)"
-        >Impayés</button>
+        >{{ 'ABONNES.DETAIL.TAB_IMPAYES' | translate }}</button>
         <button
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 4"
           (click)="setActiveTab(4)"
-        >Compteurs</button>
+        >{{ 'ABONNES.DETAIL.TAB_COMPTEURS' | translate }}</button>
       </div>
 
       <!-- ── Onglet Informations ── -->
@@ -165,19 +165,19 @@
                 <path d="M7 1a6 6 0 100 12A6 6 0 007 1z" stroke="#1a56db" stroke-width="1.3"/>
                 <path d="M7 4v3l2 2" stroke="#1a56db" stroke-width="1.3" stroke-linecap="round"/>
               </svg>
-              Contact
+              {{ 'ABONNES.DETAIL.CONTACT' | translate }}
             </div>
             <div class="abonne-info-rows">
               <div class="abonne-info-row">
-                <span class="abonne-info-row__label">WhatsApp</span>
+                <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.WHATSAPP' | translate }}</span>
                 <span class="abonne-info-row__value">{{ a.telephoneWhatsapp }}</span>
               </div>
               <div class="abonne-info-row">
-                <span class="abonne-info-row__label">Adresse</span>
+                <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.ADRESSE' | translate }}</span>
                 <span class="abonne-info-row__value abonne-info-row__value--muted">{{ a.adresse || '—' }}</span>
               </div>
               <div class="abonne-info-row">
-                <span class="abonne-info-row__label">Quartier · Camp</span>
+                <span class="abonne-info-row__label">{{ 'ABONNES.QUARTIER_CAMP' | translate }}</span>
                 @if (a.compteur) {
                   <span class="abonne-info-row__value">{{ a.compteur.quartier }} · Camp {{ a.compteur.camp }}</span>
                 } @else {
@@ -194,24 +194,24 @@
                 <rect x="1" y="3" width="12" height="8" rx="1.5" stroke="#0e9f6e" stroke-width="1.3"/>
                 <path d="M1 6h12" stroke="#0e9f6e" stroke-width="1.3"/>
               </svg>
-              Compteur
+              {{ 'ABONNES.DETAIL.COMPTEUR' | translate }}
             </div>
             @if (a.compteur) {
               <div class="abonne-info-rows">
                 <div class="abonne-info-row">
-                  <span class="abonne-info-row__label">N° compteur</span>
+                  <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.NUM_COMPTEUR' | translate }}</span>
                   <span class="abonne-info-row__value abonne-info-row__value--mono">{{ a.compteur.numeroCompteur | compteur }}</span>
                 </div>
                 <div class="abonne-info-row">
-                  <span class="abonne-info-row__label">Index initial</span>
+                  <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.INDEX_INITIAL' | translate }}</span>
                   <span class="abonne-info-row__value abonne-info-row__value--mono">{{ a.compteur.indexInitial.toFixed(3) }} m³</span>
                 </div>
                 <div class="abonne-info-row">
-                  <span class="abonne-info-row__label">Date de pose</span>
+                  <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
                   <span class="abonne-info-row__value abonne-info-row__value--muted">{{ a.compteur.datePose ? (a.compteur.datePose | date:'dd/MM/yyyy') : '—' }}</span>
                 </div>
                 <div class="abonne-info-row">
-                  <span class="abonne-info-row__label">Statut</span>
+                  <span class="abonne-info-row__label">{{ 'COMMON.STATUS' | translate }}</span>
                   <span class="abonne-badge abonne-badge--{{ a.compteur.statut.toLowerCase() }}" style="font-size:11px;padding:2px 8px">{{ a.compteur.statut }}</span>
                 </div>
               </div>
@@ -221,7 +221,7 @@
                   <rect x="2" y="7" width="24" height="14" rx="3" stroke="#cbd5e1" stroke-width="1.5"/>
                   <path d="M2 12h24" stroke="#cbd5e1" stroke-width="1.5"/>
                 </svg>
-                Aucun compteur actif
+                {{ 'ABONNES.DETAIL.AUCUN_COMPTEUR' | translate }}
               </div>
             }
           </div>
@@ -230,26 +230,26 @@
 
         <!-- ── Dernières factures ── -->
         <div class="abonne-invoices">
-          <div class="abonne-invoices__title">Dernières factures</div>
+          <div class="abonne-invoices__title">{{ 'ABONNES.DETAIL.LAST_INVOICES' | translate }}</div>
           <table class="abonne-invoices__table">
             <thead>
               <tr>
-                <th>Période</th>
-                <th class="text-right">Conso</th>
-                <th class="text-right">Montant</th>
-                <th>Statut</th>
+                <th>{{ 'ABONNES.DETAIL.INVOICE_PERIOD' | translate }}</th>
+                <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_CONSO' | translate }}</th>
+                <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_AMOUNT' | translate }}</th>
+                <th>{{ 'COMMON.STATUS' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td colspan="5" class="abonne-invoices__empty">
-                  Aucune facture disponible pour le moment
+                  {{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}
                 </td>
               </tr>
             </tbody>
           </table>
-          <div class="abonne-invoices__see-all">Voir toutes les factures →</div>
+          <div class="abonne-invoices__see-all">{{ 'ABONNES.DETAIL.SEE_ALL_INVOICES' | translate }} →</div>
         </div>
       }
 
@@ -260,7 +260,7 @@
             <rect x="2" y="4" width="32" height="28" rx="4" stroke="#cbd5e1" stroke-width="1.5"/>
             <path d="M9 13h18M9 18h12M9 23h8" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          <span>Fonctionnalité à venir</span>
+          <span>{{ 'ABONNES.DETAIL.COMING_SOON' | translate }}</span>
         </div>
       }
 
@@ -288,21 +288,21 @@
             @if (a.compteur) {
               <div class="hist-current">
                 <div class="hist-current__header">
-                  <span class="hist-current__label">Compteur actuel</span>
+                  <span class="hist-current__label">{{ 'ABONNES.DETAIL.HIST_CURRENT' | translate }}</span>
                   <span class="hist-current__badge">{{ a.compteur.statut }}</span>
                 </div>
                 <div class="hist-current__number">{{ a.compteur.numeroCompteur | compteur }}</div>
                 <div class="hist-current__rows">
                   <div class="hist-current__row">
-                    <span class="hist-current__key">Localisation</span>
+                    <span class="hist-current__key">{{ 'ABONNES.DETAIL.LOCALISATION' | translate }}</span>
                     <span class="hist-current__val">{{ a.compteur.quartier }} · Camp {{ a.compteur.camp }}</span>
                   </div>
                   <div class="hist-current__row">
-                    <span class="hist-current__key">Index initial</span>
+                    <span class="hist-current__key">{{ 'ABONNES.DETAIL.INDEX_INITIAL' | translate }}</span>
                     <span class="hist-current__val">{{ a.compteur.indexInitial.toFixed(3) }} m³</span>
                   </div>
                   <div class="hist-current__row">
-                    <span class="hist-current__key">Date de pose</span>
+                    <span class="hist-current__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
                     <span class="hist-current__val">{{ a.compteur.datePose ? (a.compteur.datePose | date:'dd/MM/yyyy') : '—' }}</span>
                   </div>
                 </div>
@@ -316,11 +316,11 @@
                   <rect x="2" y="7" width="28" height="18" rx="3" stroke="#cbd5e1" stroke-width="1.5"/>
                   <path d="M2 13h28" stroke="#cbd5e1" stroke-width="1.5"/>
                 </svg>
-                <span>Aucun remplacement enregistré</span>
+                <span>{{ 'ABONNES.DETAIL.HIST_NO_REPLACEMENT' | translate }}</span>
               </div>
             } @else {
               <div class="hist-section-title">
-                <span>Historique des remplacements</span>
+                <span>{{ 'ABONNES.DETAIL.HIST_TITLE' | translate }}</span>
                 <span class="hist-section-count">{{ historique().length }}</span>
               </div>
               <ol class="hist-timeline">
@@ -330,16 +330,16 @@
                     <div class="hist-entry__body">
                       <div class="hist-entry__date">
                         {{ entry.dateRemplacement ? (entry.dateRemplacement | date:'dd/MM/yyyy') : '—' }}
-                        <span class="hist-entry__idx-label">Index fermeture :</span>
+                        <span class="hist-entry__idx-label">{{ 'ABONNES.DETAIL.HIST_INDEX_FERMETURE' | translate }}</span>
                         <span class="hist-entry__idx-val">{{ entry.indexFermeture.toFixed(3) }} m³</span>
                       </div>
                       <div class="hist-entry__cards">
                         <!-- Ancien compteur -->
                         <div class="hist-meter hist-meter--old">
-                          <span class="hist-meter__tag">Ancien</span>
+                          <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_ANCIEN' | translate }}</span>
                           <span class="hist-meter__num">{{ entry.ancienCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.ancienCompteur.quartier }} · Camp {{ entry.ancienCompteur.camp }}</span>
-                          <span class="hist-meter__sub">Index initial : {{ entry.ancienCompteur.indexInitial.toFixed(3) }} m³</span>
+                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ entry.ancienCompteur.indexInitial.toFixed(3) }} m³</span>
                         </div>
                         <!-- Flèche -->
                         <div class="hist-arrow" aria-hidden="true">
@@ -349,10 +349,10 @@
                         </div>
                         <!-- Nouveau compteur -->
                         <div class="hist-meter hist-meter--new">
-                          <span class="hist-meter__tag">Nouveau</span>
+                          <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_NOUVEAU' | translate }}</span>
                           <span class="hist-meter__num">{{ entry.nouveauCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.nouveauCompteur.quartier }} · Camp {{ entry.nouveauCompteur.camp }}</span>
-                          <span class="hist-meter__sub">Index initial : {{ entry.nouveauCompteur.indexInitial.toFixed(3) }} m³</span>
+                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ entry.nouveauCompteur.indexInitial.toFixed(3) }} m³</span>
                         </div>
                       </div>
                     </div>
@@ -371,7 +371,7 @@
 <p-dialog
   [visible]="resilierDialogVisible()"
   (visibleChange)="resilierDialogVisible.set($event)"
-  header="Résilier l'abonnement ?"
+  [header]="'ABONNES.DETAIL.RESILIATION_TITLE' | translate"
   [modal]="true"
   [style]="{ width: '420px' }"
   [draggable]="false"
@@ -382,7 +382,7 @@
       <path d="M20 13v8M20 25v1" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
     </svg>
     <p class="confirm-body__text">
-      Cette action est <strong>irréversible</strong>. L'abonné sera définitivement résilié et exclu de toutes les campagnes futures.
+      {{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}
     </p>
   </div>
 
@@ -390,12 +390,12 @@
     <button class="dialog-btn dialog-btn--ghost"
       (click)="resilierDialogVisible.set(false)"
       [disabled]="statutLoading()">
-      Annuler
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
     <button class="dialog-btn dialog-btn--danger"
       (click)="resilier()"
       [disabled]="statutLoading()">
-      @if (statutLoading()) { Résiliation… } @else { Résilier }
+      @if (statutLoading()) { {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }} } @else { {{ 'ABONNES.RESILIER' | translate }} }
     </button>
   </ng-template>
 </p-dialog>
@@ -404,38 +404,38 @@
 <p-dialog
   [visible]="remplacerVisible()"
   (visibleChange)="remplacerVisible.set($event)"
-  header="Remplacer le compteur"
+  [header]="'ABONNES.REMPLACER_COMPTEUR' | translate"
   [modal]="true"
   [style]="{ width: '460px' }"
   [draggable]="false"
 >
   <div class="edit-form">
     <div class="edit-field">
-      <label class="edit-label" for="newNumero">N° nouveau compteur *</label>
+      <label class="edit-label" for="newNumero">{{ 'ABONNES.DETAIL.NEW_METER_NUMBER' | translate }}</label>
       <input pInputText id="newNumero" type="number" min="1"
         [ngModel]="newNumeroCompteur()" (ngModelChange)="newNumeroCompteur.set($event)" name="newNumero"
         placeholder="ex. 2001" />
     </div>
     <div class="edit-grid-2">
       <div class="edit-field">
-        <label class="edit-label" for="newQuartier">Quartier *</label>
+        <label class="edit-label" for="newQuartier">{{ 'ABONNES.DETAIL.QUARTIER_LABEL' | translate }}</label>
         <input pInputText id="newQuartier" type="text"
           [ngModel]="newQuartier()" (ngModelChange)="newQuartier.set($event)" name="newQuartier" />
       </div>
       <div class="edit-field">
-        <label class="edit-label" for="newCamp">Camp *</label>
+        <label class="edit-label" for="newCamp">{{ 'ABONNES.DETAIL.CAMP_LABEL' | translate }}</label>
         <input pInputText id="newCamp" type="number" min="1"
           [ngModel]="newCamp()" (ngModelChange)="newCamp.set($event)" name="newCamp" />
       </div>
     </div>
     <div class="edit-grid-2">
       <div class="edit-field">
-        <label class="edit-label" for="newIndex">Index initial (m³)</label>
+        <label class="edit-label" for="newIndex">{{ 'ABONNES.DETAIL.INDEX_INITIAL_M3' | translate }}</label>
         <input pInputText id="newIndex" type="number" min="0" step="0.001"
           [ngModel]="newIndexInitial()" (ngModelChange)="newIndexInitial.set($event)" name="newIndex" />
       </div>
       <div class="edit-field">
-        <label class="edit-label" for="newDatePose">Date de pose *</label>
+        <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
         <input pInputText id="newDatePose" type="date"
           [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" name="newDatePose" />
       </div>
@@ -444,10 +444,10 @@
 
   <ng-template #footer>
     <button class="dialog-btn dialog-btn--ghost" (click)="remplacerVisible.set(false)" [disabled]="remplacerLoading()">
-      Annuler
+      {{ 'COMMON.CANCEL' | translate }}
     </button>
     <button class="dialog-btn dialog-btn--primary" (click)="saveRemplacer()" [disabled]="remplacerLoading()">
-      @if (remplacerLoading()) { Remplacement… } @else { Confirmer }
+      @if (remplacerLoading()) { {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }} } @else { {{ 'COMMON.CONFIRM' | translate }} }
     </button>
   </ng-template>
 </p-dialog>

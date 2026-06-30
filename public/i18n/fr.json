@@ -3,11 +3,21 @@
     "DASHBOARD": "Tableau de bord",
     "ABONNES": "Abonnés",
     "CAMPAGNES": "Campagnes",
-    "FACTURATION": "Facturation",
+    "FACTURES": "Factures",
     "PAIEMENTS": "Paiements",
-    "UTILISATEURS": "Utilisateurs",
+    "IMPAYES": "Impayés",
+    "CONFIGURATION": "Configuration",
     "TERRAIN": "Terrain",
     "PARAMETRES": "Paramètres"
+  },
+  "USER_MENU": {
+    "PROFILE": "Mon profil",
+    "USERS": "Gestion utilisateurs",
+    "LOGOUT": "Se déconnecter",
+    "LANG": "Langue"
+  },
+  "SIDEBAR": {
+    "CAMPAIGN_ACTIVE": "Campagne active"
   },
   "COMMON": {
     "LOADING": "Chargement…",
@@ -28,7 +38,9 @@
     "BACK": "Retour",
     "SEE_ALL": "Voir tout",
     "CREATED_AT": "Créé le",
-    "STATUS": "Statut"
+    "STATUS": "Statut",
+    "MIN_2_CHARS": "Minimum 2 caractères",
+    "INTEGER_MIN_1": "Entier ≥ 1 requis"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -41,6 +53,10 @@
     "TITLE": "Abonnés",
     "SUBTITLE_SINGULAR": "{{ count }} abonné enregistré",
     "SUBTITLE_PLURAL": "{{ count }} abonnés enregistrés",
+    "SUMMARY_ACTIF_SINGULAR": "{{ count }} actif",
+    "SUMMARY_ACTIF_PLURAL": "{{ count }} actifs",
+    "SUMMARY_SUSPENDU_SINGULAR": "{{ count }} suspendu",
+    "SUMMARY_SUSPENDU_PLURAL": "{{ count }} suspendus",
     "SEARCH_PLACEHOLDER": "Rechercher nom, AB-XXXX…",
     "NEW": "Nouvel abonné",
     "NUMERO": "N° Abonné",
@@ -93,7 +109,35 @@
       "HIST_INDEX_FERMETURE": "Index fermeture :",
       "INDEX_INITIAL_UNIT": "m³",
       "LOCALISATION": "Localisation",
-      "COMING_SOON": "Fonctionnalité à venir"
+      "COMING_SOON": "Fonctionnalité à venir",
+      "RESILIATION_TITLE": "Résilier l'abonnement ?",
+      "RESILIATION_MSG": "Cette action est irréversible. L'abonné sera définitivement résilié et exclu de toutes les campagnes futures.",
+      "RESILIER_LOADING": "Résiliation…",
+      "REPLACEMENT_LOADING": "Remplacement…",
+      "HIST_INDEX_INITIAL": "Index initial :",
+      "NEW_METER_NUMBER": "N° nouveau compteur *",
+      "QUARTIER_LABEL": "Quartier *",
+      "CAMP_LABEL": "Camp *",
+      "INDEX_INITIAL_M3": "Index initial (m³)",
+      "DATE_POSE_LABEL": "Date de pose *",
+      "INVOICE_PERIOD": "Période",
+      "INVOICE_CONSO": "Conso",
+      "INVOICE_AMOUNT": "Montant",
+      "TOAST_SUSPENDED": "Abonné suspendu",
+      "TOAST_REACTIVATED": "Abonné réactivé",
+      "TOAST_RESILIE": "Abonnement résilié",
+      "TOAST_METER_REPLACED": "Compteur remplacé avec succès",
+      "TOOLTIP_MODIFIER": "Modifier les informations de l'abonné",
+      "TOOLTIP_SUSPENDRE": "Bloquer temporairement l'accès à l'eau sans résilier le contrat",
+      "MONTHS_AGO_SINGULAR": "{{ count }} mois",
+      "MONTHS_AGO_PLURAL": "{{ count }} mois",
+      "TOOLTIP_REACTIVER": "Rétablir l'accès à l'eau",
+      "TOOLTIP_RESILIER": "Mettre fin définitivement au contrat — action irréversible",
+      "TOOLTIP_REMPLACER": "Enregistrer le remplacement du compteur physique",
+      "TOOLTIP_KPI_CONSO": "Consommation moyenne calculée sur les 6 derniers mois",
+      "TOOLTIP_KPI_FACTURES": "Nombre total de factures générées depuis la souscription",
+      "TOOLTIP_KPI_SOLDE": "Total des factures émises et non encore réglées",
+      "TOOLTIP_KPI_SINCE": "Date de création du dossier abonné"
     },
     "FORM": {
       "CREATE_TITLE": "Nouvel abonné",
@@ -113,7 +157,33 @@
       "SUBMIT_CREATE": "Créer l'abonné",
       "SUBMIT_EDIT": "Enregistrer",
       "SUCCESS_CREATE": "Abonné créé",
-      "SUCCESS_EDIT": "Abonné mis à jour"
+      "SUCCESS_EDIT": "Abonné mis à jour",
+      "SECTION_IDENTITE": "Identité",
+      "SECTION_LOCALISATION": "Localisation",
+      "SECTION_CONTACT": "Contact",
+      "BADGE_CREATE": "CRÉATION",
+      "BADGE_EDIT": "MODIFICATION",
+      "CARD_SUBTITLE": "En mode création, le N° est attribué automatiquement · Les champs * sont obligatoires",
+      "PHONE_LABEL_FULL": "Téléphone / WhatsApp *",
+      "PHONE_HINT_FULL": "Format Cameroun · +237 ajouté automatiquement",
+      "DATE_SOUSCRIPTION": "Date de souscription",
+      "INDEX_READONLY": "Non modifiable après création",
+      "CREATION_ONLY": "création seult.",
+      "AUTO_BADGE": "auto",
+      "SAVING": "Enregistrement…",
+      "SUBMIT_SAVE": "Enregistrer les modifications",
+      "NOM_REQUIRED": "Le nom est requis",
+      "PRENOM_REQUIRED": "Le prénom est requis",
+      "PHONE_REQUIRED": "Le téléphone est requis",
+      "PHONE_INVALID": "Format invalide — ex. 655 123 456",
+      "QUARTIER_REQUIRED": "Le quartier est requis",
+      "CAMP_REQUIRED": "Le camp est requis",
+      "CAMP_INVALID": "Entier ≥ 1 requis",
+      "DATE_REQUIRED": "La date est requise",
+      "NUMERO_REQUIRED": "Le N° de compteur est requis",
+      "NUMERO_INVALID": "Entier ≥ 1 requis",
+      "SUCCESS_CREATE_MSG": "Abonné créé avec succès",
+      "SUCCESS_EDIT_MSG": "Modifications enregistrées"
     }
   },
   "UTILISATEURS": {
@@ -148,7 +218,19 @@
       "USERNAME_HINT": "Minimum 3 caractères",
       "PHONE_HINT": "9 chiffres commençant par 6 (ex. 612345678)",
       "SUBMIT_CREATE": "Créer le compte",
-      "SUBMIT_EDIT": "Enregistrer"
+      "SUBMIT_EDIT": "Enregistrer",
+      "BACK": "Retour aux utilisateurs",
+      "SUBTITLE_CREATE": "Un code d'activation sera envoyé par WhatsApp au numéro renseigné.",
+      "SUBTITLE_EDIT": "Le nom d'utilisateur ne peut pas être modifié.",
+      "ROLE_PLACEHOLDER": "Sélectionner un rôle",
+      "LOADING": "Chargement…",
+      "SUCCESS_CREATE": "Compte créé",
+      "SUCCESS_CREATE_DETAIL": "{{ username }} recevra un code d'activation par WhatsApp.",
+      "SUCCESS_EDIT": "Compte mis à jour",
+      "SUCCESS_EDIT_DETAIL": "Les modifications ont été enregistrées.",
+      "PHONE_ERROR": "9 chiffres commençant par 6 (ex. 612345678)",
+      "USERNAME_ERROR": "Minimum 3 caractères",
+      "CANCEL": "Annuler"
     }
   },
   "AUTH": {
@@ -160,7 +242,17 @@
     "FORGOT_PASSWORD": "Mot de passe oublié ?",
     "OTP_TITLE": "Code de vérification",
     "OTP_SUBTITLE": "Entrez le code reçu par WhatsApp",
-    "LOGOUT": "Déconnexion"
+    "LOGOUT": "Déconnexion",
+    "IDENTIFIER_LABEL": "Nom d'utilisateur ou Téléphone",
+    "IDENTIFIER_PLACEHOLDER": "jean.dupont ou 612345678",
+    "FIELD_REQUIRED": "Ce champ est obligatoire.",
+    "HELP_LINK": "Besoin d'aide ?",
+    "LOGIN_WELCOME": "Bon retour 👋",
+    "LOGIN_SUBTITLE": "Connectez-vous à votre espace de travail",
+    "ACCESS_BY_ROLE": "Accès selon votre rôle",
+    "CHECKLIST_1": "Relevés terrain sur mobile (PWA)",
+    "CHECKLIST_2": "Facturation et envoi WhatsApp auto",
+    "CHECKLIST_3": "Suivi des impayés en temps réel"
   },
   "ERRORS": {
     "GENERIC": "Une erreur est survenue. Veuillez réessayer.",
@@ -172,5 +264,13 @@
     "LOAD_USERS": "Impossible de charger la liste des utilisateurs.",
     "LOAD_ABONNE": "Impossible de charger les données de l'abonné.",
     "LOAD_HISTORIQUE": "Impossible de charger l'historique."
+  },
+  "DASHBOARD": {
+    "TITLE": "Tableau de bord",
+    "WELCOME": "Bonjour, {{ username }}",
+    "ABONNES_TITLE": "Abonnés",
+    "ABONNES_DESC": "Gérer les abonnés et leurs compteurs d'eau",
+    "USERS_TITLE": "Utilisateurs",
+    "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs"
   }
 }

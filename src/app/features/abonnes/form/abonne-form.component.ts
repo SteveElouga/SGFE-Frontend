@@ -13,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import {
   AbonnesService,
@@ -31,7 +32,7 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, ErrorBannerComponent],
+  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent],
   providers: [MessageService, DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
@@ -42,6 +43,7 @@ export class AbonneFormComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly datePipe = inject(DatePipe);
+  private readonly translate = inject(TranslateService);
 
   readonly mode: FormMode;
   readonly abonneId: string | null;
@@ -64,10 +66,13 @@ export class AbonneFormComponent implements OnInit {
   readonly numeroCompteur = signal('');
   readonly indexInitial = signal('0');
 
-  readonly statutOptions: { label: string; value: 'ACTIF' | 'SUSPENDU' }[] = [
-    { label: 'ACTIF', value: 'ACTIF' },
-    { label: 'SUSPENDU', value: 'SUSPENDU' },
-  ];
+  readonly statutOptions = computed((): Array<{ label: string; value: 'ACTIF' | 'SUSPENDU' }> => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('STATUS.ACTIF', {}, lang), value: 'ACTIF' },
+      { label: this.translate.instant('STATUS.SUSPENDU', {}, lang), value: 'SUSPENDU' },
+    ];
+  });
 
   // ── État touched par champ ────────────────────────────────────────────────
   readonly nomTouched = signal(false);
@@ -81,52 +86,52 @@ export class AbonneFormComponent implements OnInit {
   // ── Règles de validation ──────────────────────────────────────────────────
   private readonly nomError = computed(() => {
     const v = this.nom().trim();
-    if (!v) return 'Le nom est requis';
-    if (v.length < 2) return 'Minimum 2 caractères';
+    if (!v) return this.translate.instant('ABONNES.FORM.NOM_REQUIRED');
+    if (v.length < 2) return this.translate.instant('COMMON.MIN_2_CHARS');
     return null;
   });
 
   private readonly prenomError = computed(() => {
     const v = this.prenom().trim();
-    if (!v) return 'Le prénom est requis';
-    if (v.length < 2) return 'Minimum 2 caractères';
+    if (!v) return this.translate.instant('ABONNES.FORM.PRENOM_REQUIRED');
+    if (v.length < 2) return this.translate.instant('COMMON.MIN_2_CHARS');
     return null;
   });
 
   private readonly phoneError = computed(() => {
     const local = toLocalPhone(this.telephoneWhatsapp().trim());
-    if (!local) return 'Le téléphone est requis';
-    if (!isValidCameroonPhone(local)) return 'Format invalide — ex. 655 123 456';
+    if (!local) return this.translate.instant('ABONNES.FORM.PHONE_REQUIRED');
+    if (!isValidCameroonPhone(local)) return this.translate.instant('ABONNES.FORM.PHONE_INVALID');
     return null;
   });
 
   private readonly quartierError = computed(() => {
     const v = this.quartier().trim();
-    if (!v) return 'Le quartier est requis';
-    if (v.length < 2) return 'Minimum 2 caractères';
+    if (!v) return this.translate.instant('ABONNES.FORM.QUARTIER_REQUIRED');
+    if (v.length < 2) return this.translate.instant('COMMON.MIN_2_CHARS');
     return null;
   });
 
   private readonly campError = computed(() => {
     const raw = String(this.camp()).trim();
-    if (!raw) return 'Le camp est requis';
+    if (!raw) return this.translate.instant('ABONNES.FORM.CAMP_REQUIRED');
     const n = Number.parseInt(raw, 10);
-    if (Number.isNaN(n) || n < 1) return 'Entier ≥ 1 requis';
+    if (Number.isNaN(n) || n < 1) return this.translate.instant('ABONNES.FORM.CAMP_INVALID');
     return null;
   });
 
   private readonly datePoseError = computed(() => {
     if (this.mode !== 'create') return null;
-    if (!this.datePose()) return 'La date est requise';
+    if (!this.datePose()) return this.translate.instant('ABONNES.FORM.DATE_REQUIRED');
     return null;
   });
 
   private readonly numeroCompteurError = computed(() => {
     if (this.mode !== 'create') return null;
     const raw = String(this.numeroCompteur()).trim();
-    if (!raw) return 'Le N° de compteur est requis';
+    if (!raw) return this.translate.instant('ABONNES.FORM.NUMERO_REQUIRED');
     const n = Number.parseInt(raw, 10);
-    if (Number.isNaN(n) || n < 1) return 'Entier ≥ 1 requis';
+    if (Number.isNaN(n) || n < 1) return this.translate.instant('ABONNES.FORM.NUMERO_INVALID');
     return null;
   });
 
@@ -223,7 +228,7 @@ export class AbonneFormComponent implements OnInit {
       if (code === 'NOT_FOUND') {
         this.router.navigateByUrl('/abonnes');
       } else {
-        this.loadError.set(message || 'Impossible de charger la fiche abonné.');
+        this.loadError.set(message || this.translate.instant('ERRORS.LOAD_ABONNE'));
       }
     } finally {
       this.pageLoading.set(false);
@@ -253,7 +258,7 @@ export class AbonneFormComponent implements OnInit {
           datePose: this.datePose(),
         };
         await this.abonnesService.createAbonne(input);
-        this.messageService.add({ severity: 'success', summary: 'Abonné créé avec succès' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.FORM.SUCCESS_CREATE_MSG') });
         await this.router.navigateByUrl('/abonnes');
       } else {
         const id = this.abonneId;
@@ -293,14 +298,14 @@ export class AbonneFormComponent implements OnInit {
           }
         }
 
-        this.messageService.add({ severity: 'success', summary: 'Modifications enregistrées' });
+        this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.FORM.SUCCESS_EDIT_MSG') });
         await this.router.navigateByUrl(`/abonnes/${id}`);
       }
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.messageService.add({
         severity: 'error',
-        summary: message || 'Une erreur est survenue',
+        summary: message || this.translate.instant('ERRORS.GENERIC'),
       });
     } finally {
       this.saving.set(false);

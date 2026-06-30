@@ -12,18 +12,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
 import { AuthFieldComponent } from '../../shared/components/auth-field/auth-field.component';
-
-export const ROLE_OPTIONS: { label: string; value: Role }[] = [
-  { label: 'Agent terrain', value: 'AGENT' },
-  { label: 'Comptable', value: 'COMPTABLE' },
-  { label: 'Superviseur', value: 'SUPERVISEUR' },
-  { label: 'Administrateur', value: 'ADMIN' },
-];
 
 @Component({
   selector: 'app-utilisateur-form',
@@ -33,6 +27,7 @@ export const ROLE_OPTIONS: { label: string; value: Role }[] = [
     InputTextModule,
     SelectModule,
     ToastModule,
+    TranslatePipe,
     AuthFieldComponent,
   ],
   providers: [MessageService],
@@ -45,8 +40,17 @@ export class UtilisateurFormComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly translate = inject(TranslateService);
 
-  readonly roleOptions = ROLE_OPTIONS;
+  readonly roleOptions = computed((): Array<{ label: string; value: Role }> => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('UTILISATEURS.ROLES.AGENT', {}, lang), value: 'AGENT' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.COMPTABLE', {}, lang), value: 'COMPTABLE' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.SUPERVISEUR', {}, lang), value: 'SUPERVISEUR' },
+      { label: this.translate.instant('UTILISATEURS.ROLES.ADMIN', {}, lang), value: 'ADMIN' },
+    ];
+  });
 
   readonly mode = signal<'create' | 'edit'>('create');
   readonly userId = signal<string | null>(null);
@@ -123,8 +127,8 @@ export class UtilisateurFormComponent implements OnInit {
         });
         this.messageService.add({
           severity: 'success',
-          summary: 'Compte créé',
-          detail: `${this.username().trim()} recevra un code d'activation par WhatsApp.`,
+          summary: this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE'),
+          detail: this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE_DETAIL', { username: this.username().trim() }),
           life: 4000,
         });
       } else {
@@ -136,8 +140,8 @@ export class UtilisateurFormComponent implements OnInit {
         });
         this.messageService.add({
           severity: 'success',
-          summary: 'Compte mis à jour',
-          detail: 'Les modifications ont été enregistrées.',
+          summary: this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT'),
+          detail: this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT_DETAIL'),
           life: 3000,
         });
       }
@@ -149,7 +153,7 @@ export class UtilisateurFormComponent implements OnInit {
       } else if (code === 'PERMISSION_DENIED') {
         this.errorMessage.set('Vous n\'avez pas les droits pour effectuer cette action.');
       } else {
-        this.errorMessage.set(message || 'Une erreur est survenue. Veuillez réessayer.');
+        this.errorMessage.set(message || this.translate.instant('ERRORS.GENERIC'));
       }
     } finally {
       this.loading.set(false);

@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
@@ -26,7 +27,7 @@ interface NavItem {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, UserMenuComponent],
+  imports: [RouterLink, RouterLinkActive, UserMenuComponent, TranslatePipe],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,13 +55,13 @@ export class SidebarComponent implements OnInit {
   });
 
   readonly navItems: NavItem[] = [
-    { label: 'Dashboard', icon: 'pi-th-large', route: '/dashboard' },
-    { label: 'Abonnés', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
-    { label: 'Campagnes', icon: 'pi-calendar', route: '/campagnes', disabled: true },
-    { label: 'Factures', icon: 'pi-file', route: '/factures', disabled: true },
-    { label: 'Paiements', icon: 'pi-credit-card', route: '/paiements', disabled: true },
-    { label: 'Impayés', icon: 'pi-exclamation-triangle', route: '/impayes', disabled: true },
-    { label: 'Configuration', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'], disabled: true },
+    { label: 'NAV.DASHBOARD', icon: 'pi-th-large', route: '/dashboard' },
+    { label: 'NAV.ABONNES', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
+    { label: 'NAV.CAMPAGNES', icon: 'pi-calendar', route: '/campagnes', disabled: true },
+    { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', disabled: true },
+    { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', disabled: true },
+    { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', disabled: true },
+    { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'], disabled: true },
   ];
 
   readonly visibleNavItems = computed(() =>

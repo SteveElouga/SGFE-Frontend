@@ -6,15 +6,15 @@
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
       <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
-    Abonnés
+    {{ 'ABONNES.TITLE' | translate }}
   </a>
   <span class="af-topbar__sep">/</span>
   @if (mode === 'create') {
-    <span class="af-topbar__title">Nouvel abonné</span>
-    <span class="af-topbar__badge af-topbar__badge--create">CRÉATION</span>
+    <span class="af-topbar__title">{{ 'ABONNES.FORM.CREATE_TITLE' | translate }}</span>
+    <span class="af-topbar__badge af-topbar__badge--create">{{ 'ABONNES.FORM.BADGE_CREATE' | translate }}</span>
   } @else {
-    <span class="af-topbar__title">Modifier {{ numeroAbonneDisplay() }}</span>
-    <span class="af-topbar__badge af-topbar__badge--edit">MODIFICATION</span>
+    <span class="af-topbar__title">{{ 'ABONNES.FORM.EDIT_TITLE' | translate }} {{ numeroAbonneDisplay() }}</span>
+    <span class="af-topbar__badge af-topbar__badge--edit">{{ 'ABONNES.FORM.BADGE_EDIT' | translate }}</span>
   }
 </header>
 
@@ -43,10 +43,10 @@
       <!-- En-tête -->
       <div class="af-card__header">
         <div class="af-card__title">
-          @if (mode === 'create') { Nouvel abonné } @else { Modifier l'abonné }
+          @if (mode === 'create') { {{ 'ABONNES.FORM.CREATE_TITLE' | translate }} } @else { {{ 'ABONNES.FORM.EDIT_TITLE' | translate }} }
         </div>
         <div class="af-card__subtitle">
-          En mode création, le N° est attribué automatiquement · Les champs * sont obligatoires
+          {{ 'ABONNES.FORM.CARD_SUBTITLE' | translate }}
         </div>
       </div>
 
@@ -57,32 +57,32 @@
             <circle cx="7" cy="5" r="2.5" stroke="#1a56db" stroke-width="1.2"/>
             <path d="M2 12.5c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="#1a56db" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
-          Identité
+          {{ 'ABONNES.FORM.SECTION_IDENTITE' | translate }}
         </div>
         <div class="af-grid-2">
 
           <!-- N° Abonné (readonly) -->
           <div class="af-field">
-            <span class="af-label">N° Abonné</span>
+            <span class="af-label">{{ 'ABONNES.NUMERO' | translate }}</span>
             <div class="af-readonly">
               <span class="af-readonly__value">
                 @if (mode === 'edit') { {{ numeroAbonneDisplay() }} } @else { — }
               </span>
-              <span class="af-readonly__badge">auto</span>
+              <span class="af-readonly__badge">{{ 'ABONNES.FORM.AUTO_BADGE' | translate }}</span>
             </div>
           </div>
 
           <!-- Statut (edit uniquement) -->
           @if (mode === 'edit') {
             <div class="af-field">
-              <span class="af-label">Statut</span>
+              <span class="af-label">{{ 'COMMON.STATUS' | translate }}</span>
               @if (isResilie()) {
                 <div class="af-readonly af-readonly--badge">
                   <span class="af-status-badge af-status-badge--resilie">RÉSILIÉ</span>
                 </div>
               } @else {
                 <p-select
-                  [options]="statutOptions"
+                  [options]="statutOptions()"
                   [ngModel]="selectedStatut()"
                   (ngModelChange)="selectedStatut.set($event)"
                   optionLabel="label"
@@ -95,7 +95,7 @@
 
           <!-- Nom -->
           <div class="af-field" [class.af-field--error]="nomFieldError()">
-            <label class="af-label" for="afNom">Nom *</label>
+            <label class="af-label" for="afNom">{{ 'ABONNES.FORM.NOM' | translate }} *</label>
             <input
               pInputText
               id="afNom"
@@ -115,7 +115,7 @@
 
           <!-- Prénom -->
           <div class="af-field" [class.af-field--error]="prenomFieldError()">
-            <label class="af-label" for="afPrenom">Prénom *</label>
+            <label class="af-label" for="afPrenom">{{ 'ABONNES.FORM.PRENOM' | translate }} *</label>
             <input
               pInputText
               id="afPrenom"
@@ -143,13 +143,13 @@
             <circle cx="7" cy="6" r="2" stroke="#0e9f6e" stroke-width="1.2"/>
             <path d="M7 1.5c-2.5 0-4.5 2-4.5 4.5C2.5 9.5 7 12.5 7 12.5s4.5-3 4.5-6.5C11.5 3.5 9.5 1.5 7 1.5z" stroke="#0e9f6e" stroke-width="1.2"/>
           </svg>
-          Localisation
+          {{ 'ABONNES.FORM.SECTION_LOCALISATION' | translate }}
         </div>
         <div class="af-grid-2">
 
           <!-- Quartier -->
           <div class="af-field" [class.af-field--error]="quartierFieldError()">
-            <label class="af-label" for="afQuartier">Quartier *</label>
+            <label class="af-label" for="afQuartier">{{ 'ABONNES.FORM.QUARTIER' | translate }} *</label>
             <input
               pInputText
               id="afQuartier"
@@ -168,7 +168,7 @@
 
           <!-- Camp -->
           <div class="af-field" [class.af-field--error]="campFieldError()">
-            <label class="af-label" for="afCamp">Camp *</label>
+            <label class="af-label" for="afCamp">{{ 'ABONNES.FORM.CAMP' | translate }} *</label>
             <input
               pInputText
               id="afCamp"
@@ -188,7 +188,7 @@
 
           <!-- Adresse (pleine largeur, optionnelle) -->
           <div class="af-field af-field--full">
-            <label class="af-label" for="afAdresse">Adresse (rue, N°)</label>
+            <label class="af-label" for="afAdresse">{{ 'ABONNES.FORM.ADRESSE' | translate }}</label>
             <input
               pInputText
               id="afAdresse"
@@ -210,13 +210,13 @@
             <rect x="1" y="2" width="12" height="10" rx="1.5" stroke="#64748b" stroke-width="1.2"/>
             <path d="M1 5l6 4 6-4" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
           </svg>
-          Contact
+          {{ 'ABONNES.FORM.SECTION_CONTACT' | translate }}
         </div>
         <div class="af-grid-2">
 
           <!-- Téléphone / WhatsApp -->
           <div class="af-field" [class.af-field--error]="phoneFieldError()">
-            <label class="af-label" for="afTel">Téléphone / WhatsApp *</label>
+            <label class="af-label" for="afTel">{{ 'ABONNES.FORM.PHONE_LABEL_FULL' | translate }}</label>
             <input
               pInputText
               id="afTel"
@@ -232,14 +232,14 @@
             @if (phoneFieldError()) {
               <span class="af-field__error">{{ phoneFieldError() }}</span>
             } @else {
-              <span class="af-field__hint">Format Cameroun · +237 ajouté automatiquement</span>
+              <span class="af-field__hint">{{ 'ABONNES.FORM.PHONE_HINT_FULL' | translate }}</span>
             }
           </div>
 
           <!-- Date de souscription -->
           <div class="af-field" [class.af-field--error]="datePoseFieldError()">
             <label class="af-label" for="afDate">
-              Date de souscription @if (mode === 'create') { * }
+              {{ 'ABONNES.FORM.DATE_SOUSCRIPTION' | translate }} @if (mode === 'create') { * }
             </label>
             @if (mode === 'create') {
               <div class="af-date-wrapper">
@@ -278,14 +278,14 @@
             <circle cx="7" cy="7" r="5.5" stroke="#64748b" stroke-width="1.2"/>
             <path d="M7 4v3l2 2" stroke="#64748b" stroke-width="1.3" stroke-linecap="round"/>
           </svg>
-          Compteur
+          {{ 'ABONNES.FORM.SECTION_COMPTEUR' | translate }}
         </div>
         <div class="af-grid-2">
 
           <!-- N° Compteur -->
           <div class="af-field" [class.af-field--error]="numeroCompteurFieldError()">
             <label class="af-label" for="afNumero">
-              N° Compteur @if (mode === 'create') { * }
+              {{ 'ABONNES.FORM.NUMERO_COMPTEUR' | translate }} @if (mode === 'create') { * }
             </label>
             @if (mode === 'create') {
               <input
@@ -313,9 +313,9 @@
           <!-- Index initial -->
           <div class="af-field">
             <label class="af-label" for="afIndex">
-              Index initial (m³)
+              {{ 'ABONNES.FORM.INDEX_INITIAL' | translate }}
               @if (mode === 'create') {
-                <span class="af-label__sub">création seult.</span>
+                <span class="af-label__sub">{{ 'ABONNES.FORM.CREATION_ONLY' | translate }}</span>
               }
             </label>
             @if (mode === 'create') {
@@ -331,7 +331,7 @@
               />
             } @else {
               <div class="af-readonly af-readonly--disabled">
-                <span class="af-readonly__value af-readonly__value--muted">Non modifiable après création</span>
+                <span class="af-readonly__value af-readonly__value--muted">{{ 'ABONNES.FORM.INDEX_READONLY' | translate }}</span>
                 <span class="af-readonly__badge">readonly</span>
               </div>
             }
@@ -349,11 +349,11 @@
           [disabled]="saving()"
         >
           @if (saving()) {
-            Enregistrement…
+            {{ 'ABONNES.FORM.SAVING' | translate }}
           } @else if (mode === 'create') {
-            Créer l'abonné
+            {{ 'ABONNES.FORM.SUBMIT_CREATE' | translate }}
           } @else {
-            Enregistrer les modifications
+            {{ 'ABONNES.FORM.SUBMIT_SAVE' | translate }}
           }
         </button>
         <button
@@ -362,7 +362,7 @@
           (click)="cancel()"
           [disabled]="saving()"
         >
-          Annuler
+          {{ 'COMMON.CANCEL' | translate }}
         </button>
       </div>
 

@@ -19,6 +19,7 @@ import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { Abonne, StatutAbonne } from '../../../shared/models/abonne.model';
@@ -42,6 +43,7 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     ErrorBannerComponent,
     StatusBadgeComponent,
     CompteurPipe,
+    TranslatePipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './abonnes-list.component.html',
@@ -54,6 +56,7 @@ export class AbonnesListComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   private abonnesQuery!: QueryRef<{ abonnes: Abonne[] }>;
 
@@ -83,12 +86,23 @@ export class AbonnesListComponent implements OnInit {
   });
 
   readonly statutSummary = computed(() => {
+    const lang = this.translate.currentLang() ?? undefined;
     const all = this.abonnes();
     const actifs = all.filter((a) => a.statut === 'ACTIF').length;
     const suspendus = all.filter((a) => a.statut === 'SUSPENDU').length;
     const parts: string[] = [];
-    if (actifs > 0) parts.push(`${actifs} actif${actifs > 1 ? 's' : ''}`);
-    if (suspendus > 0) parts.push(`${suspendus} suspendu${suspendus > 1 ? 's' : ''}`);
+    if (actifs > 0) {
+      parts.push(this.translate.instant(
+        actifs > 1 ? 'ABONNES.SUMMARY_ACTIF_PLURAL' : 'ABONNES.SUMMARY_ACTIF_SINGULAR',
+        { count: actifs }, lang,
+      ));
+    }
+    if (suspendus > 0) {
+      parts.push(this.translate.instant(
+        suspendus > 1 ? 'ABONNES.SUMMARY_SUSPENDU_PLURAL' : 'ABONNES.SUMMARY_SUSPENDU_SINGULAR',
+        { count: suspendus }, lang,
+      ));
+    }
     return parts.join(' · ');
   });
 
@@ -104,11 +118,14 @@ export class AbonnesListComponent implements OnInit {
       .map((q) => ({ label: q, value: q })),
   );
 
-  readonly statutOptions: Array<{ label: string; value: StatutAbonne }> = [
-    { label: 'Actif', value: 'ACTIF' },
-    { label: 'Suspendu', value: 'SUSPENDU' },
-    { label: 'Résilié', value: 'RESILIE' },
-  ];
+  readonly statutOptions = computed((): Array<{ label: string; value: StatutAbonne }> => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('STATUS.ACTIF', {}, lang), value: 'ACTIF' },
+      { label: this.translate.instant('STATUS.SUSPENDU', {}, lang), value: 'SUSPENDU' },
+      { label: this.translate.instant('STATUS.RESILIE', {}, lang), value: 'RESILIE' },
+    ];
+  });
 
   ngOnInit(): void {
     this.abonnesQuery = this.abonnesService.watchAbonnes();

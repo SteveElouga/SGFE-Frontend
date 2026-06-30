@@ -5,6 +5,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { Role } from '../../../shared/models/user.model';
 import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
@@ -27,6 +28,7 @@ const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
     InputIconModule,
     InputTextModule,
     PasswordModule,
+    TranslatePipe,
     AuthBrandPanelComponent,
     AuthFieldComponent,
     AuthErrorMessageComponent,
@@ -38,9 +40,9 @@ const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
 })
 export class LoginComponent {
   readonly checklist = [
-    'Relevés terrain sur mobile (PWA)',
-    'Facturation et envoi WhatsApp auto',
-    'Suivi des impayés en temps réel',
+    'AUTH.CHECKLIST_1',
+    'AUTH.CHECKLIST_2',
+    'AUTH.CHECKLIST_3',
   ];
 
   readonly identifier = signal('');

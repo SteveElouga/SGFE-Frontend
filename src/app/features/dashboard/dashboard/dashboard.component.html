@@ -1,9 +1,9 @@
 <div class="dashboard">
   <header class="dashboard__header">
     <div>
-      <h1 class="dashboard__title">Tableau de bord</h1>
+      <h1 class="dashboard__title">{{ 'DASHBOARD.TITLE' | translate }}</h1>
       @if (user()) {
-        <p class="dashboard__welcome">Bonjour, {{ user()!.username }}</p>
+        <p class="dashboard__welcome">{{ 'DASHBOARD.WELCOME' | translate:{ username: user()!.username } }}</p>
       }
     </div>
   </header>
@@ -15,8 +15,8 @@
         <i class="pi pi-users"></i>
       </div>
       <div class="dashboard__card-body">
-        <h2 class="dashboard__card-title">Abonnés</h2>
-        <p class="dashboard__card-desc">Gérer les abonnés et leurs compteurs d'eau</p>
+        <h2 class="dashboard__card-title">{{ 'DASHBOARD.ABONNES_TITLE' | translate }}</h2>
+        <p class="dashboard__card-desc">{{ 'DASHBOARD.ABONNES_DESC' | translate }}</p>
       </div>
       <i class="pi pi-arrow-right dashboard__card-arrow"></i>
     </a>
@@ -26,8 +26,8 @@
         <i class="pi pi-user-edit"></i>
       </div>
       <div class="dashboard__card-body">
-        <h2 class="dashboard__card-title">Utilisateurs</h2>
-        <p class="dashboard__card-desc">Gérer les comptes agents, comptables et administrateurs</p>
+        <h2 class="dashboard__card-title">{{ 'DASHBOARD.USERS_TITLE' | translate }}</h2>
+        <p class="dashboard__card-desc">{{ 'DASHBOARD.USERS_DESC' | translate }}</p>
       </div>
       <i class="pi pi-arrow-right dashboard__card-arrow"></i>
     </a>

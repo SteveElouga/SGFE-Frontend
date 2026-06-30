@@ -20,7 +20,7 @@
               />
             </svg>
           </span>
-          {{ item }}
+          {{ item | translate }}
         </li>
       }
     </ul>
@@ -46,13 +46,13 @@
   </div>
 
   <div class="login__panel">
-    <a class="login__help" href="mailto:support@aquabill.app">Besoin d'aide ?</a>
+    <a class="login__help" href="mailto:support@aquabill.app">{{ 'AUTH.HELP_LINK' | translate }}</a>
 
     <form class="login__form" (ngSubmit)="onSubmit()">
-      <h2>Bon retour 👋</h2>
-      <p class="login__subtitle">Connectez-vous à votre espace de travail</p>
+      <h2>{{ 'AUTH.LOGIN_WELCOME' | translate }}</h2>
+      <p class="login__subtitle">{{ 'AUTH.LOGIN_SUBTITLE' | translate }}</p>
 
-      <app-auth-field label="Nom d'utilisateur ou Téléphone">
+      <app-auth-field [label]="'AUTH.IDENTIFIER_LABEL' | translate">
         <p-iconfield>
           <p-inputicon [styleClass]="identifierIconClass()" />
           <input
@@ -61,7 +61,7 @@
             pInputText
             [fluid]="true"
             autocomplete="username"
-            placeholder="jean.dupont ou 612345678"
+            [placeholder]="'AUTH.IDENTIFIER_PLACEHOLDER' | translate"
             [invalid]="identifierInvalid() || !!errorMessage()"
             [ngModel]="identifier()"
             (ngModelChange)="identifier.set($event)"
@@ -70,13 +70,13 @@
           />
         </p-iconfield>
         @if (identifierInvalid()) {
-          <span class="login__field-hint">Ce champ est obligatoire.</span>
+          <span class="login__field-hint">{{ 'AUTH.FIELD_REQUIRED' | translate }}</span>
         }
       </app-auth-field>
 
-      <app-auth-field label="Mot de passe">
+      <app-auth-field [label]="'AUTH.PASSWORD_LABEL' | translate">
         <a authFieldExtra class="login__forgot" routerLink="/forgot-password">
-          Mot de passe oublié ?
+          {{ 'AUTH.FORGOT_PASSWORD' | translate }}
         </a>
         <p-iconfield>
           <p-inputicon [styleClass]="lockIconClass()" />
@@ -95,16 +95,16 @@
           />
         </p-iconfield>
         @if (passwordInvalid()) {
-          <span class="login__field-hint">Ce champ est obligatoire.</span>
+          <span class="login__field-hint">{{ 'AUTH.FIELD_REQUIRED' | translate }}</span>
         }
       </app-auth-field>
 
       <app-auth-error-message [text]="errorMessage()" />
 
-      <app-auth-submit-button label="Se connecter" [loading]="loading()" [disabled]="!canSubmit()" />
+      <app-auth-submit-button [label]="'AUTH.SUBMIT' | translate" [loading]="loading()" [disabled]="!canSubmit()" />
 
       <div class="login__roles">
-        <span>ACCÈS SELON VOTRE RÔLE</span>
+        <span>{{ 'AUTH.ACCESS_BY_ROLE' | translate }}</span>
         <div>
           <span class="login__role login__role--admin">ADMIN</span>
           <span class="login__role login__role--agent">AGENT</span>

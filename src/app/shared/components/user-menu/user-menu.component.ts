@@ -8,12 +8,12 @@ import {
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Popover, PopoverModule } from 'primeng/popover';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-user-menu',
-  imports: [PopoverModule, RouterLink, RouterLinkActive],
+  imports: [PopoverModule, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './user-menu.component.html',
   styleUrl: './user-menu.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

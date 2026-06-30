@@ -17,19 +17,13 @@ import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
-
-const ROLE_LABELS: Record<Role, string> = {
-  ADMIN: 'Administrateur',
-  AGENT: 'Agent terrain',
-  COMPTABLE: 'Comptable',
-  SUPERVISEUR: 'Superviseur',
-};
 
 const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
   ADMIN: 'danger',
@@ -54,6 +48,7 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     ErrorBannerComponent,
     StatusBadgeComponent,
     TooltipDirective,
+    TranslatePipe,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './utilisateurs-list.component.html',
@@ -65,6 +60,7 @@ export class UtilisateursListComponent implements OnInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
 
   readonly users = signal<User[]>([]);
   readonly loading = signal(false);
@@ -82,7 +78,6 @@ export class UtilisateursListComponent implements OnInit {
     );
   });
 
-  readonly roleLabel = (role: Role) => ROLE_LABELS[role];
   readonly roleSeverity = (role: Role) => ROLE_SEVERITY[role];
 
   ngOnInit(): void {
@@ -97,7 +92,7 @@ export class UtilisateursListComponent implements OnInit {
       this.users.set(users);
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.error.set(message || 'Impossible de charger la liste des utilisateurs.');
+      this.error.set(message || this.translate.instant('ERRORS.LOAD_USERS'));
     } finally {
       this.loading.set(false);
     }
@@ -109,11 +104,11 @@ export class UtilisateursListComponent implements OnInit {
 
   confirmDeactivate(user: User): void {
     this.confirmationService.confirm({
-      header: `Désactiver ${user.username} ?`,
-      message: `L'utilisateur ne pourra plus se connecter. Cette action est réversible.`,
+      header: this.translate.instant('UTILISATEURS.DESACTIVER') + ` ${user.username} ?`,
+      message: this.translate.instant('UTILISATEURS.DESACTIVER_CONFIRM'),
       icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Désactiver',
-      rejectLabel: 'Annuler',
+      acceptLabel: this.translate.instant('UTILISATEURS.DESACTIVER'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
       acceptButtonStyleClass: 'p-button-danger',
       accept: () => this.deactivateUser(user),
     });
@@ -127,15 +122,15 @@ export class UtilisateursListComponent implements OnInit {
       );
       this.messageService.add({
         severity: 'success',
-        summary: 'Compte désactivé',
-        detail: `${user.username} ne peut plus se connecter.`,
+        summary: this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION'),
+        detail: this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION_DETAIL', { username: user.username }),
       });
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.messageService.add({
         severity: 'error',
-        summary: 'Erreur',
-        detail: message || 'Impossible de désactiver ce compte.',
+        summary: this.translate.instant('ERRORS.GENERIC'),
+        detail: message || this.translate.instant('ERRORS.GENERIC'),
       });
     }
   }

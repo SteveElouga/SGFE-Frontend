@@ -15,7 +15,7 @@
   <!-- Campagne active -->
   @if (campagneActive()) {
     <div class="sidebar__campaign">
-      <p class="sidebar__campaign-label">Campagne active</p>
+      <p class="sidebar__campaign-label">{{ 'SIDEBAR.CAMPAIGN_ACTIVE' | translate }}</p>
       <p class="sidebar__campaign-period">{{ campagnePeriode() }}</p>
       <div class="sidebar__campaign-bar">
         <div
@@ -33,7 +33,7 @@
       @if (item.disabled) {
         <span class="sidebar__nav-item sidebar__nav-item--disabled">
           <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
-          <span class="sidebar__nav-label">{{ item.label }}</span>
+          <span class="sidebar__nav-label">{{ item.label | translate }}</span>
         </span>
       } @else {
         <a
@@ -42,7 +42,7 @@
           routerLinkActive="sidebar__nav-item--active"
         >
           <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
-          <span class="sidebar__nav-label">{{ item.label }}</span>
+          <span class="sidebar__nav-label">{{ item.label | translate }}</span>
           @if (item.badge) {
             <span class="sidebar__nav-badge">{{ item.badge }}</span>
           }
