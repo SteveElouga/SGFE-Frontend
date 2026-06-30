@@ -74,23 +74,11 @@ export class AbonnesService {
     });
   }
 
-  async getAbonnes(statut?: StatutAbonne): Promise<Abonne[]> {
-    const result = await firstValueFrom(
-      this.apollo.query<{ abonnes: Abonne[] }>({
-        query: GET_ABONNES,
-        variables: statut ? { statut } : {},
-        fetchPolicy: 'network-only',
-      }),
-    );
-    return result.data?.abonnes ?? [];
-  }
-
   async getAbonne(id: string): Promise<Abonne> {
     const result = await firstValueFrom(
       this.apollo.query<{ abonne: Abonne }>({
         query: GET_ABONNE,
         variables: { id },
-        fetchPolicy: 'network-only',
       }),
     );
     const abonne = result.data?.abonne;
@@ -187,7 +175,6 @@ export class AbonnesService {
       this.apollo.query<{ historiqueCompteur: HistoriqueCompteurEntry[] }>({
         query: GET_HISTORIQUE_COMPTEUR,
         variables: { id: abonneId },
-        fetchPolicy: 'network-only',
       }),
     );
     return result.data?.historiqueCompteur ?? [];

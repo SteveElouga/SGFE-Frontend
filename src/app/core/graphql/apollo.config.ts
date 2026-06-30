@@ -40,6 +40,7 @@ function apolloOptionsFactory(): ApolloClient.Options {
     cache: new InMemoryCache(),
     defaultOptions: {
       watchQuery: { fetchPolicy: 'cache-first' },
+      query: { fetchPolicy: 'cache-first' },
     },
   };
 }
