@@ -263,7 +263,9 @@
     "LOAD_ABONNES": "Impossible de charger la liste des abonnés.",
     "LOAD_USERS": "Impossible de charger la liste des utilisateurs.",
     "LOAD_ABONNE": "Impossible de charger les données de l'abonné.",
-    "LOAD_HISTORIQUE": "Impossible de charger l'historique."
+    "LOAD_HISTORIQUE": "Impossible de charger l'historique.",
+    "PERMISSION_DENIED": "Accès refusé",
+    "SERVICE_UNAVAILABLE": "Service momentanément indisponible"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",

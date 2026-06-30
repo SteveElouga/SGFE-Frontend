@@ -263,7 +263,9 @@
     "LOAD_ABONNES": "Unable to load the subscriber list.",
     "LOAD_USERS": "Unable to load the user list.",
     "LOAD_ABONNE": "Unable to load subscriber data.",
-    "LOAD_HISTORIQUE": "Unable to load history."
+    "LOAD_HISTORIQUE": "Unable to load history.",
+    "PERMISSION_DENIED": "Access denied",
+    "SERVICE_UNAVAILABLE": "Service temporarily unavailable"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
