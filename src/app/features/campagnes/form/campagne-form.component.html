@@ -128,13 +128,53 @@
             [class.abonnes-option__radio--checked]="selectionMode() === 'FILTRE'"
           ></span>
           <span class="abonnes-option__label">{{ 'CAMPAGNES.FORM.ABONNES_FILTRE' | translate }}</span>
+          @if (selectionMode() === 'FILTRE' && selectedZones().size > 0) {
+            <span class="abonnes-option__badge">{{ selectedZones().size }}</span>
+          }
         </button>
       </div>
 
+      <!-- Zone chips — visible uniquement en mode FILTRE -->
+      @if (selectionMode() === 'FILTRE') {
+        <div class="zones-filter">
+          <span class="zones-filter__title">{{ 'CAMPAGNES.FORM.ZONES_TITLE' | translate }}</span>
+          @if (zonesDisponibles().length > 0) {
+            <div class="zones-list">
+              @for (item of zonesDisponibles(); track item.zone) {
+                <button
+                  type="button"
+                  class="zone-chip"
+                  [class.zone-chip--selected]="selectedZones().has(item.zone)"
+                  (click)="toggleZone(item.zone)"
+                >
+                  {{ item.zone }}
+                  <span class="zone-chip__count">{{ item.count }}</span>
+                </button>
+              }
+            </div>
+          } @else {
+            <span class="zones-empty">{{ 'CAMPAGNES.FORM.ZONES_EMPTY' | translate }}</span>
+          }
+        </div>
+      }
+
+      <!-- Bannières résultat -->
       @if (selectionMode() === 'TOUS' && nbAbonnesActifs() !== null) {
         <div class="abonnes-info">
           <i class="pi pi-check-circle"></i>
           {{ nbAbonnesActifs() }} {{ 'CAMPAGNES.FORM.ABONNES_INFO' | translate }}
+        </div>
+      }
+      @if (selectionMode() === 'FILTRE' && selectedZones().size > 0) {
+        <div class="abonnes-info">
+          <i class="pi pi-check-circle"></i>
+          {{ nbAbonnesFiltres() }} {{ 'CAMPAGNES.FORM.ABONNES_FILTRE_INFO' | translate }}
+        </div>
+      }
+      @if (selectionMode() === 'FILTRE' && selectedZones().size === 0 && zonesDisponibles().length > 0) {
+        <div class="abonnes-info abonnes-info--warn">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ 'CAMPAGNES.FORM.ZONES_REQUIRED' | translate }}
         </div>
       }
     </div>

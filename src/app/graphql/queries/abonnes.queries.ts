@@ -65,10 +65,10 @@ export const GET_ABONNES_ACTIFS = gql`
   query GetAbonnesActifs {
     abonnesActifs {
       id
-      numeroAbonne
-      nom
-      prenom
-      statut
+      compteur {
+        quartier
+        camp
+      }
     }
   }
 `;

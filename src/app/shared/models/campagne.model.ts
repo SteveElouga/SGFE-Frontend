@@ -55,6 +55,7 @@ export interface CreateCampagneInput {
   periodeMois: number;
   periodeAnnee: number;
   datePlanifiee: string;
+  filtreZones?: string[]; // pending backend: CreateCampagneInput.filtreZones
 }
 
 export interface SaisirIndexInput {

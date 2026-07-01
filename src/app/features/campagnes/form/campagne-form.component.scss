@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 720px;
+
 }
 
 .form-card__intro {
@@ -283,6 +283,97 @@
   color: #15803d;
 
   i { font-size: 13px; }
+
+  &--warn {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+  }
+}
+
+// ── Zone chips ────────────────────────────────────────────────────────────────
+
+.zones-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.zones-filter__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zones-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.zone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 20px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    border-color: $color-primary;
+    color: $color-primary;
+    background: rgba($color-primary, 0.05);
+  }
+
+  &--selected {
+    border-color: $color-primary;
+    background: $color-primary;
+    color: #fff;
+
+    .zone-chip__count {
+      background: rgba(0, 0, 0, 0.15);
+      color: #fff;
+    }
+
+    &:hover {
+      background: color.adjust($color-primary, $lightness: -8%);
+      border-color: color.adjust($color-primary, $lightness: -8%);
+      box-shadow: 0 2px 8px rgba($color-primary, 0.35);
+      color: #fff;
+    }
+  }
+}
+
+.zone-chip__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: #f1f5f9;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.zones-empty {
+  font-size: 12px;
+  color: #475569;
 }
 
 // ── Options ───────────────────────────────────────────────────────────────────

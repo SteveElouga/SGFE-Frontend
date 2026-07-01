@@ -2,8 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { Apollo, QueryRef } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import {
+  ABONNE_UPDATED_SUB,
   GET_ABONNE,
   GET_ABONNES,
+  GET_ABONNES_ACTIFS,
   GET_HISTORIQUE_COMPTEUR,
 } from '../../graphql/queries/abonnes.queries';
 import {
@@ -59,6 +61,49 @@ export interface UpdateCompteurInput {
 @Injectable({ providedIn: 'root' })
 export class AbonnesService {
   private readonly apollo = inject(Apollo);
+
+  startCacheSync(): void {
+    type AbonneActifCache = { id: string; compteur?: { quartier: string; camp: number } | null };
+
+    this.apollo
+      .subscribe<{ abonneUpdated: { id: string; statut: string; compteur?: { quartier: string; camp: number } } }>({
+        query: ABONNE_UPDATED_SUB,
+      })
+      .subscribe({
+        next: ({ data }) => {
+          const updated = data?.abonneUpdated;
+          if (!updated) return;
+
+          const cache = this.apollo.client.cache;
+          const cached = cache.readQuery<{ abonnesActifs: AbonneActifCache[] }>({
+            query: GET_ABONNES_ACTIFS,
+          });
+          if (!cached) return;
+
+          const isActif = updated.statut === 'ACTIF';
+          const existsInList = cached.abonnesActifs.some((a) => a.id === updated.id);
+
+          if (!isActif && existsInList) {
+            cache.writeQuery({
+              query: GET_ABONNES_ACTIFS,
+              data: { abonnesActifs: cached.abonnesActifs.filter((a) => a.id !== updated.id) },
+            });
+          } else if (isActif && !existsInList) {
+            const newEntry: AbonneActifCache & { __typename: string } = {
+              __typename: 'Abonne',
+              id: updated.id,
+              compteur: updated.compteur
+                ? { __typename: 'Compteur', quartier: updated.compteur.quartier, camp: updated.compteur.camp } as AbonneActifCache['compteur'] & { __typename: string }
+                : null,
+            };
+            cache.writeQuery({
+              query: GET_ABONNES_ACTIFS,
+              data: { abonnesActifs: [...cached.abonnesActifs, newEntry] },
+            });
+          }
+        },
+      });
+  }
 
   watchAbonnes(statut?: StatutAbonne): QueryRef<{ abonnes: Abonne[] }> {
     return this.apollo.watchQuery<{ abonnes: Abonne[] }>({

@@ -7,8 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Apollo } from 'apollo-angular';
@@ -27,9 +28,17 @@ interface Agent {
   role: string;
 }
 
+interface AbonneActif {
+  id: string;
+  compteur?: {
+    quartier: string;
+    camp: number;
+  };
+}
+
 @Component({
   selector: 'app-campagne-form',
-  imports: [RouterLink, FormsModule, ToastModule, PageTopbarComponent, TranslatePipe],
+  imports: [FormsModule, ToastModule, PageTopbarComponent, TranslatePipe],
   providers: [MessageService],
   templateUrl: './campagne-form.component.html',
   styleUrl: './campagne-form.component.scss',
@@ -54,8 +63,39 @@ export class CampagneFormComponent implements OnInit {
     this.agents().filter((a) => !this.selectedAgentIds().has(a.id)),
   );
 
-  // ── Abonnés count ───────────────────────────────────────────────────────────
-  readonly nbAbonnesActifs = signal<number | null>(null);
+  // ── Abonnés ─────────────────────────────────────────────────────────────────
+  readonly abonnesActifs = signal<AbonneActif[] | null>(null);
+  readonly nbAbonnesActifs = computed(() => this.abonnesActifs()?.length ?? null);
+
+  // Zones disponibles, dédupliquées depuis abonne.compteur.quartier
+  readonly zonesDisponibles = computed(() => {
+    const abonnes = this.abonnesActifs();
+    if (!abonnes) return [];
+    const map = new Map<string, number>();
+    for (const a of abonnes) {
+      const zone = a.compteur?.quartier?.trim() ?? '';
+      if (zone) map.set(zone, (map.get(zone) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0], 'fr'))
+      .map(([zone, count]) => ({ zone, count }));
+  });
+
+  // Zones sélectionnées (mode FILTRE)
+  readonly selectedZones = signal<Set<string>>(new Set());
+
+  // Nb abonnés couverts selon le mode de sélection
+  readonly nbAbonnesFiltres = computed(() => {
+    const abonnes = this.abonnesActifs();
+    if (!abonnes) return 0;
+    if (this.selectionMode() === 'TOUS') return abonnes.length;
+    const zones = this.selectedZones();
+    if (zones.size === 0) return 0;
+    return abonnes.filter((a) => {
+      const zone = a.compteur?.quartier?.trim() ?? '';
+      return zones.has(zone);
+    }).length;
+  });
 
   // ── Identification ──────────────────────────────────────────────────────────
   readonly formNom = signal('');
@@ -71,9 +111,13 @@ export class CampagneFormComponent implements OnInit {
   // ── Submit ──────────────────────────────────────────────────────────────────
   readonly submitting = signal(false);
 
-  readonly formValid = computed(
-    () => this.formNom().trim().length > 0 && this.formDatePlanifiee().length > 0,
-  );
+  readonly formValid = computed(() => {
+    const nomOk = this.formNom().trim().length > 0;
+    const dateOk = this.formDatePlanifiee().length > 0;
+    const abonnesOk =
+      this.selectionMode() === 'TOUS' || this.selectedZones().size > 0;
+    return nomOk && dateOk && abonnesOk;
+  });
 
   readonly submitLabel = computed(() => {
     const nom = this.formNom().trim();
@@ -92,7 +136,7 @@ export class CampagneFormComponent implements OnInit {
     this.formDatePlanifiee.set(next.toISOString().split('T')[0]);
 
     void this.loadAgents();
-    void this.loadNbAbonnesActifs();
+    this.loadAbonnesActifs();
   }
 
   private async loadAgents(): Promise<void> {
@@ -105,31 +149,31 @@ export class CampagneFormComponent implements OnInit {
       );
       this.agents.set((result.data?.users ?? []).filter((u) => u.role === 'AGENT'));
     } catch {
-      // sidebar reste fonctionnelle sans agents
+      // agents non critiques
     }
   }
 
-  private async loadNbAbonnesActifs(): Promise<void> {
-    try {
-      const result = await firstValueFrom(
-        this.apollo.query<{ abonnesActifs: { id: string }[] }>({
-          query: GET_ABONNES_ACTIFS,
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      this.nbAbonnesActifs.set(result.data?.abonnesActifs?.length ?? null);
-    } catch {
-      // non critique — le compteur reste absent
-    }
+  private loadAbonnesActifs(): void {
+    this.apollo
+      .watchQuery<{ abonnesActifs: AbonneActif[] }>({
+        query: GET_ABONNES_ACTIFS,
+        fetchPolicy: 'cache-first',
+      })
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          if (data?.abonnesActifs) {
+            this.abonnesActifs.set(data.abonnesActifs as AbonneActif[]);
+          }
+        },
+        error: () => this.abonnesActifs.set([]),
+      });
   }
 
   toggleAgent(id: string): void {
     const set = new Set(this.selectedAgentIds());
-    if (set.has(id)) {
-      set.delete(id);
-    } else {
-      set.add(id);
-    }
+    if (set.has(id)) set.delete(id);
+    else set.add(id);
     this.selectedAgentIds.set(set);
   }
 
@@ -139,11 +183,19 @@ export class CampagneFormComponent implements OnInit {
     this.selectedAgentIds.set(set);
   }
 
+  toggleZone(zone: string): void {
+    const set = new Set(this.selectedZones());
+    if (set.has(zone)) set.delete(zone);
+    else set.add(zone);
+    this.selectedZones.set(set);
+  }
+
   async submit(): Promise<void> {
     if (!this.formValid() || this.submitting()) return;
     this.submitting.set(true);
     try {
       const date = new Date(this.formDatePlanifiee());
+      // filtreZones: [...this.selectedZones()] — pending backend: CreateCampagneInput.filtreZones
       const campagne = await this.service.creerCampagne({
         nom: this.formNom().trim(),
         periodeMois: date.getMonth() + 1,
