@@ -101,6 +101,8 @@
       "KPI_FACTURES": "Factures émises",
       "KPI_FACTURES_SINCE": "depuis souscription",
       "KPI_SOLDE": "Solde impayé",
+      "SOLDE_ZERO": "Aucun impayé ✓",
+      "SOLDE_DU": "Régularisation requise",
       "KPI_SINCE": "Abonné depuis",
       "HIST_CURRENT": "Compteur actuel",
       "HIST_NO_REPLACEMENT": "Aucun remplacement enregistré",
