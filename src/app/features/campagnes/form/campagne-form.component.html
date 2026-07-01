@@ -1,0 +1,206 @@
+<p-toast />
+
+<app-page-topbar
+  [title]="'CAMPAGNES.FORM.TITLE' | translate"
+  [backLink]="'/campagnes'"
+  [backLabel]="'CAMPAGNES.TITLE' | translate"
+/>
+
+<div class="campagne-form-content">
+  <div class="form-card">
+
+    <div class="form-card__intro">
+      <span class="form-card__intro-title">{{ 'CAMPAGNES.FORM.TITLE' | translate }}</span>
+      <span class="form-card__intro-sub">{{ 'CAMPAGNES.FORM.SUBTITLE' | translate }}</span>
+    </div>
+
+    <!-- ── 1. Identification ─────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="form-section__header">
+        <i class="pi pi-file-edit"></i>
+        {{ 'CAMPAGNES.FORM.SECTION_IDENTIFICATION' | translate }}
+      </div>
+
+      <div class="identification-grid">
+        <div class="form-field">
+          <label class="form-field__label" for="camp-nom">
+            {{ 'CAMPAGNES.FORM.NOM' | translate }} *
+          </label>
+          <input
+            id="camp-nom"
+            type="text"
+            class="form-field__input"
+            [ngModel]="formNom()"
+            (ngModelChange)="formNom.set($event)"
+            [placeholder]="'CAMPAGNES.FORM.NOM_PLACEHOLDER' | translate"
+          />
+          <span class="form-field__hint">{{ 'CAMPAGNES.FORM.NOM_HINT' | translate }}</span>
+        </div>
+
+        <div class="form-field">
+          <label class="form-field__label" for="camp-date">
+            {{ 'CAMPAGNES.FORM.DATE_PLANIFIEE' | translate }} *
+          </label>
+          <input
+            id="camp-date"
+            type="date"
+            class="form-field__input"
+            [ngModel]="formDatePlanifiee()"
+            (ngModelChange)="formDatePlanifiee.set($event)"
+          />
+          <span class="form-field__hint">{{ 'CAMPAGNES.FORM.DATE_HINT' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. Agents assignés ─────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="form-section__header">
+        <i class="pi pi-users"></i>
+        {{ 'CAMPAGNES.FORM.SECTION_AGENTS' | translate }} *
+      </div>
+
+      <div class="agents-box">
+        <!-- Chips agents sélectionnés -->
+        <div class="agents-selected">
+          @for (agent of selectedAgents(); track agent.id) {
+            <span class="agent-chip">
+              {{ agent.username }}
+              <button
+                class="agent-chip__remove"
+                type="button"
+                (click)="removeAgent(agent.id)"
+                [attr.aria-label]="'Retirer ' + agent.username"
+              >✕</button>
+            </span>
+          }
+          @if (selectedAgents().length === 0) {
+            <span class="agents-empty-hint">{{ 'CAMPAGNES.FORM.AGENTS_EMPTY' | translate }}</span>
+          }
+        </div>
+
+        <!-- Agents disponibles à ajouter -->
+        @if (availableAgents().length > 0) {
+          <div class="agents-available">
+            <span class="agents-available__label">{{ 'CAMPAGNES.FORM.AVAILABLE_AGENTS' | translate }} :</span>
+            @for (agent of availableAgents(); track agent.id) {
+              <button class="agent-tag" type="button" (click)="toggleAgent(agent.id)">
+                + {{ agent.username }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ── 3. Sélection des abonnés ───────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="form-section__header">
+        <i class="pi pi-id-card"></i>
+        {{ 'CAMPAGNES.FORM.SECTION_ABONNES' | translate }}
+      </div>
+
+      <div class="abonnes-selection">
+        <button
+          type="button"
+          class="abonnes-option"
+          [class.abonnes-option--selected]="selectionMode() === 'TOUS'"
+          (click)="selectionMode.set('TOUS')"
+        >
+          <span
+            class="abonnes-option__radio"
+            [class.abonnes-option__radio--checked]="selectionMode() === 'TOUS'"
+          ></span>
+          <span class="abonnes-option__label">{{ 'CAMPAGNES.FORM.ABONNES_TOUS' | translate }}</span>
+          @if (nbAbonnesActifs() !== null) {
+            <span class="abonnes-option__badge">{{ nbAbonnesActifs() }}</span>
+          }
+        </button>
+
+        <button
+          type="button"
+          class="abonnes-option"
+          [class.abonnes-option--selected]="selectionMode() === 'FILTRE'"
+          (click)="selectionMode.set('FILTRE')"
+        >
+          <span
+            class="abonnes-option__radio"
+            [class.abonnes-option__radio--checked]="selectionMode() === 'FILTRE'"
+          ></span>
+          <span class="abonnes-option__label">{{ 'CAMPAGNES.FORM.ABONNES_FILTRE' | translate }}</span>
+        </button>
+      </div>
+
+      @if (selectionMode() === 'TOUS' && nbAbonnesActifs() !== null) {
+        <div class="abonnes-info">
+          <i class="pi pi-check-circle"></i>
+          {{ nbAbonnesActifs() }} {{ 'CAMPAGNES.FORM.ABONNES_INFO' | translate }}
+        </div>
+      }
+    </div>
+
+    <!-- ── 4. Options ─────────────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="form-section__header">
+        <i class="pi pi-cog"></i>
+        {{ 'CAMPAGNES.FORM.SECTION_OPTIONS' | translate }}
+      </div>
+
+      <div class="options-list">
+        <div class="option-row">
+          <div class="option-row__content">
+            <span class="option-row__label">{{ 'CAMPAGNES.FORM.OPT_FACTURES' | translate }}</span>
+            <span class="option-row__desc">{{ 'CAMPAGNES.FORM.OPT_FACTURES_DESC' | translate }}</span>
+          </div>
+          <button
+            type="button"
+            class="toggle"
+            [class.toggle--on]="genererFactures()"
+            (click)="genererFactures.set(!genererFactures())"
+            [attr.aria-pressed]="genererFactures()"
+            [attr.aria-label]="'CAMPAGNES.FORM.OPT_FACTURES' | translate"
+          >
+            <span class="toggle__thumb"></span>
+          </button>
+        </div>
+
+        <div class="option-row">
+          <div class="option-row__content">
+            <span class="option-row__label">{{ 'CAMPAGNES.FORM.OPT_WHATSAPP' | translate }}</span>
+            <span class="option-row__desc">{{ 'CAMPAGNES.FORM.OPT_WHATSAPP_DESC' | translate }}</span>
+          </div>
+          <button
+            type="button"
+            class="toggle"
+            [class.toggle--on]="envoyerWhatsApp()"
+            (click)="envoyerWhatsApp.set(!envoyerWhatsApp())"
+            [attr.aria-pressed]="envoyerWhatsApp()"
+            [attr.aria-label]="'CAMPAGNES.FORM.OPT_WHATSAPP' | translate"
+          >
+            <span class="toggle__thumb"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Actions ────────────────────────────────────────────────────────── -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn--primary"
+        [disabled]="!formValid() || submitting()"
+        (click)="submit()"
+      >
+        @if (submitting()) {
+          <i class="pi pi-spin pi-spinner"></i>
+        }
+        {{ submitLabel() }}
+      </button>
+
+      <button type="button" class="btn btn--outline" (click)="annuler()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+
+  </div>
+</div>

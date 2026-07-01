@@ -33,6 +33,21 @@
   white-space: nowrap;
 }
 
+.page-topbar__back {
+  font-size: 13px;
+  font-weight: 400;
+  color: #94a3b8;
+  text-decoration: none;
+  white-space: nowrap;
+  &:hover { color: #64748b; }
+}
+
+.page-topbar__sep {
+  font-size: 13px;
+  color: #e2e8f0;
+  margin: 0 8px;
+}
+
 // Classe utilitaire pour le bouton/lien d'action projeté (button ou <a>)
 .page-topbar-action {
   display: inline-flex;

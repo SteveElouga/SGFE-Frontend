@@ -138,6 +138,14 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'nouvelle',
+            canActivate: [roleGuard(['ADMIN', 'SUPERVISEUR'])],
+            loadComponent: () =>
+              import('./features/campagnes/form/campagne-form.component').then(
+                (m) => m.CampagneFormComponent,
+              ),
+          },
+          {
             path: ':id',
             loadComponent: () =>
               import('./features/campagnes/detail/campagne-detail.component').then(

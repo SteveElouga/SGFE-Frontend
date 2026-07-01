@@ -8,12 +8,11 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -38,8 +37,6 @@ interface MiniProgression {
   totalAbonnes: number;
 }
 
-const MOIS_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ label: '', value: i + 1 }));
-
 @Component({
   selector: 'app-campagnes-list',
   imports: [
@@ -49,7 +46,6 @@ const MOIS_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ label: '', value: i
     FormsModule,
     ToastModule,
     TableModule,
-    DialogModule,
     InputTextModule,
     IconFieldModule,
     InputIconModule,
@@ -66,6 +62,7 @@ const MOIS_OPTIONS = Array.from({ length: 12 }, (_, i) => ({ label: '', value: i
 })
 export class CampagnesListComponent implements OnInit {
   private readonly service = inject(CampagnesService);
+  private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -130,19 +127,6 @@ export class CampagnesListComponent implements OnInit {
     return parts.join(' · ');
   });
 
-  readonly moisOptions = computed(() => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return MOIS_OPTIONS.map((o) => ({
-      ...o,
-      label: this.translate.instant(`CAMPAGNES.MOIS.${o.value}`, {}, lang),
-    }));
-  });
-
-  readonly anneeOptions = computed(() => {
-    const current = new Date().getFullYear();
-    return [current - 1, current, current + 1].map((y) => ({ label: String(y), value: y }));
-  });
-
   readonly filtreOptions = computed(() => {
     const lang = this.translate.currentLang() ?? undefined;
     return [
@@ -153,20 +137,8 @@ export class CampagnesListComponent implements OnInit {
     ] as Array<{ label: string; value: StatutCampagne | 'TOUTES' }>;
   });
 
-  // ── Dialog création ────────────────────────────────────────────────────────
-  readonly dialogVisible = signal(false);
-  readonly creating = signal(false);
-  readonly formNom = signal('');
-  readonly formMois = signal(new Date().getMonth() + 1);
-  readonly formAnnee = signal(new Date().getFullYear());
-  readonly formDatePlanifiee = signal('');
-
   readonly canCreate = computed(
     () => this.auth.isAdmin() || this.auth.role() === 'SUPERVISEUR',
-  );
-
-  readonly formValid = computed(
-    () => this.formNom().trim().length > 0 && this.formMois() > 0 && this.formAnnee() > 0,
   );
 
   // ── Clôture ────────────────────────────────────────────────────────────────
@@ -239,39 +211,8 @@ export class CampagnesListComponent implements OnInit {
 
   // ── Création ───────────────────────────────────────────────────────────────
 
-  openDialog(): void {
-    this.formNom.set('');
-    this.formMois.set(new Date().getMonth() + 1);
-    this.formAnnee.set(new Date().getFullYear());
-    this.formDatePlanifiee.set('');
-    this.dialogVisible.set(true);
-  }
-
-  async creer(): Promise<void> {
-    if (!this.formValid() || this.creating()) return;
-    this.creating.set(true);
-    try {
-      await this.service.creerCampagne({
-        nom: this.formNom().trim(),
-        periodeMois: this.formMois(),
-        periodeAnnee: this.formAnnee(),
-        datePlanifiee: this.formDatePlanifiee().trim(),
-      });
-      await this.campagnesQuery.refetch();
-      this.dialogVisible.set(false);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CAMPAGNES.SUCCESS_CREE'),
-      });
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
-    } finally {
-      this.creating.set(false);
-    }
+  navigateToCreate(): void {
+    void this.router.navigate(['/campagnes', 'nouvelle']);
   }
 
   // ── Clôture ────────────────────────────────────────────────────────────────
