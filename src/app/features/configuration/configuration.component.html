@@ -55,9 +55,7 @@
           </div>
           <div class="field-display field-display--full">
             <span class="field-display__label">{{ 'CONFIGURATION.LOGO_PATH' | translate }}</span>
-            <div class="field-display__logo">
-              <span class="field-display__value field-display__value--mono">{{ infosSociete()?.logoPath || '—' }}</span>
-            </div>
+            <span class="field-display__value field-display__value--mono">{{ infosSociete()?.logoPath || '—' }}</span>
           </div>
         </div>
         @if (infosSociete()?.updatedAt) {
@@ -240,11 +238,32 @@
       <span class="param-item__desc">{{ param.description }}</span>
     </div>
 
-    @if (editingKey() === param.cle) {
+    @if (isBoolParam(param)) {
+      <!-- Paramètre booléen : toggle direct sans passer en mode édition -->
+      <div class="param-item__view-row">
+        <button
+          class="toggle-switch"
+          [class.toggle-switch--on]="param.valeur === 'true'"
+          [disabled]="paramSaving()"
+          (click)="toggleBoolParam(param.cle, param.valeur)"
+          role="switch"
+          [attr.aria-checked]="param.valeur === 'true'"
+          [attr.aria-label]="param.cle"
+        >
+          <span class="toggle-switch__thumb"></span>
+        </button>
+        <span class="param-item__value param-item__value--bool"
+              [class.param-item__value--on]="param.valeur === 'true'">
+          {{ (param.valeur === 'true' ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+        </span>
+      </div>
+    } @else if (editingKey() === param.cle) {
       <div class="param-item__edit-row">
         <input
           pInputText
           class="param-item__input"
+          [type]="isNumericParam(param) ? 'number' : 'text'"
+          [attr.min]="isNumericParam(param) ? 1 : null"
           [ngModel]="editingValue()"
           (ngModelChange)="editingValue.set($event)"
           (keydown.enter)="saveParam(param.cle)"
