@@ -101,6 +101,8 @@
       "KPI_FACTURES": "Invoices issued",
       "KPI_FACTURES_SINCE": "since subscription",
       "KPI_SOLDE": "Outstanding balance",
+      "SOLDE_ZERO": "No unpaid bills ✓",
+      "SOLDE_DU": "Payment required",
       "KPI_SINCE": "Subscriber since",
       "HIST_CURRENT": "Current meter",
       "HIST_NO_REPLACEMENT": "No replacement recorded",

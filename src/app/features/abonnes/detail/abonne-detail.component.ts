@@ -13,7 +13,7 @@ import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
@@ -31,6 +31,7 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     DialogModule,
     InputTextModule,
     DatePipe,
+    NgClass,
     TranslatePipe,
     CompteurPipe,
     ErrorBannerComponent,
@@ -86,14 +87,17 @@ export class AbonneDetailComponent {
     const a = this.abonne();
     const lang = this.translate.currentLang() ?? undefined;
     if (!a) return '';
-    const parts = [a.numeroAbonne];
-    if (a.compteur) {
-      const compteurLabel = this.translate.instant('ABONNES.DETAIL.COMPTEUR', {}, lang);
-      const campLabel = this.translate.instant('ABONNES.FORM.CAMP', {}, lang);
-      parts.push(`${compteurLabel} C-${String(a.compteur.numeroCompteur).padStart(4, '0')}`);
-      parts.push(`${a.compteur.quartier}, ${campLabel} ${a.compteur.camp}`);
-    }
-    parts.push(a.telephoneWhatsapp);
+    const compteurParts = a.compteur
+      ? (() => {
+          const compteurLabel = this.translate.instant('ABONNES.DETAIL.COMPTEUR', {}, lang);
+          const campLabel = this.translate.instant('ABONNES.FORM.CAMP', {}, lang);
+          return [
+            `${compteurLabel} C-${String(a.compteur.numeroCompteur).padStart(4, '0')}`,
+            `${a.compteur.quartier}, ${campLabel} ${a.compteur.camp}`,
+          ];
+        })()
+      : [];
+    const parts = [a.numeroAbonne, ...compteurParts, a.telephoneWhatsapp];
     return parts.join(' · ');
   });
 
@@ -114,6 +118,26 @@ export class AbonneDetailComponent {
     const m = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth();
     const key = m <= 1 ? 'ABONNES.DETAIL.MONTHS_AGO_SINGULAR' : 'ABONNES.DETAIL.MONTHS_AGO_PLURAL';
     return this.translate.instant(key, { count: m }, lang);
+  });
+
+  readonly soldeKpiClass = computed(() => {
+    const s = this.abonne()?.soldeImpayes;
+    if (s === undefined || s === null) return 'abonne-kpi--slate';
+    return s === 0 ? 'abonne-kpi--green' : 'abonne-kpi--red';
+  });
+
+  readonly soldeFormate = computed(() => {
+    const s = this.abonne()?.soldeImpayes;
+    if (s === undefined || s === null) return '—';
+    return `${s.toLocaleString('fr-FR')} FCFA`;
+  });
+
+  readonly soldeSub = computed(() => {
+    const s = this.abonne()?.soldeImpayes;
+    if (s === undefined || s === null) return '';
+    const lang = this.translate.currentLang() ?? undefined;
+    const key = s === 0 ? 'ABONNES.DETAIL.SOLDE_ZERO' : 'ABONNES.DETAIL.SOLDE_DU';
+    return this.translate.instant(key, {}, lang);
   });
 
   constructor(route: ActivatedRoute) {
@@ -261,9 +285,9 @@ export class AbonneDetailComponent {
   }
 
   async saveRemplacer(): Promise<void> {
-    const n = parseInt(this.newNumeroCompteur(), 10);
-    const camp = parseInt(this.newCamp(), 10);
-    const indexInitial = parseFloat(this.newIndexInitial());
+    const n = Number.parseInt(this.newNumeroCompteur(), 10);
+    const camp = Number.parseInt(this.newCamp(), 10);
+    const indexInitial = Number.parseFloat(this.newIndexInitial());
     if (!n || !camp) return;
 
     this.remplacerLoading.set(true);
@@ -271,7 +295,7 @@ export class AbonneDetailComponent {
       numeroCompteur: n,
       quartier: this.newQuartier(),
       camp,
-      indexInitial: isNaN(indexInitial) ? 0 : indexInitial,
+      indexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
       datePose: this.newDatePose(),
     };
     try {

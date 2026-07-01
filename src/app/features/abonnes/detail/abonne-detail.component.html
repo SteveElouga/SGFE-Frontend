@@ -108,11 +108,11 @@
         <div class="abonne-kpi__value">—</div>
         <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_FACTURES_SINCE' | translate }}</div>
       </div>
-      <div class="abonne-kpi abonne-kpi--green"
+      <div class="abonne-kpi" [ngClass]="soldeKpiClass()"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SOLDE' | translate">
         <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SOLDE' | translate }}</div>
-        <div class="abonne-kpi__value">— FCFA</div>
-        <div class="abonne-kpi__sub">&nbsp;</div>
+        <div class="abonne-kpi__value abonne-kpi__value--solde">{{ soldeFormate() }}</div>
+        <div class="abonne-kpi__sub">{{ soldeSub() }}</div>
       </div>
       <div class="abonne-kpi abonne-kpi--slate"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SINCE' | translate">

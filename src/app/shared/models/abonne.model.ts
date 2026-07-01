@@ -37,4 +37,5 @@ export interface Abonne {
   statut: StatutAbonne;
   compteur?: Compteur;
   createdAt: string;
+  soldeImpayes?: number | null;
 }
