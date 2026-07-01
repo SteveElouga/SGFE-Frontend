@@ -4,12 +4,14 @@ import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import {
   ACTIVATE_ACCOUNT,
+  CHANGE_PASSWORD,
   LOGIN,
   LOGOUT,
   REFRESH_TOKEN,
   REQUEST_PASSWORD_RESET,
   REQUEST_PHONE_OTP,
   RESET_PASSWORD,
+  UPDATE_EMAIL,
   VERIFY_OTP_AND_SET_PASSWORD,
 } from '../../graphql/mutations/auth.mutations';
 import { AuthPayload, OtpSentPayload, User } from '../../shared/models/user.model';
@@ -162,6 +164,28 @@ export class AuthService {
         variables: { token, password },
       }),
     );
+  }
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    await firstValueFrom(
+      this.apolloClient.mutate<{ changePassword: boolean }>({
+        mutation: CHANGE_PASSWORD,
+        variables: { currentPassword, newPassword },
+      }),
+    );
+  }
+
+  async updateEmail(email: string): Promise<void> {
+    const result = await firstValueFrom(
+      this.apolloClient.mutate<{ updateEmail: { id: string; email: string } }>({
+        mutation: UPDATE_EMAIL,
+        variables: { email },
+      }),
+    );
+    const updated = result.data?.updateEmail;
+    if (updated) {
+      this._user.update((u) => (u ? { ...u, email: updated.email } : null));
+    }
   }
 
   private clearSession(): void {
