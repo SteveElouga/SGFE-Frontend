@@ -20,6 +20,8 @@
 .users-filters__search {
   flex: 1;
   min-width: 0;
+
+  input { width: 100%; }
 }
 
 .users-filters__select {
