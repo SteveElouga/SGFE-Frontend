@@ -173,6 +173,39 @@ export class ConfigurationComponent implements OnInit {
 
   // ── Paramètres système ─────────────────────────────────────────────────────
 
+  isBoolParam(param: ConfigParam): boolean {
+    return param.valeur === 'true' || param.valeur === 'false';
+  }
+
+  isNumericParam(param: ConfigParam): boolean {
+    if (this.isBoolParam(param)) return false;
+    return param.valeur.trim() !== '' && !isNaN(Number(param.valeur));
+  }
+
+  async toggleBoolParam(cle: string, currentValue: string): Promise<void> {
+    if (this.paramSaving()) return;
+    const next = currentValue === 'true' ? 'false' : 'true';
+    this.paramSaving.set(true);
+    try {
+      const updated = await this.service.updateConfig(cle, next);
+      this.configs.update((list) =>
+        list.map((c) => (c.cle === updated.cle ? updated : c)),
+      );
+      this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('CONFIGURATION.SUCCESS_PARAM'),
+      });
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.messageService.add({
+        severity: 'error',
+        summary: message || this.translate.instant('ERRORS.GENERIC'),
+      });
+    } finally {
+      this.paramSaving.set(false);
+    }
+  }
+
   startEdit(param: ConfigParam): void {
     this.editingKey.set(param.cle);
     this.editingValue.set(param.valeur);
