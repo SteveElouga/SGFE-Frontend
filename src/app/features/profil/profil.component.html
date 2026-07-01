@@ -1,0 +1,179 @@
+<p-toast />
+
+<app-page-topbar
+  [title]="'PROFIL.TITLE' | translate"
+  [subtitle]="'PROFIL.SUBTITLE' | translate"
+/>
+
+<div class="profil-content">
+<div class="profil-inner">
+
+  <!-- ── En-tête avatar ───────────────────────────────────────────────────── -->
+  <div class="profil-avatar-card">
+    <div class="profil-avatar">
+      <span class="profil-avatar__initials">{{ initials() }}</span>
+    </div>
+    <div class="profil-identity">
+      <div class="profil-identity__username">{{ user()?.username }}</div>
+      <div class="profil-identity__meta">
+        <span class="profil-identity__role">{{ 'UTILISATEURS.ROLES.' + user()?.role | translate }}</span>
+        <span class="profil-identity__phone">{{ user()?.phoneNumber }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Section : Informations du compte ─────────────────────────────────── -->
+  <section class="profil-section">
+    <div class="profil-section__header">
+      <span class="profil-section__icon"><i class="pi pi-user"></i></span>
+      {{ 'PROFIL.SECTION_INFOS' | translate }}
+    </div>
+
+    <div class="profil-section__body">
+
+      <!-- Nom d'utilisateur — non modifiable -->
+      <div class="profil-field">
+        <label class="profil-field__label">{{ 'PROFIL.USERNAME' | translate }}</label>
+        <div class="profil-field__readonly">
+          <span>{{ user()?.username }}</span>
+          <span class="profil-field__badge">{{ 'PROFIL.NOT_EDITABLE' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Email — modifiable -->
+      <div class="profil-field">
+        <label class="profil-field__label" for="profil-email">{{ 'PROFIL.EMAIL' | translate }}</label>
+        <input
+          id="profil-email"
+          type="email"
+          class="profil-field__input"
+          [ngModel]="email()"
+          (ngModelChange)="email.set($event)"
+          [placeholder]="'PROFIL.EMAIL_PLACEHOLDER' | translate"
+        />
+      </div>
+
+      <!-- Rôle — non modifiable -->
+      <div class="profil-field">
+        <label class="profil-field__label">{{ 'PROFIL.ROLE' | translate }}</label>
+        <div class="profil-field__readonly">
+          <span class="profil-role-badge profil-role-badge--{{ user()?.role?.toLowerCase() }}">
+            {{ 'UTILISATEURS.ROLES.' + user()?.role | translate }}
+          </span>
+          <span class="profil-field__badge profil-field__badge--muted">{{ 'PROFIL.ROLE_NOTE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="profil-section__footer">
+      <button
+        class="btn btn--primary"
+        [disabled]="!emailDirty() || emailSaving()"
+        (click)="saveEmail()"
+      >
+        @if (emailSaving()) {
+          <i class="pi pi-spin pi-spinner"></i>
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          <i class="pi pi-check"></i>
+          {{ 'COMMON.SAVE' | translate }}
+        }
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Section : Changer le mot de passe ────────────────────────────────── -->
+  <section class="profil-section">
+    <div class="profil-section__header">
+      <span class="profil-section__icon"><i class="pi pi-lock"></i></span>
+      {{ 'PROFIL.SECTION_PASSWORD' | translate }}
+    </div>
+
+    <div class="profil-section__body">
+      <div class="profil-field">
+        <label class="profil-field__label" for="current-pwd">{{ 'PROFIL.CURRENT_PASSWORD' | translate }}</label>
+        <input
+          id="current-pwd"
+          type="password"
+          class="profil-field__input"
+          [ngModel]="currentPassword()"
+          (ngModelChange)="currentPassword.set($event)"
+          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
+          autocomplete="current-password"
+        />
+      </div>
+
+      <div class="profil-field">
+        <label class="profil-field__label" for="new-pwd">{{ 'PROFIL.NEW_PASSWORD' | translate }}</label>
+        <input
+          id="new-pwd"
+          type="password"
+          class="profil-field__input"
+          [ngModel]="newPassword()"
+          (ngModelChange)="newPassword.set($event)"
+          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
+          autocomplete="new-password"
+        />
+        @if (newPassword().length > 0 && newPassword().length < 8) {
+          <span class="profil-field__hint profil-field__hint--error">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ 'PROFIL.PASSWORD_MIN_LENGTH' | translate }}
+          </span>
+        }
+      </div>
+
+      <div class="profil-field">
+        <label class="profil-field__label" for="confirm-pwd">{{ 'PROFIL.CONFIRM_PASSWORD' | translate }}</label>
+        <input
+          id="confirm-pwd"
+          type="password"
+          class="profil-field__input"
+          [class.profil-field__input--error]="passwordMismatch()"
+          [ngModel]="confirmPassword()"
+          (ngModelChange)="confirmPassword.set($event)"
+          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
+          autocomplete="new-password"
+        />
+        @if (passwordMismatch()) {
+          <span class="profil-field__hint profil-field__hint--error">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ 'PROFIL.PASSWORD_MISMATCH' | translate }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <div class="profil-section__footer">
+      <button
+        class="btn btn--outline"
+        [disabled]="!passwordValid() || passwordSaving()"
+        (click)="changePassword()"
+      >
+        @if (passwordSaving()) {
+          <i class="pi pi-spin pi-spinner"></i>
+          {{ 'COMMON.LOADING' | translate }}
+        } @else {
+          <i class="pi pi-lock"></i>
+          {{ 'PROFIL.CHANGE_PASSWORD' | translate }}
+        }
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Section : Session ─────────────────────────────────────────────────── -->
+  <section class="profil-section">
+    <div class="profil-section__header">
+      <span class="profil-section__icon profil-section__icon--danger"><i class="pi pi-sign-out"></i></span>
+      {{ 'PROFIL.SECTION_SESSION' | translate }}
+    </div>
+
+    <div class="profil-section__body">
+      <button class="btn btn--danger" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        {{ 'PROFIL.LOGOUT' | translate }}
+      </button>
+    </div>
+  </section>
+
+</div>
+</div>
