@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -15,6 +15,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfigurationService } from '../../core/configuration/configuration.service';
 import { ConfigParam, InfosSociete } from '../../shared/models/configuration.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { extractGqlError } from '../../core/auth/auth.service';
 
 @Component({
@@ -22,9 +23,11 @@ import { extractGqlError } from '../../core/auth/auth.service';
   imports: [
     FormsModule,
     DatePipe,
+    NgTemplateOutlet,
     InputTextModule,
     ToastModule,
     ErrorBannerComponent,
+    PageTopbarComponent,
     TranslatePipe,
   ],
   providers: [MessageService],
@@ -59,11 +62,45 @@ export class ConfigurationComponent implements OnInit {
     );
   });
 
+  // ── Infos société — mode édition ───────────────────────────────────────────
+  readonly editingSociete = signal(false);
+
   // ── Paramètres système ─────────────────────────────────────────────────────
   readonly configs = signal<ConfigParam[]>([]);
   readonly editingKey = signal<string | null>(null);
   readonly editingValue = signal('');
   readonly paramSaving = signal(false);
+
+  // ── Groupes de paramètres (par préfixe de clé) ─────────────────────────────
+  readonly tarifParams = computed(() =>
+    this.configs().filter(
+      (c) =>
+        c.cle.includes('PRIX') ||
+        c.cle.includes('TARIF') ||
+        c.cle.includes('DELAI_PAIE'),
+    ),
+  );
+  readonly relanceParams = computed(() =>
+    this.configs().filter(
+      (c) => c.cle.includes('RELANCE') || c.cle.includes('SUSPENSION'),
+    ),
+  );
+  readonly integrationParams = computed(() =>
+    this.configs().filter(
+      (c) =>
+        c.cle.includes('TELNYX') ||
+        c.cle.includes('WHATSAPP') ||
+        c.cle.includes('TOKEN'),
+    ),
+  );
+  readonly otherParams = computed(() => {
+    const known = new Set([
+      ...this.tarifParams().map((c) => c.cle),
+      ...this.relanceParams().map((c) => c.cle),
+      ...this.integrationParams().map((c) => c.cle),
+    ]);
+    return this.configs().filter((c) => !known.has(c.cle));
+  });
 
   ngOnInit(): void {
     this.load();
@@ -93,6 +130,10 @@ export class ConfigurationComponent implements OnInit {
 
   // ── Infos société ──────────────────────────────────────────────────────────
 
+  editSociete(): void {
+    this.editingSociete.set(true);
+  }
+
   async saveSociete(): Promise<void> {
     if (this.societeSaving()) return;
     this.societeSaving.set(true);
@@ -104,6 +145,7 @@ export class ConfigurationComponent implements OnInit {
         logoPath: this.societeLogoPath().trim(),
       });
       this.infosSociete.set(updated);
+      this.editingSociete.set(false);
       this.messageService.add({
         severity: 'success',
         summary: this.translate.instant('CONFIGURATION.SUCCESS_SOCIETE'),
@@ -126,6 +168,7 @@ export class ConfigurationComponent implements OnInit {
     this.societeAdresse.set(s.adresse);
     this.societeTelephone.set(s.telephone);
     this.societeLogoPath.set(s.logoPath);
+    this.editingSociete.set(false);
   }
 
   // ── Paramètres système ─────────────────────────────────────────────────────

@@ -1,52 +1,32 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
 
-:host {
-  display: block;
-}
+:host { display: block; }
 
-.config-page {
-  padding: $spacing-lg $spacing-xl;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+// ── Contenu ───────────────────────────────────────────────────────────────────
 
-// ── Header ────────────────────────────────────────────────────────────────────
-
-.config-page__header {
-  margin-bottom: $spacing-lg;
-}
-
-.config-page__title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 4px;
-}
-
-.config-page__subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
+.config-content {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f1f5f9;
+  min-height: calc(100% - 54px);
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
-.config-page__skeleton {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-lg;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
+.config-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.skeleton-card {
+.skeleton-section {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: $spacing-lg;
+  padding: 20px 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -57,114 +37,130 @@
   border-radius: 6px;
   animation: shimmer 1.5s infinite ease-in-out;
 
-  &--title {
-    height: 20px;
-    width: 40%;
-  }
-
-  &--field {
-    height: 40px;
-    width: 100%;
-  }
+  &--title { height: 18px; width: 35%; }
+  &--field  { height: 38px; width: 100%; }
 }
 
 @keyframes shimmer {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50%       { opacity: 0.4; }
 }
 
-// ── Grid ──────────────────────────────────────────────────────────────────────
+// ── Section card ──────────────────────────────────────────────────────────────
 
-.config-page__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: $spacing-lg;
-  align-items: start;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-// ── Card ──────────────────────────────────────────────────────────────────────
-
-.config-card {
+.config-section {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
 }
 
-.config-card__header {
+.config-section__header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: $spacing-md $spacing-lg;
+  justify-content: space-between;
+  padding: 14px 20px;
   border-bottom: 1px solid #f1f5f9;
   background: #f8fafc;
 }
 
-.config-card__icon {
+.config-section__title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  background: color.adjust($color-primary, $alpha: -0.88);
-  border-radius: 8px;
-  color: $color-primary;
-  font-size: 15px;
-}
-
-.config-card__title {
+  gap: 10px;
   font-size: 15px;
   font-weight: 600;
   color: #1e293b;
-  margin: 0;
 }
 
-.config-card__body {
-  padding: $spacing-lg;
+.config-section__icon {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-
-  &--flush {
-    padding: 0;
-  }
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: color.adjust($color-primary, $alpha: -0.88);
+  border-radius: 8px;
+  color: $color-primary;
+  font-size: 14px;
 }
 
-.config-card__updated {
+.config-section__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 14px 20px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.config-section__updated {
   display: flex;
   align-items: center;
   gap: 6px;
   font-size: 12px;
   color: #94a3b8;
-  margin: 4px 0 0;
+  padding: 10px 20px 14px;
+  margin: 0;
 
-  .pi {
-    font-size: 11px;
-  }
+  .pi { font-size: 11px; }
 }
 
-.config-card__footer {
+// ── Société : grille lecture / édition ────────────────────────────────────────
+
+.societe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 16px 20px;
+
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+// Lecture (field-display)
+.field-display {
   display: flex;
-  justify-content: flex-end;
-  gap: $spacing-sm;
-  padding: $spacing-md $spacing-lg;
-  border-top: 1px solid #f1f5f9;
+  flex-direction: column;
+  gap: 4px;
+
+  &--full { grid-column: 1 / -1; }
 }
 
-// ── Form fields ───────────────────────────────────────────────────────────────
+.field-display__label {
+  font-size: 12px;
+  color: #94a3b8;
+}
 
+.field-display__value {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: #f9fafb;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1e293b;
+
+  &--mono { font-family: 'JetBrains Mono', 'Cascadia Code', monospace; font-size: 13px; }
+}
+
+.field-display__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// Édition (form-field)
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
+
+  &--full { grid-column: 1 / -1; }
 }
 
 .form-field__label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: #374151;
 }
@@ -180,14 +176,12 @@
 .param-empty {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: $spacing-lg;
+  gap: 10px;
+  padding: 20px;
   color: #94a3b8;
   font-size: 14px;
 
-  .pi {
-    font-size: 20px;
-  }
+  .pi { font-size: 20px; }
 }
 
 .param-list {
@@ -200,23 +194,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: $spacing-md;
-  padding: 14px $spacing-lg;
+  gap: 16px;
+  padding: 13px 20px;
   border-bottom: 1px solid #f1f5f9;
   transition: background 0.1s;
 
-  &:last-child {
-    border-bottom: none;
-  }
-
-  &:hover {
-    background: #f8fafc;
-  }
-
-  &--editing {
-    background: #f8fafc;
-    flex-wrap: wrap;
-  }
+  &:last-child { border-bottom: none; }
+  &:hover { background: #f8fafc; }
+  &--editing { background: #f8fafc; flex-wrap: wrap; }
 }
 
 .param-item__meta {
@@ -236,7 +221,7 @@
 
 .param-item__desc {
   font-size: 12px;
-  color: #64748b;
+  color: #475569;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -245,7 +230,7 @@
 .param-item__view-row {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -255,7 +240,7 @@
   color: #374151;
   font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
   background: #f1f5f9;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 4px;
 }
 
@@ -272,7 +257,7 @@
   font-size: 13px;
 }
 
-// ── Buttons ───────────────────────────────────────────────────────────────────
+// ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
   display: inline-flex;
@@ -287,28 +272,21 @@
   border: none;
   transition: background 0.15s, opacity 0.15s;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  &--sm { height: 30px; padding: 0 12px; font-size: 12px; }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--primary {
     background: $color-primary;
     color: #fff;
-
-    &:hover:not(:disabled) {
-      background: color.adjust($color-primary, $lightness: -8%);
-    }
+    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
   }
 
   &--ghost {
     background: transparent;
-    color: #64748b;
+    color: #475569;
     border: 1px solid #e2e8f0;
-
-    &:hover:not(:disabled) {
-      background: #f1f5f9;
-    }
+    &:hover:not(:disabled) { background: #f1f5f9; }
   }
 }
 
@@ -316,44 +294,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 6px;
   border: none;
   cursor: pointer;
   transition: background 0.15s;
   font-size: 13px;
 
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--edit {
     background: transparent;
-    color: #64748b;
-
-    &:hover {
-      background: #f1f5f9;
-      color: $color-primary;
-    }
+    color: #475569;
+    &:hover { background: #f1f5f9; color: $color-primary; }
   }
 
   &--confirm {
     background: color.adjust($color-accent, $alpha: -0.88);
     color: $color-accent;
-
-    &:hover:not(:disabled) {
-      background: color.adjust($color-accent, $alpha: -0.75);
-    }
+    &:hover:not(:disabled) { background: color.adjust($color-accent, $alpha: -0.75); }
   }
 
   &--cancel {
     background: #fee2e2;
     color: #ef4444;
-
-    &:hover {
-      background: #fecaca;
-    }
+    &:hover { background: #fecaca; }
   }
 }
