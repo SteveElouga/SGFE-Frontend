@@ -403,13 +403,30 @@
       "12": "Décembre"
     },
     "FORM": {
+      "TITLE": "Créer une campagne",
+      "SUBTITLE": "Le cron CampagnePlanifieeJob démarre automatiquement à 7h00 le jour planifié",
+      "SECTION_IDENTIFICATION": "Identification",
       "NOM": "Nom de la campagne",
-      "NOM_PLACEHOLDER": "Ex : Relevé Juin 2026",
+      "NOM_PLACEHOLDER": "ex. Juillet 2026",
+      "NOM_HINT": "Généré automatiquement · modifiable",
+      "DATE_PLANIFIEE": "Date de planification",
+      "DATE_HINT": "Le cron lance la campagne à 7h00",
+      "SECTION_AGENTS": "Agents assignés",
+      "AGENTS_EMPTY": "Aucun agent sélectionné",
+      "AVAILABLE_AGENTS": "Agents disponibles",
+      "SECTION_ABONNES": "Sélection des abonnés",
+      "ABONNES_TOUS": "Tous les abonnés actifs",
+      "ABONNES_FILTRE": "Par filtre (quartier / camp)",
+      "ABONNES_INFO": "abonnés actifs inclus · suspendus exclus automatiquement",
+      "SECTION_OPTIONS": "Options",
+      "OPT_FACTURES": "Générer les factures à la clôture",
+      "OPT_FACTURES_DESC": "Facturation automatique dès la clôture de la campagne",
+      "OPT_WHATSAPP": "Envoyer les factures par WhatsApp",
+      "OPT_WHATSAPP_DESC": "Envoi automatique via Telnyx lors de la génération",
+      "SUBMIT_PREFIX": "Créer la campagne",
+      "SUBMIT": "Créer la campagne",
       "MOIS": "Mois",
-      "ANNEE": "Année",
-      "DATE_PLANIFIEE": "Date planifiée (optionnelle)",
-      "DATE_HINT": "Laisser vide pour démarrer immédiatement",
-      "SUBMIT": "Créer la campagne"
+      "ANNEE": "Année"
     }
   }
 }

@@ -403,13 +403,30 @@
       "12": "December"
     },
     "FORM": {
+      "TITLE": "Create a campaign",
+      "SUBTITLE": "CampagnePlanifieeJob cron starts automatically at 7:00 AM on the scheduled day",
+      "SECTION_IDENTIFICATION": "Identification",
       "NOM": "Campaign name",
-      "NOM_PLACEHOLDER": "E.g. June 2026 Reading",
+      "NOM_PLACEHOLDER": "e.g. July 2026",
+      "NOM_HINT": "Auto-generated · editable",
+      "DATE_PLANIFIEE": "Planned date",
+      "DATE_HINT": "The cron launches the campaign at 7:00 AM",
+      "SECTION_AGENTS": "Assigned agents",
+      "AGENTS_EMPTY": "No agent selected",
+      "AVAILABLE_AGENTS": "Available agents",
+      "SECTION_ABONNES": "Subscriber selection",
+      "ABONNES_TOUS": "All active subscribers",
+      "ABONNES_FILTRE": "By filter (district / camp)",
+      "ABONNES_INFO": "active subscribers included · suspended excluded automatically",
+      "SECTION_OPTIONS": "Options",
+      "OPT_FACTURES": "Generate invoices on closure",
+      "OPT_FACTURES_DESC": "Automatic billing on campaign closure",
+      "OPT_WHATSAPP": "Send invoices via WhatsApp",
+      "OPT_WHATSAPP_DESC": "Automatic sending via Telnyx when generated",
+      "SUBMIT_PREFIX": "Create campaign",
+      "SUBMIT": "Create campaign",
       "MOIS": "Month",
-      "ANNEE": "Year",
-      "DATE_PLANIFIEE": "Planned date (optional)",
-      "DATE_HINT": "Leave empty to start immediately",
-      "SUBMIT": "Create campaign"
+      "ANNEE": "Year"
     }
   }
 }
