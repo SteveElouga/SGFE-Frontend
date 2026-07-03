@@ -23,7 +23,6 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
-import { GET_FACTURES_PAR_CAMPAGNE } from '../../graphql/queries/factures.queries';
 
 interface CampagneItem {
   campagneId: string;
@@ -37,6 +36,7 @@ interface FactureRef {
   factureId: string;
   numeroFacture: string;
   abonneId: string;
+  campagneId: string;
   statut: StatutFacture;
 }
 
@@ -81,7 +81,6 @@ export class PaiementsListComponent implements OnInit {
   private readonly translate = inject(TranslateService);
 
   readonly loading = signal(true);
-  readonly loadingFactures = signal(false);
   readonly error = signal<string | null>(null);
 
   readonly paiements = signal<Paiement[]>([]);
@@ -121,9 +120,8 @@ export class PaiementsListComponent implements OnInit {
 
     let list = this.paiements();
 
-    if (campagneId && facturesMap.size > 0) {
-      const ids = new Set(facturesMap.keys());
-      list = list.filter((p) => ids.has(p.factureId));
+    if (campagneId) {
+      list = list.filter((p) => facturesMap.get(p.factureId)?.campagneId === campagneId);
     }
 
     const mode = this.filtreMode();
@@ -204,7 +202,7 @@ export class PaiementsListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [campagnesRes, paiementsRes, abonnesRes] = await Promise.all([
+      const [campagnesRes, paiementsRes, abonnesRes, facturesRes] = await Promise.all([
         firstValueFrom(
           this.apollo.query<{ campagnes: CampagneItem[] }>({
             query: GET_CAMPAGNES,
@@ -218,6 +216,7 @@ export class PaiementsListComponent implements OnInit {
             fetchPolicy: 'cache-first',
           }),
         ),
+        this.service.getFactures(),
       ]);
 
       const abonnesMap = new Map<string, string>();
@@ -225,6 +224,20 @@ export class PaiementsListComponent implements OnInit {
         abonnesMap.set(a.id, `${a.prenom} ${a.nom}`);
       }
       this.abonnesMap.set(abonnesMap);
+
+      // Toutes les factures (toutes campagnes) : indispensable pour résoudre
+      // abonné / n° facture / statut d'un paiement quelle que soit la campagne.
+      const facturesMap = new Map<string, FactureRef>();
+      for (const f of facturesRes) {
+        facturesMap.set(f.factureId, {
+          factureId: f.factureId,
+          numeroFacture: f.numeroFacture,
+          abonneId: f.abonneId,
+          campagneId: f.campagneId,
+          statut: f.statut,
+        });
+      }
+      this.facturesMap.set(facturesMap);
 
       const sorted = [...(campagnesRes.data?.campagnes ?? [])].sort((a, b) => {
         if (b.periodeAnnee !== a.periodeAnnee) return b.periodeAnnee - a.periodeAnnee;
@@ -237,11 +250,15 @@ export class PaiementsListComponent implements OnInit {
       );
       this.paiements.set(sortedPaiements);
 
-      if (sorted.length > 0) {
-        const mostRecent = sorted[0];
-        this.selectedCampagneId.set(mostRecent.campagneId);
-        await this.loadFacturesByCampagne(mostRecent.campagneId);
+      // Défaut : la campagne récente qui a effectivement des paiements
+      // (sinon on afficherait une liste vide sur une campagne sans factures).
+      const campagnesAvecPaiements = new Set<string>();
+      for (const p of sortedPaiements) {
+        const f = facturesMap.get(p.factureId);
+        if (f) campagnesAvecPaiements.add(f.campagneId);
       }
+      const defaut = sorted.find((c) => campagnesAvecPaiements.has(c.campagneId));
+      this.selectedCampagneId.set(defaut?.campagneId ?? null);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('PAIEMENTS.ERROR_LOAD'));
@@ -250,36 +267,9 @@ export class PaiementsListComponent implements OnInit {
     }
   }
 
-  private async loadFacturesByCampagne(campagneId: string): Promise<void> {
-    this.loadingFactures.set(true);
-    try {
-      const result = await firstValueFrom(
-        this.apollo.query<{ facturesParCampagne: FactureRef[] }>({
-          query: GET_FACTURES_PAR_CAMPAGNE,
-          variables: { campagneId },
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      const map = new Map<string, FactureRef>();
-      for (const f of result.data?.facturesParCampagne ?? []) {
-        map.set(f.factureId, f);
-      }
-      this.facturesMap.set(map);
-    } catch {
-      this.facturesMap.set(new Map());
-    } finally {
-      this.loadingFactures.set(false);
-    }
-  }
-
   onCampagneChange(campagneId: string | null): void {
     this.selectedCampagneId.set(campagneId);
     this.page.set(0);
-    if (campagneId) {
-      void this.loadFacturesByCampagne(campagneId);
-    } else {
-      this.facturesMap.set(new Map());
-    }
   }
 
   onModeChange(mode: ModePaiement | 'TOUS'): void {

@@ -7,6 +7,7 @@ export const GET_FACTURES_PAR_CAMPAGNE = gql`
       numeroFacture
       abonneId
       statut
+      consommation
       montant
       dateLimitePaiement
     }
@@ -94,8 +95,10 @@ export const GET_ENVOIS = gql`
       envoiId
       statut
       dateEnvoi
-      typeEnvoi
       erreur
     }
   }
 `;
+// PENDING BACKEND: le type Envoi n'expose pas 'typeEnvoi' (contrairement à
+// ARCHITECTURE.md, obsolète). Le code couleur du journal (RAPPEL/AVERT) est donc
+// inactif — envoiClass() dégrade en '' tant que le backend n'ajoute pas ce champ.

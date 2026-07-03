@@ -160,10 +160,23 @@ export class FacturesListComponent implements OnInit {
     () => this.pMode() === 'MOBILE_MONEY' || this.pMode() === 'VIREMENT',
   );
 
+  readonly soldeRestant = computed(() => this.panelSolde() ?? 0);
+
+  readonly montantExceedsSolde = computed(() => {
+    const montant = Number.parseFloat(this.pMontant());
+    return !Number.isNaN(montant) && montant > this.soldeRestant();
+  });
+
   readonly panelValid = computed(() => {
     const montant = Number.parseFloat(this.pMontant());
     const refOk = !this.refRequired() || !!this.pRef().trim();
-    return !Number.isNaN(montant) && montant > 0 && !!this.pDate() && refOk;
+    return (
+      !Number.isNaN(montant) &&
+      montant > 0 &&
+      montant <= this.soldeRestant() &&
+      !!this.pDate() &&
+      refOk
+    );
   });
 
   readonly confirmLabel = computed(() => {
@@ -346,6 +359,13 @@ export class FacturesListComponent implements OnInit {
     this.soldes.set(map);
   }
 
+  // Heuristique de solde basée sur le statut, pour éviter N appels backend au
+  // chargement de la liste (seules les PARTIELLE sont interrogées). Limite connue :
+  // si le statut backend est désynchronisé du solde réel (soldeRestant=0 mais
+  // statut IMPAYEE — synchro UpdateStatutFacture dégradée), cette colonne affiche
+  // le montant total alors que le vrai solde est 0. Le panneau de paiement et la
+  // page détail, eux, se fient au soldeFacture backend (autoritaire).
+  // Correctif attendu côté backend : cf. docs/BESOINS_API_facturation.md §1.
   soldeFor(f: Facture): number | null {
     if (f.statut === 'PAYEE') return 0;
     if (f.statut === 'IMPAYEE') return f.montant;
@@ -379,7 +399,7 @@ export class FacturesListComponent implements OnInit {
     this.panelLoading.set(true);
     void this.facturesService.getSoldeFacture(facture.factureId).then((s) => {
       this.panelSolde.set(s.soldeRestant);
-      this.pMontant.set(String(s.soldeRestant));
+      this.pMontant.set(s.soldeRestant > 0 ? String(s.soldeRestant) : '');
       this.panelLoading.set(false);
     });
   }
@@ -439,11 +459,11 @@ export class FacturesListComponent implements OnInit {
     return `/api/factures/${factureId}/pdf`;
   }
 
-  formatNumber(n: number): string {
-    return n.toLocaleString('fr-FR');
+  formatNumber(n: number | null | undefined): string {
+    return (n ?? 0).toLocaleString('fr-FR');
   }
 
-  formatFCFA(n: number): string {
-    return `${n.toLocaleString('fr-FR')} FCFA`;
+  formatFCFA(n: number | null | undefined): string {
+    return `${(n ?? 0).toLocaleString('fr-FR')} FCFA`;
   }
 }

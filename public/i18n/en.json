@@ -542,6 +542,7 @@
     "PANEL_TITLE": "Record a payment",
     "PANEL_SOLDE": "Balance",
     "PANEL_MONTANT": "Amount received (FCFA) *",
+    "PANEL_MONTANT_MAX": "The amount cannot exceed the remaining balance ({{montant}} FCFA).",
     "PANEL_MODE": "Payment method *",
     "PANEL_DATE": "Date *",
     "PANEL_REF": "Transaction reference",
@@ -583,6 +584,7 @@
       "NO_PAIEMENTS": "No payments recorded",
       "BTN_ENREGISTRER": "+ Record payment",
       "BTN_PDF": "PDF",
+      "PDF_ERROR": "Could not open the PDF. Please try again.",
       "BTN_ENVOYER_WA": "Send WA",
       "BTN_RENVOYER_WA": "Resend WA",
       "PAYE": "Paid: {{montant}} FCFA ({{pct}}%)",
@@ -593,7 +595,8 @@
       "ERROR_LOAD": "Failed to load invoice",
       "CORRIGER_STATUT_TITLE": "Correct status",
       "STATUT_PLACEHOLDER": "Choose a status…",
-      "BTN_CORRIGER_STATUT": "Apply"
+      "BTN_CORRIGER_STATUT": "Apply",
+      "STATUT_INCOHERENT": "Status inconsistent with the remaining balance ({{solde}} FCFA). The only consistent status is “{{statut}}”."
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",

@@ -24,8 +24,10 @@
         <div>
           <div class="detail-card__numero">{{ f.numeroFacture }}</div>
           <div class="detail-card__meta">
-            {{ f.abonneId }}
-            @if (f.campagneId) { · {{ 'FACTURATION.DETAIL.CAMPAGNE' | translate }} {{ f.campagneId | slice:0:10 }} }
+            @if (abonneLabel()) {
+              {{ abonneLabel() }}@if (abonne()?.numeroAbonne) { · {{ abonne()!.numeroAbonne }} }
+            }
+            @if (campagneLabel()) { · {{ 'FACTURATION.DETAIL.CAMPAGNE' | translate }} {{ campagneLabel() }} }
           </div>
           <div class="detail-card__meta">
             {{ 'FACTURATION.DETAIL.EMISE_LE' | translate }} {{ formatDate(f.dateGeneration) }}
@@ -45,6 +47,19 @@
             {{ 'FACTURATION.STATUT.' + f.statut | translate }}
           </span>
           <div class="detail-card__btns">
+            <button
+              type="button"
+              class="btn btn--outline"
+              (click)="openPdf()"
+              [disabled]="pdfLoading()"
+            >
+              @if (pdfLoading()) {
+                <i class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i class="pi pi-file-pdf"></i>
+              }
+              {{ 'FACTURATION.DETAIL.BTN_PDF' | translate }}
+            </button>
             <button class="btn btn--dark" (click)="envoyerWhatsapp()">
               <i class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
             </button>
@@ -60,11 +75,11 @@
       <div class="calc-grid2">
         <div class="calc-info-cell">
           <div class="calc-info-cell__label">{{ 'FACTURATION.DETAIL.COMPTEUR' | translate }}</div>
-          <div class="calc-info-cell__value">{{ f.abonneId }}</div>
+          <div class="calc-info-cell__value">{{ compteurLabel() ?? '—' }}</div>
         </div>
         <div class="calc-info-cell">
           <div class="calc-info-cell__label">{{ 'FACTURATION.DETAIL.PERIODE' | translate }}</div>
-          <div class="calc-info-cell__value">{{ formatDate(f.dateReleve) }}</div>
+          <div class="calc-info-cell__value">{{ periodeLabel() ?? formatDate(f.dateReleve) }}</div>
         </div>
       </div>
 
@@ -92,7 +107,7 @@
     <div class="detail-card">
       <div class="card-row-header">
         <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_PAIEMENTS' | translate }}</div>
-        @if (f.statut !== 'PAYEE') {
+        @if (f.statut !== 'PAYEE' && canAddPaiement()) {
           <button class="btn btn--primary" (click)="showForm.set(!showForm())">
             {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
           </button>
@@ -146,10 +161,17 @@
                 type="number"
                 pInputText
                 class="pf-input pf-input--focus"
+                [class.pf-input--error]="montantExceedsSolde()"
                 [ngModel]="pMontant()"
                 (ngModelChange)="pMontant.set($event)"
                 min="1"
+                [max]="soldeRestant()"
               />
+              @if (montantExceedsSolde()) {
+                <span class="pf-hint pf-hint--error">
+                  {{ 'FACTURATION.PANEL_MONTANT_MAX' | translate:{montant: soldeRestant().toLocaleString('fr-FR')} }}
+                </span>
+              }
             </div>
             <div class="pf-field">
               <label class="pf-label" for="det-mode">{{ 'FACTURATION.PANEL_MODE' | translate }}</label>
@@ -218,13 +240,19 @@
         />
         <button
           class="btn btn--ghost btn--sm"
-          [disabled]="!newStatut() || newStatut() === f.statut || changingStatut()"
+          [disabled]="!newStatut() || newStatut() === f.statut || changingStatut() || statutCorrectionIncoherent()"
           (click)="corrigerStatut()"
         >
           @if (changingStatut()) { <i class="pi pi-spin pi-spinner"></i> }
           {{ 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT' | translate }}
         </button>
       </div>
+      @if (statutCorrectionIncoherent()) {
+        <p class="correction-warning">
+          <i class="pi pi-exclamation-triangle"></i>
+          {{ statutIncoherentMsg() }}
+        </p>
+      }
     </div>
 
     <!-- WhatsApp journal -->

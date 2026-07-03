@@ -197,6 +197,34 @@
         </tbody>
       </table>
 
+      <!-- Mobile card list (MB-04) -->
+      <div class="factures-cards">
+        @for (f of paginatedFactures(); track f.factureId) {
+          @let abonne = abonneFor(f.abonneId);
+          <button
+            type="button"
+            class="fcard"
+            [class.fcard--impayee]="f.statut === 'IMPAYEE'"
+            (click)="viewDetail(f.factureId, $event)"
+          >
+            <div class="fcard__info">
+              <span class="fcard__nom">
+                @if (abonne) { {{ abonne.prenom }} {{ abonne.nom }} } @else { — }
+              </span>
+              <span class="fcard__sub">{{ f.numeroFacture }} · {{ formatNumber(f.consommation) }} m³</span>
+            </div>
+            <div class="fcard__right">
+              <span class="fcard__montant">{{ formatNumber(f.montant) }} F</span>
+              <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
+                {{ 'FACTURATION.STATUT.' + f.statut | translate }}
+              </span>
+            </div>
+          </button>
+        } @empty {
+          <div class="table-empty">{{ 'FACTURATION.EMPTY' | translate }}</div>
+        }
+      </div>
+
       <!-- Pagination footer -->
       @if (totalCount() > 0) {
         <div class="table-footer">
@@ -264,10 +292,17 @@
             type="number"
             pInputText
             class="pf-input pf-input--focus"
+            [class.pf-input--error]="montantExceedsSolde()"
             [ngModel]="pMontant()"
             (ngModelChange)="pMontant.set($event)"
             min="1"
+            [max]="soldeRestant()"
           />
+          @if (montantExceedsSolde()) {
+            <span class="pf-hint pf-hint--error">
+              {{ 'FACTURATION.PANEL_MONTANT_MAX' | translate:{montant: soldeRestant().toLocaleString('fr-FR')} }}
+            </span>
+          }
         </div>
 
         <div class="pf-field">

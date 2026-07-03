@@ -7,7 +7,9 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe, SlicePipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -15,8 +17,12 @@ import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { FacturesService } from '../../../core/factures/factures.service';
+import { AbonnesService } from '../../../core/abonnes/abonnes.service';
+import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { Envoi, Facture, ModePaiement, Paiement, SoldeFacture, StatutFacture } from '../../../shared/models/facture.model';
+import { Abonne } from '../../../shared/models/abonne.model';
+import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 
@@ -24,7 +30,6 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
   imports: [
     FormsModule,
     DecimalPipe,
-    SlicePipe,
     ToastModule,
     SelectModule,
     InputTextModule,
@@ -39,18 +44,24 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
 })
 export class FactureDetailComponent implements OnInit {
   private readonly facturesService = inject(FacturesService);
+  private readonly abonnesService = inject(AbonnesService);
+  private readonly campagnesService = inject(CampagnesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
+  private readonly http = inject(HttpClient);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly pdfLoading = signal(false);
 
   readonly facture = signal<Facture | null>(null);
   readonly solde = signal<SoldeFacture | null>(null);
   readonly paiements = signal<Paiement[]>([]);
   readonly envois = signal<Envoi[]>([]);
+  readonly abonne = signal<Abonne | null>(null);
+  readonly campagne = signal<Campagne | null>(null);
 
   readonly showForm = signal(false);
   readonly submitting = signal(false);
@@ -87,10 +98,31 @@ export class FactureDetailComponent implements OnInit {
     () => this.pMode() === 'MOBILE_MONEY' || this.pMode() === 'VIREMENT',
   );
 
+  // Source autoritaire : le solde calculé par le backend (montant réellement dû
+  // d'après les paiements enregistrés). Ne jamais s'appuyer sur le statut seul,
+  // dont la synchro est dégradée côté backend.
+  readonly soldeRestant = computed(() => this.solde()?.soldeRestant ?? 0);
+
+  // Un paiement n'est possible que s'il reste un solde à régler. Le statut seul
+  // ne suffit pas : sa synchro backend est dégradée (soldeRestant=0 possible
+  // avec un statut encore IMPAYEE/PARTIELLE).
+  readonly canAddPaiement = computed(() => this.soldeRestant() > 0);
+
+  readonly montantExceedsSolde = computed(() => {
+    const montant = Number.parseFloat(this.pMontant());
+    return !Number.isNaN(montant) && montant > this.soldeRestant();
+  });
+
   readonly panelValid = computed(() => {
     const montant = Number.parseFloat(this.pMontant());
     const refOk = !this.refRequired() || !!this.pRef().trim();
-    return !Number.isNaN(montant) && montant > 0 && !!this.pDate() && refOk;
+    return (
+      !Number.isNaN(montant) &&
+      montant > 0 &&
+      montant <= this.soldeRestant() &&
+      !!this.pDate() &&
+      refOk
+    );
   });
 
   readonly confirmLabel = computed(() => {
@@ -104,6 +136,57 @@ export class FactureDetailComponent implements OnInit {
       { montant: montant.toLocaleString('fr-FR') },
       lang,
     );
+  });
+
+  // Statut déductible du solde backend (autoritaire) : c'est le seul statut
+  // cohérent avec l'argent réellement dû/payé.
+  readonly statutCoherent = computed<StatutFacture | null>(() => {
+    const s = this.solde();
+    if (!s) return null;
+    if (s.montantPaye <= 0) return 'IMPAYEE';
+    if (s.soldeRestant <= 0) return 'PAYEE';
+    return 'PARTIELLE';
+  });
+
+  // La correction manuelle sélectionnée contredit-elle le solde réel ?
+  readonly statutCorrectionIncoherent = computed(() => {
+    const chosen = this.newStatut();
+    const coherent = this.statutCoherent();
+    return !!chosen && !!coherent && chosen !== coherent;
+  });
+
+  // Message expliquant l'incohérence (solde vs statut choisi).
+  readonly statutIncoherentMsg = computed(() => {
+    if (!this.statutCorrectionIncoherent()) return '';
+    const lang = this.translate.currentLang() ?? undefined;
+    const coherent = this.statutCoherent();
+    const statutLabel = coherent
+      ? this.translate.instant('FACTURATION.STATUT.' + coherent, {}, lang)
+      : '';
+    return this.translate.instant(
+      'FACTURATION.DETAIL.STATUT_INCOHERENT',
+      { solde: this.soldeRestant().toLocaleString('fr-FR'), statut: statutLabel },
+      lang,
+    );
+  });
+
+  readonly abonneLabel = computed(() => {
+    const a = this.abonne();
+    return a ? `${a.prenom} ${a.nom}`.trim() : '';
+  });
+
+  readonly compteurLabel = computed(() => {
+    const c = this.abonne()?.compteur;
+    return c ? `C-${c.numeroCompteur} · ${c.quartier}, Camp ${c.camp}` : null;
+  });
+
+  readonly campagneLabel = computed(() => this.campagne()?.nom ?? '');
+
+  readonly periodeLabel = computed(() => {
+    const c = this.campagne();
+    if (!c) return null;
+    const lang = this.translate.currentLang() ?? 'fr';
+    return formatPeriodeCampagne(c.periodeMois, c.periodeAnnee, lang);
   });
 
   readonly backLink = computed(() => {
@@ -141,6 +224,7 @@ export class FactureDetailComponent implements OnInit {
       if (solde.soldeRestant > 0) {
         this.pMontant.set(String(solde.soldeRestant));
       }
+      void this.loadRefs(facture);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('FACTURATION.DETAIL.ERROR_LOAD'));
@@ -149,9 +233,69 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
+  private async loadRefs(f: Facture): Promise<void> {
+    const tasks: Promise<unknown>[] = [];
+    if (f.abonneId) {
+      tasks.push(
+        this.abonnesService
+          .getAbonne(f.abonneId)
+          .then((a) => this.abonne.set(a))
+          .catch(() => undefined),
+      );
+    }
+    if (f.campagneId) {
+      tasks.push(
+        this.campagnesService
+          .getCampagne(f.campagneId)
+          .then((c) => this.campagne.set(c))
+          .catch(() => undefined),
+      );
+    }
+    await Promise.allSettled(tasks);
+  }
+
   async reload(): Promise<void> {
     const factureId = this.route.snapshot.params['factureId'] as string;
     await this.load(factureId);
+  }
+
+  // Le PDF est servi par un endpoint REST protégé par le JWT (header
+  // Authorization). Une navigation <a href> ne porte pas ce token → 401 →
+  // redirection login. On récupère donc le PDF via HttpClient (l'intercepteur
+  // ajoute le Bearer) sous forme de blob, puis on l'ouvre dans un onglet.
+  async openPdf(): Promise<void> {
+    const f = this.facture();
+    if (!f || this.pdfLoading()) return;
+    this.pdfLoading.set(true);
+    // Ouvrir l'onglet dans le geste utilisateur pour éviter le blocage popup.
+    const win = window.open('', '_blank');
+    try {
+      // Slash final : convention Django du gateway (cf. route espace-abonné).
+      // PENDING BACKEND : cette route authentifiée doit être exposée
+      // (cf. docs/BESOINS_API_facturation.md §3).
+      const blob = await firstValueFrom(
+        this.http.get(`/api/factures/${f.factureId}/pdf/`, { responseType: 'blob' }),
+      );
+      const url = URL.createObjectURL(blob);
+      if (win) {
+        win.location.href = url;
+      } else {
+        // Popup bloquée : repli en téléchargement.
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `facture-${f.numeroFacture ?? f.factureId}.pdf`;
+        a.click();
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch {
+      win?.close();
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'),
+      });
+    } finally {
+      this.pdfLoading.set(false);
+    }
   }
 
   async submitPaiement(): Promise<void> {
@@ -205,6 +349,8 @@ export class FactureDetailComponent implements OnInit {
     const f = this.facture();
     const statut = this.newStatut();
     if (!f || !statut || statut === f.statut || this.changingStatut()) return;
+    // Refuser une correction qui contredirait le solde backend (autoritaire).
+    if (this.statutCorrectionIncoherent()) return;
     this.changingStatut.set(true);
     try {
       const updated = await this.facturesService.updateStatutFacture(f.factureId, statut);
