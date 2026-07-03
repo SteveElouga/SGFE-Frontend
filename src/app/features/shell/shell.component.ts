@@ -1,13 +1,17 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastModule } from 'primeng/toast';
+import { AbonnesService } from '../../core/abonnes/abonnes.service';
 import { SidebarComponent } from '../../shared/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, SidebarComponent, ToastModule],
+  imports: [RouterOutlet, SidebarComponent],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShellComponent {}
+export class ShellComponent {
+  constructor() {
+    inject(AbonnesService).startCacheSync();
+  }
+}

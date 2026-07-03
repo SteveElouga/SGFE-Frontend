@@ -1,0 +1,91 @@
+<div class="toast-stack" aria-label="Notifications" aria-live="polite" aria-atomic="false">
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="toast toast--{{ toast.type }}"
+      [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
+      [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'"
+    >
+      <div class="toast__body" [class.toast__body--center]="toast.type === 'progress'">
+
+        <!-- Icon -->
+        <div class="toast__icon">
+          @switch (toast.type) {
+            @case ('success') {
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <path d="M2.5 8l3.5 3.5L12.5 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            }
+            @case ('error') {
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7.5 4.5v3.2M7.5 10.4v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            }
+            @case ('warning') {
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <path d="M7.5 2.5L13.5 13H1.5L7.5 2.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M7.5 6.5v2.5M7.5 11v.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            }
+            @case ('info') {
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7.5 7v3.5M7.5 4.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            }
+            @case ('progress') {
+              <svg width="15" height="15" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M15 9a6 6 0 01-10.2 4.3M3 9a6 6 0 0110.2-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M13.5 2.5v2.8h-2.8M4.5 15.5v-2.8h2.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            }
+          }
+        </div>
+
+        <!-- Content -->
+        <div class="toast__content">
+          @if (toast.type === 'progress') {
+            <div class="toast__progress-header">
+              <span class="toast__title">{{ toast.title }}</span>
+              <span class="toast__progress-count">{{ toast.current ?? 0 }} / {{ toast.total ?? 0 }}</span>
+            </div>
+            <div class="toast__progress-track">
+              <div class="toast__progress-fill" [style.width.%]="progressPercent(toast)"></div>
+            </div>
+          } @else {
+            <div class="toast__title">{{ toast.title }}</div>
+            @if (toast.message) {
+              <div class="toast__message">{{ toast.message }}</div>
+            }
+            @if (toast.actions?.length) {
+              <div class="toast__actions">
+                @for (action of toast.actions!; track action.label) {
+                  <button
+                    class="toast__action toast__action--{{ action.variant ?? 'primary' }}"
+                    (click)="actionHandler(action.handler, toast.id)"
+                  >{{ action.label }}</button>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <!-- Close -->
+        @if (toast.type !== 'progress') {
+          <button class="toast__close" (click)="dismiss(toast.id)" aria-label="Fermer la notification">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </button>
+        }
+      </div>
+
+      <!-- Timer / countdown bar (success, info, warning) -->
+      @if (toast.type === 'success' || toast.type === 'info' || toast.type === 'warning') {
+        <div class="toast__timer-track">
+          <div class="toast__timer-fill"></div>
+        </div>
+      }
+    </div>
+  }
+</div>

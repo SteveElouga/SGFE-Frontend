@@ -1,4 +1,5 @@
 import { inject, Injector } from '@angular/core';
+import { AuthService } from '../auth/auth.service';
 import { ApolloClient, InMemoryCache } from '@apollo/client/core';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
@@ -21,7 +22,16 @@ function apolloOptionsFactory(): ApolloClient.Options {
   const http = httpLink.create({ uri: environment.graphqlUrl, withCredentials: true });
 
   const ws = new GraphQLWsLink(
-    createClient({ url: environment.graphqlWsUrl }),
+    createClient({
+      url: environment.graphqlWsUrl,
+      // Evaluated lazily at each connection attempt — safe to use the injector here
+      // because GraphQLWsLink only connects when the first subscription is registered
+      // (i.e. after login, from ShellComponent.startCacheSync).
+      connectionParams: () => {
+        const token = injector.get(AuthService).accessToken();
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      },
+    }),
   );
 
   const transportLink = ApolloLink.split(
@@ -52,7 +62,7 @@ function apolloOptionsFactory(): ApolloClient.Options {
     }),
     defaultOptions: {
       watchQuery: { fetchPolicy: 'cache-first' },
-      query: { fetchPolicy: 'cache-first' },
+      query:      { fetchPolicy: 'cache-first' },
     },
   };
 }
