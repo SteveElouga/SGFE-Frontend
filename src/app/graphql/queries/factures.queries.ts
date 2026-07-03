@@ -21,7 +21,9 @@ export const GET_FACTURES = gql`
       abonneId
       campagneId
       statut
+      consommation
       montant
+      dateReleve
       dateLimitePaiement
     }
   }
