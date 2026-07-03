@@ -14,8 +14,10 @@
       border-bottom: 1.5px solid #e2e8f0;
       padding: 10px 16px;
       white-space: nowrap;
+      text-align: left;
 
-      &.th-center { text-align: center; }
+      // Toutes les colonnes sont alignées à gauche (directive projet)
+      &.th-center { text-align: left; }
       &.th-wrap   { white-space: normal; }
     }
 
@@ -23,6 +25,7 @@
       padding: 13px 16px;
       border-bottom: 1px solid #f1f5f9;
       vertical-align: middle;
+      text-align: left;
     }
 
     .p-datatable-tbody > tr:last-child > td {
