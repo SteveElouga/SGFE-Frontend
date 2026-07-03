@@ -23,6 +23,100 @@
     </div>
   } @else {
 
+    <!-- ── Section 0 : Tarif actuel ────────────────────────────────────── -->
+    <section class="config-section">
+      <div class="config-section__header">
+        <div class="config-section__title">
+          <span class="config-section__icon"><i class="pi pi-tag"></i></span>
+          {{ 'CONFIGURATION.SECTION_TARIF_ACTUEL' | translate }}
+        </div>
+        @if (!editingTarif()) {
+          <button class="btn btn--ghost btn--sm" (click)="editTarif()">
+            <i class="pi pi-pencil"></i>
+            {{ 'COMMON.EDIT' | translate }}
+          </button>
+        }
+      </div>
+
+      @if (!editingTarif()) {
+        <div class="societe-grid">
+          <div class="field-display">
+            <span class="field-display__label">{{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}</span>
+            <span class="field-display__value">
+              @if (tarifActuel()) {
+                {{ tarifActuel()!.prixM3 | number:'1.0-0' }} FCFA/m³
+              } @else {
+                <span class="field-display__value--empty">{{ 'CONFIGURATION.TARIF_NONE' | translate }}</span>
+              }
+            </span>
+          </div>
+          <div class="field-display">
+            <span class="field-display__label">{{ 'CONFIGURATION.TARIF_DATE_EFFET' | translate }}</span>
+            <span class="field-display__value">
+              @if (tarifActuel()?.dateEffet) {
+                {{ tarifActuel()!.dateEffet | date:'dd/MM/yyyy' }}
+              } @else { — }
+            </span>
+          </div>
+          <div class="field-display">
+            <span class="field-display__label">{{ 'CONFIGURATION.TARIF_STATUT' | translate }}</span>
+            <span class="tarif-badge" [class.tarif-badge--actif]="tarifActuel()?.isActive">
+              {{ (tarifActuel()?.isActive ? 'CONFIGURATION.TARIF_ACTIF' : 'CONFIGURATION.TARIF_INACTIF') | translate }}
+            </span>
+          </div>
+        </div>
+      } @else {
+        <div class="societe-grid">
+          <div class="form-field">
+            <label class="form-field__label" for="tarif-prix">
+              {{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}
+            </label>
+            <input
+              id="tarif-prix"
+              pInputText
+              type="number"
+              min="1"
+              class="form-field__input"
+              [placeholder]="'CONFIGURATION.TARIF_PRIX_M3' | translate"
+              [ngModel]="tarifPrixM3()"
+              (ngModelChange)="tarifPrixM3.set($event)"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="tarif-date">
+              {{ 'CONFIGURATION.TARIF_DATE_EFFET' | translate }}
+            </label>
+            <input
+              id="tarif-date"
+              pInputText
+              type="date"
+              class="form-field__input"
+              [ngModel]="tarifDateEffet()"
+              (ngModelChange)="tarifDateEffet.set($event)"
+            />
+          </div>
+        </div>
+        <div class="config-section__footer">
+          <button class="btn btn--ghost" [disabled]="tarifSaving()" (click)="resetTarif()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button
+            class="btn btn--primary"
+            [disabled]="!tarifDirty() || tarifSaving()"
+            (click)="saveTarif()"
+          >
+            @if (tarifSaving()) {
+              <i class="pi pi-spin pi-spinner"></i>
+              {{ 'CONFIGURATION.SAVING' | translate }}
+            } @else {
+              <i class="pi pi-check"></i>
+              {{ 'CONFIGURATION.SAVE_TARIF' | translate }}
+            }
+          </button>
+        </div>
+      }
+    </section>
+
     <!-- ── Section 1 : Informations société ─────────────────────────────── -->
     <section class="config-section">
       <div class="config-section__header">
@@ -262,6 +356,8 @@
         <input
           pInputText
           class="param-item__input"
+          [id]="'param-edit-' + param.cle"
+          [attr.aria-label]="param.cle"
           [type]="isNumericParam(param) ? 'number' : 'text'"
           [attr.min]="isNumericParam(param) ? 1 : null"
           [ngModel]="editingValue()"
