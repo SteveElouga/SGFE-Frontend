@@ -1,0 +1,16 @@
+# Propriétaires globaux
+* @SteveElouga
+
+# Infrastructure & CI/CD — validation obligatoire
+/.github/         @SteveElouga
+/Dockerfile       @SteveElouga
+/nginx/           @SteveElouga
+/docker-compose*  @SteveElouga
+
+# Core : auth, GraphQL, intercepteurs
+src/app/core/auth/       @SteveElouga
+src/app/core/graphql/    @SteveElouga
+src/app/core/interceptors/ @SteveElouga
+
+# Environnements de déploiement
+src/environments/ @SteveElouga

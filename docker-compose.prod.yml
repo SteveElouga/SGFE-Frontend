@@ -1,0 +1,47 @@
+# Configuration production — déploiement Canary
+# Usage : docker compose -f docker-compose.prod.yml up -d
+
+services:
+  # ── Load balancer nginx (canary router) ────────────────────────────────────
+  nginx-lb:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/nginx/conf.d:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - frontend-stable
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Version stable (production courante) ───────────────────────────────────
+  frontend-stable:
+    image: ${STABLE_IMAGE:-ghcr.io/steveelouga/sgfe-frontend:latest}
+    expose:
+      - "80"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ── Version canary (nouveau déploiement) ───────────────────────────────────
+  frontend-canary:
+    image: ${CANARY_IMAGE:-ghcr.io/steveelouga/sgfe-frontend:canary}
+    expose:
+      - "80"
+    restart: unless-stopped
+    profiles:
+      - canary   # Démarré uniquement pendant les phases canary
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

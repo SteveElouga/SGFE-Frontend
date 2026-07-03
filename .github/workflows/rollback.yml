@@ -1,0 +1,57 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      image-tag:
+        description: "Tag de l'image à restaurer (ex: sha-abc1234). Laisser vide pour revenir à latest."
+        required: false
+        default: latest
+      reason:
+        description: "Raison du rollback"
+        required: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/sgfe-frontend
+
+jobs:
+  rollback:
+    name: Rollback → ${{ inputs.image-tag }}
+    runs-on: ubuntu-latest
+    environment: production-canary   # Même protection que le déploiement
+
+    steps:
+      - name: Log rollback
+        run: |
+          echo "🔄 Rollback demandé par ${{ github.actor }}"
+          echo "   Tag cible : ${{ inputs.image-tag }}"
+          echo "   Raison    : ${{ inputs.reason }}"
+
+      - name: Rollback via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /opt/aquabill/production
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Restaurer l'image stable demandée
+            TARGET="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image-tag }}"
+            docker pull $TARGET
+            STABLE_IMAGE=$TARGET docker compose -f docker-compose.prod.yml up -d --no-deps frontend-stable
+
+            # Arrêter le canary si actif et remettre nginx à 100% stable
+            docker compose -f docker-compose.prod.yml stop frontend-canary 2>/dev/null || true
+            export CANARY_WEIGHT=0
+            export STABLE_WEIGHT=100
+            envsubst < /opt/aquabill/nginx/nginx-lb.conf.tpl > /etc/nginx/conf.d/lb.conf
+            nginx -s reload
+
+            sleep 10
+            curl -sf http://localhost/health || exit 1
+            echo "✅ Rollback OK → $TARGET"
