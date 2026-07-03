@@ -1,9 +1,19 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Apollo } from 'apollo-angular';
-import { ConfigParam, InfosSociete, UpdateInfosSocieteInput } from '../../shared/models/configuration.model';
+import {
+  ConfigParam,
+  InfosSociete,
+  TestEnvoiResult,
+  UpdateInfosSocieteInput,
+} from '../../shared/models/configuration.model';
 import { GET_CONFIGS, GET_INFOS_SOCIETE } from '../../graphql/queries/configuration.queries';
-import { UPDATE_CONFIG, UPDATE_INFOS_SOCIETE } from '../../graphql/mutations/configuration.mutations';
+import {
+  REVOQUER_TOUS_TOKENS_ABONNES,
+  TESTER_ENVOI_WHATSAPP,
+  UPDATE_CONFIG,
+  UPDATE_INFOS_SOCIETE,
+} from '../../graphql/mutations/configuration.mutations';
 
 @Injectable({ providedIn: 'root' })
 export class ConfigurationService {
@@ -66,5 +76,33 @@ export class ConfigurationService {
       });
     }
     return updated;
+  }
+
+  /**
+   * Envoi de test WhatsApp vers un numéro donné (ADMIN).
+   * Renvoie toujours { success, message } : sur échec de livraison,
+   * success=false + le motif exact affichable tel quel. Un numéro vide
+   * lève en revanche une vraie erreur GraphQL (INVALID_ARGUMENT).
+   */
+  async testerEnvoiWhatsapp(phoneNumber: string): Promise<TestEnvoiResult> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ testerEnvoiWhatsapp: TestEnvoiResult }>({
+        mutation: TESTER_ENVOI_WHATSAPP,
+        variables: { phoneNumber },
+      }),
+    );
+    const test = result.data?.testerEnvoiWhatsapp;
+    if (!test) throw new Error('Réponse invalide du serveur');
+    return test;
+  }
+
+  /** Révoque en masse tous les tokens d'accès abonnés (ADMIN). Renvoie le nombre révoqué. */
+  async revoquerTousTokensAbonnes(): Promise<number> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ revoquerTousTokensAbonnes: number }>({
+        mutation: REVOQUER_TOUS_TOKENS_ABONNES,
+      }),
+    );
+    return result.data?.revoquerTousTokensAbonnes ?? 0;
   }
 }

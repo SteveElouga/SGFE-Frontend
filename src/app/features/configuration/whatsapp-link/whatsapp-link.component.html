@@ -1,0 +1,64 @@
+<!-- Compte déjà lié -->
+@if (connected()) {
+  <div class="wa-link wa-link--linked">
+    <div class="wa-link__icon wa-link__icon--ok" aria-hidden="true">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="wa-link__body">
+      <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_LINKED_TITLE' | translate }}</div>
+      <div class="wa-link__desc">
+        {{ 'CONFIGURATION.WHATSAPP_LINKED_DESC' | translate }}
+        @if (number()) { <br />{{ number() }} }
+      </div>
+    </div>
+    <span class="wa-link__status">
+      <span class="wa-link__dot"></span>
+      {{ 'STATUS.ACTIVE' | translate }}
+    </span>
+  </div>
+}
+
+<!-- Erreur -->
+@else if (error()) {
+  <div class="wa-link wa-link--error">
+    <div class="wa-link__body">
+      <div class="wa-link__title">{{ error() }}</div>
+    </div>
+    <button type="button" class="btn btn--ghost btn--sm" (click)="retry()">
+      {{ 'COMMON.RETRY' | translate }}
+    </button>
+  </div>
+}
+
+<!-- Chargement initial -->
+@else if (loading()) {
+  <div class="wa-link wa-link--pending">
+    <i class="pi pi-spin pi-spinner"></i>
+    {{ 'CONFIGURATION.WHATSAPP_QR_LOADING' | translate }}
+  </div>
+}
+
+<!-- QR à scanner -->
+@else if (qr()) {
+  <div class="wa-link wa-link--qr">
+    <img class="wa-link__qr" [src]="qr()" alt="QR code WhatsApp" width="176" height="176" />
+    <div class="wa-link__qr-body">
+      <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_QR_SCAN' | translate }}</div>
+      <div class="wa-link__desc">{{ 'CONFIGURATION.WHATSAPP_QR_SCAN_STEPS' | translate }}</div>
+      <div class="wa-link__hint">
+        <span class="wa-link__pulse"></span>
+        {{ 'CONFIGURATION.WHATSAPP_QR_ROTATE' | translate }}
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Service en cours de démarrage (pas encore de QR) -->
+@else {
+  <div class="wa-link wa-link--pending">
+    <i class="pi pi-spin pi-spinner"></i>
+    {{ 'CONFIGURATION.WHATSAPP_QR_WAITING' | translate }}
+  </div>
+}
