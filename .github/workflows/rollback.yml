@@ -19,7 +19,9 @@ jobs:
   rollback:
     name: Rollback → ${{ inputs.image-tag }}
     runs-on: ubuntu-latest
-    environment: production-canary   # Même protection que le déploiement
+    environment:
+      name: ${{ vars.ENV_CANARY || 'production-canary' }}
+      url: https://aquabill.cm
 
     steps:
       - name: Log rollback
