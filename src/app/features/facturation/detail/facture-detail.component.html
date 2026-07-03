@@ -1,0 +1,249 @@
+<p-toast />
+
+<app-page-topbar
+  [title]="facture()?.numeroFacture ?? ('FACTURATION.TITLE' | translate)"
+  [backLink]="backLink()"
+  [backLabel]="'FACTURATION.DETAIL.BACK' | translate"
+/>
+
+<div class="detail-content">
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="reload()" />
+  }
+
+  @if (loading()) {
+    <div class="detail-loading">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  } @else if (facture(); as f) {
+
+    <!-- Header card -->
+    <div class="detail-card">
+      <div class="detail-card__header-row">
+        <div>
+          <div class="detail-card__numero">{{ f.numeroFacture }}</div>
+          <div class="detail-card__meta">
+            {{ f.abonneId }}
+            @if (f.campagneId) { · {{ 'FACTURATION.DETAIL.CAMPAGNE' | translate }} {{ f.campagneId | slice:0:10 }} }
+          </div>
+          <div class="detail-card__meta">
+            {{ 'FACTURATION.DETAIL.EMISE_LE' | translate }} {{ formatDate(f.dateGeneration) }}
+            @if (f.dateLimitePaiement) {
+              · {{ 'FACTURATION.DETAIL.ECHEANCE' | translate }} {{ formatDate(f.dateLimitePaiement) }}
+            }
+          </div>
+          @if (f.numeroMobileMoney) {
+            <div class="detail-card__mm">
+              <i class="pi pi-mobile"></i>
+              {{ 'FACTURATION.DETAIL.MOBILE_MONEY' | translate }} : {{ f.numeroMobileMoney }}
+            </div>
+          }
+        </div>
+        <div class="detail-card__actions-col">
+          <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
+            {{ 'FACTURATION.STATUT.' + f.statut | translate }}
+          </span>
+          <div class="detail-card__btns">
+            <button class="btn btn--dark" (click)="envoyerWhatsapp()">
+              <i class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calculation card -->
+    <div class="detail-card">
+      <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_CALC' | translate }}</div>
+
+      <div class="calc-grid2">
+        <div class="calc-info-cell">
+          <div class="calc-info-cell__label">{{ 'FACTURATION.DETAIL.COMPTEUR' | translate }}</div>
+          <div class="calc-info-cell__value">{{ f.abonneId }}</div>
+        </div>
+        <div class="calc-info-cell">
+          <div class="calc-info-cell__label">{{ 'FACTURATION.DETAIL.PERIODE' | translate }}</div>
+          <div class="calc-info-cell__value">{{ formatDate(f.dateReleve) }}</div>
+        </div>
+      </div>
+
+      <div class="calc-table">
+        <div class="calc-table__head">
+          <div>{{ 'FACTURATION.DETAIL.ANCIEN_INDEX' | translate }}</div>
+          <div>{{ 'FACTURATION.DETAIL.NOUVEL_INDEX' | translate }}</div>
+          <div>{{ 'FACTURATION.DETAIL.CONSO' | translate }}</div>
+          <div>{{ 'FACTURATION.DETAIL.TARIF' | translate }}</div>
+        </div>
+        <div class="calc-table__body">
+          <div class="calc-val calc-val--old">{{ f.ancienIndex | number }}</div>
+          <div class="calc-val calc-val--new">{{ f.nouveauIndex | number }}</div>
+          <div class="calc-val calc-val--conso">{{ f.consommation | number }}</div>
+          <div class="calc-val calc-val--tarif">{{ f.prixM3 | number:'1.0-0' }} {{ 'FACTURATION.DETAIL.M3_TARIF' | translate }}</div>
+        </div>
+        <div class="calc-table__total">
+          <span class="calc-table__total-label">{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
+          <span class="calc-table__total-value">{{ formatFCFA(f.montant) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment history card -->
+    <div class="detail-card">
+      <div class="card-row-header">
+        <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_PAIEMENTS' | translate }}</div>
+        @if (f.statut !== 'PAYEE') {
+          <button class="btn btn--primary" (click)="showForm.set(!showForm())">
+            {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
+          </button>
+        }
+      </div>
+
+      @if (paiements().length === 0) {
+        <div class="empty-hint">{{ 'FACTURATION.DETAIL.NO_PAIEMENTS' | translate }}</div>
+      } @else {
+        <div class="paiements-list">
+          @for (p of paiements(); track p.paiementId) {
+            <div class="paiement-row">
+              <div>
+                <div class="paiement-row__amount">{{ formatFCFA(p.montant) }}</div>
+                <div class="paiement-row__meta">
+                  {{ 'FACTURATION.MODE.' + p.modePaiement | translate }} · {{ formatDate(p.datePaiement) }}
+                  @if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
+                </div>
+              </div>
+              <span class="paiement-badge">{{ 'FACTURATION.DETAIL.ACOMPTE' | translate }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      @if (solde(); as s) {
+        <div class="progress-bar">
+          <div class="progress-bar__track">
+            <div class="progress-bar__fill" [style.width.%]="pctPaye()"></div>
+          </div>
+          <div class="progress-bar__labels">
+            <span class="progress-bar__paid">
+              {{ 'FACTURATION.DETAIL.PAYE' | translate:{montant: s.montantPaye.toLocaleString('fr-FR'), pct: pctPaye()} }}
+            </span>
+            @if (s.soldeRestant > 0) {
+              <span class="progress-bar__remaining">
+                {{ 'FACTURATION.DETAIL.SOLDE_RESTANT' | translate:{montant: s.soldeRestant.toLocaleString('fr-FR')} }}
+              </span>
+            }
+          </div>
+        </div>
+      }
+
+      @if (showForm()) {
+        <div class="paiement-form">
+          <div class="paiement-form__grid">
+            <div class="pf-field">
+              <label class="pf-label" for="det-montant">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>
+              <input
+                id="det-montant"
+                type="number"
+                pInputText
+                class="pf-input pf-input--focus"
+                [ngModel]="pMontant()"
+                (ngModelChange)="pMontant.set($event)"
+                min="1"
+              />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label" for="det-mode">{{ 'FACTURATION.PANEL_MODE' | translate }}</label>
+              <p-select
+                inputId="det-mode"
+                [options]="modeOptions()"
+                [ngModel]="pMode()"
+                (ngModelChange)="pMode.set($event)"
+                optionLabel="label"
+                optionValue="value"
+                styleClass="pf-select"
+              />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label" for="det-date">{{ 'FACTURATION.PANEL_DATE' | translate }}</label>
+              <input
+                id="det-date"
+                type="date"
+                pInputText
+                class="pf-input"
+                [ngModel]="pDate()"
+                (ngModelChange)="pDate.set($event)"
+              />
+            </div>
+            <div class="pf-field">
+              <label class="pf-label" for="det-ref">
+                {{ 'FACTURATION.PANEL_REF' | translate }}
+                @if (refRequired()) { <span class="pf-required">*</span> }
+              </label>
+              <input
+                id="det-ref"
+                type="text"
+                pInputText
+                class="pf-input"
+                [ngModel]="pRef()"
+                (ngModelChange)="pRef.set($event)"
+              />
+            </div>
+          </div>
+          <button
+            class="btn btn--primary btn--full"
+            [disabled]="!panelValid() || submitting()"
+            (click)="submitPaiement()"
+          >
+            @if (submitting()) { <i class="pi pi-spin pi-spinner"></i> }
+            {{ confirmLabel() }}
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Correction manuelle du statut -->
+    <div class="detail-card detail-card--correction">
+      <div class="card-row-header">
+        <div class="calc-title">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}</div>
+      </div>
+      <div class="correction-row">
+        <p-select
+          [options]="statutOptions"
+          [ngModel]="newStatut()"
+          (ngModelChange)="newStatut.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'FACTURATION.DETAIL.STATUT_PLACEHOLDER' | translate"
+          styleClass="correction-select"
+        />
+        <button
+          class="btn btn--ghost btn--sm"
+          [disabled]="!newStatut() || newStatut() === f.statut || changingStatut()"
+          (click)="corrigerStatut()"
+        >
+          @if (changingStatut()) { <i class="pi pi-spin pi-spinner"></i> }
+          {{ 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- WhatsApp journal -->
+    @if (envois().length > 0) {
+      <div class="detail-card">
+        <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_WHATSAPP' | translate }}</div>
+        <div class="journal-list">
+          @for (e of envois(); track e.envoiId) {
+            <div class="journal-entry" [class]="envoiClass(e)">
+              <span class="journal-entry__text">
+                {{ e.typeEnvoi ?? 'Envoi' }}
+                @if (e.erreur) { · <span class="journal-entry__err">{{ e.erreur }}</span> }
+              </span>
+              <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+  }
+</div>

@@ -155,6 +155,49 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'factures',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/facturation/list/factures-list.component').then(
+                (m) => m.FacturesListComponent,
+              ),
+          },
+          {
+            path: 'campagne/:campagneId',
+            loadComponent: () =>
+              import('./features/facturation/list/factures-list.component').then(
+                (m) => m.FacturesListComponent,
+              ),
+          },
+          {
+            path: ':factureId',
+            loadComponent: () =>
+              import('./features/facturation/detail/facture-detail.component').then(
+                (m) => m.FactureDetailComponent,
+              ),
+          },
+        ],
+      },
+      {
+        path: 'paiements',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
+        loadComponent: () =>
+          import('./features/paiements/paiements-list.component').then(
+            (m) => m.PaiementsListComponent,
+          ),
+      },
+      {
+        path: 'impayes',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
+        loadComponent: () =>
+          import('./features/impayes/impayes-list.component').then(
+            (m) => m.ImpayesListComponent,
+          ),
+      },
+      {
         path: 'configuration',
         canActivate: [roleGuard(['ADMIN'])],
         loadComponent: () =>

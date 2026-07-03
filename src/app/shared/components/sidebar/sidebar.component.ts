@@ -69,9 +69,9 @@ export class SidebarComponent implements OnInit {
     { label: 'NAV.DASHBOARD', icon: 'pi-th-large', route: '/dashboard' },
     { label: 'NAV.ABONNES', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
     { label: 'NAV.CAMPAGNES', icon: 'pi-calendar', route: '/campagnes', roles: ['ADMIN', 'SUPERVISEUR', 'AGENT'] },
-    { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', disabled: true },
-    { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', disabled: true },
-    { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', disabled: true },
+    { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', roles: ['ADMIN', 'COMPTABLE'] },
+    { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', roles: ['ADMIN', 'COMPTABLE'] },
+    { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'] },
   ];
 
