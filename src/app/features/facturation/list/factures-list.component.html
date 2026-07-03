@@ -1,0 +1,327 @@
+<p-toast />
+
+<app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()" />
+
+<div class="factures-content">
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="load()" />
+  }
+
+  <!-- Banner: génération manuelle requise -->
+  @if (campagne()?.genererFacturesAuto === false && factures().length === 0 && !loading()) {
+    <div class="generate-banner">
+      <div class="generate-banner__left">
+        <i class="pi pi-info-circle generate-banner__icon"></i>
+        <div>
+          <div class="generate-banner__title">{{ 'FACTURATION.BANNER_GENERER_TITLE' | translate }}</div>
+          <div class="generate-banner__sub">{{ 'FACTURATION.BANNER_GENERER_SUB' | translate }}</div>
+        </div>
+      </div>
+      <button
+        class="btn-generer"
+        [disabled]="generatingFactures()"
+        (click)="genererFactures()"
+      >
+        @if (generatingFactures()) { <i class="pi pi-spin pi-spinner"></i> }
+        {{ 'FACTURATION.BTN_GENERER' | translate }}
+      </button>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <p-iconfield class="filters-bar__search">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        id="factures-search"
+        type="text"
+        [placeholder]="'FACTURATION.SEARCH_PLACEHOLDER' | translate"
+        [attr.aria-label]="'FACTURATION.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event); page.set(0)"
+      />
+    </p-iconfield>
+
+    <!-- Campagne switcher -->
+    <p-select
+      [options]="allCampagnes()"
+      [ngModel]="campagneId()"
+      (ngModelChange)="onCampagneChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="filter-chip"
+    >
+      <ng-template pTemplate="selectedItem">
+        <span class="chip-label">{{ 'FACTURATION.FILTER_CAMPAGNE' | translate }}</span>
+      </ng-template>
+    </p-select>
+
+    <!-- Statut -->
+    <p-select
+      [options]="filtreOptions()"
+      [ngModel]="filtreStatut()"
+      (ngModelChange)="onStatutChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="filter-chip"
+      [class.filter-chip--active]="filtreStatut() !== 'TOUS'"
+    >
+      <ng-template pTemplate="selectedItem">
+        <span class="chip-label">
+          {{ 'FACTURATION.FILTER_STATUT' | translate }}
+          @if (filtreStatut() !== 'TOUS') {
+            <span class="chip-active-dot"></span>
+          }
+        </span>
+      </ng-template>
+    </p-select>
+
+    @if (factures().length > 0) {
+      <button
+        class="btn-whatsapp-tous"
+        [disabled]="sendingWhatsapp()"
+        (click)="envoyerToutesWhatsapp()"
+      >
+        @if (sendingWhatsapp()) {
+          <i class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i class="pi pi-whatsapp"></i>
+        }
+        {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
+      </button>
+    }
+  </div>
+
+  <!-- Table -->
+  <div class="factures-table-wrap">
+    @if (loading()) {
+      <div class="table-loading">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+    } @else {
+      <table class="factures-table">
+        <thead>
+          <tr>
+            <th>{{ 'FACTURATION.COL_NUMERO' | translate }}</th>
+            <th>{{ 'FACTURATION.COL_ABONNE' | translate }}</th>
+            <th class="text-right">{{ 'FACTURATION.COL_MONTANT' | translate }}</th>
+            <th class="text-right">{{ 'FACTURATION.COL_SOLDE' | translate }}</th>
+            <th>{{ 'FACTURATION.COL_STATUT' | translate }}</th>
+            <th>{{ 'FACTURATION.COL_ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of paginatedFactures(); track f.factureId) {
+            @let abonne = abonneFor(f.abonneId);
+            <tr
+              class="factures-table__row"
+              [class.factures-table__row--selected]="selectedFacture()?.factureId === f.factureId"
+              [attr.tabindex]="f.statut !== 'PAYEE' ? 0 : null"
+              (click)="f.statut !== 'PAYEE' ? openPanel(f) : null"
+              (keydown.enter)="f.statut !== 'PAYEE' ? openPanel(f) : null"
+              (keydown.space)="f.statut !== 'PAYEE' ? openPanel(f) : null"
+            >
+              <td class="col-numero" [class.col-numero--link]="f.statut !== 'PAYEE'" [class.col-numero--selected]="selectedFacture()?.factureId === f.factureId">
+                {{ f.numeroFacture }}
+              </td>
+              <td class="col-abonne">
+                @if (abonne) {
+                  <span class="abonne-nom">{{ abonne.prenom }} {{ abonne.nom }}</span>
+                  <span class="abonne-sub">{{ abonne.numeroAbonne }}</span>
+                } @else {
+                  <span class="abonne-nom">—</span>
+                }
+              </td>
+              <td class="col-montant text-right">{{ formatNumber(f.montant) }}</td>
+              <td class="col-solde text-right">
+                @let solde = soldeFor(f);
+                @if (solde === null) {
+                  <span class="solde-loading">—</span>
+                } @else if (solde === 0) {
+                  <span class="solde-zero">{{ formatNumber(0) }}</span>
+                } @else if (f.statut === 'IMPAYEE') {
+                  <span class="solde-red">{{ formatNumber(solde) }}</span>
+                } @else {
+                  <span class="solde-blue">{{ formatNumber(solde) }}</span>
+                }
+              </td>
+              <td>
+                <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
+                  {{ 'FACTURATION.STATUT.' + f.statut | translate }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-action" (click)="viewDetail(f.factureId, $event)">
+                    {{ 'FACTURATION.ACTION_VOIR' | translate }}
+                  </button>
+                  @if (f.statut === 'PAYEE') {
+                    <a
+                      class="btn-action"
+                      [href]="pdfUrl(f.factureId)"
+                      target="_blank"
+                      rel="noopener"
+                      (click)="$event.stopPropagation()"
+                    >
+                      {{ 'FACTURATION.ACTION_PDF' | translate }}
+                    </a>
+                  } @else {
+                    <button
+                      class="btn-action btn-action--primary"
+                      (click)="openPanel(f); $event.stopPropagation()"
+                    >
+                      {{ 'FACTURATION.ACTION_PAIEMENT' | translate }}
+                    </button>
+                  }
+                  @if (f.statut === 'IMPAYEE') {
+                    <button
+                      class="btn-action btn-action--icon"
+                      title="Envoyer par WhatsApp"
+                      (click)="envoyerWhatsapp(f.factureId, $event)"
+                    >
+                      <i class="pi pi-mobile"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="table-empty">
+                {{ 'FACTURATION.EMPTY' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination footer -->
+      @if (totalCount() > 0) {
+        <div class="table-footer">
+          <span class="pagination-info">
+            {{ 'FACTURATION.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: totalCount() } }}
+          </span>
+          <div class="pagination-btns">
+            <button
+              class="page-btn"
+              [disabled]="page() === 0"
+              (click)="goPage(page() - 1)"
+              aria-label="Page précédente"
+            >
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            @for (p of visiblePages(); track p) {
+              <button
+                class="page-btn"
+                [class.page-btn--active]="p === page()"
+                (click)="goPage(p)"
+              >{{ p + 1 }}</button>
+            }
+            <button
+              class="page-btn"
+              [disabled]="page() >= pageCount() - 1"
+              (click)="goPage(page() + 1)"
+              aria-label="Page suivante"
+            >
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Inline payment panel -->
+  @if (selectedFacture(); as f) {
+    <div class="payment-panel">
+      <div class="payment-panel__header">
+        <div class="payment-panel__icon">
+          <i class="pi pi-credit-card"></i>
+        </div>
+        <div>
+          <div class="payment-panel__title">{{ 'FACTURATION.PANEL_TITLE' | translate }}</div>
+          <div class="payment-panel__sub">
+            {{ f.numeroFacture }}
+            @if (panelLoading()) {
+              · <i class="pi pi-spin pi-spinner" style="font-size:11px"></i>
+            } @else if (panelSolde() !== null) {
+              · {{ 'FACTURATION.PANEL_SOLDE' | translate }} {{ formatFCFA(panelSolde()!) }}
+            }
+          </div>
+        </div>
+        <button class="payment-panel__close" (click)="closePanel()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+
+      <div class="payment-panel__form">
+        <div class="pf-field">
+          <label class="pf-label" for="pf-montant">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>
+          <input
+            id="pf-montant"
+            type="number"
+            pInputText
+            class="pf-input pf-input--focus"
+            [ngModel]="pMontant()"
+            (ngModelChange)="pMontant.set($event)"
+            min="1"
+          />
+        </div>
+
+        <div class="pf-field">
+          <label class="pf-label" for="pf-mode">{{ 'FACTURATION.PANEL_MODE' | translate }}</label>
+          <p-select
+            inputId="pf-mode"
+            [options]="modeOptions()"
+            [ngModel]="pMode()"
+            (ngModelChange)="pMode.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="pf-select"
+          />
+        </div>
+
+        <div class="pf-field">
+          <label class="pf-label" for="pf-date">{{ 'FACTURATION.PANEL_DATE' | translate }}</label>
+          <input
+            id="pf-date"
+            type="date"
+            pInputText
+            class="pf-input"
+            [ngModel]="pDate()"
+            (ngModelChange)="pDate.set($event)"
+          />
+        </div>
+
+        <div class="pf-field pf-field--ref">
+          <label class="pf-label" for="pf-ref">
+            {{ 'FACTURATION.PANEL_REF' | translate }}
+            @if (refRequired()) { <span class="pf-required">*</span> }
+          </label>
+          <input
+            id="pf-ref"
+            type="text"
+            pInputText
+            class="pf-input"
+            [ngModel]="pRef()"
+            (ngModelChange)="pRef.set($event)"
+          />
+        </div>
+      </div>
+
+      <button
+        class="payment-panel__submit"
+        [disabled]="!panelValid() || submitting()"
+        (click)="submitPaiement()"
+      >
+        @if (submitting()) {
+          <i class="pi pi-spin pi-spinner"></i>
+        }
+        {{ confirmLabel() }}
+      </button>
+    </div>
+  }
+
+</div>

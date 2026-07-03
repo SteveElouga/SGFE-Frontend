@@ -1,0 +1,242 @@
+@use '../../../styles/variables' as *;
+
+:host {
+  display: block;
+
+  // PrimeNG filter chips — override via custom properties so no ::ng-deep needed
+  --p-select-border-radius: 8px;
+  --p-select-border-color: #e2e8f0;
+  --p-select-padding-x: 12px;
+  --p-datepicker-border-radius: 8px;
+  --p-datepicker-border-color: #e2e8f0;
+}
+
+// Topbar action (projected into PageTopbar via ng-content)
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font: 500 12px/1 inherit;
+  color: #475569;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { background: #f8fafc; }
+
+  i { font-size: 13px; }
+}
+
+// ── Page layout ───────────────────────────────────────────────────────────────
+
+.paiements-content {
+  padding: 18px 22px;
+  background: #f1f5f9;
+  min-height: calc(100% - 54px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+// ── Filters bar ───────────────────────────────────────────────────────────────
+
+.filters-bar {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-field {
+  flex: 1;
+
+  input { width: 100%; }
+}
+
+// Chip label + active dot (inside ng-template selectedItem)
+.chip-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+}
+
+.chip-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: $color-primary;
+  flex-shrink: 0;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+
+.table-wrap {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px;
+  color: $color-primary;
+  font-size: 22px;
+}
+
+.paiements-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: #f8fafc;
+    border-bottom: 1.5px solid #e2e8f0;
+  }
+
+  th {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  &__row {
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.1s;
+    background: #fff;
+
+    &.row--even { background: #fafbfc; }
+    &:hover { background: #f0f6ff; }
+  }
+
+  td {
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #0f172a;
+  }
+}
+
+.text-right { text-align: right; }
+
+.col-date { color: #64748b; white-space: nowrap; font-size: 12px; }
+.col-abonne .abonne-nom { font-weight: 600; font-size: 13px; color: #0f172a; }
+.col-facture { font-size: 11px; color: #64748b; }
+.col-montant { font-weight: 700; font-size: 14px; color: #0f172a; }
+.col-operateur { font-size: 12px; color: #64748b; }
+
+.montant--partiel { color: #1a56db; }
+
+.table-empty {
+  text-align: center;
+  padding: 48px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+// ── Mode badges ───────────────────────────────────────────────────────────────
+
+.mode-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: 1px solid;
+
+  &--especes      { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
+  &--mobile_money { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+  &--cheque       { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
+  &--virement     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+}
+
+// ── Statut badges ─────────────────────────────────────────────────────────────
+
+.statut-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  border: 1px solid;
+
+  &--solde  { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  &--partiel { background: #fffbeb; border-color: #fde68a; color: #b45309; }
+  &--autre  { background: #f8fafc; border-color: #e2e8f0; color: #64748b; }
+}
+
+// ── Pagination footer ─────────────────────────────────────────────────────────
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.pagination-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s, border-color 0.1s;
+
+  &:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: $color-primary;
+    color: $color-primary;
+  }
+
+  &--active {
+    background: $color-primary;
+    border-color: $color-primary;
+    color: #fff;
+
+    &:hover { background: $color-primary; color: #fff; }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  i { font-size: 11px; }
+}

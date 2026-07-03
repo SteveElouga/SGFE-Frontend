@@ -1,0 +1,121 @@
+<app-page-topbar [title]="'IMPAYES.TITLE' | translate" [subtitle]="subtitle()" />
+
+<div class="impayes-content">
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="load()" />
+  }
+
+  <!-- Stats bar -->
+  @if (!loading() && impayes().length > 0) {
+    <div class="stats-bar">
+      <div class="stats-bar__item">
+        <span class="stats-bar__label">{{ 'IMPAYES.TOTAL_DU' | translate }}</span>
+        <span class="stats-bar__value stats-bar__value--red">{{ formatFCFA(totalDu()) }}</span>
+      </div>
+      <div class="stats-bar__item stats-bar__item--sep">
+        <span class="stats-bar__label">{{ 'IMPAYES.NB_IMPAYES' | translate }}</span>
+        <span class="stats-bar__value">{{ impayesFiltres().length }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <p-select
+      [options]="etapeOptions()"
+      [ngModel]="filtreEtape()"
+      (ngModelChange)="onEtapeChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="filters-bar__select"
+    />
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    @if (loading()) {
+      <div class="table-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    } @else {
+      <table class="impayes-table">
+        <thead>
+          <tr>
+            <th>{{ 'IMPAYES.COL_ABONNE' | translate }}</th>
+            <th>{{ 'IMPAYES.COL_FACTURE' | translate }}</th>
+            <th class="text-right">{{ 'IMPAYES.COL_SOLDE' | translate }}</th>
+            <th>{{ 'IMPAYES.COL_ETAPE' | translate }}</th>
+            <th>{{ 'IMPAYES.COL_DEPASSEMENT' | translate }}</th>
+            <th>{{ 'IMPAYES.COL_ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of paginatedImpayes(); track row.factureId) {
+            <tr class="impayes-table__row">
+              <td class="col-abonne">{{ row.abonneId ?? '…' }}</td>
+              <td class="col-facture">
+                <span class="facture-link" (click)="voirFacture(row.factureId)">
+                  {{ row.factureId | slice:0:12 }}…
+                </span>
+              </td>
+              <td class="col-solde text-right">{{ formatFCFA(row.soldeRestant) }}</td>
+              <td>
+                @if (row.etapeActuelle !== null) {
+                  <span class="etape-badge {{ etapeClass(row.etapeActuelle) }}">
+                    {{ 'IMPAYES.ETAPE.' + row.etapeActuelle | translate }}
+                  </span>
+                } @else {
+                  <span class="etape-badge etape-badge--unknown">—</span>
+                }
+              </td>
+              <td class="col-date">{{ formatDate(row.dateDepassement) }}</td>
+              <td>
+                <button class="btn-voir" (click)="voirFacture(row.factureId)">
+                  {{ 'IMPAYES.BTN_VOIR' | translate }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="table-empty">{{ 'IMPAYES.EMPTY' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Pagination footer -->
+      @if (totalCount() > 0) {
+        <div class="table-footer">
+          <span class="pagination-info">
+            {{ 'IMPAYES.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: totalCount() } }}
+          </span>
+          <div class="pagination-btns">
+            <button
+              class="page-btn"
+              [disabled]="page() === 0"
+              (click)="goPage(page() - 1)"
+              aria-label="Page précédente"
+            >
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            @for (p of visiblePages(); track p) {
+              <button
+                class="page-btn"
+                [class.page-btn--active]="p === page()"
+                (click)="goPage(p)"
+              >{{ p + 1 }}</button>
+            }
+            <button
+              class="page-btn"
+              [disabled]="page() >= pageCount() - 1"
+              (click)="goPage(page() + 1)"
+              aria-label="Page suivante"
+            >
+              <i class="pi pi-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </div>
+
+</div>
