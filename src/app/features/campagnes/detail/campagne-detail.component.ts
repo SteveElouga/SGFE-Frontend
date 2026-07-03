@@ -17,6 +17,7 @@ import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
+import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import {
   Campagne,
@@ -47,6 +48,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
 })
 export class CampagneDetailComponent implements OnInit {
   private readonly service = inject(CampagnesService);
+  private readonly abonnesService = inject(AbonnesService);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
@@ -65,7 +67,9 @@ export class CampagneDetailComponent implements OnInit {
 
   // ── Filtres relevés ────────────────────────────────────────────────────────
   readonly filtreReleveStatut = signal('TOUS');
-  readonly filtreQuartier = signal('TOUS');
+  readonly filtreQuartier = signal<string | null>(null);
+  // abonneId → quartier, populated after load
+  readonly abonnesMap = signal<Map<string, string>>(new Map());
 
   readonly periode = computed(() => {
     const c = this.campagne();
@@ -91,22 +95,10 @@ export class CampagneDetailComponent implements OnInit {
     };
   });
 
-  readonly quartiersDisponibles = computed(() => {
-    const all = this.releves()
-      .map((r) => r.abonne?.quartier)
-      .filter((q): q is string => !!q);
-    return [...new Set(all)].sort((a, b) => a.localeCompare(b));
-  });
-
   readonly agentsLabel = computed(() => {
     const agents = this.campagne()?.agents;
     return agents?.length ? agents.map((a) => a.username).join(' · ') : null;
   });
-
-  readonly quartierOptions = computed(() => [
-    { label: this.translate.instant('CAMPAGNES.FILTRE_QUARTIER'), value: 'TOUS' },
-    ...this.quartiersDisponibles().map((q) => ({ label: q, value: q })),
-  ]);
 
   readonly statutReleveOptions = computed(() => [
     { label: this.translate.instant('CAMPAGNES.FILTRE_STATUT_RELEVE'), value: 'TOUS' },
@@ -116,12 +108,30 @@ export class CampagneDetailComponent implements OnInit {
     { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.A_RELEVER'), value: 'A_RELEVER' },
   ]);
 
+  readonly quartiersDisponibles = computed(() => {
+    const map = this.abonnesMap();
+    const releves = this.releves();
+    const set = new Set<string>();
+    releves.forEach((r) => {
+      const q = map.get(r.abonneId);
+      if (q) set.add(q);
+    });
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('CAMPAGNES.FILTRE_QUARTIER', {}, lang), value: null },
+      ...[...set].sort((a, b) => a.localeCompare(b, 'fr')).map((q) => ({ label: q, value: q })),
+    ];
+  });
+
   readonly relevesFiltres = computed(() => {
     let list = this.releves();
     const statut = this.filtreReleveStatut();
-    const quartier = this.filtreQuartier();
     if (statut !== 'TOUS') list = list.filter((r) => r.statut === statut);
-    if (quartier !== 'TOUS') list = list.filter((r) => r.abonne?.quartier === quartier);
+    const quartier = this.filtreQuartier();
+    if (quartier) {
+      const map = this.abonnesMap();
+      list = list.filter((r) => map.get(r.abonneId) === quartier);
+    }
     return list;
   });
 
@@ -157,15 +167,31 @@ export class CampagneDetailComponent implements OnInit {
         this.service.getProgression(this.campagneId),
         this.service.getReleves(this.campagneId),
       ]);
-      this.campagne.set(campagneResult.data!.campagne as Campagne);
+      this.campagne.set(campagneResult.data!.campagne);
       this.progression.set(progression);
       this.releves.set(releves);
+      this.loadAbonnesMap();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private loadAbonnesMap(): void {
+    this.abonnesService
+      .getAbonnesActifs()
+      .then((entries) => {
+        const map = new Map<string, string>();
+        entries.forEach((e) => {
+          if (e.quartier) map.set(e.id, e.quartier);
+        });
+        this.abonnesMap.set(map);
+      })
+      .catch(() => {
+        // non-critical — filter simply won't populate
+      });
   }
 
   async cloturer(): Promise<void> {

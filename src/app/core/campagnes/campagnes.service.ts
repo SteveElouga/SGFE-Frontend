@@ -40,6 +40,17 @@ export class CampagnesService {
     });
   }
 
+  async getCampagne(campagneId: string): Promise<Campagne> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ campagne: Campagne }>({
+        query: GET_CAMPAGNE,
+        variables: { campagneId },
+        fetchPolicy: 'cache-first',
+      }),
+    );
+    return result.data!.campagne;
+  }
+
   async getReleves(campagneId: string): Promise<Releve[]> {
     const result = await firstValueFrom(
       this.apollo.query<{ releves: Releve[] }>({

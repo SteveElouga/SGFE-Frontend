@@ -114,13 +114,15 @@
       <div class="releves-section__header">
         <h2 class="releves-section__title">{{ 'CAMPAGNES.RELEVES_TITLE' | translate }}</h2>
         <div class="releves-section__filters">
-          <p-select
-            [options]="quartierOptions()"
-            [ngModel]="filtreQuartier()"
-            (ngModelChange)="filtreQuartier.set($event)"
-            optionLabel="label"
-            optionValue="value"
-          />
+          @if (quartiersDisponibles().length > 1) {
+            <p-select
+              [options]="quartiersDisponibles()"
+              [ngModel]="filtreQuartier()"
+              (ngModelChange)="filtreQuartier.set($event)"
+              optionLabel="label"
+              optionValue="value"
+            />
+          }
           <p-select
             [options]="statutReleveOptions()"
             [ngModel]="filtreReleveStatut()"
@@ -149,17 +151,9 @@
               @let isARelever = r.statut === 'A_RELEVER';
               <tr [class.releves-table__row--muted]="isARelever">
                 <td class="col-abonne" [class.col-abonne--muted]="isARelever">
-                  @if (r.abonne) {
-                    {{ r.abonne.nom }} {{ r.abonne.prenom }}
-                  } @else {
-                    <span class="id-fallback">{{ r.abonneId | slice:0:8 }}…</span>
-                  }
+                  <span class="id-fallback">{{ r.abonneId | slice:0:8 }}…</span>
                 </td>
-                <td class="col-meta">
-                  @if (r.abonne) {
-                    {{ r.abonne.quartier }}&thinsp;·&thinsp;{{ r.abonne.camp }}
-                  } @else { — }
-                </td>
+                <td class="col-meta">{{ abonnesMap().get(r.abonneId) ?? '—' }}</td>
                 <td class="col-num col-anc-index">{{ r.ancienIndex | number:'1.0-0' }}</td>
                 <td class="col-num col-nouv-index">
                   @if (isReleve) {

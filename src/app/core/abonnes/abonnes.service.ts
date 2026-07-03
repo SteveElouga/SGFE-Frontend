@@ -105,6 +105,19 @@ export class AbonnesService {
       });
   }
 
+  async getAbonnesActifs(): Promise<Array<{ id: string; quartier: string | null }>> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ abonnesActifs: Array<{ id: string; compteur?: { quartier: string } | null }> }>({
+        query: GET_ABONNES_ACTIFS,
+        fetchPolicy: 'cache-first',
+      }),
+    );
+    return (result.data?.abonnesActifs ?? []).map((a) => ({
+      id: a.id,
+      quartier: a.compteur?.quartier ?? null,
+    }));
+  }
+
   watchAbonnes(statut?: StatutAbonne): QueryRef<{ abonnes: Abonne[] }> {
     return this.apollo.watchQuery<{ abonnes: Abonne[] }>({
       query: GET_ABONNES,

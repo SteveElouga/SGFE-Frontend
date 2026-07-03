@@ -14,20 +14,15 @@ export interface Campagne {
   datePlanifiee: string;
   dateCreation: string;
   dateCloture: string;
+  numeroMobileMoney?: string;
+  genererFacturesAuto?: boolean;
+  envoyerWhatsappAuto?: boolean;
   agents?: CampagneAgent[];
-}
-
-export interface ReleveAbonne {
-  nom: string;
-  prenom: string;
-  quartier: string;
-  camp: number;
 }
 
 export interface Releve {
   releveId: string;
   abonneId: string;
-  abonne?: ReleveAbonne;
   ancienIndex: number;
   nouveauIndex: number;
   consommation: number;
@@ -55,6 +50,9 @@ export interface CreateCampagneInput {
   periodeMois: number;
   periodeAnnee: number;
   datePlanifiee: string;
+  numeroMobileMoney?: string;
+  genererFacturesAuto?: boolean;
+  envoyerWhatsappAuto?: boolean;
   filtreZones?: string[]; // pending backend: CreateCampagneInput.filtreZones
 }
 

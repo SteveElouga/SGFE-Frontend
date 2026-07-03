@@ -105,8 +105,20 @@ export class CampagneFormComponent implements OnInit {
   readonly selectionMode = signal<'TOUS' | 'FILTRE'>('TOUS');
 
   // ── Options ─────────────────────────────────────────────────────────────────
-  readonly genererFactures = signal(true);
-  readonly envoyerWhatsApp = signal(true);
+  readonly genererFacturesAuto = signal(true);
+  readonly envoyerWhatsappAuto = signal(true);
+  readonly formMobileMoney = signal('');
+
+  // Mobile Money : 9 chiffres exactement ou vide
+  readonly mobileMoneyValid = computed(() => {
+    const v = this.formMobileMoney().trim();
+    return v === '' || /^\d{9}$/.test(v);
+  });
+
+  // envoyerWhatsappAuto forcé à false si genererFacturesAuto est off
+  readonly envoyerWhatsappEffectif = computed(() =>
+    this.genererFacturesAuto() ? this.envoyerWhatsappAuto() : false,
+  );
 
   // ── Submit ──────────────────────────────────────────────────────────────────
   readonly submitting = signal(false);
@@ -116,7 +128,7 @@ export class CampagneFormComponent implements OnInit {
     const dateOk = this.formDatePlanifiee().length > 0;
     const abonnesOk =
       this.selectionMode() === 'TOUS' || this.selectedZones().size > 0;
-    return nomOk && dateOk && abonnesOk;
+    return nomOk && dateOk && abonnesOk && this.mobileMoneyValid();
   });
 
   readonly submitLabel = computed(() => {
@@ -195,7 +207,6 @@ export class CampagneFormComponent implements OnInit {
     this.submitting.set(true);
     try {
       const date = new Date(this.formDatePlanifiee());
-      // filtreZones: [...this.selectedZones()] — pending backend: CreateCampagneInput.filtreZones
       const campagne = await this.service.creerCampagne({
         nom: this.formNom().trim(),
         periodeMois: date.getMonth() + 1,
