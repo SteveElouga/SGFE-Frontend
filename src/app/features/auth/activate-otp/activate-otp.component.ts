@@ -12,9 +12,8 @@ import { AuthPhoneInputComponent } from '../../../shared/components/auth-phone-i
 import { AuthOtpCodeInputComponent } from '../../../shared/components/auth-otp-code-input/auth-otp-code-input.component';
 import { AuthOtpResendComponent } from '../../../shared/components/auth-otp-resend/auth-otp-resend.component';
 import { AuthPasswordPairComponent } from '../../../shared/components/auth-password-pair/auth-password-pair.component';
-import { AuthStepsCardComponent, StepDef } from '../../../shared/components/auth-steps-card/auth-steps-card.component';
 import { createCooldown } from '../../../shared/utils/otp.utils';
-import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
+import { isValidCameroonPhone, maskPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
 
 const OTP_VALIDITY_SECONDS = 600; // 10 minutes
 
@@ -33,7 +32,6 @@ const OTP_VALIDITY_SECONDS = 600; // 10 minutes
     AuthOtpCodeInputComponent,
     AuthOtpResendComponent,
     AuthPasswordPairComponent,
-    AuthStepsCardComponent,
   ],
   templateUrl: './activate-otp.component.html',
   styleUrl: './activate-otp.component.scss',
@@ -65,19 +63,16 @@ export class ActivateOtpComponent implements OnDestroy {
   );
 
   readonly normalizedPhone = computed(() => normalizePhone(this.phone().trim()));
+  readonly maskedPhone = computed(() => maskPhone(this.normalizedPhone()));
 
-  readonly stepsForCard: StepDef[] = [
-    { label: "Compte créé par l'administrateur", done: true },
-    { label: 'Définir votre mot de passe' },
-    { label: "Accéder à l'application" },
-  ];
-
-  readonly currentStep = computed(() => (this.submitted() ? 3 : 2));
+  hasPhoneParam = false;
 
   constructor(route: ActivatedRoute) {
     const phone = route.snapshot.queryParamMap.get('phone');
-    // Strip +237 prefix if the query param already contains it
-    if (phone) this.phone.set(toLocalPhone(phone));
+    if (phone) {
+      this.hasPhoneParam = true;
+      this.phone.set(toLocalPhone(phone));
+    }
     // OTP was sent by the backend when the admin created the account
     this.cooldown.startCooldown();
   }
@@ -113,13 +108,15 @@ export class ActivateOtpComponent implements OnDestroy {
       this.submitted.set(true);
     } catch (error: unknown) {
       const { code, message } = extractGqlError(error);
-      this.errorMessage.set(
-        code === 'UNAUTHENTICATED'
-          ? (message || 'Code incorrect ou expiré. Vérifiez le code reçu par WhatsApp.')
-          : code === 'SERVICE_UNAVAILABLE'
-          ? 'Erreur temporaire. Réessayez dans quelques instants.'
-          : (message || 'Une erreur est survenue. Veuillez réessayer.'),
-      );
+      let errMsg: string;
+      if (code === 'UNAUTHENTICATED') {
+        errMsg = message || 'Code incorrect ou expiré. Vérifiez le code reçu par WhatsApp.';
+      } else if (code === 'SERVICE_UNAVAILABLE') {
+        errMsg = 'Erreur temporaire. Réessayez dans quelques instants.';
+      } else {
+        errMsg = message || 'Une erreur est survenue. Veuillez réessayer.';
+      }
+      this.errorMessage.set(errMsg);
     } finally {
       this.loading.set(false);
     }

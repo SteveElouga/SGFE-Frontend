@@ -31,8 +31,21 @@ const TECHNICAL_MESSAGE_PATTERNS = [
   /^Error:/i,
 ];
 
+// Le backend Django sérialise parfois ses ValidationError sous forme de liste
+// Python : "['Message lisible.']". On déroule ce wrapper pour n'afficher que le
+// message. Gère aussi les listes à plusieurs éléments (jointes par « · »).
+function unwrapDjangoList(raw: string): string {
+  const trimmed = raw.trim();
+  if (!/^\[.*\]$/.test(trimmed)) return raw;
+  const inner = trimmed.slice(1, -1);
+  const parts = inner.match(/(['"])(.*?)\1/g);
+  if (!parts || parts.length === 0) return raw;
+  return parts.map((p) => p.slice(1, -1)).join(' · ');
+}
+
 function sanitizeGqlMessage(raw: string): string {
-  return TECHNICAL_MESSAGE_PATTERNS.some((p) => p.test(raw)) ? '' : raw;
+  const unwrapped = unwrapDjangoList(raw);
+  return TECHNICAL_MESSAGE_PATTERNS.some((p) => p.test(unwrapped)) ? '' : unwrapped;
 }
 
 export function extractGqlError(error: unknown): { code: string; message: string } {

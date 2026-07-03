@@ -139,11 +139,12 @@
   max-width: 380px;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 18px;
 
   h2 {
-    font-size: 26px;
+    font-size: 32px;
     font-weight: 700;
+    line-height: 1.2;
     margin: 0 0 $spacing-xs;
     color: #0f172a;
   }
@@ -215,5 +216,10 @@
   &--comptable {
     background: #faf5ff;
     color: #7c3aed;
+  }
+
+  &--superviseur {
+    background: #ecfeff;
+    color: #0e7490;
   }
 }
