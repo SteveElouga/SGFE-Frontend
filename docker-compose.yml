@@ -1,0 +1,35 @@
+# Stack complète pour développement local et staging
+# Production : utiliser docker-compose.prod.yml
+
+services:
+  frontend:
+    build:
+      context: .
+      target: runtime
+    image: ghcr.io/steveelouga/sgfe-frontend:staging-latest
+    ports:
+      - "80:80"
+    environment:
+      - API_GATEWAY_HOST=api-gateway
+      - API_GATEWAY_PORT=8080
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # À remplacer par le service réel du backend AquaBill
+  api-gateway:
+    image: placeholder/api-gateway:latest
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

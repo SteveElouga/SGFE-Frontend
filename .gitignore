@@ -44,12 +44,12 @@ __screenshots__/
 Thumbs.db
 
 # Playwright
-node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+e2e/.auth/
 
 # Documentation (design assets — jamais commités)
 /docs/
