@@ -120,8 +120,8 @@ export const routes: Routes = [
           {
             path: ':id',
             loadComponent: () =>
-              import('./features/utilisateurs/utilisateur-form.component').then(
-                (m) => m.UtilisateurFormComponent,
+              import('./features/utilisateurs/utilisateur-edit.component').then(
+                (m) => m.UtilisateurEditComponent,
               ),
           },
         ],

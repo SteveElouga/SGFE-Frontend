@@ -1,0 +1,532 @@
+@use '../../../styles/variables' as *;
+
+:host { display: block; }
+
+// ── Topbar ────────────────────────────────────────────────────────────────────
+
+.uedit-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 54px;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.2;
+  }
+
+  &__crumb {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 1px;
+  }
+}
+
+.uedit-back {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+
+  &:hover { background: #f1f5f9; color: $color-primary; }
+}
+
+.uedit-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 4px 12px;
+
+  &__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $color-accent;
+  }
+
+  &--off {
+    color: #94a3b8;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+
+    .uedit-status-pill__dot { background: #cbd5e1; }
+  }
+}
+
+// ── Contenu ───────────────────────────────────────────────────────────────────
+
+.uedit-content {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.uedit-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+
+  &__title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 14px;
+
+    &--tight { margin-bottom: 3px; }
+  }
+}
+
+// ── Carte identité ────────────────────────────────────────────────────────────
+
+.uedit-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  &__info { flex: 1; min-width: 0; }
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  &__meta {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 3px;
+  }
+}
+
+.uedit-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+
+  &.role-admin { background: linear-gradient(135deg, #1a56db, #1d4ed8); }
+  &.role-agent { background: linear-gradient(135deg, #0e9f6e, #15803d); }
+  &.role-comptable { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+  &.role-superviseur { background: linear-gradient(135deg, #0891b2, #0e7490); }
+}
+
+.uedit-role-badge {
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 3px 10px;
+  background: #eff6ff;
+  color: $color-primary;
+
+  &.role-admin { background: #eff6ff; color: #1a56db; }
+  &.role-agent { background: #f0fdf4; color: #0e9f6e; }
+  &.role-comptable { background: #faf5ff; color: #7c3aed; }
+  &.role-superviseur { background: #ecfeff; color: #0e7490; }
+}
+
+// ── Grille de champs ──────────────────────────────────────────────────────────
+
+.uedit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.uedit-field {
+  display: flex;
+  flex-direction: column;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+
+  &__note {
+    font-size: 10px;
+    color: #94a3b8;
+    margin-top: 4px;
+  }
+
+  input[pInputText] { width: 100%; }
+}
+
+// Username en lecture seule : vrai pInputText désactivé + cadenas en overlay
+// (rendu pixel-identique aux autres champs, style désactivé = non modifiable)
+.uedit-readonly {
+  position: relative;
+
+  input[pInputText] {
+    width: 100%;
+    padding-right: 34px;
+  }
+
+  &__lock {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
+
+// Champ téléphone avec préfixe
+.uedit-phone {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.12s, box-shadow 0.12s;
+
+  &__prefix {
+    padding: 0 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #64748b;
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  input[pInputText] {
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  &--valid { border-color: #bbf7d0; }
+  &--invalid { border-color: #fecaca; }
+}
+
+// ── Bandeau canal d'activation ────────────────────────────────────────────────
+
+.uedit-channel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: $color-accent;
+
+  &--email {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: $color-primary;
+  }
+
+  svg { flex-shrink: 0; }
+
+  &__text { min-width: 0; }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__note {
+    font-size: 11px;
+    color: #64748b;
+    margin-left: 4px;
+  }
+}
+
+// ── Lignes statut / sécurité ──────────────────────────────────────────────────
+
+.uedit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  &__text {
+    min-width: 0;
+
+    &--icon {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+  }
+
+  &__desc {
+    font-size: 11px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0;
+
+    strong { color: #475569; font-weight: 600; }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+}
+
+.uedit-shield {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+
+.uedit-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  &__note {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+}
+
+.uedit-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 12px;
+  color: #dc2626;
+}
+
+// ── Boutons ───────────────────────────────────────────────────────────────────
+
+.uedit-btn {
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: opacity 0.15s, background 0.15s;
+  white-space: nowrap;
+
+  &:disabled { cursor: not-allowed; }
+  &--disabled { opacity: 0.5; }
+
+  &--primary {
+    background: linear-gradient(135deg, #1a56db, #1d4ed8);
+    border: none;
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(26, 86, 219, 0.3);
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+    &:disabled { opacity: 0.5; box-shadow: none; }
+  }
+
+  &--ghost {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+
+    &:hover:not(:disabled) { background: #f8fafc; }
+  }
+
+  &--outline {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+
+    &:hover:not(:disabled) { background: #f8fafc; }
+  }
+
+  &--outline-primary {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: $color-primary;
+
+    &:hover:not(:disabled) { background: #eff6ff; border-color: #bfdbfe; }
+  }
+
+  &--success {
+    background: linear-gradient(135deg, #047857, #065f46);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
+
+  &--danger {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    border: none;
+    color: #fff;
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
+
+  &--danger-soft {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+
+    &:hover:not(:disabled) { background: #fee2e2; }
+  }
+}
+
+// ── Dialog désactivation ──────────────────────────────────────────────────────
+
+.udeact-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+
+.udeact-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.udeact-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+// ── Skeleton / introuvable ────────────────────────────────────────────────────
+
+.uedit-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: uedit-pulse 1.4s ease infinite;
+
+  &__card {
+    background: #eef2f7;
+    border-radius: 12px;
+    height: 160px;
+
+    &--sm { height: 78px; }
+  }
+}
+
+@keyframes uedit-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+
+.uedit-notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 0;
+  color: #94a3b8;
+  font-size: 14px;
+
+  &__link {
+    color: $color-primary;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}

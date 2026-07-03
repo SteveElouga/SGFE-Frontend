@@ -1,7 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
-import { CREATE_USER, DEACTIVATE_USER, UPDATE_USER } from '../../graphql/mutations/users.mutations';
+import {
+  CREATE_USER,
+  DEACTIVATE_USER,
+  REACTIVATE_USER,
+  RESEND_USER_ACTIVATION,
+  UPDATE_USER,
+} from '../../graphql/mutations/users.mutations';
 import { GET_USERS } from '../../graphql/queries/users.queries';
 import { Role, User } from '../../shared/models/user.model';
 
@@ -63,6 +69,32 @@ export class UsersService {
       }),
     );
     const user = result.data?.deactivateUser;
+    if (!user) throw new Error('Réponse invalide du serveur');
+    return user;
+  }
+
+  // PENDING BACKEND: cf. docs/BESOINS_API_utilisateurs.md
+  async reactivateUser(id: string): Promise<User> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ reactivateUser: User }>({
+        mutation: REACTIVATE_USER,
+        variables: { id },
+      }),
+    );
+    const user = result.data?.reactivateUser;
+    if (!user) throw new Error('Réponse invalide du serveur');
+    return user;
+  }
+
+  // PENDING BACKEND: re-déclenche le flux d'activation selon le rôle
+  async resendUserActivation(id: string): Promise<User> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ resendUserActivation: User }>({
+        mutation: RESEND_USER_ACTIVATION,
+        variables: { id },
+      }),
+    );
+    const user = result.data?.resendUserActivation;
     if (!user) throw new Error('Réponse invalide du serveur');
     return user;
   }

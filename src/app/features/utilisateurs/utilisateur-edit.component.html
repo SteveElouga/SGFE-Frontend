@@ -1,0 +1,296 @@
+<p-toast />
+
+<!-- ── Topbar ── -->
+<header class="uedit-topbar">
+  <div class="uedit-topbar__left">
+    <button type="button" class="uedit-back" (click)="goBack()" [attr.aria-label]="'UTILISATEURS.EDIT.BACK' | translate">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <path d="M8.5 3l-4 4 4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <div>
+      <div class="uedit-topbar__title">{{ 'UTILISATEURS.EDIT.TITLE' | translate }}</div>
+      @if (user()) {
+        <div class="uedit-topbar__crumb">{{ 'UTILISATEURS.EDIT.BREADCRUMB' | translate : { username: user()!.username } }}</div>
+      }
+    </div>
+  </div>
+  @if (user()) {
+    <span class="uedit-status-pill" [class.uedit-status-pill--off]="!user()!.isActive">
+      <span class="uedit-status-pill__dot"></span>
+      {{ (user()!.isActive ? 'UTILISATEURS.EDIT.ACCOUNT_ACTIVE' : 'UTILISATEURS.EDIT.ACCOUNT_INACTIVE') | translate }}
+    </span>
+  }
+</header>
+
+<div class="uedit-content">
+
+  <!-- Chargement -->
+  @if (loading()) {
+    <div class="uedit-skeleton">
+      <div class="uedit-skeleton__card uedit-skeleton__card--sm"></div>
+      <div class="uedit-skeleton__card"></div>
+      <div class="uedit-skeleton__card uedit-skeleton__card--sm"></div>
+    </div>
+  }
+
+  <!-- Introuvable -->
+  @if (!loading() && notFound()) {
+    <div class="uedit-notfound">
+      <span>{{ 'UTILISATEURS.NO_RESULT' | translate }}</span>
+      <a routerLink="/utilisateurs" class="uedit-notfound__link">{{ 'UTILISATEURS.EDIT.BACK' | translate }}</a>
+    </div>
+  }
+
+  <!-- Données -->
+  @if (!loading() && user(); as u) {
+
+    <!-- ── Carte identité ── -->
+    <div class="uedit-card uedit-identity">
+      <div class="uedit-avatar {{ roleClass() }}">{{ initials() }}</div>
+      <div class="uedit-identity__info">
+        <div class="uedit-identity__name-row">
+          <span class="uedit-identity__name">{{ u.username }}</span>
+          <span class="uedit-role-badge {{ roleClass() }}">{{ 'UTILISATEURS.ROLES.' + u.role | translate }}</span>
+        </div>
+        <div class="uedit-identity__meta">
+          &#64;{{ u.username }} · {{ 'UTILISATEURS.EDIT.CREATED_ON' | translate : { date: (u.createdAt | date:'dd/MM/yyyy') } }}
+        </div>
+      </div>
+      <button
+        type="button"
+        class="uedit-btn uedit-btn--outline-primary"
+        [class.uedit-btn--disabled]="!activationReady"
+        [disabled]="!activationReady || resendLoading()"
+        [appTooltip]="activationReady ? '' : ('UTILISATEURS.EDIT.COMING_SOON' | translate)"
+        (click)="resendActivation()"
+      >
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M10 6V4a3 3 0 00-6 0v2M3.2 6h7.6v5.3H3.2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+        </svg>
+        {{ 'UTILISATEURS.EDIT.RESET_PASSWORD' | translate }}
+      </button>
+    </div>
+
+    <!-- ── Informations du compte ── -->
+    <div class="uedit-card">
+      <div class="uedit-card__title">{{ 'UTILISATEURS.EDIT.SECTION_INFOS' | translate }}</div>
+
+      <div class="uedit-grid">
+        <!-- Username (readonly) -->
+        <div class="uedit-field">
+          <label class="uedit-field__label" for="uedit-username">{{ 'UTILISATEURS.EDIT.USERNAME' | translate }}</label>
+          <div class="uedit-readonly">
+            <input
+              id="uedit-username"
+              type="text"
+              pInputText
+              [fluid]="true"
+              [value]="u.username"
+              disabled
+              readonly
+            />
+            <svg class="uedit-readonly__lock" width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M10 6V4.2a3 3 0 00-6 0V6M3.2 6h7.6v5.2H3.2z" stroke="#cbd5e1" stroke-width="1.3" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="uedit-field__note">{{ 'UTILISATEURS.EDIT.USERNAME_NOTE' | translate }}</span>
+        </div>
+
+        <!-- Email -->
+        <div class="uedit-field">
+          <label class="uedit-field__label" for="uedit-email">{{ 'UTILISATEURS.EDIT.EMAIL' | translate }}</label>
+          <input
+            id="uedit-email"
+            type="email"
+            pInputText
+            [fluid]="true"
+            autocomplete="email"
+            placeholder="nom@regie.ci"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
+            name="email"
+          />
+          <span class="uedit-field__note">{{ 'UTILISATEURS.EDIT.EMAIL_NOTE' | translate }}</span>
+        </div>
+
+        <!-- Téléphone -->
+        <div class="uedit-field">
+          <label class="uedit-field__label" for="uedit-phone">{{ 'UTILISATEURS.EDIT.PHONE' | translate }}</label>
+          <div
+            class="uedit-phone"
+            [class.uedit-phone--valid]="isPhoneValid()"
+            [class.uedit-phone--invalid]="phone().trim().length > 0 && !isPhoneValid()"
+          >
+            <span class="uedit-phone__prefix">+237</span>
+            <input
+              id="uedit-phone"
+              type="tel"
+              pInputText
+              [fluid]="true"
+              autocomplete="tel"
+              inputmode="numeric"
+              maxlength="9"
+              placeholder="612345678"
+              [ngModel]="phone()"
+              (ngModelChange)="phone.set($event)"
+              name="phone"
+            />
+          </div>
+          <span class="uedit-field__note">{{ 'UTILISATEURS.EDIT.PHONE_NOTE' | translate }}</span>
+        </div>
+
+        <!-- Rôle -->
+        <div class="uedit-field">
+          <label class="uedit-field__label" for="uedit-role">{{ 'UTILISATEURS.EDIT.ROLE' | translate }}</label>
+          <p-select
+            inputId="uedit-role"
+            [options]="roleOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [fluid]="true"
+            [ngModel]="role()"
+            (ngModelChange)="role.set($event)"
+            name="role"
+          />
+          <span class="uedit-field__note">{{ 'UTILISATEURS.EDIT.ROLE_NOTE' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Bandeau canal d'activation -->
+      <div class="uedit-channel" [class.uedit-channel--email]="channelIsEmail()">
+        @if (channelIsEmail()) {
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+            <path d="M2 4l6 4.5L14 4" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+        } @else {
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1.5a6.5 6.5 0 00-5.6 9.8L1.5 14.5l3.3-.9A6.5 6.5 0 108 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+        }
+        <div class="uedit-channel__text">
+          <span class="uedit-channel__label">
+            {{ (channelIsEmail() ? 'UTILISATEURS.EDIT.CHANNEL_EMAIL' : 'UTILISATEURS.EDIT.CHANNEL_WHATSAPP') | translate }}
+          </span>
+          <span class="uedit-channel__note">{{ 'UTILISATEURS.EDIT.CHANNEL_NOTE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Statut du compte ── -->
+    <div class="uedit-card uedit-row">
+      <div class="uedit-row__text">
+        <div class="uedit-card__title uedit-card__title--tight">{{ 'UTILISATEURS.EDIT.SECTION_STATUT' | translate }}</div>
+        <p class="uedit-row__desc">{{ 'UTILISATEURS.EDIT.STATUT_DESC' | translate }}</p>
+      </div>
+      <div class="uedit-row__actions">
+        @if (u.isActive) {
+          <button
+            type="button"
+            class="uedit-btn uedit-btn--danger-soft"
+            [disabled]="statutLoading()"
+            (click)="confirmDeactivate()"
+          >{{ 'UTILISATEURS.DESACTIVER' | translate }}</button>
+        } @else {
+          <button
+            type="button"
+            class="uedit-btn uedit-btn--success"
+            [class.uedit-btn--disabled]="!activationReady"
+            [disabled]="!activationReady || statutLoading()"
+            [appTooltip]="activationReady ? '' : ('UTILISATEURS.EDIT.COMING_SOON' | translate)"
+            (click)="reactivate()"
+          >{{ 'UTILISATEURS.EDIT.REACTIVER' | translate }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- ── Sécurité & session ── -->
+    <div class="uedit-card uedit-row">
+      <div class="uedit-row__text uedit-row__text--icon">
+        <span class="uedit-shield">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1.5l5 2v3.5c0 3-2.2 5-5 6-2.8-1-5-3-5-6V3.5l5-2z" stroke="#1a56db" stroke-width="1.3" stroke-linejoin="round"/>
+            <path d="M8 5.5V8l1.6 1" stroke="#1a56db" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <div>
+          <div class="uedit-card__title uedit-card__title--tight">{{ 'UTILISATEURS.EDIT.SECTION_SECURITY' | translate }}</div>
+          <p class="uedit-row__desc">{{ 'UTILISATEURS.EDIT.SECURITY_DESC' | translate }}</p>
+        </div>
+      </div>
+      <div class="uedit-row__actions">
+        <button
+          type="button"
+          class="uedit-btn uedit-btn--outline"
+          [class.uedit-btn--disabled]="!activationReady"
+          [disabled]="!activationReady || resendLoading()"
+          [appTooltip]="activationReady ? '' : ('UTILISATEURS.EDIT.COMING_SOON' | translate)"
+          (click)="resendActivation()"
+        >{{ 'UTILISATEURS.EDIT.RESEND_ACTIVATION' | translate }}</button>
+      </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    @if (errorMessage()) {
+      <div class="uedit-error">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- ── Barre footer ── -->
+    <div class="uedit-card uedit-footer">
+      <span class="uedit-footer__note">{{ 'UTILISATEURS.EDIT.AUDIT_NOTE' | translate }}</span>
+      <div class="uedit-footer__actions">
+        <button type="button" class="uedit-btn uedit-btn--ghost" (click)="goBack()" [disabled]="saving()">
+          {{ 'UTILISATEURS.EDIT.CANCEL' | translate }}
+        </button>
+        <button type="button" class="uedit-btn uedit-btn--primary" (click)="save()" [disabled]="!canSave()">
+          @if (saving()) {
+            {{ 'UTILISATEURS.EDIT.SAVING' | translate }}
+          } @else {
+            {{ 'UTILISATEURS.EDIT.SAVE' | translate }}
+          }
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- ══ Dialog désactivation ══ -->
+<p-dialog
+  [visible]="deactivateDialogVisible()"
+  (visibleChange)="deactivateDialogVisible.set($event)"
+  [modal]="true"
+  [showHeader]="false"
+  [style]="{ width: '440px' }"
+  [draggable]="false"
+  [closable]="false"
+>
+  <div class="udeact-body">
+    <div class="udeact-header">
+      <div class="udeact-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            stroke="#dc2626" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 9v4M12 17h.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        @if (user(); as u) {
+          <h3 class="udeact-header__title">{{ 'UTILISATEURS.DESACTIVER' | translate }} {{ u.username }} ?</h3>
+        }
+        <p class="udeact-header__desc">{{ 'UTILISATEURS.EDIT.STATUT_DESC' | translate }}</p>
+      </div>
+    </div>
+    <div class="udeact-footer">
+      <button type="button" class="uedit-btn uedit-btn--ghost" (click)="deactivateDialogVisible.set(false)" [disabled]="statutLoading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="button" class="uedit-btn uedit-btn--danger" (click)="doDeactivate()" [disabled]="statutLoading()">
+        {{ 'UTILISATEURS.DESACTIVER' | translate }}
+      </button>
+    </div>
+  </div>
+</p-dialog>
