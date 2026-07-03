@@ -18,9 +18,10 @@ const MIN_PASSWORD_LENGTH = 8;
 
 interface RoleMeta { desc: string; badgeClass: string; }
 const ROLE_META: Record<string, RoleMeta> = {
-  ADMIN:     { desc: 'Accès complet au système',   badgeClass: 'admin' },
-  AGENT:     { desc: 'Relevés terrain (mobile PWA)', badgeClass: 'agent' },
-  COMPTABLE: { desc: 'Facturation & paiements',    badgeClass: 'comptable' },
+  ADMIN:       { desc: 'Accès complet au système',    badgeClass: 'admin' },
+  AGENT:       { desc: 'Relevés terrain (mobile PWA)', badgeClass: 'agent' },
+  COMPTABLE:   { desc: 'Facturation & paiements',     badgeClass: 'comptable' },
+  SUPERVISEUR: { desc: 'Pilotage de ses campagnes',   badgeClass: 'superviseur' },
 };
 
 @Component({

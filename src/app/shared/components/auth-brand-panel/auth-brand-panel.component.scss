@@ -12,7 +12,7 @@
 
   @include desktop {
     display: flex;
-    width: 420px;
+    width: 440px;
     flex-shrink: 0;
   }
 }
@@ -56,9 +56,10 @@
 }
 
 .auth-brand__logo-name {
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 700;
   color: #fff;
+  letter-spacing: -0.4px;
 }
 
 .auth-brand__logo-tagline {

@@ -1,4 +1,56 @@
+@use '../../../../styles/variables' as *;
+
 :host {
   display: block;
   min-height: 100%;
+}
+
+// ── Carte WhatsApp dans le panneau marque ────────────────────────────────────
+
+.otp-brand-card {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  &__desc {
+    font-size: 12px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}
+
+// ── Lien "Retour à la connexion" (absolu, haut-droite du panneau droit) ─────
+
+.otp-screen {
+  position: relative;
+}
+
+.otp-back-link {
+  position: absolute;
+  top: 28px;
+  right: 36px;
+  font-size: 13px;
+  color: #64748b;
+  text-decoration: none;
+
+  span { color: $color-primary; }
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
 }
