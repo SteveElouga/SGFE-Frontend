@@ -179,7 +179,35 @@
       }
     </div>
 
-    <!-- ── 4. Options ─────────────────────────────────────────────────────── -->
+    <!-- ── 4. Mobile Money ───────────────────────────────────────────────── -->
+    <div class="form-section">
+      <div class="form-section__header">
+        <i class="pi pi-mobile"></i>
+        {{ 'CAMPAGNES.FORM.SECTION_MOBILE_MONEY' | translate }}
+      </div>
+      <div class="form-field">
+        <label class="form-field__label" for="mobile-money">
+          {{ 'CAMPAGNES.FORM.MOBILE_MONEY_LABEL' | translate }}
+        </label>
+        <input
+          id="mobile-money"
+          type="tel"
+          pInputText
+          class="form-field__input"
+          [class.form-field__input--error]="formMobileMoney().trim() !== '' && !mobileMoneyValid()"
+          placeholder="658552294"
+          maxlength="9"
+          [ngModel]="formMobileMoney()"
+          (ngModelChange)="formMobileMoney.set($event)"
+        />
+        <span class="form-field__hint">{{ 'CAMPAGNES.FORM.MOBILE_MONEY_HINT' | translate }}</span>
+        @if (formMobileMoney().trim() !== '' && !mobileMoneyValid()) {
+          <span class="form-field__error">{{ 'CAMPAGNES.FORM.MOBILE_MONEY_ERROR' | translate }}</span>
+        }
+      </div>
+    </div>
+
+    <!-- ── 5. Options ─────────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
         <i class="pi pi-cog"></i>
@@ -195,16 +223,16 @@
           <button
             type="button"
             class="toggle"
-            [class.toggle--on]="genererFactures()"
-            (click)="genererFactures.set(!genererFactures())"
-            [attr.aria-pressed]="genererFactures()"
+            [class.toggle--on]="genererFacturesAuto()"
+            (click)="genererFacturesAuto.set(!genererFacturesAuto())"
+            [attr.aria-pressed]="genererFacturesAuto()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_FACTURES' | translate"
           >
             <span class="toggle__thumb"></span>
           </button>
         </div>
 
-        <div class="option-row">
+        <div class="option-row" [class.option-row--disabled]="!genererFacturesAuto()">
           <div class="option-row__content">
             <span class="option-row__label">{{ 'CAMPAGNES.FORM.OPT_WHATSAPP' | translate }}</span>
             <span class="option-row__desc">{{ 'CAMPAGNES.FORM.OPT_WHATSAPP_DESC' | translate }}</span>
@@ -212,9 +240,10 @@
           <button
             type="button"
             class="toggle"
-            [class.toggle--on]="envoyerWhatsApp()"
-            (click)="envoyerWhatsApp.set(!envoyerWhatsApp())"
-            [attr.aria-pressed]="envoyerWhatsApp()"
+            [class.toggle--on]="envoyerWhatsappEffectif()"
+            [disabled]="!genererFacturesAuto()"
+            (click)="envoyerWhatsappAuto.set(!envoyerWhatsappAuto())"
+            [attr.aria-pressed]="envoyerWhatsappEffectif()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_WHATSAPP' | translate"
           >
             <span class="toggle__thumb"></span>

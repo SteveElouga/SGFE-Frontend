@@ -35,12 +35,6 @@ export const GET_RELEVES = gql`
     releves(campagneId: $campagneId) {
       releveId
       abonneId
-      abonne {
-        nom
-        prenom
-        quartier
-        camp
-      }
       ancienIndex
       nouveauIndex
       consommation
