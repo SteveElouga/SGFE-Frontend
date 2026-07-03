@@ -419,6 +419,8 @@
     "WHATSAPP_LINKED_TITLE": "WhatsApp account linked",
     "WHATSAPP_LINKED_DESC": "The session is active. Invoices and notifications are sent automatically.",
     "WHATSAPP_QR_ERROR": "Could not fetch the QR code.",
+    "WHATSAPP_TEST_RECIPIENT": "Test recipient number",
+    "WHATSAPP_TEST_PLACEHOLDER": "+237 6XX XXX XXX",
     "TOKEN_VALIDITE": "Tokenized link validity",
     "DELAI_PAIEMENT": "Payment window",
     "TOKEN_REVOKE": "Revoke all active tokens",
