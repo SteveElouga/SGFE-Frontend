@@ -17,7 +17,10 @@ import { DatePipe, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
+import { CampagnesService } from '../../../core/campagnes/campagnes.service';
+import { FacturesService } from '../../../core/factures/factures.service';
 import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
+import { Facture } from '../../../shared/models/facture.model';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
@@ -44,6 +47,8 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 })
 export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
+  private readonly campagnesService = inject(CampagnesService);
+  private readonly facturesService = inject(FacturesService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
@@ -65,9 +70,48 @@ export class AbonneDetailComponent {
   readonly historiqueLoaded = signal(false);
   readonly historiqueError = signal<string | null>(null);
 
+  // Factures de l'abonné (KPIs + onglets Factures/Conso/Impayés)
+  readonly factures = signal<Facture[]>([]);
+  readonly facturesLoading = signal(false);
+
+  /** Factures triées de la plus récente à la plus ancienne. */
+  readonly facturesTriees = computed(() =>
+    [...this.factures()].sort(
+      (a, b) => new Date(b.dateReleve).getTime() - new Date(a.dateReleve).getTime(),
+    ),
+  );
+  readonly facturesRecentes = computed(() => this.facturesTriees().slice(0, 5));
+  readonly facturesImpayees = computed(() =>
+    this.facturesTriees().filter((f) => f.statut !== 'PAYEE'),
+  );
+  readonly nbFactures = computed(() => this.factures().length);
+
+  /** Conso moyenne sur les 6 dernières factures (m³), arrondie. */
+  readonly consoMoyenne = computed(() => {
+    const list = this.facturesTriees().slice(0, 6);
+    if (list.length === 0) return null;
+    const total = list.reduce((sum, f) => sum + (f.consommation ?? 0), 0);
+    return Math.round(total / list.length);
+  });
+
+  /** Histogramme conso (6 dernières, du plus ancien au plus récent). */
+  readonly consoBars = computed(() => {
+    const list = this.facturesTriees().slice(0, 6).reverse();
+    const max = Math.max(1, ...list.map((f) => f.consommation ?? 0));
+    return list.map((f) => ({
+      periode: this.periodeFacture(f),
+      conso: f.consommation ?? 0,
+      pct: Math.round(((f.consommation ?? 0) / max) * 100),
+    }));
+  });
+
+
+  // Modal réactivation
+  readonly reactiverDialogVisible = signal(false);
 
   // Modal résiliation
   readonly resilierDialogVisible = signal(false);
+  readonly resilierConfirme = signal(false);
 
   // Modal remplacer compteur
   readonly remplacerVisible = signal(false);
@@ -77,6 +121,8 @@ export class AbonneDetailComponent {
   readonly newIndexInitial = signal('0');
   readonly newDatePose = signal('');
   readonly remplacerLoading = signal(false);
+  readonly remplacerDernierIndex = signal<number | null>(null);
+  readonly remplacerDernierIndexLoading = signal(false);
 
   readonly initial = computed(() => {
     const a = this.abonne();
@@ -140,6 +186,32 @@ export class AbonneDetailComponent {
     return this.translate.instant(key, {}, lang);
   });
 
+  readonly reactiverTitle = computed(() => {
+    const a = this.abonne();
+    if (!a) return '';
+    const lang = this.translate.currentLang() ?? undefined;
+    return this.translate.instant('ABONNES.DETAIL.REACTIV_TITLE_NOM', { nom: a.nom, prenom: a.prenom }, lang);
+  });
+
+  readonly resilierTitle = computed(() => {
+    const a = this.abonne();
+    if (!a) return this.translate.instant('ABONNES.DETAIL.RESILIATION_TITLE');
+    const lang = this.translate.currentLang() ?? undefined;
+    return this.translate.instant('ABONNES.DETAIL.RESIL_TITLE_NOM', { nom: a.nom, prenom: a.prenom }, lang);
+  });
+
+  readonly compteurNumDisplay = computed(() => {
+    const c = this.abonne()?.compteur;
+    if (!c) return '—';
+    return `C-${String(c.numeroCompteur).padStart(4, '0')}`;
+  });
+
+  readonly remplacerDernierIndexDisplay = computed(() => {
+    const idx = this.remplacerDernierIndex();
+    if (idx === null) return '—';
+    return `${idx.toLocaleString('fr-FR')} m³`;
+  });
+
   constructor(route: ActivatedRoute) {
     this.abonneId = route.snapshot.paramMap.get('id')!;
     this.abonneQuery = this.abonnesService.watchAbonne(this.abonneId);
@@ -174,7 +246,41 @@ export class AbonneDetailComponent {
         if (!updated) return;
         return { abonne: updated };
       },
+      onError: () => { /* Real-time sync unavailable — detail still works via refetch */ },
     });
+
+    void this.loadFactures();
+  }
+
+  private async loadFactures(): Promise<void> {
+    this.facturesLoading.set(true);
+    try {
+      const factures = await this.facturesService.getFactures({ abonneId: this.abonneId });
+      this.factures.set(factures);
+    } catch {
+      // Non bloquant : la fiche reste utilisable sans l'historique de facturation.
+    } finally {
+      this.facturesLoading.set(false);
+    }
+  }
+
+  periodeFacture(f: Facture): string {
+    if (!f.dateReleve) return '—';
+    const lang = this.translate.currentLang() ?? 'fr';
+    const locale = lang === 'en' ? 'en-US' : 'fr-FR';
+    return new Date(f.dateReleve).toLocaleDateString(locale, { month: 'short', year: 'numeric' });
+  }
+
+  formatFCFA(n: number | null | undefined): string {
+    return `${(n ?? 0).toLocaleString('fr-FR')} F`;
+  }
+
+  pdfUrl(factureId: string): string {
+    return `/api/factures/${factureId}/pdf`;
+  }
+
+  voirFactures(): void {
+    this.setActiveTab(1);
   }
 
   async loadAbonne(): Promise<void> {
@@ -239,11 +345,16 @@ export class AbonneDetailComponent {
     }
   }
 
-  async reactiver(): Promise<void> {
+  reactiver(): void {
+    this.reactiverDialogVisible.set(true);
+  }
+
+  async doReactiver(): Promise<void> {
     this.statutLoading.set(true);
     try {
       const updated = await this.abonnesService.reactiverAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
+      this.reactiverDialogVisible.set(false);
       this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
@@ -254,15 +365,18 @@ export class AbonneDetailComponent {
   }
 
   confirmerResiliation(): void {
+    this.resilierConfirme.set(false);
     this.resilierDialogVisible.set(true);
   }
 
   async resilier(): Promise<void> {
+    if (!this.resilierConfirme()) return;
     this.statutLoading.set(true);
     try {
       const updated = await this.abonnesService.resilierAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
       this.resilierDialogVisible.set(false);
+      this.resilierConfirme.set(false);
       this.messageService.add({ severity: 'info', summary: this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE') });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
@@ -281,7 +395,21 @@ export class AbonneDetailComponent {
     this.newCamp.set(c?.camp ? String(c.camp) : '');
     this.newIndexInitial.set('0');
     this.newDatePose.set(new Date().toISOString().slice(0, 10));
+    this.remplacerDernierIndex.set(null);
     this.remplacerVisible.set(true);
+    void this.loadDernierIndex();
+  }
+
+  private async loadDernierIndex(): Promise<void> {
+    this.remplacerDernierIndexLoading.set(true);
+    try {
+      const result = await this.campagnesService.getDernierIndex(this.abonneId);
+      this.remplacerDernierIndex.set(result.dernierIndex);
+    } catch {
+      // Afficher '—' en cas d'erreur — non bloquant
+    } finally {
+      this.remplacerDernierIndexLoading.set(false);
+    }
   }
 
   async saveRemplacer(): Promise<void> {

@@ -11,14 +11,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -40,7 +40,7 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     InputIconModule,
     InputTextModule,
     SelectModule,
-    ConfirmDialogModule,
+    DialogModule,
     ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
@@ -49,14 +49,13 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     CompteurPipe,
     TranslatePipe,
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [MessageService],
   templateUrl: './abonnes-list.component.html',
   styleUrl: './abonnes-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonnesListComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -65,6 +64,8 @@ export class AbonnesListComponent implements OnInit {
   private abonnesQuery!: QueryRef<{ abonnes: Abonne[] }>;
 
   readonly abonnes = signal<Abonne[]>([]);
+  readonly reactiverDialogVisible = signal(false);
+  readonly reactiverCible = signal<Abonne | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searchTerm = signal('');
@@ -163,6 +164,7 @@ export class AbonnesListComponent implements OnInit {
           ),
         } as { abonnes: Abonne[] };
       },
+      onError: () => { /* Real-time sync unavailable — list still works via refetch */ },
     });
   }
 
@@ -185,33 +187,34 @@ export class AbonnesListComponent implements OnInit {
   }
 
   confirmReactiver(abonne: Abonne): void {
-    this.confirmationService.confirm({
-      header: `Réactiver ${abonne.nom} ${abonne.prenom} ?`,
-      message: `L'abonné retrouvera un accès normal et sera inclus dans les prochaines campagnes de relevé.`,
-      icon: 'pi pi-check-circle',
-      acceptLabel: 'Réactiver',
-      rejectLabel: 'Annuler',
-      acceptButtonStyleClass: 'p-button-success',
-      accept: () => this.reactiverAbonne(abonne),
-    });
+    this.reactiverCible.set(abonne);
+    this.reactiverDialogVisible.set(true);
   }
 
-  private async reactiverAbonne(abonne: Abonne): Promise<void> {
+  readonly reactiverLoading = signal(false);
+
+  async doReactiver(): Promise<void> {
+    const abonne = this.reactiverCible();
+    if (!abonne) return;
+    this.reactiverLoading.set(true);
     try {
       const updated = await this.abonnesService.reactiverAbonne(abonne.id);
       this.abonnes.update((list) => list.map((a) => (a.id === updated.id ? updated : a)));
+      this.reactiverDialogVisible.set(false);
       this.messageService.add({
         severity: 'success',
-        summary: 'Abonné réactivé',
+        summary: this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'),
         detail: `${abonne.nom} ${abonne.prenom} est de nouveau actif.`,
       });
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.messageService.add({
         severity: 'error',
-        summary: 'Erreur',
+        summary: this.translate.instant('ERRORS.GENERIC'),
         detail: message || 'Impossible de réactiver cet abonné.',
       });
+    } finally {
+      this.reactiverLoading.set(false);
     }
   }
 }

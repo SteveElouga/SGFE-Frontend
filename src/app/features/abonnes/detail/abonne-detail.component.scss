@@ -462,7 +462,7 @@
     letter-spacing: 0.4px;
     text-transform: uppercase;
 
-    &.text-right { text-align: right; }
+    &.text-right { text-align: left; }
   }
 
   td {
@@ -470,7 +470,7 @@
     border-top: 1px solid #f1f5f9;
     font-size: 12px;
 
-    &.text-right { text-align: right; }
+    &.text-right { text-align: left; }
   }
 }
 
@@ -482,8 +482,10 @@
 }
 
 .abonne-invoices__see-all {
-  text-align: right;
-  margin-top: 8px;
+  display: block;
+  margin: 8px 0 0 auto;
+  border: none;
+  background: none;
   font-size: 11px;
   font-weight: 500;
   color: $color-primary;
@@ -492,7 +494,60 @@
   &:hover { text-decoration: underline; }
 }
 
-// ── Placeholder onglets à venir ───────────────────────────────────────────────
+.abonne-invoices__pdf {
+  color: $color-primary;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ── Badge statut facture ──────────────────────────────────────────────────────
+
+.facture-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+
+  &--payee     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  &--partielle { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+  &--impayee   { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+}
+
+// ── Onglets Factures / Impayés / Conso ────────────────────────────────────────
+
+.abonne-tab-pane { padding: 20px; }
+
+.conso-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  height: 200px;
+}
+
+.conso-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+
+  &__value { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+  &__track { flex: 1; width: 100%; max-width: 46px; display: flex; align-items: flex-end; }
+  &__fill {
+    width: 100%;
+    min-height: 4px;
+    background: linear-gradient(180deg, #4f8ef7, #1a56db);
+    border-radius: 4px 4px 0 0;
+  }
+  &__label { font-size: 10px; color: #94a3b8; margin-top: 6px; text-transform: capitalize; }
+}
+
+// ── Placeholder onglets ───────────────────────────────────────────────────────
 
 .abonne-tab-placeholder {
   display: flex;
@@ -570,26 +625,371 @@
 
     &:hover:not(:disabled) { opacity: 0.9; }
   }
+
+  &--success {
+    background: linear-gradient(135deg, #047857, #065f46);
+    border: none;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
+
+    &:hover:not(:disabled) { opacity: 0.9; }
+  }
 }
 
-// ── Confirm dialog body ───────────────────────────────────────────────────────
+// ── Modal Réactivation ───────────────────────────────────────────────────────
 
-.confirm-body {
+.reactiv-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+
+.reactiv-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 4px 0 8px;
+  gap: 14px;
 
-  &__icon { flex-shrink: 0; margin-top: 2px; }
-
-  &__text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #475569;
-    margin: 0;
-
-    strong { color: #0f172a; font-weight: 600; }
+  &__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.reactiv-summary {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__row {
+    border-bottom: 1px solid #d1fae5;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__key {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    padding: 10px 14px;
+    text-align: left;
+    width: 50%;
+  }
+
+  &__val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #047857;
+    padding: 10px 14px;
+
+    &--muted {
+      color: #0f172a;
+      font-weight: 500;
+    }
+  }
+}
+
+.reactiv-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+// ── Modal Résiliation ─────────────────────────────────────────────────────────
+
+.resil-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px;
+}
+
+.resil-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.resil-summary {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__row {
+    border-bottom: 1px solid #e2e8f0;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__key {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    padding: 10px 14px;
+    text-align: left;
+    width: 50%;
+  }
+
+  &__val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #dc2626;
+    padding: 10px 14px;
+
+    &--kept {
+      color: #0e9f6e;
+    }
+  }
+}
+
+.resil-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #64748b;
+
+  svg { flex-shrink: 0; margin-top: 2px; }
+}
+
+.resil-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: $color-primary;
+  }
+}
+
+.resil-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 2px;
+}
+
+// ── Modal Remplacement compteur ───────────────────────────────────────────────
+
+.meter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.meter-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 3px;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+  }
+}
+
+.meter-old-card {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+
+  &__tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__key {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  &__val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+
+    &--mono { font-variant-numeric: tabular-nums; }
+  }
+
+  &__loading {
+    color: #94a3b8;
+    font-weight: 400;
+  }
+}
+
+.meter-arrow {
+  display: flex;
+  justify-content: center;
+  margin: -4px 0;
+
+  &__circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #1a56db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg path { stroke: #fff; }
+  }
+}
+
+.meter-new-card {
+  border: 1.5px solid #bfdbfe;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1a56db;
+    margin-bottom: 2px;
+  }
+}
+
+.meter-location-reprise {
+  font-size: 12px;
+  color: #475569;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 7px 10px;
+  margin: 0;
+}
+
+.meter-info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 11px 13px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #1e40af;
+
+  svg { flex-shrink: 0; margin-top: 2px; }
+}
+
+.meter-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 2px;
 }
 
 // ── Onglet Compteurs — Historique ─────────────────────────────────────────────

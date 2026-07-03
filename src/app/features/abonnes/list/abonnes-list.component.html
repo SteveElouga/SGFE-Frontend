@@ -1,5 +1,65 @@
 <p-toast />
-<p-confirmdialog />
+
+<!-- ══ Modal Réactivation ══ -->
+<p-dialog
+  [visible]="reactiverDialogVisible()"
+  (visibleChange)="reactiverDialogVisible.set($event)"
+  [modal]="true"
+  [showHeader]="false"
+  [style]="{ width: '460px' }"
+  [draggable]="false"
+  [closable]="false"
+>
+  <div class="reactiv-body">
+    <div class="reactiv-header">
+      <div class="reactiv-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        @if (reactiverCible()) {
+          <h3 class="reactiv-header__title">{{ 'ABONNES.DETAIL.REACTIV_TITLE_NOM' | translate : { nom: reactiverCible()!.nom, prenom: reactiverCible()!.prenom } }}</h3>
+        }
+        <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
+      </div>
+    </div>
+
+    <table class="reactiv-summary">
+      <tbody>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_STATUT_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val reactiv-summary__val--muted">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="reactiv-footer">
+      <button class="dialog-btn dialog-btn--ghost"
+        (click)="reactiverDialogVisible.set(false)"
+        [disabled]="reactiverLoading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--success"
+        (click)="doReactiver()"
+        [disabled]="reactiverLoading()">
+        @if (reactiverLoading()) {
+          {{ 'ABONNES.DETAIL.REACTIVER_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.REACTIVER_BTN' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</p-dialog>
 
 <app-page-topbar
   [title]="'ABONNES.TITLE' | translate"

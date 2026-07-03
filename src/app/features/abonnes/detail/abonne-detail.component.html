@@ -99,13 +99,13 @@
       <div class="abonne-kpi abonne-kpi--blue"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_CONSO' | translate">
         <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_CONSO_MOY' | translate }}</div>
-        <div class="abonne-kpi__value">— m³</div>
+        <div class="abonne-kpi__value">{{ consoMoyenne() ?? '—' }} m³</div>
         <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_CONSO_UNIT' | translate }}</div>
       </div>
       <div class="abonne-kpi abonne-kpi--green"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_FACTURES' | translate">
         <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_FACTURES' | translate }}</div>
-        <div class="abonne-kpi__value">—</div>
+        <div class="abonne-kpi__value">{{ nbFactures() }}</div>
         <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_FACTURES_SINCE' | translate }}</div>
       </div>
       <div class="abonne-kpi" [ngClass]="soldeKpiClass()"
@@ -242,25 +242,125 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td colspan="5" class="abonne-invoices__empty">
-                  {{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}
-                </td>
-              </tr>
+              @for (f of facturesRecentes(); track f.factureId) {
+                <tr>
+                  <td>{{ periodeFacture(f) }}</td>
+                  <td class="text-right">{{ f.consommation ?? 0 }} m³</td>
+                  <td class="text-right">{{ formatFCFA(f.montant) }}</td>
+                  <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
+                  <td class="text-right">
+                    <a class="abonne-invoices__pdf" [href]="pdfUrl(f.factureId)" target="_blank" rel="noopener">{{ 'ABONNES.DETAIL.PDF' | translate }}</a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="abonne-invoices__empty">
+                    {{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}
+                  </td>
+                </tr>
+              }
             </tbody>
           </table>
-          <div class="abonne-invoices__see-all">{{ 'ABONNES.DETAIL.SEE_ALL_INVOICES' | translate }} →</div>
+          @if (nbFactures() > facturesRecentes().length) {
+            <button type="button" class="abonne-invoices__see-all" (click)="voirFactures()">{{ 'ABONNES.DETAIL.SEE_ALL_INVOICES' | translate }} →</button>
+          }
         </div>
       }
 
-      <!-- ── Onglets à venir ── -->
-      @if (activeTab() === 1 || activeTab() === 2 || activeTab() === 3) {
-        <div class="abonne-tab-placeholder">
-          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-            <rect x="2" y="4" width="32" height="28" rx="4" stroke="#cbd5e1" stroke-width="1.5"/>
-            <path d="M9 13h18M9 18h12M9 23h8" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span>{{ 'ABONNES.DETAIL.COMING_SOON' | translate }}</span>
+      <!-- ── Onglet Factures ── -->
+      @if (activeTab() === 1) {
+        <div class="abonne-tab-pane">
+          @if (facturesLoading()) {
+            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+          } @else {
+            <table class="abonne-invoices__table">
+              <thead>
+                <tr>
+                  <th>{{ 'ABONNES.DETAIL.INVOICE_PERIOD' | translate }}</th>
+                  <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_CONSO' | translate }}</th>
+                  <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_AMOUNT' | translate }}</th>
+                  <th>{{ 'COMMON.STATUS' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of facturesTriees(); track f.factureId) {
+                  <tr>
+                    <td>{{ periodeFacture(f) }}</td>
+                    <td class="text-right">{{ f.consommation ?? 0 }} m³</td>
+                    <td class="text-right">{{ formatFCFA(f.montant) }}</td>
+                    <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
+                    <td class="text-right">
+                      <a class="abonne-invoices__pdf" [href]="pdfUrl(f.factureId)" target="_blank" rel="noopener">{{ 'ABONNES.DETAIL.PDF' | translate }}</a>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="5" class="abonne-invoices__empty">{{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}</td></tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      }
+
+      <!-- ── Onglet Historique conso ── -->
+      @if (activeTab() === 2) {
+        <div class="abonne-tab-pane">
+          @if (facturesLoading()) {
+            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+          } @else if (consoBars().length === 0) {
+            <div class="abonne-tab-placeholder"><span>{{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}</span></div>
+          } @else {
+            <div class="conso-chart">
+              @for (bar of consoBars(); track bar.periode) {
+                <div class="conso-bar">
+                  <span class="conso-bar__value">{{ bar.conso }}</span>
+                  <div class="conso-bar__track"><div class="conso-bar__fill" [style.height.%]="bar.pct"></div></div>
+                  <span class="conso-bar__label">{{ bar.periode }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ── Onglet Impayés ── -->
+      @if (activeTab() === 3) {
+        <div class="abonne-tab-pane">
+          @if (facturesLoading()) {
+            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+          } @else if (facturesImpayees().length === 0) {
+            <div class="abonne-tab-placeholder">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+                <circle cx="18" cy="18" r="15" stroke="#0e9f6e" stroke-width="1.5"/>
+                <path d="M11 18l5 5 9-10" stroke="#0e9f6e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>{{ 'ABONNES.DETAIL.SOLDE_ZERO' | translate }}</span>
+            </div>
+          } @else {
+            <table class="abonne-invoices__table">
+              <thead>
+                <tr>
+                  <th>{{ 'ABONNES.DETAIL.INVOICE_PERIOD' | translate }}</th>
+                  <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_AMOUNT' | translate }}</th>
+                  <th>{{ 'COMMON.STATUS' | translate }}</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (f of facturesImpayees(); track f.factureId) {
+                  <tr>
+                    <td>{{ periodeFacture(f) }}</td>
+                    <td class="text-right">{{ formatFCFA(f.montant) }}</td>
+                    <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
+                    <td class="text-right">
+                      <a class="abonne-invoices__pdf" [href]="pdfUrl(f.factureId)" target="_blank" rel="noopener">{{ 'ABONNES.DETAIL.PDF' | translate }}</a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         </div>
       }
 
@@ -367,87 +467,275 @@
   }
 </div>
 
+<!-- ══ Modal Réactivation ══ -->
+<p-dialog
+  [visible]="reactiverDialogVisible()"
+  (visibleChange)="reactiverDialogVisible.set($event)"
+  [modal]="true"
+  [showHeader]="false"
+  [style]="{ width: '460px' }"
+  [draggable]="false"
+  [closable]="false"
+  styleClass="reactiv-dialog"
+>
+  <div class="reactiv-body">
+
+    <!-- En-tête -->
+    <div class="reactiv-header">
+      <div class="reactiv-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="reactiv-header__title">{{ reactiverTitle() }}</h3>
+        <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <table class="reactiv-summary">
+      <tbody>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_STATUT_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val reactiv-summary__val--muted">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Actions -->
+    <div class="reactiv-footer">
+      <button class="dialog-btn dialog-btn--ghost"
+        (click)="reactiverDialogVisible.set(false)"
+        [disabled]="statutLoading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--success"
+        (click)="doReactiver()"
+        [disabled]="statutLoading()">
+        @if (statutLoading()) {
+          {{ 'ABONNES.DETAIL.REACTIVER_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.REACTIVER_BTN' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</p-dialog>
+
 <!-- ══ Modal Résiliation ══ -->
 <p-dialog
   [visible]="resilierDialogVisible()"
   (visibleChange)="resilierDialogVisible.set($event)"
-  [header]="'ABONNES.DETAIL.RESILIATION_TITLE' | translate"
   [modal]="true"
-  [style]="{ width: '420px' }"
+  [showHeader]="false"
+  [style]="{ width: '470px' }"
   [draggable]="false"
+  [closable]="false"
+  styleClass="resil-dialog"
 >
-  <div class="confirm-body">
-    <svg class="confirm-body__icon" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-      <circle cx="20" cy="20" r="19" stroke="#fca5a5" stroke-width="1.5"/>
-      <path d="M20 13v8M20 25v1" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    <p class="confirm-body__text">
-      {{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}
-    </p>
-  </div>
+  <div class="resil-body">
 
-  <ng-template #footer>
-    <button class="dialog-btn dialog-btn--ghost"
-      (click)="resilierDialogVisible.set(false)"
-      [disabled]="statutLoading()">
-      {{ 'COMMON.CANCEL' | translate }}
-    </button>
-    <button class="dialog-btn dialog-btn--danger"
-      (click)="resilier()"
-      [disabled]="statutLoading()">
-      @if (statutLoading()) { {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }} } @else { {{ 'ABONNES.RESILIER' | translate }} }
-    </button>
-  </ng-template>
+    <!-- En-tête personnalisé -->
+    <div class="resil-header">
+      <div class="resil-header__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            stroke="#dc2626" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 9v4M12 17h.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="resil-header__title">{{ resilierTitle() }}</h3>
+        <p class="resil-header__desc">{{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <table class="resil-summary">
+      <tbody>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_STATUT_LABEL' | translate }}</th>
+          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_LABEL' | translate : { num: compteurNumDisplay() } }}</th>
+          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_LABEL' | translate }}</th>
+          <td class="resil-summary__val resil-summary__val--kept">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Note informative -->
+    <div class="resil-info">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="5.8" stroke="#64748b" stroke-width="1.2"/>
+        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      {{ 'ABONNES.DETAIL.RESIL_INFO' | translate }}
+    </div>
+
+    <!-- Checkbox de confirmation -->
+    <label class="resil-checkbox">
+      <input type="checkbox"
+        [ngModel]="resilierConfirme()"
+        (ngModelChange)="resilierConfirme.set($event)"
+        name="resilierConfirme"
+      />
+      <span>{{ 'ABONNES.DETAIL.RESIL_CHECKBOX' | translate }}</span>
+    </label>
+
+    <!-- Actions -->
+    <div class="resil-footer">
+      <button class="dialog-btn dialog-btn--ghost"
+        (click)="resilierDialogVisible.set(false)"
+        [disabled]="statutLoading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--danger"
+        (click)="resilier()"
+        [disabled]="statutLoading() || !resilierConfirme()">
+        @if (statutLoading()) {
+          {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.RESILIER_DEFINITIF' | translate }}
+        }
+      </button>
+    </div>
+  </div>
 </p-dialog>
 
 <!-- ══ Modal Remplacer compteur ══ -->
 <p-dialog
   [visible]="remplacerVisible()"
   (visibleChange)="remplacerVisible.set($event)"
-  [header]="'ABONNES.REMPLACER_COMPTEUR' | translate"
   [modal]="true"
-  [style]="{ width: '460px' }"
+  [showHeader]="false"
+  [style]="{ width: '540px' }"
   [draggable]="false"
+  [closable]="false"
+  styleClass="meter-dialog"
 >
-  <div class="edit-form">
-    <div class="edit-field">
-      <label class="edit-label" for="newNumero">{{ 'ABONNES.DETAIL.NEW_METER_NUMBER' | translate }}</label>
-      <input pInputText id="newNumero" type="number" min="1"
-        [ngModel]="newNumeroCompteur()" (ngModelChange)="newNumeroCompteur.set($event)" name="newNumero"
-        placeholder="ex. 2001" />
-    </div>
-    <div class="edit-grid-2">
-      <div class="edit-field">
-        <label class="edit-label" for="newQuartier">{{ 'ABONNES.DETAIL.QUARTIER_LABEL' | translate }}</label>
-        <input pInputText id="newQuartier" type="text"
-          [ngModel]="newQuartier()" (ngModelChange)="newQuartier.set($event)" name="newQuartier" />
+  <div class="meter-body">
+
+    <!-- En-tête -->
+    <div class="meter-header">
+      <div class="meter-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M3 11h16M11 3l8 8-8 8" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <div class="edit-field">
-        <label class="edit-label" for="newCamp">{{ 'ABONNES.DETAIL.CAMP_LABEL' | translate }}</label>
-        <input pInputText id="newCamp" type="number" min="1"
-          [ngModel]="newCamp()" (ngModelChange)="newCamp.set($event)" name="newCamp" />
+      <div>
+        <h3 class="meter-header__title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
+        @if (abonne()) {
+          <p class="meter-header__sub">{{ abonne()!.nom }} {{ abonne()!.prenom }}</p>
+        }
       </div>
     </div>
-    <div class="edit-grid-2">
-      <div class="edit-field">
-        <label class="edit-label" for="newIndex">{{ 'ABONNES.DETAIL.INDEX_INITIAL_M3' | translate }}</label>
-        <input pInputText id="newIndex" type="number" min="0" step="0.001"
-          [ngModel]="newIndexInitial()" (ngModelChange)="newIndexInitial.set($event)" name="newIndex" />
+
+    <!-- Ancien compteur -->
+    @if (abonne()?.compteur) {
+      @let oldMeter = abonne()!.compteur!;
+      <div class="meter-old-card">
+        <div class="meter-old-card__tag">{{ 'ABONNES.DETAIL.METER_OLD_TAG' | translate }}</div>
+        <div class="meter-old-card__rows">
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.NUM_COMPTEUR' | translate }}</span>
+            <span class="meter-old-card__val meter-old-card__val--mono">{{ oldMeter.numeroCompteur | compteur }}</span>
+          </div>
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
+            <span class="meter-old-card__val">
+              {{ 'ABONNES.DETAIL.METER_OLD_POSE' | translate }}
+              {{ oldMeter.datePose ? (oldMeter.datePose | date:'dd/MM/yyyy') : '—' }}
+            </span>
+          </div>
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.METER_OLD_IDX_LABEL' | translate }}</span>
+            <span class="meter-old-card__val meter-old-card__val--mono">
+              @if (remplacerDernierIndexLoading()) {
+                <span class="meter-old-card__loading">…</span>
+              } @else {
+                {{ remplacerDernierIndexDisplay() }}
+              }
+            </span>
+          </div>
+        </div>
       </div>
-      <div class="edit-field">
-        <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
-        <input pInputText id="newDatePose" type="date"
-          [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" name="newDatePose" />
+    }
+
+    <!-- Flèche séparatrice -->
+    <div class="meter-arrow" aria-hidden="true">
+      <div class="meter-arrow__circle">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M4 9l4 4 4-4" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
+    </div>
+
+    <!-- Nouveau compteur -->
+    <div class="meter-new-card">
+      <div class="meter-new-card__title">{{ 'ABONNES.DETAIL.METER_NEW_TITLE' | translate }}</div>
+      <div class="edit-grid-2">
+        <div class="edit-field">
+          <label class="edit-label" for="newNumero">{{ 'ABONNES.DETAIL.NEW_METER_NUMBER' | translate }}</label>
+          <input pInputText id="newNumero" type="number" min="1"
+            [ngModel]="newNumeroCompteur()" (ngModelChange)="newNumeroCompteur.set($event)" name="newNumero"
+            placeholder="ex. 2001" />
+        </div>
+        <div class="edit-field">
+          <label class="edit-label" for="newIndex">{{ 'ABONNES.DETAIL.INDEX_INITIAL_M3' | translate }}</label>
+          <input pInputText id="newIndex" type="number" min="0" step="0.001"
+            [ngModel]="newIndexInitial()" (ngModelChange)="newIndexInitial.set($event)" name="newIndex"
+            placeholder="0.000" />
+        </div>
+        <div class="edit-field">
+          <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
+          <input pInputText id="newDatePose" type="date"
+            [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" name="newDatePose" />
+        </div>
+      </div>
+
+      <!-- Localisation reprise (lecture seule) -->
+      @if (newQuartier() || newCamp()) {
+        <p class="meter-location-reprise">
+          {{ 'ABONNES.DETAIL.METER_LOCATION_REPRISE' | translate : { quartier: newQuartier(), camp: newCamp() } }}
+        </p>
+      }
+    </div>
+
+    <!-- Note informative bleue -->
+    <div class="meter-info-note">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="5.8" stroke="#1a56db" stroke-width="1.2"/>
+        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#1a56db" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      {{ 'ABONNES.DETAIL.METER_INFO_NOTE' | translate }}
+    </div>
+
+    <!-- Actions -->
+    <div class="meter-footer">
+      <button class="dialog-btn dialog-btn--ghost" (click)="remplacerVisible.set(false)" [disabled]="remplacerLoading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--primary" (click)="saveRemplacer()" [disabled]="remplacerLoading()">
+        @if (remplacerLoading()) {
+          {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.METER_CONFIRMER' | translate }}
+        }
+      </button>
     </div>
   </div>
-
-  <ng-template #footer>
-    <button class="dialog-btn dialog-btn--ghost" (click)="remplacerVisible.set(false)" [disabled]="remplacerLoading()">
-      {{ 'COMMON.CANCEL' | translate }}
-    </button>
-    <button class="dialog-btn dialog-btn--primary" (click)="saveRemplacer()" [disabled]="remplacerLoading()">
-      @if (remplacerLoading()) { {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }} } @else { {{ 'COMMON.CONFIRM' | translate }} }
-    </button>
-  </ng-template>
 </p-dialog>
