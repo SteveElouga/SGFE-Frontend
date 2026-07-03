@@ -542,6 +542,7 @@
     "PANEL_TITLE": "Enregistrer un paiement",
     "PANEL_SOLDE": "Solde",
     "PANEL_MONTANT": "Montant reçu (FCFA) *",
+    "PANEL_MONTANT_MAX": "Le montant ne peut pas dépasser le solde restant ({{montant}} FCFA).",
     "PANEL_MODE": "Mode de paiement *",
     "PANEL_DATE": "Date *",
     "PANEL_REF": "Référence transaction",
@@ -583,6 +584,7 @@
       "NO_PAIEMENTS": "Aucun paiement enregistré",
       "BTN_ENREGISTRER": "+ Enregistrer paiement",
       "BTN_PDF": "PDF",
+      "PDF_ERROR": "Impossible d'ouvrir le PDF. Réessayez.",
       "BTN_ENVOYER_WA": "Envoyer WA",
       "BTN_RENVOYER_WA": "Renvoyer WA",
       "PAYE": "Payé : {{montant}} FCFA ({{pct}} %)",
@@ -593,7 +595,8 @@
       "ERROR_LOAD": "Impossible de charger la facture",
       "CORRIGER_STATUT_TITLE": "Correction du statut",
       "STATUT_PLACEHOLDER": "Choisir un statut…",
-      "BTN_CORRIGER_STATUT": "Appliquer"
+      "BTN_CORRIGER_STATUT": "Appliquer",
+      "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} »."
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",

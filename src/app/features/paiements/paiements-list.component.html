@@ -87,7 +87,6 @@
             <th>{{ 'PAIEMENTS.COL_FACTURE' | translate }}</th>
             <th class="text-right">{{ 'PAIEMENTS.COL_MONTANT' | translate }}</th>
             <th>{{ 'PAIEMENTS.COL_MODE' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_OPERATEUR' | translate }}</th>
             <th>{{ 'PAIEMENTS.COL_STATUT' | translate }}</th>
           </tr>
         </thead>
@@ -114,7 +113,6 @@
                   {{ 'FACTURATION.MODE.' + r.modePaiement | translate }}
                 </span>
               </td>
-              <td class="col-operateur">—</td>
               <td>
                 <span class="statut-badge statut-badge--{{ statutClass(r) }}">
                   {{ statutLabel(r) }}
@@ -123,7 +121,7 @@
             </tr>
           } @empty {
             <tr>
-              <td colspan="7" class="table-empty">{{ 'PAIEMENTS.EMPTY' | translate }}</td>
+              <td colspan="6" class="table-empty">{{ 'PAIEMENTS.EMPTY' | translate }}</td>
             </tr>
           }
         </tbody>
