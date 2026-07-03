@@ -68,6 +68,7 @@ export class AbonnesService {
     this.apollo
       .subscribe<{ abonneUpdated: { id: string; statut: string; compteur?: { quartier: string; camp: number } } }>({
         query: ABONNE_UPDATED_SUB,
+        context: { silentError: true },
       })
       .subscribe({
         next: ({ data }) => {

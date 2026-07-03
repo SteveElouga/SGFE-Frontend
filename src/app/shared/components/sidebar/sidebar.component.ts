@@ -91,6 +91,7 @@ export class SidebarComponent implements OnInit {
       const result = await firstValueFrom(
         this.apollo.query<{ campagnes: Pick<Campagne, 'campagneId' | 'periodeMois' | 'periodeAnnee' | 'statut'>[] }>({
           query: GET_CAMPAGNE_ACTIVE,
+          context: { silentError: true },
         }),
       );
       const enCours = result.data?.campagnes?.find((c) => c.statut === 'EN_COURS');
@@ -101,6 +102,7 @@ export class SidebarComponent implements OnInit {
           query: GET_PROGRESSION,
           variables: { campagneId: enCours.campagneId },
           fetchPolicy: 'network-only',
+          context: { silentError: true },
         }),
       );
       this.campagneActive.set({

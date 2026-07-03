@@ -1,61 +1,59 @@
 import { Injector } from '@angular/core';
+import { getMainDefinition } from '@apollo/client/utilities';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { ErrorLink } from '@apollo/client/link/error';
-import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../shared/services/toast.service';
 
-// These codes are intentionally left to individual components/services:
-// - UNAUTHENTICATED  → auth-error.link (refresh + retry, then AuthService redirects)
-// - NOT_FOUND        → component decides where to redirect (e.g. back to list)
-// - INVALID_ARGUMENT → component surfaces the validation message inline
-// - ALREADY_EXISTS   → component surfaces the duplicate message inline
+// Errors handled by individual components (inline messages, redirects, etc.)
+// — do not surface a global toast for these.
 const COMPONENT_HANDLED = new Set([
-  'UNAUTHENTICATED',
-  'NOT_FOUND',
-  'INVALID_ARGUMENT',
-  'ALREADY_EXISTS',
+  'UNAUTHENTICATED',   // → auth-error.link refresh/retry or login redirect
+  'NOT_FOUND',         // → component redirects back to list
+  'INVALID_ARGUMENT',  // → component shows inline validation
+  'ALREADY_EXISTS',    // → component shows inline duplicate message
 ]);
 
+// Only these two codes warrant a global toast — they're cross-cutting concerns
+// that no individual component can meaningfully recover from.
+// Everything else: the component owns the error (its error handler already ran
+// or will run); we log to console only to avoid double-handling.
+const GLOBAL_TOAST_CODES = new Set(['PERMISSION_DENIED', 'SERVICE_UNAVAILABLE']);
+
 export function createGlobalErrorLink(injector: Injector): ErrorLink {
-  return new ErrorLink(({ error }) => {
+  return new ErrorLink(({ error, operation }) => {
     if (!CombinedGraphQLErrors.is(error)) return;
 
-    // Resolve lazily — avoids circular DI at factory time
-    const toast = injector.get(MessageService);
+    // Opt-out: best-effort operations (sidebar, cache-sync subscriptions) explicitly
+    // set silentError: true so their catch block handles everything silently.
+    if (operation.getContext()['silentError']) return;
+
+    // Subscriptions are background cache-sync features — a failure means degraded
+    // real-time updates, not a user-visible error. The component's onError handles it.
+    const def = getMainDefinition(operation.query);
+    if (def.kind === 'OperationDefinition' && def.operation === 'subscription') return;
+
+    const toast = injector.get(ToastService);
     const translate = injector.get(TranslateService);
 
     for (const err of error.errors) {
-      const code = (err.extensions?.['code'] as string | undefined) ?? 'INTERNAL_ERROR';
+      const code = (err.extensions?.['code'] as string | undefined) ?? 'UNKNOWN';
       if (COMPONENT_HANDLED.has(code)) continue;
 
-      switch (code) {
-        case 'PERMISSION_DENIED':
-          toast.add({
-            key: 'global',
-            severity: 'error',
-            summary: translate.instant('ERRORS.PERMISSION_DENIED'),
-            life: 5000,
-          });
-          break;
-
-        case 'SERVICE_UNAVAILABLE':
-          toast.add({
-            key: 'global',
-            severity: 'warn',
-            summary: translate.instant('ERRORS.SERVICE_UNAVAILABLE'),
-            life: 6000,
-          });
-          break;
-
-        case 'INTERNAL_ERROR':
-        default:
-          toast.add({
-            key: 'global',
-            severity: 'error',
-            summary: translate.instant('ERRORS.GENERIC'),
-            life: 5000,
-          });
-          break;
+      if (GLOBAL_TOAST_CODES.has(code)) {
+        // Cross-cutting errors — show a global toast
+        if (code === 'PERMISSION_DENIED') {
+          toast.error(translate.instant('ERRORS.PERMISSION_DENIED'));
+        } else {
+          toast.warning(translate.instant('ERRORS.SERVICE_UNAVAILABLE'));
+        }
+      } else {
+        // All other codes (INTERNAL_ERROR, unknown) — the component's error
+        // handler will show an inline message. We log for debugging only.
+        console.error(
+          `[GraphQL] Unhandled error on "${operation.operationName}" — code: ${code}`,
+          err,
+        );
       }
     }
   });
