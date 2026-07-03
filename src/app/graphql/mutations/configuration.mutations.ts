@@ -21,3 +21,24 @@ export const UPDATE_CONFIG = gql`
     }
   }
 `;
+
+// Envoi de test WhatsApp (ADMIN). Renvoie success + message : sur échec de
+// livraison le servicer capture l'erreur et renvoie success=false + le motif
+// exact (« WhatsApp non connecté — scannez le QR… ») affichable tel quel.
+// Un numéro vide reste une vraie erreur INVALID_ARGUMENT (à garder côté front).
+export const TESTER_ENVOI_WHATSAPP = gql`
+  mutation TesterEnvoiWhatsapp($phoneNumber: String!) {
+    testerEnvoiWhatsapp(phoneNumber: $phoneNumber) {
+      success
+      message
+    }
+  }
+`;
+
+// Révocation en masse des tokens d'accès abonnés (ADMIN).
+// Renvoie le nombre de tokens révoqués.
+export const REVOQUER_TOUS_TOKENS_ABONNES = gql`
+  mutation RevoquerTousTokensAbonnes {
+    revoquerTousTokensAbonnes
+  }
+`;
