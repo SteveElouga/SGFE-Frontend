@@ -11,12 +11,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { extractGqlError } from '../../core/auth/auth.service';
-import { UsersService } from '../../core/users/users.service';
-import { Role, User } from '../../shared/models/user.model';
-import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
-import { AuthFieldComponent } from '../../shared/components/auth-field/auth-field.component';
-import { ToastService } from '../../shared/services/toast.service';
+import { extractGqlError } from '../../../core/auth/auth.service';
+import { UsersService } from '../../../core/users/users.service';
+import { Role, User } from '../../../shared/models/user.model';
+import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
+import { AuthFieldComponent } from '../../../shared/components/auth-field/auth-field.component';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-utilisateur-form',

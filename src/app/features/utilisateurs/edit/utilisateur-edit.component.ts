@@ -13,12 +13,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { extractGqlError } from '../../core/auth/auth.service';
-import { UsersService } from '../../core/users/users.service';
-import { Role, User } from '../../shared/models/user.model';
-import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
-import { TooltipDirective } from '../../shared/directives/tooltip.directive';
-import { ToastService } from '../../shared/services/toast.service';
+import { extractGqlError } from '../../../core/auth/auth.service';
+import { UsersService } from '../../../core/users/users.service';
+import { Role, User } from '../../../shared/models/user.model';
+import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ToastService } from '../../../shared/services/toast.service';
 
 // Passe à `true` quand le backend a déployé reactivateUser + resendUserActivation
 // (cf. docs/BESOINS_API_utilisateurs.md). Tant que false, ces boutons sont
