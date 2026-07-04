@@ -34,88 +34,43 @@
 
   <!-- Table -->
   <div class="table-wrap">
-    @if (loading()) {
-      <div class="table-loading"><i class="pi pi-spin pi-spinner"></i></div>
-    } @else {
-      <table class="impayes-table">
-        <thead>
-          <tr>
-            <th>{{ 'IMPAYES.COL_ABONNE' | translate }}</th>
-            <th>{{ 'IMPAYES.COL_FACTURE' | translate }}</th>
-            <th class="text-right">{{ 'IMPAYES.COL_SOLDE' | translate }}</th>
-            <th>{{ 'IMPAYES.COL_ETAPE' | translate }}</th>
-            <th>{{ 'IMPAYES.COL_DEPASSEMENT' | translate }}</th>
-            <th>{{ 'IMPAYES.COL_ACTIONS' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (row of paginatedImpayes(); track row.factureId) {
-            <tr class="impayes-table__row">
-              <td class="col-abonne">{{ row.abonneId ?? '…' }}</td>
-              <td class="col-facture">
-                <span class="facture-link" (click)="voirFacture(row.factureId)">
-                  {{ row.factureId | slice:0:12 }}…
-                </span>
-              </td>
-              <td class="col-solde text-right">{{ formatFCFA(row.soldeRestant) }}</td>
-              <td>
-                @if (row.etapeActuelle !== null) {
-                  <span class="etape-badge {{ etapeClass(row.etapeActuelle) }}">
-                    {{ 'IMPAYES.ETAPE.' + row.etapeActuelle | translate }}
-                  </span>
-                } @else {
-                  <span class="etape-badge etape-badge--unknown">—</span>
-                }
-              </td>
-              <td class="col-date">{{ formatDate(row.dateDepassement) }}</td>
-              <td>
-                <button class="btn-voir" (click)="voirFacture(row.factureId)">
-                  {{ 'IMPAYES.BTN_VOIR' | translate }}
-                </button>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="6" class="table-empty">{{ 'IMPAYES.EMPTY' | translate }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <app-data-table
+      [columns]="columns"
+      [rows]="impayesFiltres()"
+      [loading]="loading()"
+      [pageSize]="10"
+      trackKey="factureId"
+      pageInfoKey="IMPAYES.PAGINATION_INFO"
+      emptyMessage="IMPAYES.EMPTY"
+    >
+      <ng-template appCol="abonne" let-row><span class="col-abonne">{{ row.abonneId ?? '…' }}</span></ng-template>
 
-      <!-- Pagination footer : affiché seulement au-delà d'une page -->
-      @if (pageCount() > 1) {
-        <div class="table-footer">
-          <span class="pagination-info">
-            {{ 'IMPAYES.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: totalCount() } }}
+      <ng-template appCol="facture" let-row>
+        <span class="facture-link col-facture" (click)="voirFacture(row.factureId)">
+          {{ row.factureId | slice:0:12 }}…
+        </span>
+      </ng-template>
+
+      <ng-template appCol="solde" let-row><span class="col-solde">{{ formatFCFA(row.soldeRestant) }}</span></ng-template>
+
+      <ng-template appCol="etape" let-row>
+        @if (row.etapeActuelle !== null) {
+          <span class="etape-badge {{ etapeClass(row.etapeActuelle) }}">
+            {{ 'IMPAYES.ETAPE.' + row.etapeActuelle | translate }}
           </span>
-          <div class="pagination-btns">
-            <button
-              class="page-btn"
-              [disabled]="page() === 0"
-              (click)="goPage(page() - 1)"
-              aria-label="Page précédente"
-            >
-              <i class="pi pi-chevron-left"></i>
-            </button>
-            @for (p of visiblePages(); track p) {
-              <button
-                class="page-btn"
-                [class.page-btn--active]="p === page()"
-                (click)="goPage(p)"
-              >{{ p + 1 }}</button>
-            }
-            <button
-              class="page-btn"
-              [disabled]="page() >= pageCount() - 1"
-              (click)="goPage(page() + 1)"
-              aria-label="Page suivante"
-            >
-              <i class="pi pi-chevron-right"></i>
-            </button>
-          </div>
-        </div>
-      }
-    }
+        } @else {
+          <span class="etape-badge etape-badge--unknown">—</span>
+        }
+      </ng-template>
+
+      <ng-template appCol="depassement" let-row><span class="col-date">{{ formatDate(row.dateDepassement) }}</span></ng-template>
+
+      <ng-template appCol="actions" let-row>
+        <button class="btn-voir" (click)="voirFacture(row.factureId)">
+          {{ 'IMPAYES.BTN_VOIR' | translate }}
+        </button>
+      </ng-template>
+    </app-data-table>
   </div>
 
 </div>

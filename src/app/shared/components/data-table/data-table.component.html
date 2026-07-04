@@ -1,0 +1,108 @@
+@if (loading()) {
+  <div class="dt__loading">
+    <i class="pi pi-spin pi-spinner"></i>
+  </div>
+} @else {
+  <div class="dt" [class.dt--has-cards]="!!cardTemplate()">
+
+    <!-- ── Tableau (desktop) ─────────────────────────────────────────────── -->
+    <table class="dt__table">
+      <thead>
+        <tr>
+          @for (col of columns(); track col.key) {
+            <th
+              scope="col"
+              [class]="col.headerClass"
+              [style.text-align]="col.align ?? 'left'"
+              [style.width]="col.width"
+            >
+              {{ col.header | translate }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pagedRows(); track rowKey(row)) {
+          <tr
+            class="dt__row"
+            [class]="rowClasses(row)"
+            [class.dt__row--clickable]="isRowClickable(row)"
+            [attr.tabindex]="isRowClickable(row) ? 0 : null"
+            (click)="onRowClick(row)"
+            (keydown.enter)="onRowClick(row)"
+          >
+            @for (col of columns(); track col.key) {
+              <td [class]="col.cellClass" [style.text-align]="col.align ?? 'left'">
+                @if (cellTemplate(col.key); as tpl) {
+                  <ng-container
+                    [ngTemplateOutlet]="tpl"
+                    [ngTemplateOutletContext]="{ $implicit: row }"
+                  />
+                } @else {
+                  {{ cellValue(row, col.key) }}
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td class="dt__empty" [attr.colspan]="columns().length">
+              {{ emptyMessage() | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- ── Cartes (mobile ≤ 720px, si un template appCardRow est fourni) ──── -->
+    @if (cardTemplate(); as card) {
+      <div class="dt__cards">
+        @for (row of pagedRows(); track rowKey(row)) {
+          <ng-container
+            [ngTemplateOutlet]="card"
+            [ngTemplateOutletContext]="{ $implicit: row }"
+          />
+        } @empty {
+          <div class="dt__empty">{{ emptyMessage() | translate }}</div>
+        }
+      </div>
+    }
+
+    <!-- ── Pagination : seulement au-delà d'une page ─────────────────────── -->
+    @if (pageCount() > 1) {
+      <div class="dt__footer">
+        <span class="dt__page-info">
+          {{ pageInfoKey() | translate: { start: rangeStart(), end: rangeEnd(), total: total() } }}
+        </span>
+        <div class="dt__pages">
+          <button
+            type="button"
+            class="dt__page-btn"
+            [disabled]="safePage() === 0"
+            (click)="goPage(safePage() - 1)"
+            [attr.aria-label]="'COMMON.PREV_PAGE' | translate"
+          >
+            <i class="pi pi-chevron-left"></i>
+          </button>
+          @for (p of visiblePages(); track p) {
+            <button
+              type="button"
+              class="dt__page-btn"
+              [class.dt__page-btn--active]="p === safePage()"
+              (click)="goPage(p)"
+            >{{ p + 1 }}</button>
+          }
+          <button
+            type="button"
+            class="dt__page-btn"
+            [disabled]="safePage() >= pageCount() - 1"
+            (click)="goPage(safePage() + 1)"
+            [attr.aria-label]="'COMMON.NEXT_PAGE' | translate"
+          >
+            <i class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}

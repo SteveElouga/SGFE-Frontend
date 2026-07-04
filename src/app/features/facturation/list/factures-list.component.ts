@@ -23,6 +23,8 @@ import { Campagne } from '../../../shared/models/campagne.model';
 import { Facture, ModePaiement, StatutFacture } from '../../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
+import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { GET_ABONNES } from '../../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../../graphql/queries/campagnes.queries';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -48,6 +50,9 @@ interface CampagneOption {
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    DataTableComponent,
+    DataTableCellDirective,
+    DataTableCardDirective,
   ],
   templateUrl: './factures-list.component.html',
   styleUrl: './factures-list.component.scss',
@@ -77,8 +82,20 @@ export class FacturesListComponent implements OnInit {
 
   readonly filtreStatut = signal<StatutFacture | 'TOUS'>('TOUS');
   readonly searchTerm = signal('');
-  readonly page = signal(0);
-  readonly pageSize = 5;
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'numero', header: 'FACTURATION.COL_NUMERO' },
+    { key: 'abonne', header: 'FACTURATION.COL_ABONNE' },
+    { key: 'montant', header: 'FACTURATION.COL_MONTANT' },
+    { key: 'solde', header: 'FACTURATION.COL_SOLDE' },
+    { key: 'statut', header: 'FACTURATION.COL_STATUT' },
+    { key: 'actions', header: 'FACTURATION.COL_ACTIONS' },
+  ];
+  /** Seules les factures non soldées sont cliquables (ouvre le panneau de paiement). */
+  readonly rowActivable = (f: Facture): boolean => f.statut !== 'PAYEE';
+  /** Surligne la facture dont le panneau de paiement est ouvert. */
+  readonly rowClassFn = (f: Facture): string | null =>
+    this.selectedFacture()?.factureId === f.factureId ? 'dt__row--selected' : null;
 
   readonly selectedFacture = signal<Facture | null>(null);
   readonly panelSolde = signal<number | null>(null);
@@ -124,26 +141,6 @@ export class FacturesListComponent implements OnInit {
       });
     }
     return list;
-  });
-
-  readonly totalCount = computed(() => this.facturesFiltrees().length);
-  readonly pageCount = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
-  readonly paginatedFactures = computed(() => {
-    const start = this.page() * this.pageSize;
-    return this.facturesFiltrees().slice(start, start + this.pageSize);
-  });
-  readonly rangeStart = computed(() =>
-    this.totalCount() === 0 ? 0 : this.page() * this.pageSize + 1,
-  );
-  readonly rangeEnd = computed(() =>
-    Math.min((this.page() + 1) * this.pageSize, this.totalCount()),
-  );
-  readonly visiblePages = computed((): number[] => {
-    const total = this.pageCount();
-    const current = this.page();
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-    const start = Math.max(0, Math.min(current - 2, total - 5));
-    return Array.from({ length: 5 }, (_, i) => start + i);
   });
 
   readonly subtitle = computed(() => {
@@ -377,12 +374,7 @@ export class FacturesListComponent implements OnInit {
 
   onStatutChange(statut: StatutFacture | 'TOUS'): void {
     this.filtreStatut.set(statut);
-    this.page.set(0);
     this.closePanel();
-  }
-
-  goPage(p: number): void {
-    this.page.set(p);
   }
 
   openPanel(facture: Facture): void {
