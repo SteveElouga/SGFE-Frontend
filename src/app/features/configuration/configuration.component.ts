@@ -22,6 +22,7 @@ import { PageTopbarComponent } from '../../shared/components/page-topbar/page-to
 import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
+import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
 
 /** Étape de relance affichée dans l'onglet « Relances & Impayés ». */
 interface RelanceStep {
@@ -171,7 +172,8 @@ export class ConfigurationComponent implements OnInit {
       this.societeTelephone.set(infos.telephone);
       this.societeLogoPath.set(infos.logoPath);
       // Préremplissage du destinataire de test (l'admin teste souvent sur son propre n°).
-      if (!this.waTestPhone()) this.waTestPhone.set(infos.telephone);
+      // Préremplissage au format local (retire un éventuel +237 déjà présent).
+      if (!this.waTestPhone()) this.waTestPhone.set(toLocalPhone(infos.telephone));
       this.configs.set(configs);
       this.applyConfigs(configs);
       this.tarifActuel.set(tarif);
@@ -313,12 +315,20 @@ export class ConfigurationComponent implements OnInit {
    * bloqué côté front (le backend le traiterait en vraie erreur INVALID_ARGUMENT).
    */
   async testWhatsapp(): Promise<void> {
-    const phone = this.waTestPhone().trim();
-    if (!phone || this.waTesting()) return;
+    const local = this.waTestPhone().trim();
+    if (!local || this.waTesting()) return;
+    // Convention projet : saisie locale 6XXXXXXXX → on préfixe +237 avant l'envoi.
+    if (!isValidCameroonPhone(local)) {
+      this.waTestResult.set({
+        success: false,
+        message: this.translate.instant('CONFIGURATION.WHATSAPP_TEST_INVALID'),
+      });
+      return;
+    }
     this.waTesting.set(true);
     this.waTestResult.set(null);
     try {
-      const result = await this.service.testerEnvoiWhatsapp(phone);
+      const result = await this.service.testerEnvoiWhatsapp(normalizePhone(local));
       this.waTestResult.set(result);
       this.toast.show({ type: result.success ? 'success' : 'warning', title: result.message });
     } catch (err: unknown) {
