@@ -1,0 +1,97 @@
+<app-page-topbar
+  [title]="breadcrumb()"
+  [backLink]="'/impayes'"
+  [backLabel]="'RELANCES.BACK' | translate"
+/>
+
+<div class="relances-content">
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="reload()" />
+  }
+
+  @if (loading()) {
+    <div class="relances-loading"><i class="pi pi-spin pi-spinner"></i></div>
+  } @else if (facture()) {
+
+    <!-- Header card -->
+    <div class="header-card">
+      <div>
+        <div class="header-card__nom">{{ abonneNom() }} · {{ numeroAbonne() }}</div>
+        <div class="header-card__meta">{{ headerMeta() }}</div>
+      </div>
+      @if (estSuspendu()) {
+        <span class="suspendue-badge">{{ 'RELANCES.SUSPENDUE_BADGE' | translate }}</span>
+      }
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-card">
+      <div class="timeline-card__title">{{ 'RELANCES.TIMELINE_TITLE' | translate }}</div>
+
+      <div class="timeline">
+        @for (step of steps(); track step.numero) {
+          <div class="tl-step">
+            <div class="tl-rail">
+              <div class="tl-node {{ step.toneClass }}">{{ step.numero }}</div>
+              <div class="tl-line"></div>
+            </div>
+            <div class="tl-body">
+              <div class="tl-head">
+                <span class="tl-title" [class.tl-title--suspension]="step.isSuspension && step.done">
+                  {{ step.title }}
+                </span>
+                <span class="tl-when">
+                  {{ step.dateLabel }}
+                  @if (step.deliveredLabel) {
+                    · <span class="tl-delivered">{{ step.deliveredLabel }}</span>
+                  } @else {
+                    · <span class="tl-scheduled">{{ step.scheduledLabel }}</span>
+                  }
+                </span>
+              </div>
+              <div
+                class="tl-msg"
+                [class.tl-msg--danger]="step.isSuspension && step.done"
+                [class.tl-msg--muted]="!step.done"
+              >{{ step.message }}</div>
+              @if (step.adminBadge) {
+                <span class="tl-tag tl-tag--admin">{{ step.adminBadge }}</span>
+              }
+              @if (step.suspensionBadge) {
+                <span class="tl-tag tl-tag--suspension">{{ step.suspensionBadge }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Rétablissement (futur) -->
+        <div class="tl-step tl-step--last">
+          <div class="tl-rail">
+            <div class="tl-node tl-node--future" [class.tl-node--resolu]="resolu()">✓</div>
+          </div>
+          <div class="tl-body">
+            <div class="tl-title tl-title--future">
+              {{ (resolu() ? 'RELANCES.FUTURE_TITLE_DONE' : 'RELANCES.FUTURE_TITLE') | translate }}
+            </div>
+            <div class="tl-msg tl-msg--future">{{ 'RELANCES.FUTURE_MSG' | translate }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar">
+      @if (soldeRestant() > 0) {
+        <button type="button" class="btn-paiement" (click)="enregistrerPaiement()">
+          {{ paiementLabel() }}
+        </button>
+      }
+      <button type="button" class="btn-renvoi" [disabled]="renvoi()" (click)="renvoyerDernier()">
+        @if (renvoi()) { <i class="pi pi-spin pi-spinner"></i> }
+        {{ 'RELANCES.BTN_RENVOYER' | translate }}
+      </button>
+    </div>
+
+  }
+</div>

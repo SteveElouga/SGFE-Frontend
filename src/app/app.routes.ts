@@ -64,6 +64,12 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'terrain',
+        canActivate: [roleGuard(['ADMIN', 'AGENT'])],
+        loadComponent: () =>
+          import('./features/terrain/terrain.component').then((m) => m.TerrainComponent),
+      },
+      {
         path: 'abonnes',
         canActivate: [roleGuard(['ADMIN'])],
         children: [
@@ -192,10 +198,22 @@ export const routes: Routes = [
       {
         path: 'impayes',
         canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
-        loadComponent: () =>
-          import('./features/impayes/impayes-list.component').then(
-            (m) => m.ImpayesListComponent,
-          ),
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/impayes/impayes-list.component').then(
+                (m) => m.ImpayesListComponent,
+              ),
+          },
+          {
+            path: ':factureId/relances',
+            loadComponent: () =>
+              import('./features/impayes/relances/relances-historique.component').then(
+                (m) => m.RelancesHistoriqueComponent,
+              ),
+          },
+        ],
       },
       {
         path: 'configuration',

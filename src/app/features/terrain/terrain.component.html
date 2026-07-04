@@ -1,0 +1,233 @@
+<p-toast position="bottom-center" />
+
+<div class="terrain">
+  <!-- App header -->
+  <header class="t-header">
+    <div>
+      <div class="t-header__title">{{ 'TERRAIN.TITLE' | translate }}</div>
+      <div class="t-header__sub">
+        @if (campagneNom()) { {{ campagneNom() }} · }{{ agentNom() }}
+      </div>
+    </div>
+    <div class="t-avatar">{{ agentInitial() }}</div>
+  </header>
+
+  <!-- Bannière hors ligne (M-08) -->
+  @if (!offline.online()) {
+    <div class="t-offline">
+      <i class="pi pi-wifi t-offline__icon"></i>
+      <div>
+        <div class="t-offline__title">{{ 'TERRAIN.OFFLINE_TITLE' | translate }}</div>
+        <div class="t-offline__sub">{{ 'TERRAIN.OFFLINE_SUB' | translate }}</div>
+      </div>
+    </div>
+  }
+
+  <div class="t-body">
+    @if (error()) {
+      <app-error-banner [message]="error()!" (retry)="load()" />
+    }
+
+    @if (loading()) {
+      <div class="t-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    } @else {
+
+      <!-- Carte de synchronisation (M-08) -->
+      @if (offline.pendingCount() > 0) {
+        <div class="sync-card">
+          <div class="sync-card__icon"><i class="pi pi-sync" [class.pi-spin]="offline.syncing()"></i></div>
+          <div class="sync-card__body">
+            <div class="sync-card__title">
+              {{ 'TERRAIN.SYNC_PENDING' | translate: { count: offline.pendingCount() } }}
+            </div>
+            <div class="sync-card__sub">{{ 'TERRAIN.SYNC_AUTO' | translate }}</div>
+          </div>
+          <button
+            class="sync-card__retry"
+            [disabled]="offline.syncing() || !offline.online()"
+            (click)="offline.retry()"
+          >{{ 'TERRAIN.RETRY' | translate }}</button>
+        </div>
+      }
+
+      <!-- À relever -->
+      @if (aRelever().length > 0) {
+        <div class="t-section-label">{{ 'TERRAIN.SECTION_A_RELEVER' | translate }}</div>
+        <div class="t-list">
+          @for (c of aRelever(); track c.abonneId) {
+            <button type="button" class="t-card t-card--action" (click)="openSaisie(c)">
+              <span class="t-card__avatar t-card__avatar--blue">{{ c.initials }}</span>
+              <span class="t-card__info">
+                <span class="t-card__name">{{ c.nom }}</span>
+                <span class="t-card__detail">{{ c.sub }}</span>
+              </span>
+              <i class="pi pi-chevron-right t-card__chevron"></i>
+            </button>
+          }
+        </div>
+      }
+
+      <!-- En attente de sync -->
+      @if (enAttente().length > 0) {
+        <div class="t-section-label">{{ 'TERRAIN.SECTION_PENDING' | translate }}</div>
+        <div class="t-list">
+          @for (c of enAttente(); track c.key) {
+            <div class="t-card t-card--pending">
+              <span class="t-card__avatar t-card__avatar--amber">{{ c.initials }}</span>
+              <span class="t-card__info">
+                <span class="t-card__name">{{ c.nom }}</span>
+                <span class="t-card__detail">{{ c.detail }}</span>
+                @if (c.erreur) { <span class="t-card__err">{{ c.erreur }}</span> }
+              </span>
+              <span class="t-badge t-badge--pending">⟳ {{ 'TERRAIN.BADGE_PENDING' | translate }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Synchronisés -->
+      @if (synchronises().length > 0) {
+        <div class="t-section-label">{{ 'TERRAIN.SECTION_SYNCED' | translate }}</div>
+        <div class="t-list">
+          @for (c of synchronises(); track c.key) {
+            <div class="t-card t-card--synced">
+              <span class="t-card__avatar t-card__avatar--slate">{{ c.initials }}</span>
+              <span class="t-card__info">
+                <span class="t-card__name">{{ c.nom }}</span>
+                <span class="t-card__detail">{{ c.detail }}</span>
+              </span>
+              <span class="t-badge t-badge--synced">✓ {{ 'TERRAIN.BADGE_SYNCED' | translate }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      @if (aRelever().length === 0 && enAttente().length === 0 && synchronises().length === 0) {
+        <div class="t-empty">
+          <i class="pi pi-inbox"></i>
+          <span>{{ (campagne() ? 'TERRAIN.EMPTY' : 'TERRAIN.NO_CAMPAGNE') | translate }}</span>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ── Feuille de saisie d'index ── -->
+  @if (saisieCarte(); as c) {
+    <div class="sheet-overlay" (click)="closeSaisie()">
+      <div class="sheet" (click)="$event.stopPropagation()">
+        <div class="sheet__grip"></div>
+        <div class="sheet__head">
+          <div>
+            <div class="sheet__title">{{ c.nom }}</div>
+            <div class="sheet__sub">{{ c.sub }}</div>
+          </div>
+        </div>
+
+        <div class="idx-grid">
+          <div class="idx-cell">
+            <span class="idx-cell__label">{{ 'TERRAIN.ANCIEN_INDEX' | translate }}</span>
+            <span class="idx-cell__value">{{ c.ancienIndex | number:'1.0-0' }} <small>m³</small></span>
+          </div>
+          <div class="idx-cell idx-cell--new" [class.idx-cell--error]="indexInvalide()">
+            <span class="idx-cell__label">{{ 'TERRAIN.NOUVEL_INDEX' | translate }}</span>
+            <input
+              class="idx-input"
+              inputmode="numeric"
+              [attr.aria-label]="'TERRAIN.NOUVEL_INDEX' | translate"
+              [placeholder]="'— —'"
+              [ngModel]="nouvelIndex()"
+              (ngModelChange)="nouvelIndex.set($event)"
+              autofocus
+            />
+          </div>
+        </div>
+
+        @if (consoLive() !== null && !indexInvalide()) {
+          <div class="conso-live">
+            {{ 'TERRAIN.CONSO_LIVE' | translate: { conso: consoLive() } }}
+          </div>
+        }
+        @if (indexInvalide()) {
+          <div class="conso-live conso-live--error">
+            <i class="pi pi-exclamation-circle"></i>
+            {{ 'TERRAIN.INDEX_INVALIDE' | translate: { ancien: (c.ancienIndex | number:'1.0-0') } }}
+          </div>
+        }
+
+        <button class="btn-primary" [disabled]="!saisieValide() || submitting()" (click)="confirmSaisie()">
+          {{ 'TERRAIN.CONFIRMER' | translate }}
+        </button>
+        <button class="btn-link-danger" (click)="openM07()">
+          {{ 'TERRAIN.IMPOSSIBLE' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── Feuille M-07 : non relevé / estimé ── -->
+  @if (m07Visible()) {
+    <div class="sheet-overlay sheet-overlay--top" (click)="cancelM07()">
+      <div class="sheet" (click)="$event.stopPropagation()">
+        <div class="sheet__grip"></div>
+        <div class="sheet__title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
+        <div class="sheet__sub sheet__sub--mb">{{ 'TERRAIN.M07_SUB' | translate }}</div>
+
+        <div class="m07-options">
+          <button
+            type="button"
+            class="m07-opt m07-opt--danger"
+            [class.m07-opt--selected]="m07Statut() === 'NON_RELEVE'"
+            (click)="setM07Statut('NON_RELEVE')"
+          >
+            <span class="m07-opt__radio"></span>
+            <span class="m07-opt__body">
+              <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
+              <span class="m07-opt__hint">{{ 'TERRAIN.NON_RELEVE_HINT' | translate }}</span>
+            </span>
+            <span class="m07-opt__emoji">🚪</span>
+          </button>
+          <button
+            type="button"
+            class="m07-opt"
+            [class.m07-opt--selected]="m07Statut() === 'ESTIME'"
+            (click)="setM07Statut('ESTIME')"
+          >
+            <span class="m07-opt__radio"></span>
+            <span class="m07-opt__body">
+              <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
+              <span class="m07-opt__hint">{{ 'TERRAIN.ESTIME_HINT' | translate }}</span>
+            </span>
+            <span class="m07-opt__emoji">📈</span>
+          </button>
+        </div>
+
+        <div class="obs-head">
+          <span>{{ 'TERRAIN.OBSERVATION' | translate }} <span class="req">*</span></span>
+          <span class="obs-count">{{ m07Observation().length }} / 200</span>
+        </div>
+        <textarea
+          class="obs-input"
+          [class.obs-input--error]="!m07Valide()"
+          rows="2"
+          maxlength="200"
+          [attr.aria-label]="'TERRAIN.OBSERVATION' | translate"
+          [ngModel]="m07Observation()"
+          (ngModelChange)="m07Observation.set($event)"
+        ></textarea>
+        <div class="obs-warn">
+          <i class="pi pi-exclamation-circle"></i>
+          {{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}
+        </div>
+
+        <button
+          class="btn-danger"
+          [disabled]="!m07Valide()"
+          (click)="confirmM07()"
+        >
+          {{ (m07Statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
+        </button>
+        <button class="btn-ghost" (click)="cancelM07()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>
+      </div>
+    </div>
+  }
+</div>

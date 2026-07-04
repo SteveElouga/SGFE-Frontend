@@ -19,6 +19,7 @@ export const GET_IMPAYES = gql`
     impayes {
       factureId
       montantTotal
+      montantPaye
       soldeRestant
       statut
     }
