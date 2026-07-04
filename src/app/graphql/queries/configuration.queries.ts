@@ -34,3 +34,27 @@ export const GET_CONFIGS = gql`
     }
   }
 `;
+
+// ── Souscriptions temps réel — PENDING BACKEND (message « souscriptions ») ────
+// Faible fréquence de changement, mais utile pour la cohérence inter-admins.
+// À brancher à la livraison (subscribeToMore sur l'écran Configuration).
+export const CONFIG_UPDATED_SUB = gql`
+  subscription ConfigUpdated($cle: String) {
+    configUpdated(cle: $cle) {
+      cle
+      valeur
+      description
+    }
+  }
+`;
+
+export const TARIF_UPDATED_SUB = gql`
+  subscription TarifUpdated {
+    tarifUpdated {
+      tarifId
+      prixM3
+      dateEffet
+      isActive
+    }
+  }
+`;

@@ -99,6 +99,41 @@ export const GET_ENVOIS = gql`
     }
   }
 `;
+
+// ── Souscriptions temps réel — PENDING BACKEND ──────────────────────────────
+// Contrats convenus avec l'équipe backend (message « souscriptions temps réel »).
+// Non branchés tant que le backend ne les expose pas : à la livraison, brancher
+// via subscribeToMore + passer les listes en cache-first (cf. flag realtimeReady).
+// Sélections alignées sur GET_FACTURES / GET_PAIEMENTS. Arg optionnel = convention
+// abonneUpdated (sans arg = flux global, avec arg = filtré sur une campagne).
+export const FACTURE_UPDATED_SUB = gql`
+  subscription FactureUpdated($campagneId: ID) {
+    factureUpdated(campagneId: $campagneId) {
+      factureId
+      numeroFacture
+      abonneId
+      campagneId
+      statut
+      consommation
+      montant
+      dateReleve
+      dateLimitePaiement
+    }
+  }
+`;
+
+export const PAIEMENT_CREE_SUB = gql`
+  subscription PaiementCree($campagneId: ID) {
+    paiementCree(campagneId: $campagneId) {
+      paiementId
+      factureId
+      montant
+      datePaiement
+      modePaiement
+      referenceTransaction
+    }
+  }
+`;
 // PENDING BACKEND: le type Envoi n'expose pas 'typeEnvoi' (contrairement à
 // ARCHITECTURE.md, obsolète). Le code couleur du journal (RAPPEL/AVERT) est donc
 // inactif — envoiClass() dégrade en '' tant que le backend n'ajoute pas ce champ.
