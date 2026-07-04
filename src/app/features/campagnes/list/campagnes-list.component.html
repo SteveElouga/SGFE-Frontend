@@ -21,19 +21,11 @@
   }
 
   <!-- Filtres -->
-  <app-page-filters>
-    <p-iconfield class="campagnes-filters__search">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        type="text"
-        pInputText
-        [placeholder]="'CAMPAGNES.SEARCH_PLACEHOLDER' | translate"
-        [attr.aria-label]="'COMMON.SEARCH' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
-    </p-iconfield>
-
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="searchTerm.set($event)"
+    searchPlaceholder="CAMPAGNES.SEARCH_PLACEHOLDER"
+  >
     <p-select
       [options]="agentsDisponibles()"
       [ngModel]="filtreAgent()"
@@ -51,7 +43,7 @@
       optionLabel="label"
       optionValue="value"
     />
-  </app-page-filters>
+  </app-filter-bar>
 
   <!-- Carte tableau -->
   <div class="campagnes-card">

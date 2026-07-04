@@ -16,29 +16,6 @@
   min-height: calc(100% - 54px);
 }
 
-// ── Filtre ────────────────────────────────────────────────────────────────────
-
-.campagnes-filters {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-}
-
-// ── Barre de filtres ──────────────────────────────────────────────────────────
-
-.campagnes-filters__search {
-  flex: 1;
-
-  input[pInputText] {
-    width: 100%;
-    background: #f8fafc;
-  }
-}
-
 // ── Carte tableau ─────────────────────────────────────────────────────────────
 
 .campagnes-card {

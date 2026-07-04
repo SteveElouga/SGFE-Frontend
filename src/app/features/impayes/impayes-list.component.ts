@@ -16,6 +16,7 @@ import { extractGqlError } from '../../core/auth/auth.service';
 import { SoldeFacture, SuiviImpaye } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 
@@ -33,6 +34,7 @@ interface ImpayeRow extends SoldeFacture {
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
   ],

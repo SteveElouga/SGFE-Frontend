@@ -12,9 +12,6 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
 import { DialogModule } from 'primeng/dialog';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
@@ -24,7 +21,7 @@ import { ABONNE_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
+import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
@@ -35,15 +32,12 @@ import { DataTableCellDirective } from '../../../shared/components/data-table/da
   imports: [
     FormsModule,
     RouterLink,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     SelectModule,
     DialogModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
     PageTopbarComponent,
-    PageFiltersComponent,
+    FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
     CompteurPipe,

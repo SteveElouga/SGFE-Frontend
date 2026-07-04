@@ -80,19 +80,11 @@
   }
 
   <!-- Carte filtres -->
-  <app-page-filters>
-    <p-iconfield class="abonnes-filters__search">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        type="text"
-        pInputText
-        [placeholder]="'ABONNES.SEARCH_PLACEHOLDER' | translate"
-        [attr.aria-label]="'COMMON.SEARCH' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
-    </p-iconfield>
-
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="searchTerm.set($event)"
+    searchPlaceholder="ABONNES.SEARCH_PLACEHOLDER"
+  >
     <p-select
       [options]="statutOptions()"
       [ngModel]="statutFilter()"
@@ -112,7 +104,7 @@
       [placeholder]="'ABONNES.QUARTIER_FILTER' | translate"
       [showClear]="true"
     />
-  </app-page-filters>
+  </app-filter-bar>
 
   <!-- Carte tableau -->
   <div class="abonnes-card">

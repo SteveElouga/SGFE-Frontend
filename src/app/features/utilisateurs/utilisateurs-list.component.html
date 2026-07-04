@@ -18,19 +18,11 @@
     <app-error-banner [message]="error()!" (retry)="loadUsers()" />
   }
 
-  <app-page-filters>
-    <p-iconfield class="users-filters__search">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        type="text"
-        pInputText
-        [placeholder]="'UTILISATEURS.SEARCH_PLACEHOLDER' | translate"
-        [attr.aria-label]="'COMMON.SEARCH' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
-    </p-iconfield>
-
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="searchTerm.set($event)"
+    searchPlaceholder="UTILISATEURS.SEARCH_PLACEHOLDER"
+  >
     <p-select
       class="users-filters__select"
       [options]="roleOptions()"
@@ -50,7 +42,7 @@
       optionLabel="label"
       optionValue="value"
     />
-  </app-page-filters>
+  </app-filter-bar>
 
   <div class="users-card">
     <app-data-table

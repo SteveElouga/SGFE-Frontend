@@ -9,9 +9,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -23,7 +20,7 @@ import { Role, User } from '../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
-import { PageFiltersComponent } from '../../shared/components/page-filters/page-filters.component';
+import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { ToastService } from '../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
@@ -45,14 +42,11 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     DataTableComponent,
     DataTableCellDirective,
     TagModule,
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
     ConfirmDialogModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
     PageTopbarComponent,
-    PageFiltersComponent,
+    FilterBarComponent,
     TooltipDirective,
     SelectModule,
     TranslatePipe,

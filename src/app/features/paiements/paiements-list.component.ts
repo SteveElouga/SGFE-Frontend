@@ -12,15 +12,13 @@ import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
@@ -64,13 +62,11 @@ interface PaiementRow {
   imports: [
     FormsModule,
     SelectModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     DatePickerModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
   ],
