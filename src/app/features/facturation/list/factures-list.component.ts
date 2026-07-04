@@ -18,6 +18,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { FacturesService } from '../../../core/factures/factures.service';
+import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { Campagne } from '../../../shared/models/campagne.model';
@@ -57,6 +58,7 @@ interface CampagneOption {
 })
 export class FacturesListComponent implements OnInit {
   private readonly facturesService = inject(FacturesService);
+  private readonly facturePdf = inject(FacturePdfService);
   private readonly campagnesService = inject(CampagnesService);
   private readonly apollo = inject(Apollo);
   private readonly route = inject(ActivatedRoute);
@@ -455,8 +457,16 @@ export class FacturesListComponent implements OnInit {
     void this.router.navigate(['/factures', factureId]);
   }
 
-  pdfUrl(factureId: string): string {
-    return `/api/factures/${factureId}/pdf`;
+  async openPdf(factureId: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.facturePdf.open(factureId);
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'),
+      });
+    }
   }
 
   formatNumber(n: number | null | undefined): string {

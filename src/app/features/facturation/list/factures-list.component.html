@@ -158,15 +158,12 @@
                     {{ 'FACTURATION.ACTION_VOIR' | translate }}
                   </button>
                   @if (f.statut === 'PAYEE') {
-                    <a
+                    <button
                       class="btn-action"
-                      [href]="pdfUrl(f.factureId)"
-                      target="_blank"
-                      rel="noopener"
-                      (click)="$event.stopPropagation()"
+                      (click)="openPdf(f.factureId, $event)"
                     >
                       {{ 'FACTURATION.ACTION_PDF' | translate }}
-                    </a>
+                    </button>
                   } @else {
                     <button
                       class="btn-action btn-action--primary"
