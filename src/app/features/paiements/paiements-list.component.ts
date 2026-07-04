@@ -21,6 +21,8 @@ import { extractGqlError } from '../../core/auth/auth.service';
 import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 
@@ -69,6 +71,8 @@ interface PaiementRow {
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    DataTableComponent,
+    DataTableCellDirective,
   ],
   templateUrl: './paiements-list.component.html',
   styleUrl: './paiements-list.component.scss',
@@ -92,8 +96,16 @@ export class PaiementsListComponent implements OnInit {
   readonly filtreMode = signal<ModePaiement | 'TOUS'>('TOUS');
   readonly dateRange = signal<Date[] | null>(null);
   readonly searchTerm = signal('');
-  readonly page = signal(0);
-  readonly pageSize = 5;
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'date', header: 'PAIEMENTS.COL_DATE' },
+    { key: 'abonne', header: 'PAIEMENTS.COL_ABONNE' },
+    { key: 'numeroFacture', header: 'PAIEMENTS.COL_FACTURE' },
+    { key: 'montant', header: 'PAIEMENTS.COL_MONTANT' },
+    { key: 'mode', header: 'PAIEMENTS.COL_MODE' },
+    { key: 'operateur', header: 'PAIEMENTS.COL_OPERATEUR' },
+    { key: 'statut', header: 'PAIEMENTS.COL_STATUT' },
+  ];
 
   readonly campagneOptions = computed((): Array<{ label: string; value: string | null }> => {
     const lang = this.translate.currentLang() ?? undefined;
@@ -163,33 +175,13 @@ export class PaiementsListComponent implements OnInit {
     });
   });
 
-  readonly totalCount = computed(() => this.rows().length);
-  readonly pageCount = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
-  readonly pagedRows = computed(() => {
-    const start = this.page() * this.pageSize;
-    return this.rows().slice(start, start + this.pageSize);
-  });
-  readonly rangeStart = computed(() =>
-    this.totalCount() === 0 ? 0 : this.page() * this.pageSize + 1,
-  );
-  readonly rangeEnd = computed(() =>
-    Math.min((this.page() + 1) * this.pageSize, this.totalCount()),
-  );
   readonly totalMontant = computed(() => this.rows().reduce((acc, r) => acc + r.montant, 0));
-
-  readonly visiblePages = computed((): number[] => {
-    const total = this.pageCount();
-    const current = this.page();
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-    const start = Math.max(0, Math.min(current - 2, total - 5));
-    return Array.from({ length: 5 }, (_, i) => start + i);
-  });
 
   readonly subtitle = computed(() => {
     const campagneId = this.selectedCampagneId();
     const campagne = this.campagnes().find((c) => c.campagneId === campagneId);
     const periode = campagne ? this.formatPeriode(campagne) : '';
-    const count = this.totalCount();
+    const count = this.rows().length;
     const total = this.formatFCFA(this.totalMontant());
     return periode ? `${periode} · ${count} · ${total}` : `${count} · ${total}`;
   });
@@ -269,26 +261,18 @@ export class PaiementsListComponent implements OnInit {
 
   onCampagneChange(campagneId: string | null): void {
     this.selectedCampagneId.set(campagneId);
-    this.page.set(0);
   }
 
   onModeChange(mode: ModePaiement | 'TOUS'): void {
     this.filtreMode.set(mode);
-    this.page.set(0);
   }
 
   onDateRangeChange(range: Date[] | null): void {
     this.dateRange.set(range);
-    this.page.set(0);
   }
 
   onSearchChange(term: string): void {
     this.searchTerm.set(term);
-    this.page.set(0);
-  }
-
-  goPage(p: number): void {
-    this.page.set(p);
   }
 
   voirFacture(factureId: string): void {

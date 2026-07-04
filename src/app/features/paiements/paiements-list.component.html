@@ -76,93 +76,41 @@
 
   <!-- Table -->
   <div class="table-wrap">
-    @if (loading()) {
-      <div class="table-loading"><i class="pi pi-spin pi-spinner"></i></div>
-    } @else {
-      <table class="paiements-table">
-        <thead>
-          <tr>
-            <th>{{ 'PAIEMENTS.COL_DATE' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_ABONNE' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_FACTURE' | translate }}</th>
-            <th class="text-right">{{ 'PAIEMENTS.COL_MONTANT' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_MODE' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_OPERATEUR' | translate }}</th>
-            <th>{{ 'PAIEMENTS.COL_STATUT' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (r of pagedRows(); track r.paiementId; let i = $index) {
-            <tr
-              class="paiements-table__row"
-              [class.row--even]="i % 2 === 1"
-              (click)="voirFacture(r.factureId)"
-            >
-              <td class="col-date">{{ formatDate(r.datePaiement) }}</td>
-              <td class="col-abonne">
-                <span class="abonne-nom">{{ r.abonneNom }}</span>
-              </td>
-              <td class="col-facture">{{ r.numeroFacture }}</td>
-              <td
-                class="col-montant text-right"
-                [class.montant--partiel]="r.statutFacture === 'PARTIELLE'"
-              >
-                {{ formatFCFA(r.montant) }}
-              </td>
-              <td>
-                <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">
-                  {{ 'FACTURATION.MODE.' + r.modePaiement | translate }}
-                </span>
-              </td>
-              <td class="col-operateur">—</td>
-              <td>
-                <span class="statut-badge statut-badge--{{ statutClass(r) }}">
-                  {{ statutLabel(r) }}
-                </span>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="7" class="table-empty">{{ 'PAIEMENTS.EMPTY' | translate }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
+    <app-data-table
+      [columns]="columns"
+      [rows]="rows()"
+      [loading]="loading()"
+      [pageSize]="5"
+      [rowClickable]="true"
+      (rowClick)="voirFacture($event.factureId)"
+      trackKey="paiementId"
+      pageInfoKey="PAIEMENTS.PAGINATION_INFO"
+      emptyMessage="PAIEMENTS.EMPTY"
+    >
+      <ng-template appCol="date" let-r><span class="col-date">{{ formatDate(r.datePaiement) }}</span></ng-template>
 
-      <!-- Pagination footer : affiché seulement au-delà d'une page -->
-      @if (pageCount() > 1) {
-      <div class="table-footer">
-        <span class="pagination-info">
-          {{ 'PAIEMENTS.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: totalCount() } }}
+      <ng-template appCol="abonne" let-r>
+        <span class="col-abonne"><span class="abonne-nom">{{ r.abonneNom }}</span></span>
+      </ng-template>
+
+      <ng-template appCol="numeroFacture" let-r><span class="col-facture">{{ r.numeroFacture }}</span></ng-template>
+
+      <ng-template appCol="montant" let-r>
+        <span class="col-montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ formatFCFA(r.montant) }}</span>
+      </ng-template>
+
+      <ng-template appCol="mode" let-r>
+        <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">
+          {{ 'FACTURATION.MODE.' + r.modePaiement | translate }}
         </span>
-        <div class="pagination-btns">
-          <button
-            class="page-btn"
-            [disabled]="page() === 0"
-            (click)="goPage(page() - 1)"
-            aria-label="Page précédente"
-          >
-            <i class="pi pi-chevron-left"></i>
-          </button>
-          @for (p of visiblePages(); track p) {
-            <button
-              class="page-btn"
-              [class.page-btn--active]="p === page()"
-              (click)="goPage(p)"
-            >{{ p + 1 }}</button>
-          }
-          <button
-            class="page-btn"
-            [disabled]="page() >= pageCount() - 1"
-            (click)="goPage(page() + 1)"
-            aria-label="Page suivante"
-          >
-            <i class="pi pi-chevron-right"></i>
-          </button>
-        </div>
-      </div>
-      }
-    }
+      </ng-template>
+
+      <ng-template appCol="operateur" let-r><span class="col-operateur">—</span></ng-template>
+
+      <ng-template appCol="statut" let-r>
+        <span class="statut-badge statut-badge--{{ statutClass(r) }}">{{ statutLabel(r) }}</span>
+      </ng-template>
+    </app-data-table>
   </div>
 
 </div>

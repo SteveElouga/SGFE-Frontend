@@ -16,6 +16,8 @@ import { extractGqlError } from '../../core/auth/auth.service';
 import { SoldeFacture, SuiviImpaye } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 
 interface ImpayeRow extends SoldeFacture {
   abonneId: string | null;
@@ -31,6 +33,8 @@ interface ImpayeRow extends SoldeFacture {
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    DataTableComponent,
+    DataTableCellDirective,
   ],
   templateUrl: './impayes-list.component.html',
   styleUrl: './impayes-list.component.scss',
@@ -46,8 +50,15 @@ export class ImpayesListComponent implements OnInit {
   readonly impayes = signal<ImpayeRow[]>([]);
 
   readonly filtreEtape = signal<number | 'TOUS'>('TOUS');
-  readonly page = signal(0);
-  readonly pageSize = 10;
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'abonne', header: 'IMPAYES.COL_ABONNE' },
+    { key: 'facture', header: 'IMPAYES.COL_FACTURE' },
+    { key: 'solde', header: 'IMPAYES.COL_SOLDE' },
+    { key: 'etape', header: 'IMPAYES.COL_ETAPE' },
+    { key: 'depassement', header: 'IMPAYES.COL_DEPASSEMENT' },
+    { key: 'actions', header: 'IMPAYES.COL_ACTIONS' },
+  ];
 
   readonly etapeOptions = computed((): Array<{ label: string; value: number | 'TOUS' }> => {
     const lang = this.translate.currentLang() ?? undefined;
@@ -64,26 +75,6 @@ export class ImpayesListComponent implements OnInit {
     const etape = this.filtreEtape();
     if (etape === 'TOUS') return this.impayes();
     return this.impayes().filter((i) => i.etapeActuelle === etape);
-  });
-
-  readonly totalCount = computed(() => this.impayesFiltres().length);
-  readonly pageCount = computed(() => Math.max(1, Math.ceil(this.totalCount() / this.pageSize)));
-  readonly paginatedImpayes = computed(() => {
-    const start = this.page() * this.pageSize;
-    return this.impayesFiltres().slice(start, start + this.pageSize);
-  });
-  readonly rangeStart = computed(() =>
-    this.totalCount() === 0 ? 0 : this.page() * this.pageSize + 1,
-  );
-  readonly rangeEnd = computed(() =>
-    Math.min((this.page() + 1) * this.pageSize, this.totalCount()),
-  );
-  readonly visiblePages = computed((): number[] => {
-    const total = this.pageCount();
-    const current = this.page();
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i);
-    const start = Math.max(0, Math.min(current - 2, total - 5));
-    return Array.from({ length: 5 }, (_, i) => start + i);
   });
 
   readonly totalDu = computed(() =>
@@ -135,11 +126,6 @@ export class ImpayesListComponent implements OnInit {
 
   onEtapeChange(etape: number | 'TOUS'): void {
     this.filtreEtape.set(etape);
-    this.page.set(0);
-  }
-
-  goPage(p: number): void {
-    this.page.set(p);
   }
 
   voirFacture(factureId: string): void {
