@@ -19,6 +19,7 @@ import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
+import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
 import { Facture } from '../../../shared/models/facture.model';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
@@ -49,6 +50,7 @@ export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
   private readonly campagnesService = inject(CampagnesService);
   private readonly facturesService = inject(FacturesService);
+  private readonly facturePdf = inject(FacturePdfService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
@@ -275,8 +277,16 @@ export class AbonneDetailComponent {
     return `${(n ?? 0).toLocaleString('fr-FR')} F`;
   }
 
-  pdfUrl(factureId: string): string {
-    return `/api/factures/${factureId}/pdf`;
+  async openPdf(factureId: string, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      await this.facturePdf.open(factureId);
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('ABONNES.DETAIL.PDF_ERROR'),
+      });
+    }
   }
 
   voirFactures(): void {

@@ -168,7 +168,8 @@
       "METER_LOCATION_REPRISE": "Localisation reprise : {{quartier}} · Camp {{camp}}",
       "METER_INFO_NOTE": "Le prochain relevé utilisera l'index initial du nouveau compteur. L'historique de l'ancien compteur reste consultable dans la fiche abonné.",
       "METER_CONFIRMER": "Confirmer le remplacement",
-      "PDF": "PDF"
+      "PDF": "PDF",
+      "PDF_ERROR": "Impossible d'ouvrir le PDF. Réessayez."
     },
     "FORM": {
       "CREATE_TITLE": "Nouvel abonné",

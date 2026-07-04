@@ -8,8 +8,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -17,6 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { FacturesService } from '../../../core/factures/factures.service';
+import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
@@ -50,7 +49,7 @@ export class FactureDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly translate = inject(TranslateService);
-  private readonly http = inject(HttpClient);
+  private readonly facturePdf = inject(FacturePdfService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -259,36 +258,15 @@ export class FactureDetailComponent implements OnInit {
     await this.load(factureId);
   }
 
-  // Le PDF est servi par un endpoint REST protégé par le JWT (header
-  // Authorization). Une navigation <a href> ne porte pas ce token → 401 →
-  // redirection login. On récupère donc le PDF via HttpClient (l'intercepteur
-  // ajoute le Bearer) sous forme de blob, puis on l'ouvre dans un onglet.
+  // Le PDF est servi par un endpoint REST protégé par le JWT — voir
+  // FacturePdfService (récupération blob + Bearer via l'intercepteur).
   async openPdf(): Promise<void> {
     const f = this.facture();
     if (!f || this.pdfLoading()) return;
     this.pdfLoading.set(true);
-    // Ouvrir l'onglet dans le geste utilisateur pour éviter le blocage popup.
-    const win = window.open('', '_blank');
     try {
-      // Slash final : convention Django du gateway (cf. route espace-abonné).
-      // PENDING BACKEND : cette route authentifiée doit être exposée
-      // (cf. docs/BESOINS_API_facturation.md §3).
-      const blob = await firstValueFrom(
-        this.http.get(`/api/factures/${f.factureId}/pdf/`, { responseType: 'blob' }),
-      );
-      const url = URL.createObjectURL(blob);
-      if (win) {
-        win.location.href = url;
-      } else {
-        // Popup bloquée : repli en téléchargement.
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `facture-${f.numeroFacture ?? f.factureId}.pdf`;
-        a.click();
-      }
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      await this.facturePdf.open(f.factureId, `facture-${f.numeroFacture ?? f.factureId}.pdf`);
     } catch {
-      win?.close();
       this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'),

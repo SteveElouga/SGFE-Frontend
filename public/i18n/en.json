@@ -168,7 +168,8 @@
       "METER_LOCATION_REPRISE": "Location carried over: {{quartier}} · Camp {{camp}}",
       "METER_INFO_NOTE": "The next reading will use the new meter's initial index. History from the old meter remains viewable in the subscriber file.",
       "METER_CONFIRMER": "Confirm replacement",
-      "PDF": "PDF"
+      "PDF": "PDF",
+      "PDF_ERROR": "Could not open the PDF. Please try again."
     },
     "FORM": {
       "CREATE_TITLE": "New subscriber",
