@@ -7,14 +7,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Apollo, QueryRef } from 'apollo-angular';
+import { Apollo } from 'apollo-angular';
 import { Subscription } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { GET_WHATSAPP_QR } from '../../../graphql/queries/configuration.queries';
+import { WHATSAPP_STATUS_SUB } from '../../../graphql/queries/configuration.queries';
 import { WhatsappQr } from '../../../shared/models/configuration.model';
-
-const POLL_INTERVAL_MS = 5000;
 
 @Component({
   selector: 'app-whatsapp-link',
@@ -27,7 +25,6 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
   private readonly apollo = inject(Apollo);
   private readonly translate = inject(TranslateService);
 
-  private queryRef?: QueryRef<{ whatsappQr: WhatsappQr }>;
   private sub?: Subscription;
 
   readonly loading = signal(true);
@@ -41,53 +38,47 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
   readonly waiting = computed(() => !this.ready() && !this.qr() && !this.error());
 
   ngOnInit(): void {
-    this.startPolling();
+    this.listen();
   }
 
   ngOnDestroy(): void {
     this.stop();
   }
 
-  private startPolling(): void {
-    this.queryRef = this.apollo.watchQuery<{ whatsappQr: WhatsappQr }>({
-      query: GET_WHATSAPP_QR,
-      pollInterval: POLL_INTERVAL_MS,
-      // Le QR tourne côté serveur : on veut toujours la valeur fraîche.
-      fetchPolicy: 'network-only',
-    });
-
-    this.sub = this.queryRef.valueChanges.subscribe({
-      next: ({ data, loading }) => {
-        const qrData = data?.whatsappQr;
-        if (qrData) {
-          const isReady = qrData.ready ?? false;
+  /**
+   * Statut poussé en temps réel via WebSocket (transport déjà en place, cf.
+   * abonneUpdated) : snapshot initial + push à chaque changement d'état — plus
+   * de polling. La souscription reste ouverte tant que l'onglet est actif, donc
+   * une perte de session (ready→false) est aussi remontée en direct.
+   */
+  private listen(): void {
+    this.sub = this.apollo
+      .subscribe<{ whatsappStatus: WhatsappQr }>({
+        query: WHATSAPP_STATUS_SUB,
+        // Erreur affichée en local (bandeau + Réessayer) — pas de toast global.
+        context: { silentError: true },
+      })
+      .subscribe({
+        next: ({ data }) => {
+          const status = data?.whatsappStatus;
+          if (!status) return;
           this.loading.set(false);
           this.error.set(null);
-          this.ready.set(isReady);
-          this.qr.set(qrData.qr ?? '');
-          this.number.set(qrData.number ?? '');
-          // Compte lié → inutile de continuer à interroger.
-          if (isReady) {
-            this.queryRef?.stopPolling();
-          }
-        } else {
-          this.loading.set(loading ?? false);
-        }
-      },
-      error: (err: unknown) => {
-        const { message } = extractGqlError(err);
-        this.error.set(message || this.translate.instant('CONFIGURATION.WHATSAPP_QR_ERROR'));
-        this.loading.set(false);
-        this.queryRef?.stopPolling();
-      },
-    });
+          this.ready.set(status.ready ?? false);
+          this.qr.set(status.qr ?? '');
+          this.number.set(status.number ?? '');
+        },
+        error: (err: unknown) => {
+          const { message } = extractGqlError(err);
+          this.error.set(message || this.translate.instant('CONFIGURATION.WHATSAPP_QR_ERROR'));
+          this.loading.set(false);
+        },
+      });
   }
 
   private stop(): void {
-    this.queryRef?.stopPolling();
     this.sub?.unsubscribe();
     this.sub = undefined;
-    this.queryRef = undefined;
   }
 
   retry(): void {
@@ -97,6 +88,6 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
     this.qr.set('');
     this.ready.set(false);
     this.number.set('');
-    this.startPolling();
+    this.listen();
   }
 }

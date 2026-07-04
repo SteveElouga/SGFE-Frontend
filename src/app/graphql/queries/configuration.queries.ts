@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client/core';
 
-// QR de liaison WhatsApp (ADMIN uniquement).
-// ready=true → compte déjà lié (number renseigné). Sinon qr = data-URL PNG
-// à afficher ; le code tourne, re-poller ~5 s jusqu'à ready=true.
-export const GET_WHATSAPP_QR = gql`
-  query WhatsappQr {
-    whatsappQr {
+// Statut de liaison WhatsApp poussé en temps réel (ADMIN, type WhatsAppQr).
+// Le gateway envoie un snapshot initial puis pousse à chaque changement d'état
+// (ready/qr/number) via WebSocket — remplace le polling de whatsappQr.
+export const WHATSAPP_STATUS_SUB = gql`
+  subscription WhatsappStatus {
+    whatsappStatus {
       ready
       qr
       number

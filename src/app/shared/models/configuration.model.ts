@@ -19,7 +19,7 @@ export interface ConfigParam {
   description: string;
 }
 
-/** État de liaison WhatsApp du compte dédié (query `whatsappQr`). */
+/** État de liaison WhatsApp du compte dédié (subscription `whatsappStatus`, type WhatsAppQr). */
 export interface WhatsappQr {
   /** true → compte déjà lié (number renseigné, qr null). */
   ready: boolean;
