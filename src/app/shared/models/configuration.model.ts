@@ -19,13 +19,14 @@ export interface ConfigParam {
   description: string;
 }
 
-/** Session WhatsApp du compte dédié (query `whatsappSession`). */
-export interface WhatsappSession {
-  connected: boolean;
-  /** Numéro du compte lié — renseigné seulement si connected=true. */
-  number: string | null;
-  /** QR d'appairage (data-URL PNG) — renseigné seulement si connected=false. */
+/** État de liaison WhatsApp du compte dédié (query `whatsappQr`). */
+export interface WhatsappQr {
+  /** true → compte déjà lié (number renseigné, qr null). */
+  ready: boolean;
+  /** QR d'appairage (data-URL PNG) — renseigné seulement si ready=false. */
   qr: string | null;
+  /** Numéro du compte lié — renseigné seulement si ready=true. */
+  number: string | null;
 }
 
 /** Résultat d'un envoi de test WhatsApp (mutation `testerEnvoiWhatsapp`). */

@@ -72,6 +72,14 @@
     margin-top: 3px;
   }
 
+  &__number {
+    font-size: 11px;
+    color: #0f172a;
+    margin-top: 5px;
+
+    strong { font-weight: 700; }
+  }
+
   &__status {
     display: inline-flex;
     align-items: center;
