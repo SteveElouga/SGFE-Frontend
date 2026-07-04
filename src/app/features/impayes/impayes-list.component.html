@@ -21,16 +21,15 @@
   }
 
   <!-- Filters -->
-  <div class="filters-bar">
+  <app-filter-bar [showSearch]="false">
     <p-select
       [options]="etapeOptions()"
       [ngModel]="filtreEtape()"
       (ngModelChange)="onEtapeChange($event)"
       optionLabel="label"
       optionValue="value"
-      styleClass="filters-bar__select"
     />
-  </div>
+  </app-filter-bar>
 
   <!-- Table -->
   <div class="table-wrap">

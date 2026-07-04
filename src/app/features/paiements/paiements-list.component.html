@@ -12,18 +12,11 @@
   }
 
   <!-- Filters -->
-  <div class="filters-bar">
-    <p-iconfield class="search-field">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        pInputText
-        type="text"
-        [placeholder]="'PAIEMENTS.SEARCH_PLACEHOLDER' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="onSearchChange($event)"
-      />
-    </p-iconfield>
-
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="onSearchChange($event)"
+    searchPlaceholder="PAIEMENTS.SEARCH_PLACEHOLDER"
+  >
     <p-select
       [options]="campagneOptions()"
       [ngModel]="selectedCampagneId()"
@@ -72,7 +65,7 @@
       [showIcon]="true"
       icon="pi pi-chevron-down"
     />
-  </div>
+  </app-filter-bar>
 
   <!-- Table -->
   <div class="table-wrap">

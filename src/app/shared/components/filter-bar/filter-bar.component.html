@@ -1,0 +1,16 @@
+<div class="filter-bar">
+  @if (showSearch()) {
+    <p-iconfield class="filter-bar__search">
+      <p-inputicon styleClass="pi pi-search" />
+      <input
+        pInputText
+        type="text"
+        [placeholder]="searchPlaceholder() | translate"
+        [attr.aria-label]="searchPlaceholder() | translate"
+        [ngModel]="search()"
+        (ngModelChange)="searchChange.emit($event)"
+      />
+    </p-iconfield>
+  }
+  <ng-content />
+</div>

@@ -29,20 +29,11 @@
   }
 
   <!-- Filters -->
-  <div class="filters-bar">
-    <p-iconfield class="filters-bar__search">
-      <p-inputicon styleClass="pi pi-search" />
-      <input
-        pInputText
-        id="factures-search"
-        type="text"
-        [placeholder]="'FACTURATION.SEARCH_PLACEHOLDER' | translate"
-        [attr.aria-label]="'FACTURATION.SEARCH_PLACEHOLDER' | translate"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event)"
-      />
-    </p-iconfield>
-
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="searchTerm.set($event)"
+    searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
+  >
     <!-- Campagne switcher -->
     <p-select
       [options]="allCampagnes()"
@@ -91,7 +82,7 @@
         {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
       </button>
     }
-  </div>
+  </app-filter-bar>
 
   <!-- Table -->
   <div class="factures-table-wrap">

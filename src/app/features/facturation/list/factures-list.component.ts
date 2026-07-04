@@ -10,9 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { FacturesService } from '../../../core/factures/factures.service';
@@ -23,6 +20,7 @@ import { Campagne } from '../../../shared/models/campagne.model';
 import { Facture, ModePaiement, StatutFacture } from '../../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { GET_ABONNES } from '../../../graphql/queries/abonnes.queries';
@@ -44,12 +42,10 @@ interface CampagneOption {
   imports: [
     FormsModule,
     SelectModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,

@@ -11,9 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
@@ -27,7 +24,7 @@ import {
 } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
+import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -44,13 +41,10 @@ interface MiniProgression {
     DatePipe,
     LowerCasePipe,
     FormsModule,
-    InputTextModule,
-    IconFieldModule,
-    InputIconModule,
     SelectModule,
     ErrorBannerComponent,
     PageTopbarComponent,
-    PageFiltersComponent,
+    FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
     TranslatePipe,

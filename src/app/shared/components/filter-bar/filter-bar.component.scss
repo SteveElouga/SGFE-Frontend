@@ -1,0 +1,21 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  &__search {
+    flex: 1;
+    min-width: 180px;
+
+    input { width: 100%; }
+  }
+}
