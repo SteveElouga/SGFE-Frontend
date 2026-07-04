@@ -45,6 +45,8 @@
   }
 
   tbody > tr:last-child > td { border-bottom: none; }
+
+  &--striped tbody > tr:nth-child(even) > td { background: #fafbfc; }
 }
 
 .dt__row {
@@ -59,6 +61,9 @@
     background: #eff6ff;
     box-shadow: inset 3px 0 0 $color-primary;
   }
+
+  // Ligne mise en avant (ex : campagne en cours) — teinte discrète
+  &--active > td { background: #f8fbff; }
 }
 
 // ── Cartes mobiles ──────────────────────────────────────────────────────────

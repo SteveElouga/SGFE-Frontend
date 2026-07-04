@@ -1,5 +1,4 @@
 @use '../../../../styles/variables' as *;
-@use '../../../../styles/data-table' as *;
 
 :host {
   display: block;
@@ -61,17 +60,6 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
-}
-
-// ── Styles tableau (::ng-deep pour PrimeNG) ───────────────────────────────────
-
-@include data-table('abonnes-table');
-
-// Ligne alternée spécifique à cette liste
-:host ::ng-deep .abonnes-table {
-  .p-datatable-tbody > tr.abonnes-row--even > td {
-    background: #fafbfc;
-  }
 }
 
 // ── Cellules du tableau ───────────────────────────────────────────────────────

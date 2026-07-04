@@ -1,6 +1,5 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
-@use '../../../styles/data-table' as *;
 
 :host { display: block; }
 
@@ -36,10 +35,6 @@
   border-radius: 12px;
   overflow: hidden;
 }
-
-// ── Styles PrimeNG table ──────────────────────────────────────────────────────
-
-@include data-table('users-table');
 
 // ── Cellules ──────────────────────────────────────────────────────────────────
 

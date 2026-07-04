@@ -11,7 +11,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe, LowerCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -29,6 +28,8 @@ import {
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
+import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ToastService } from '../../../shared/services/toast.service';
 
 interface MiniProgression {
@@ -43,7 +44,6 @@ interface MiniProgression {
     DatePipe,
     LowerCasePipe,
     FormsModule,
-    TableModule,
     InputTextModule,
     IconFieldModule,
     InputIconModule,
@@ -51,6 +51,8 @@ interface MiniProgression {
     ErrorBannerComponent,
     PageTopbarComponent,
     PageFiltersComponent,
+    DataTableComponent,
+    DataTableCellDirective,
     TranslatePipe,
   ],
   templateUrl: './campagnes-list.component.html',
@@ -74,6 +76,18 @@ export class CampagnesListComponent implements OnInit {
   readonly filtreStatut = signal<StatutCampagne | 'TOUTES'>('TOUTES');
   readonly filtreAgent = signal<string | null>(null);
   readonly searchTerm = signal('');
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'campagne', header: 'CAMPAGNES.COL_CAMPAGNE' },
+    { key: 'planifiee', header: 'CAMPAGNES.COL_PLANIFIEE' },
+    { key: 'agents', header: 'CAMPAGNES.COL_AGENTS' },
+    { key: 'avancement', header: 'CAMPAGNES.COL_AVANCEMENT' },
+    { key: 'statut', header: 'CAMPAGNES.COL_STATUT' },
+    { key: 'actions', header: 'COMMON.ACTIONS' },
+  ];
+  /** Surligne discrètement les campagnes en cours. */
+  readonly rowClassCampagne = (c: Campagne): string | null =>
+    c.statut === 'EN_COURS' ? 'dt__row--active' : null;
 
   // Progressions chargées en arrière-plan après la liste
   readonly progressions = signal<Map<string, MiniProgression>>(new Map());

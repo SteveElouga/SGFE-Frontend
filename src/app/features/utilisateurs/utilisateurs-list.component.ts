@@ -12,7 +12,6 @@ import { Router, RouterLink } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -27,6 +26,8 @@ import { PageTopbarComponent } from '../../shared/components/page-topbar/page-to
 import { PageFiltersComponent } from '../../shared/components/page-filters/page-filters.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { ToastService } from '../../shared/services/toast.service';
+import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 
 const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
   ADMIN: 'danger',
@@ -41,7 +42,8 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     DatePipe,
     FormsModule,
     RouterLink,
-    TableModule,
+    DataTableComponent,
+    DataTableCellDirective,
     TagModule,
     IconFieldModule,
     InputIconModule,
@@ -73,6 +75,23 @@ export class UtilisateursListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly filtreRole = signal<Role | null>(null);
   readonly filtreStatut = signal<'TOUS' | 'ACTIF' | 'INACTIF'>('TOUS');
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'username', header: 'UTILISATEURS.USERNAME' },
+    { key: 'phone', header: 'UTILISATEURS.PHONE' },
+    { key: 'role', header: 'UTILISATEURS.ROLE' },
+    { key: 'statut', header: 'COMMON.STATUS' },
+    { key: 'createdAt', header: 'UTILISATEURS.CREATED_AT' },
+    { key: 'actions', header: '' },
+  ];
+
+  /** Message d'état vide (résolu avec le terme de recherche si présent). */
+  readonly emptyMsg = computed(() => {
+    const term = this.searchTerm();
+    return term
+      ? this.translate.instant('UTILISATEURS.NO_RESULT_SEARCH', { term })
+      : this.translate.instant('UTILISATEURS.NO_RESULT');
+  });
 
   readonly subtitle = computed(() => {
     const count = this.users().length;
