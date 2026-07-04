@@ -17,8 +17,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -29,6 +27,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-abonnes-list',
@@ -41,7 +40,6 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     InputTextModule,
     SelectModule,
     DialogModule,
-    ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
     PageTopbarComponent,
@@ -49,14 +47,13 @@ import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
     CompteurPipe,
     TranslatePipe,
   ],
-  providers: [MessageService],
   templateUrl: './abonnes-list.component.html',
   styleUrl: './abonnes-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonnesListComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
@@ -201,18 +198,10 @@ export class AbonnesListComponent implements OnInit {
       const updated = await this.abonnesService.reactiverAbonne(abonne.id);
       this.abonnes.update((list) => list.map((a) => (a.id === updated.id ? updated : a)));
       this.reactiverDialogVisible.set(false);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'),
-        detail: `${abonne.nom} ${abonne.prenom} est de nouveau actif.`,
-      });
+      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'), `${abonne.nom} ${abonne.prenom} est de nouveau actif.`);
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('ERRORS.GENERIC'),
-        detail: message || 'Impossible de réactiver cet abonné.',
-      });
+      this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || 'Impossible de réactiver cet abonné.');
     } finally {
       this.reactiverLoading.set(false);
     }

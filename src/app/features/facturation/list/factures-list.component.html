@@ -1,4 +1,3 @@
-<p-toast />
 
 <app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()" />
 
@@ -222,8 +221,8 @@
         }
       </div>
 
-      <!-- Pagination footer -->
-      @if (totalCount() > 0) {
+      <!-- Pagination footer : affiché seulement au-delà d'une page -->
+      @if (pageCount() > 1) {
         <div class="table-footer">
           <span class="pagination-info">
             {{ 'FACTURATION.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: totalCount() } }}

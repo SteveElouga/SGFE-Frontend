@@ -16,8 +16,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
@@ -27,6 +26,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { PageFiltersComponent } from '../../shared/components/page-filters/page-filters.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { ToastService } from '../../shared/services/toast.service';
 
 const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
   ADMIN: 'danger',
@@ -47,7 +47,6 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     InputIconModule,
     InputTextModule,
     ConfirmDialogModule,
-    ToastModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
     PageTopbarComponent,
@@ -56,7 +55,7 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     SelectModule,
     TranslatePipe,
   ],
-  providers: [ConfirmationService, MessageService],
+  providers: [ConfirmationService],
   templateUrl: './utilisateurs-list.component.html',
   styleUrl: './utilisateurs-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -64,7 +63,7 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
 export class UtilisateursListComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
@@ -165,18 +164,10 @@ export class UtilisateursListComponent implements OnInit {
       this.users.update((list) =>
         list.map((u) => (u.id === updated.id ? updated : u)),
       );
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION'),
-        detail: this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION_DETAIL', { username: user.username }),
-      });
+      this.toast.success(this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION'), this.translate.instant('UTILISATEURS.SUCCESS_DESACTIVATION_DETAIL', { username: user.username }));
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('ERRORS.GENERIC'),
-        detail: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || this.translate.instant('ERRORS.GENERIC'));
     }
   }
 }

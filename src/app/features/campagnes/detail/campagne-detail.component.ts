@@ -11,9 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
-import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
@@ -26,6 +24,7 @@ import {
   formatPeriodeCampagne,
 } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-campagne-detail',
@@ -36,12 +35,10 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
     LowerCasePipe,
     SlicePipe,
     FormsModule,
-    ToastModule,
     SelectModule,
     ErrorBannerComponent,
     TranslatePipe,
   ],
-  providers: [MessageService],
   templateUrl: './campagne-detail.component.html',
   styleUrl: './campagne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,7 +46,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
 export class CampagneDetailComponent implements OnInit {
   private readonly service = inject(CampagnesService);
   private readonly abonnesService = inject(AbonnesService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
@@ -200,16 +197,10 @@ export class CampagneDetailComponent implements OnInit {
     try {
       await this.service.cloturerCampagne(this.campagneId);
       await this.load();
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CAMPAGNES.SUCCESS_CLOTUREE'),
-      });
+      this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CLOTUREE'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.cloturant.set(false);
     }

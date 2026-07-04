@@ -10,14 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
 import { AuthFieldComponent } from '../../shared/components/auth-field/auth-field.component';
+import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-utilisateur-form',
@@ -26,18 +25,16 @@ import { AuthFieldComponent } from '../../shared/components/auth-field/auth-fiel
     RouterLink,
     InputTextModule,
     SelectModule,
-    ToastModule,
     TranslatePipe,
     AuthFieldComponent,
   ],
-  providers: [MessageService],
   templateUrl: './utilisateur-form.component.html',
   styleUrl: './utilisateur-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtilisateurFormComponent implements OnInit {
   private readonly usersService = inject(UsersService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
@@ -125,12 +122,7 @@ export class UtilisateurFormComponent implements OnInit {
           role: this.role(),
           email: this.requiresEmail() ? this.email().trim() : undefined,
         });
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE'),
-          detail: this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE_DETAIL', { username: this.username().trim() }),
-          life: 4000,
-        });
+        this.toast.success(this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE'), this.translate.instant('UTILISATEURS.FORM.SUCCESS_CREATE_DETAIL', { username: this.username().trim() }));
       } else {
         const id = this.userId()!;
         await this.usersService.updateUser(id, {
@@ -138,12 +130,7 @@ export class UtilisateurFormComponent implements OnInit {
           role: this.role(),
           email: this.email().trim() || undefined,
         });
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT'),
-          detail: this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT_DETAIL'),
-          life: 3000,
-        });
+        this.toast.success(this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT'), this.translate.instant('UTILISATEURS.FORM.SUCCESS_EDIT_DETAIL'));
       }
       setTimeout(() => this.router.navigateByUrl('/utilisateurs'), 1500);
     } catch (error: unknown) {

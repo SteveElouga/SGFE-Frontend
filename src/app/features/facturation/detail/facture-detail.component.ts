@@ -10,8 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { FacturesService } from '../../../core/factures/factures.service';
@@ -24,19 +22,18 @@ import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
     FormsModule,
     DecimalPipe,
-    ToastModule,
     SelectModule,
     InputTextModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
   ],
-  providers: [MessageService],
   templateUrl: './facture-detail.component.html',
   styleUrl: './facture-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -47,7 +44,7 @@ export class FactureDetailComponent implements OnInit {
   private readonly campagnesService = inject(CampagnesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   private readonly facturePdf = inject(FacturePdfService);
 
@@ -267,10 +264,7 @@ export class FactureDetailComponent implements OnInit {
     try {
       await this.facturePdf.open(f.factureId, `facture-${f.numeroFacture ?? f.factureId}.pdf`);
     } catch {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'),
-      });
+      this.toast.error(this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'));
     } finally {
       this.pdfLoading.set(false);
     }
@@ -289,15 +283,12 @@ export class FactureDetailComponent implements OnInit {
         modePaiement: this.pMode(),
         referenceTransaction: this.pRef() || undefined,
       });
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
       this.showForm.set(false);
       await this.reload();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.submitting.set(false);
     }
@@ -312,14 +303,11 @@ export class FactureDetailComponent implements OnInit {
       } else {
         await this.facturesService.renvoyerFactureWhatsapp(f.factureId);
       }
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
       await this.reload();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     }
   }
 
@@ -334,14 +322,11 @@ export class FactureDetailComponent implements OnInit {
       const updated = await this.facturesService.updateStatutFacture(f.factureId, statut);
       this.facture.update((prev) => prev ? { ...prev, statut: updated.statut } : prev);
       this.newStatut.set(null);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_STATUT'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_STATUT'));
       await this.reload();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.changingStatut.set(false);
     }

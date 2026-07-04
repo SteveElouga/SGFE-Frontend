@@ -12,14 +12,13 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { DialogModule } from 'primeng/dialog';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { UsersService } from '../../core/users/users.service';
 import { Role, User } from '../../shared/models/user.model';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { ToastService } from '../../shared/services/toast.service';
 
 // Passe à `true` quand le backend a déployé reactivateUser + resendUserActivation
 // (cf. docs/BESOINS_API_utilisateurs.md). Tant que false, ces boutons sont
@@ -35,18 +34,16 @@ const ACTIVATION_ACTIONS_READY = false;
     InputTextModule,
     SelectModule,
     DialogModule,
-    ToastModule,
     TranslatePipe,
     TooltipDirective,
   ],
-  providers: [MessageService],
   templateUrl: './utilisateur-edit.component.html',
   styleUrl: './utilisateur-edit.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtilisateurEditComponent implements OnInit {
   private readonly usersService = inject(UsersService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
@@ -172,12 +169,7 @@ export class UtilisateurEditComponent implements OnInit {
       });
       this.user.set(updated);
       this.prefill(updated);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_SAVE'),
-        detail: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_SAVE_DETAIL'),
-        life: 3000,
-      });
+      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_SAVE'), this.translate.instant('UTILISATEURS.EDIT.SUCCESS_SAVE_DETAIL'));
     } catch (error: unknown) {
       const { code, message } = extractGqlError(error);
       if (code === 'ALREADY_EXISTS') {
@@ -206,14 +198,10 @@ export class UtilisateurEditComponent implements OnInit {
       const updated = await this.usersService.deactivateUser(u.id);
       this.user.set(updated);
       this.deactivateDialogVisible.set(false);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_DEACTIVATED'),
-        detail: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_DEACTIVATED_DETAIL', { username: u.username }),
-      });
+      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_DEACTIVATED'), this.translate.instant('UTILISATEURS.EDIT.SUCCESS_DEACTIVATED_DETAIL', { username: u.username }));
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.statutLoading.set(false);
     }
@@ -226,14 +214,10 @@ export class UtilisateurEditComponent implements OnInit {
     try {
       const updated = await this.usersService.reactivateUser(u.id);
       this.user.set(updated);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_REACTIVATED'),
-        detail: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_REACTIVATED_DETAIL', { username: u.username }),
-      });
+      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_REACTIVATED'), this.translate.instant('UTILISATEURS.EDIT.SUCCESS_REACTIVATED_DETAIL', { username: u.username }));
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.statutLoading.set(false);
     }
@@ -250,14 +234,10 @@ export class UtilisateurEditComponent implements OnInit {
       const detailKey = u.role === 'ADMIN'
         ? 'UTILISATEURS.EDIT.SUCCESS_RESENT_EMAIL'
         : 'UTILISATEURS.EDIT.SUCCESS_RESENT_WHATSAPP';
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT'),
-        detail: this.translate.instant(detailKey, { username: u.username }),
-      });
+      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT'), this.translate.instant(detailKey, { username: u.username }));
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.resendLoading.set(false);
     }

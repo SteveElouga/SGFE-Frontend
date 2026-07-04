@@ -9,10 +9,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
 import { DatePipe, NgClass } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
@@ -26,12 +24,12 @@ import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.quer
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
     FormsModule,
     RouterLink,
-    ToastModule,
     DialogModule,
     InputTextModule,
     DatePipe,
@@ -41,7 +39,6 @@ import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
     ErrorBannerComponent,
     TooltipDirective,
   ],
-  providers: [MessageService],
   templateUrl: './abonne-detail.component.html',
   styleUrl: './abonne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +48,7 @@ export class AbonneDetailComponent {
   private readonly campagnesService = inject(CampagnesService);
   private readonly facturesService = inject(FacturesService);
   private readonly facturePdf = inject(FacturePdfService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
@@ -282,10 +279,7 @@ export class AbonneDetailComponent {
     try {
       await this.facturePdf.open(factureId);
     } catch {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('ABONNES.DETAIL.PDF_ERROR'),
-      });
+      this.toast.error(this.translate.instant('ABONNES.DETAIL.PDF_ERROR'));
     }
   }
 
@@ -346,10 +340,10 @@ export class AbonneDetailComponent {
     try {
       const updated = await this.abonnesService.suspendreAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.messageService.add({ severity: 'warn', summary: this.translate.instant('ABONNES.DETAIL.TOAST_SUSPENDED') });
+      this.toast.warning(this.translate.instant('ABONNES.DETAIL.TOAST_SUSPENDED'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.statutLoading.set(false);
     }
@@ -365,10 +359,10 @@ export class AbonneDetailComponent {
       const updated = await this.abonnesService.reactiverAbonne(this.abonneId);
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
       this.reactiverDialogVisible.set(false);
-      this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED') });
+      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.statutLoading.set(false);
     }
@@ -387,10 +381,10 @@ export class AbonneDetailComponent {
       this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
       this.resilierDialogVisible.set(false);
       this.resilierConfirme.set(false);
-      this.messageService.add({ severity: 'info', summary: this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE') });
+      this.toast.info(this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.statutLoading.set(false);
     }
@@ -440,10 +434,10 @@ export class AbonneDetailComponent {
       const newCompteur = await this.abonnesService.remplacerCompteur(this.abonneId, input);
       this.abonne.update((a) => (a ? { ...a, compteur: newCompteur } : a));
       this.remplacerVisible.set(false);
-      this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.DETAIL.TOAST_METER_REPLACED') });
+      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_METER_REPLACED'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.remplacerLoading.set(false);
     }
