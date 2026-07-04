@@ -297,7 +297,7 @@ export class PaiementsListComponent implements OnInit {
 
   exportCSV(): void {
     const rows = this.rows();
-    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Statut'];
+    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Opérateur', 'Statut'];
     const lines = rows.map((r) =>
       [
         this.formatDate(r.datePaiement),
@@ -305,6 +305,7 @@ export class PaiementsListComponent implements OnInit {
         r.numeroFacture,
         r.montant,
         r.modePaiement,
+        '—',
         r.statutFacture ?? '—',
       ].join(';'),
     );
