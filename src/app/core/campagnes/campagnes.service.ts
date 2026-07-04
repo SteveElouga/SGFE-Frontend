@@ -30,7 +30,10 @@ export class CampagnesService {
   private readonly apollo = inject(Apollo);
 
   watchCampagnes(): QueryRef<{ campagnes: Campagne[] }> {
-    return this.apollo.watchQuery<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES });
+    return this.apollo.watchQuery<{ campagnes: Campagne[] }>({
+      query: GET_CAMPAGNES,
+      fetchPolicy: 'cache-and-network',
+    });
   }
 
   watchCampagne(campagneId: string): QueryRef<{ campagne: Campagne }> {
@@ -82,6 +85,8 @@ export class CampagnesService {
   }
 
   async creerCampagne(input: CreateCampagneInput): Promise<Campagne> {
+    // Pas de refetch ici : la liste (watchCampagnes) est en cache-and-network,
+    // elle refait la requête à chaque montage → fraîche après navigation.
     const result = await firstValueFrom(
       this.apollo.mutate<{ creerCampagne: Campagne }>({
         mutation: CREER_CAMPAGNE,
