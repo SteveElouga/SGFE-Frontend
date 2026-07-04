@@ -1,15 +1,14 @@
 import { gql } from '@apollo/client/core';
 
-// Session WhatsApp du compte dédié (ADMIN uniquement).
-// connected=true → compte déjà lié (number renseigné, qr null).
-// Sinon qr = data-URL PNG à afficher ; le code tourne, re-poller ~5 s.
-// Une seule requête donne statut + numéro + QR (pas de query dédiée au QR).
-export const GET_WHATSAPP_SESSION = gql`
-  query WhatsappSession {
-    whatsappSession {
-      connected
-      number
+// QR de liaison WhatsApp (ADMIN uniquement).
+// ready=true → compte déjà lié (number renseigné). Sinon qr = data-URL PNG
+// à afficher ; le code tourne, re-poller ~5 s jusqu'à ready=true.
+export const GET_WHATSAPP_QR = gql`
+  query WhatsappQr {
+    whatsappQr {
+      ready
       qr
+      number
     }
   }
 `;

@@ -425,6 +425,9 @@
     "DELAI_PAIEMENT": "Payment window",
     "TOKEN_REVOKE": "Revoke all active tokens",
     "TOKEN_REVOKE_BTN": "Revoke",
+    "TOKEN_REVOKE_CONFIRM_TITLE": "Revoke all active tokens?",
+    "TOKEN_REVOKE_CONFIRM": "All currently valid subscriber access links will be invalidated immediately. A new link will be regenerated on the next invoice. This action cannot be undone.",
+    "TOKEN_REVOKE_SUCCESS": "{{ count }} token(s) revoked.",
     "RELANCE": {
       "HINT": "Delays in days after the payment due date (EF-IMP-006)",
       "ETAPE_1": "Step 1 · Soft",

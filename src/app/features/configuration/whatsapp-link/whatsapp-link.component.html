@@ -1,5 +1,5 @@
 <!-- Compte déjà lié -->
-@if (connected()) {
+@if (ready()) {
   <div class="wa-link wa-link--linked">
     <div class="wa-link__icon wa-link__icon--ok" aria-hidden="true">
       <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -8,10 +8,10 @@
     </div>
     <div class="wa-link__body">
       <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_LINKED_TITLE' | translate }}</div>
-      <div class="wa-link__desc">
-        {{ 'CONFIGURATION.WHATSAPP_LINKED_DESC' | translate }}
-        @if (number()) { <br />{{ number() }} }
-      </div>
+      <div class="wa-link__desc">{{ 'CONFIGURATION.WHATSAPP_LINKED_DESC' | translate }}</div>
+      @if (number()) {
+        <div class="wa-link__number">{{ 'CONFIGURATION.WHATSAPP_NUMBER' | translate }} : <strong>{{ number() }}</strong></div>
+      }
     </div>
     <span class="wa-link__status">
       <span class="wa-link__dot"></span>

@@ -368,63 +368,33 @@
 .users-link { text-decoration: none; width: fit-content; }
 
 // ── WhatsApp & tokens ─────────────────────────────────────────────────────────
-
-.qr-row {
-  display: flex;
-  align-items: center;
-  gap: 13px;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 9px;
-
-  &__body { flex: 1; min-width: 0; }
-  &__title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #0f172a;
-    margin-bottom: 2px;
-  }
-  &__desc { font-size: 10px; color: #94a3b8; line-height: 1.5; }
-}
-
-.qr-thumb {
-  width: 56px;
-  height: 56px;
-  flex-shrink: 0;
-  border-radius: 8px;
-  background: #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-
-  .pi { font-size: 30px; }
-}
+// (statut de session + appairage QR : composant dédié WhatsappLinkComponent)
 
 .wa-number-row {
   display: flex;
   align-items: flex-end;
   gap: 9px;
+  margin-top: 9px;
 
   .form-field { flex: 1; margin-bottom: 0; }
 }
 
-.session-status {
+// Résultat inline de l'envoi de test (succès ou motif d'échec renvoyé par le backend)
+.test-result {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: 11px;
   font-weight: 500;
-  margin: 10px 0 4px;
+  line-height: 1.4;
+  margin: 8px 0 4px;
+  padding: 8px 11px;
+  border-radius: 8px;
 
-  &__dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
-  &--pending { color: #b45309;
-    .session-status__dot { background: #f59e0b; }
-  }
+  .pi { flex-shrink: 0; font-size: 14px; }
+
+  &--ok  { color: #0e7a52; background: #ecfdf5; border: 1px solid #a7f3d0; }
+  &--ko  { color: #b45309; background: #fffbeb; border: 1px solid #fde68a; }
 }
 
 .kpi-grid {

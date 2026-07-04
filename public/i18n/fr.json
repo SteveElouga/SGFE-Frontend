@@ -425,6 +425,9 @@
     "DELAI_PAIEMENT": "Délai de paiement",
     "TOKEN_REVOKE": "Révoquer tous les tokens actifs",
     "TOKEN_REVOKE_BTN": "Révoquer",
+    "TOKEN_REVOKE_CONFIRM_TITLE": "Révoquer tous les tokens actifs ?",
+    "TOKEN_REVOKE_CONFIRM": "Tous les liens d'accès abonnés actuellement valides seront invalidés immédiatement. Un nouveau lien sera régénéré à la prochaine facture. Cette action est irréversible.",
+    "TOKEN_REVOKE_SUCCESS": "{{ count }} token(s) révoqué(s).",
     "RELANCE": {
       "HINT": "Délais en jours après la date limite de paiement (EF-IMP-006)",
       "ETAPE_1": "Étape 1 · Doux",
