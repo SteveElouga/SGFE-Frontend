@@ -14,17 +14,17 @@ import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { extractGqlError } from '../../core/auth/auth.service';
-import { UsersService } from '../../core/users/users.service';
-import { Role, User } from '../../shared/models/user.model';
-import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
-import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
-import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
-import { TooltipDirective } from '../../shared/directives/tooltip.directive';
-import { ToastService } from '../../shared/services/toast.service';
-import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
-import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
+import { extractGqlError } from '../../../core/auth/auth.service';
+import { UsersService } from '../../../core/users/users.service';
+import { Role, User } from '../../../shared/models/user.model';
+import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { ToastService } from '../../../shared/services/toast.service';
+import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 
 const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
   ADMIN: 'danger',

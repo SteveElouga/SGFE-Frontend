@@ -112,21 +112,21 @@ export const routes: Routes = [
           {
             path: '',
             loadComponent: () =>
-              import('./features/utilisateurs/utilisateurs-list.component').then(
+              import('./features/utilisateurs/list/utilisateurs-list.component').then(
                 (m) => m.UtilisateursListComponent,
               ),
           },
           {
             path: 'nouveau',
             loadComponent: () =>
-              import('./features/utilisateurs/utilisateur-form.component').then(
+              import('./features/utilisateurs/form/utilisateur-form.component').then(
                 (m) => m.UtilisateurFormComponent,
               ),
           },
           {
             path: ':id',
             loadComponent: () =>
-              import('./features/utilisateurs/utilisateur-edit.component').then(
+              import('./features/utilisateurs/edit/utilisateur-edit.component').then(
                 (m) => m.UtilisateurEditComponent,
               ),
           },
