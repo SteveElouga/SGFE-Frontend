@@ -57,6 +57,21 @@ export const GET_PROGRESSION = gql`
   }
 `;
 
+// ── Souscription temps réel — PENDING BACKEND (message « souscriptions ») ─────
+// Avancement de campagne en direct (chaque saisie d'index d'un agent).
+// À brancher à la livraison (subscribeToMore sur la liste / le détail campagne).
+export const PROGRESSION_UPDATED_SUB = gql`
+  subscription ProgressionUpdated($campagneId: ID) {
+    progressionUpdated(campagneId: $campagneId) {
+      campagneId
+      totalAbonnes
+      nbReleves
+      nbEnAttente
+      pourcentage
+    }
+  }
+`;
+
 export const GET_DERNIER_INDEX = gql`
   query GetDernierIndex($abonneId: String!) {
     dernierIndex(abonneId: $abonneId) {
