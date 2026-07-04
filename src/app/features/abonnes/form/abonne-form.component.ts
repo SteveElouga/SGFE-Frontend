@@ -9,10 +9,8 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { ToastModule } from 'primeng/toast';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import {
@@ -23,6 +21,7 @@ import {
 } from '../../../core/abonnes/abonnes.service';
 import { Abonne } from '../../../shared/models/abonne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { ToastService } from '../../../shared/services/toast.service';
 import {
   isValidCameroonPhone,
   normalizePhone,
@@ -32,15 +31,15 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, RouterLink, ToastModule, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent],
-  providers: [MessageService, DatePipe],
+  imports: [FormsModule, RouterLink, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent],
+  providers: [DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonneFormComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly datePipe = inject(DatePipe);
   private readonly translate = inject(TranslateService);
@@ -258,7 +257,7 @@ export class AbonneFormComponent implements OnInit {
           datePose: this.datePose(),
         };
         await this.abonnesService.createAbonne(input);
-        this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.FORM.SUCCESS_CREATE_MSG') });
+        this.toast.success(this.translate.instant('ABONNES.FORM.SUCCESS_CREATE_MSG'));
         await this.router.navigateByUrl('/abonnes');
       } else {
         const id = this.abonneId;
@@ -298,15 +297,12 @@ export class AbonneFormComponent implements OnInit {
           }
         }
 
-        this.messageService.add({ severity: 'success', summary: this.translate.instant('ABONNES.FORM.SUCCESS_EDIT_MSG') });
+        this.toast.success(this.translate.instant('ABONNES.FORM.SUCCESS_EDIT_MSG'));
         await this.router.navigateByUrl(`/abonnes/${id}`);
       }
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.saving.set(false);
     }

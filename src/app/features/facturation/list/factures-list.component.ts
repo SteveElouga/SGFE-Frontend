@@ -9,8 +9,6 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -27,6 +25,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { GET_ABONNES } from '../../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../../graphql/queries/campagnes.queries';
+import { ToastService } from '../../../shared/services/toast.service';
 
 interface AbonneInfo {
   nom: string;
@@ -42,7 +41,6 @@ interface CampagneOption {
 @Component({
   imports: [
     FormsModule,
-    ToastModule,
     SelectModule,
     InputTextModule,
     IconFieldModule,
@@ -51,7 +49,6 @@ interface CampagneOption {
     ErrorBannerComponent,
     PageTopbarComponent,
   ],
-  providers: [MessageService],
   templateUrl: './factures-list.component.html',
   styleUrl: './factures-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,7 +60,7 @@ export class FacturesListComponent implements OnInit {
   private readonly apollo = inject(Apollo);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
 
   readonly campagneId = signal('');
@@ -317,14 +314,11 @@ export class FacturesListComponent implements OnInit {
     try {
       const envoyerWA = this.campagne()?.envoyerWhatsappAuto ?? false;
       await this.facturesService.genererFactures(this.campagneId(), envoyerWA);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_GENERE'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_GENERE'));
       await this.load();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.generatingFactures.set(false);
     }
@@ -335,13 +329,10 @@ export class FacturesListComponent implements OnInit {
     this.sendingWhatsapp.set(true);
     try {
       await this.facturesService.envoyerToutesFacturesWhatsapp(this.campagneId());
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_WHATSAPP_TOUS'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP_TOUS'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.sendingWhatsapp.set(false);
     }
@@ -424,15 +415,12 @@ export class FacturesListComponent implements OnInit {
         modePaiement: this.pMode(),
         referenceTransaction: this.pRef() || undefined,
       });
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
       this.closePanel();
       await this.load();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.submitting.set(false);
     }
@@ -442,13 +430,10 @@ export class FacturesListComponent implements OnInit {
     event.stopPropagation();
     try {
       await this.facturesService.renvoyerFactureWhatsapp(factureId);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'),
-      });
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({ severity: 'error', summary: message || this.translate.instant('ERRORS.GENERIC') });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     }
   }
 
@@ -462,10 +447,7 @@ export class FacturesListComponent implements OnInit {
     try {
       await this.facturePdf.open(factureId);
     } catch {
-      this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'),
-      });
+      this.toast.error(this.translate.instant('FACTURATION.DETAIL.PDF_ERROR'));
     }
   }
 

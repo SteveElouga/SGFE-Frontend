@@ -10,9 +10,8 @@ import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
-import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfigurationService } from '../../core/configuration/configuration.service';
 import { FacturesService } from '../../core/factures/factures.service';
@@ -21,6 +20,7 @@ import { Tarif } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
+import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 
 /** Étape de relance affichée dans l'onglet « Relances & Impayés ». */
@@ -62,14 +62,13 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
     DecimalPipe,
     RouterLink,
     InputTextModule,
-    ToastModule,
     ErrorBannerComponent,
     PageTopbarComponent,
     WhatsappLinkComponent,
     ConfirmDialogModule,
     TranslatePipe,
   ],
-  providers: [MessageService, ConfirmationService],
+  providers: [ConfirmationService],
   templateUrl: './configuration.component.html',
   styleUrl: './configuration.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,7 +76,7 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 export class ConfigurationComponent implements OnInit {
   private readonly service = inject(ConfigurationService);
   private readonly facturesService = inject(FacturesService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
 
@@ -264,16 +263,10 @@ export class ConfigurationComponent implements OnInit {
       }
       this.paramOriginals.set({ ...v });
 
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CONFIGURATION.SUCCESS_SAVE'),
-      });
+      this.toast.success(this.translate.instant('CONFIGURATION.SUCCESS_SAVE'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.saving.set(false);
     }
@@ -302,16 +295,10 @@ export class ConfigurationComponent implements OnInit {
       );
       this.tarifActuel.set(updated);
       this.editingTarif.set(false);
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CONFIGURATION.SUCCESS_TARIF'),
-      });
+      this.toast.success(this.translate.instant('CONFIGURATION.SUCCESS_TARIF'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.tarifSaving.set(false);
     }
@@ -333,15 +320,12 @@ export class ConfigurationComponent implements OnInit {
     try {
       const result = await this.service.testerEnvoiWhatsapp(phone);
       this.waTestResult.set(result);
-      this.messageService.add({
-        severity: result.success ? 'success' : 'warn',
-        summary: result.message,
-      });
+      this.toast.show({ type: result.success ? 'success' : 'warning', title: result.message });
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       const fallback = message || this.translate.instant('ERRORS.GENERIC');
       this.waTestResult.set({ success: false, message: fallback });
-      this.messageService.add({ severity: 'error', summary: fallback });
+      this.toast.error(fallback);
     } finally {
       this.waTesting.set(false);
     }
@@ -367,16 +351,10 @@ export class ConfigurationComponent implements OnInit {
     this.revoking.set(true);
     try {
       const count = await this.service.revoquerTousTokensAbonnes();
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CONFIGURATION.TOKEN_REVOKE_SUCCESS', { count }),
-      });
+      this.toast.success(this.translate.instant('CONFIGURATION.TOKEN_REVOKE_SUCCESS', { count }));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.revoking.set(false);
     }

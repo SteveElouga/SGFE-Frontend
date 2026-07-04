@@ -10,8 +10,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -21,6 +19,7 @@ import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { GET_USERS } from '../../../graphql/queries/users.queries';
 import { GET_ABONNES_ACTIFS } from '../../../graphql/queries/abonnes.queries';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { ToastService } from '../../../shared/services/toast.service';
 
 interface Agent {
   id: string;
@@ -38,8 +37,7 @@ interface AbonneActif {
 
 @Component({
   selector: 'app-campagne-form',
-  imports: [FormsModule, ToastModule, PageTopbarComponent, TranslatePipe],
-  providers: [MessageService],
+  imports: [FormsModule, PageTopbarComponent, TranslatePipe],
   templateUrl: './campagne-form.component.html',
   styleUrl: './campagne-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,7 +46,7 @@ export class CampagneFormComponent implements OnInit {
   private readonly service = inject(CampagnesService);
   private readonly apollo = inject(Apollo);
   private readonly router = inject(Router);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   readonly destroyRef = inject(DestroyRef);
 
@@ -216,17 +214,11 @@ export class CampagneFormComponent implements OnInit {
       for (const agentId of this.selectedAgentIds()) {
         await this.service.affecterAgent(campagne.campagneId, agentId);
       }
-      this.messageService.add({
-        severity: 'success',
-        summary: this.translate.instant('CAMPAGNES.SUCCESS_CREE'),
-      });
+      this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CREE'));
       await this.router.navigate(['/campagnes']);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
-      this.messageService.add({
-        severity: 'error',
-        summary: message || this.translate.instant('ERRORS.GENERIC'),
-      });
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.submitting.set(false);
     }
