@@ -197,8 +197,12 @@ export class FactureDetailComponent implements OnInit {
       : this.translate.instant('FACTURATION.DETAIL.BTN_RENVOYER_WA', {}, lang);
   });
 
+  // Ouverture directe du panneau de paiement (lien « + Paiement » depuis Impayés).
+  private readonly autoOpenPaiement = signal(false);
+
   ngOnInit(): void {
     const factureId = this.route.snapshot.params['factureId'] as string;
+    this.autoOpenPaiement.set(this.route.snapshot.queryParams['paiement'] === '1');
     this.pDate.set(new Date().toISOString().split('T')[0]);
     void this.load(factureId);
   }
@@ -219,6 +223,9 @@ export class FactureDetailComponent implements OnInit {
       this.envois.set(envois);
       if (solde.soldeRestant > 0) {
         this.pMontant.set(String(solde.soldeRestant));
+        if (this.autoOpenPaiement() && facture.statut !== 'PAYEE') {
+          this.showForm.set(true);
+        }
       }
       void this.loadRefs(facture);
     } catch (err: unknown) {

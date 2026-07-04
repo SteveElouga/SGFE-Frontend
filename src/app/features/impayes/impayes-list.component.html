@@ -1,4 +1,8 @@
-<app-page-topbar [title]="'IMPAYES.TITLE' | translate" [subtitle]="subtitle()" />
+<app-page-topbar [title]="'IMPAYES.TITLE' | translate" [subtitle]="subtitle()">
+  <button type="button" class="bilan-btn" (click)="exportBilan()">
+    <i class="pi pi-download"></i> {{ 'IMPAYES.BILAN_PDF' | translate }}
+  </button>
+</app-page-topbar>
 
 <div class="impayes-content">
 
@@ -6,26 +10,44 @@
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
 
-  <!-- Stats bar -->
-  @if (!loading() && impayes().length > 0) {
-    <div class="stats-bar">
-      <div class="stats-bar__item">
-        <span class="stats-bar__label">{{ 'IMPAYES.TOTAL_DU' | translate }}</span>
-        <span class="stats-bar__value stats-bar__value--red">{{ formatFCFA(totalDu()) }}</span>
-      </div>
-      <div class="stats-bar__item stats-bar__item--sep">
-        <span class="stats-bar__label">{{ 'IMPAYES.NB_IMPAYES' | translate }}</span>
-        <span class="stats-bar__value">{{ impayesFiltres().length }}</span>
-      </div>
+  <!-- KPI strip -->
+  <div class="kpi-strip">
+    <div class="kpi kpi--accent-red">
+      <div class="kpi__value">{{ nbImpayes() }}</div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_IMPAYEES' | translate }}</div>
     </div>
-  }
+    <div class="kpi">
+      <div class="kpi__value kpi__value--red">{{ formatNombre(totalSolde()) }}</div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_SOLDE' | translate }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__value kpi__value--warn">{{ nbEtape3Plus() }}</div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_ETAPE3' | translate }}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi__value kpi__value--dark">{{ nbSuspendues() }}</div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_SUSPENDUE' | translate }}</div>
+    </div>
+  </div>
 
   <!-- Filters -->
-  <app-filter-bar [showSearch]="false">
+  <app-filter-bar
+    [search]="searchTerm()"
+    (searchChange)="onSearchChange($event)"
+    searchPlaceholder="IMPAYES.SEARCH_PLACEHOLDER"
+  >
     <p-select
       [options]="etapeOptions()"
       [ngModel]="filtreEtape()"
       (ngModelChange)="onEtapeChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      [placeholder]="'IMPAYES.COL_ETAPE' | translate"
+    />
+    <p-select
+      [options]="triOptions()"
+      [ngModel]="tri()"
+      (ngModelChange)="onTriChange($event)"
       optionLabel="label"
       optionValue="value"
     />
@@ -38,38 +60,90 @@
       [rows]="impayesFiltres()"
       [loading]="loading()"
       [pageSize]="10"
+      [rowClass]="rowDanger"
       trackKey="factureId"
       pageInfoKey="IMPAYES.PAGINATION_INFO"
       emptyMessage="IMPAYES.EMPTY"
     >
-      <ng-template appCol="abonne" let-row><span class="col-abonne">{{ row.abonneId ?? '…' }}</span></ng-template>
+      <ng-template appCol="abonne" let-row>
+        <div class="col-abonne">
+          <div class="col-abonne__nom" [class.col-abonne__nom--strong]="row.etapeActuelle === 4">
+            {{ row.abonneNom }}
+          </div>
+          <div class="col-abonne__ref">{{ row.numeroAbonne }} · {{ row.numeroFacture }}</div>
+        </div>
+      </ng-template>
 
-      <ng-template appCol="facture" let-row>
-        <span class="facture-link col-facture" (click)="voirFacture(row.factureId)">
-          {{ row.factureId | slice:0:12 }}…
+      <ng-template appCol="montant" let-row>
+        <span class="col-montant">{{ formatNombre(row.montantTotal) }}</span>
+      </ng-template>
+
+      <ng-template appCol="paye" let-row>
+        <span class="col-paye" [class.col-paye--green]="row.montantPaye > 0">
+          {{ formatNombre(row.montantPaye) }}
         </span>
       </ng-template>
 
-      <ng-template appCol="solde" let-row><span class="col-solde">{{ formatFCFA(row.soldeRestant) }}</span></ng-template>
+      <ng-template appCol="solde" let-row>
+        <span class="col-solde">{{ formatNombre(row.soldeRestant) }}</span>
+      </ng-template>
+
+      <ng-template appCol="retard" let-row>
+        <span class="col-retard {{ retardClass(row.retardJours) }}">
+          @if (row.retardJours !== null) { J+{{ row.retardJours }} } @else { — }
+        </span>
+      </ng-template>
 
       <ng-template appCol="etape" let-row>
-        @if (row.etapeActuelle !== null) {
-          <span class="etape-badge {{ etapeClass(row.etapeActuelle) }}">
-            {{ 'IMPAYES.ETAPE.' + row.etapeActuelle | translate }}
-          </span>
-        } @else {
-          <span class="etape-badge etape-badge--unknown">—</span>
-        }
+        <span class="etape-badge etape-badge--{{ badgeState(row) }}">{{ badgeLabel(row) }}</span>
       </ng-template>
-
-      <ng-template appCol="depassement" let-row><span class="col-date">{{ formatDate(row.dateDepassement) }}</span></ng-template>
 
       <ng-template appCol="actions" let-row>
-        <button class="btn-voir" (click)="voirFacture(row.factureId)">
-          {{ 'IMPAYES.BTN_VOIR' | translate }}
-        </button>
+        <div class="row-actions">
+          <button type="button" class="act act--primary" (click)="ajouterPaiement(row)">
+            {{ 'IMPAYES.BTN_PAIEMENT' | translate }}
+          </button>
+          <button type="button" class="act act--ghost" (click)="voirRelances(row)">
+            {{ 'IMPAYES.BTN_RELANCES' | translate }}
+          </button>
+        </div>
+      </ng-template>
+
+      <ng-template appCardRow let-row>
+        <div class="fcard" [class.fcard--danger]="row.etapeActuelle === 4">
+          <div class="fcard__top">
+            <div>
+              <div class="fcard__nom">{{ row.abonneNom }}</div>
+              <div class="fcard__ref">{{ row.numeroAbonne }} · {{ row.numeroFacture }}</div>
+            </div>
+            <span class="etape-badge etape-badge--{{ badgeState(row) }}">{{ badgeLabel(row) }}</span>
+          </div>
+          <div class="fcard__grid">
+            <div><span class="fcard__k">{{ 'IMPAYES.COL_MONTANT' | translate }}</span><span class="fcard__v">{{ formatNombre(row.montantTotal) }}</span></div>
+            <div><span class="fcard__k">{{ 'IMPAYES.COL_PAYE' | translate }}</span><span class="fcard__v" [class.col-paye--green]="row.montantPaye > 0">{{ formatNombre(row.montantPaye) }}</span></div>
+            <div><span class="fcard__k">{{ 'IMPAYES.COL_SOLDE' | translate }}</span><span class="fcard__v col-solde">{{ formatNombre(row.soldeRestant) }}</span></div>
+            <div><span class="fcard__k">{{ 'IMPAYES.COL_RETARD' | translate }}</span><span class="fcard__v {{ retardClass(row.retardJours) }}">@if (row.retardJours !== null) { J+{{ row.retardJours }} } @else { — }</span></div>
+          </div>
+          <div class="row-actions">
+            <button type="button" class="act act--primary" (click)="ajouterPaiement(row)">{{ 'IMPAYES.BTN_PAIEMENT' | translate }}</button>
+            <button type="button" class="act act--ghost" (click)="voirRelances(row)">{{ 'IMPAYES.BTN_RELANCES' | translate }}</button>
+          </div>
+        </div>
       </ng-template>
     </app-data-table>
+  </div>
+
+  <!-- Config reminder -->
+  <div class="config-reminder">
+    <i class="pi pi-clock"></i>
+    <span class="config-reminder__text">
+      {{ 'IMPAYES.CONFIG_PREFIX' | translate }}
+      <b>{{ 'IMPAYES.CONFIG_E1' | translate }}</b> J+0 ·
+      <b>{{ 'IMPAYES.CONFIG_E2' | translate }}</b> J+3 ·
+      <b>{{ 'IMPAYES.CONFIG_E3' | translate }}</b> J+7 ({{ 'IMPAYES.CONFIG_NOTIF_ADMIN' | translate }}) ·
+      <b>{{ 'IMPAYES.CONFIG_E4' | translate }}</b> J+10 ({{ 'IMPAYES.CONFIG_SUSPENSION' | translate }}
+      <b class="ok">{{ 'IMPAYES.CONFIG_ACTIVEE' | translate }}</b>) — {{ 'IMPAYES.CONFIG_SUFFIX' | translate }}
+    </span>
   </div>
 
 </div>

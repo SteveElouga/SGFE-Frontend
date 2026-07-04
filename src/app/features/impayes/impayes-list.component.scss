@@ -2,6 +2,27 @@
 
 :host { display: block; }
 
+// Bouton d'action projeté dans la topbar (bilan impayés)
+.bilan-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1.5px solid #dc2626;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+
+  i { font-size: 12px; }
+  &:hover { background: #fee2e2; }
+}
+
 .impayes-content {
   padding: 18px 22px;
   background: #f1f5f9;
@@ -11,38 +32,40 @@
   gap: 14px;
 }
 
-// ── Stats bar ─────────────────────────────────────────────────────────────────
+// ── KPI strip ─────────────────────────────────────────────────────────────────
 
-.stats-bar {
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+
+  @media (max-width: 720px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.kpi {
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 20px;
-  display: flex;
-  gap: 32px;
+  border-radius: 12px;
+  padding: 14px 16px;
 
-  &__item {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  &--accent-red { border-top: 3px solid #ef4444; }
 
-    &--sep { border-left: 1px solid #e2e8f0; padding-left: 32px; }
+  &__value {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0f172a;
+
+    &--red { font-size: 22px; color: #dc2626; }
+    &--warn { color: #b45309; }
+    &--dark { color: #7f1d1d; }
   }
 
   &__label {
+    margin-top: 3px;
     font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
     font-weight: 500;
-  }
-
-  &__value {
-    font-size: 20px;
-    font-weight: 700;
-    color: #0f172a;
-
-    &--red { color: #b91c1c; }
+    color: #94a3b8;
   }
 }
 
@@ -55,49 +78,141 @@
   overflow: hidden;
 }
 
-.col-abonne { font-weight: 600; }
-.col-facture { font-family: monospace; font-size: 12px; }
-.col-solde { font-weight: 700; font-size: 14px; color: #b91c1c; }
-.col-date { color: #64748b; white-space: nowrap; }
+.col-abonne {
+  &__nom {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
 
-.facture-link {
-  color: $color-primary;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
+    &--strong { font-weight: 700; }
+  }
+  &__ref {
+    margin-top: 1px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
 }
+
+.col-montant { font-weight: 600; color: #0f172a; }
+
+.col-paye {
+  font-weight: 500;
+  color: #94a3b8;
+  &--green { color: #15803d; font-weight: 600; }
+}
+
+.col-solde { font-weight: 700; font-size: 14px; color: #dc2626; }
+
+.col-retard {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.retard--danger { color: #dc2626; }
+.retard--warn { color: #b45309; }
+.retard--muted { color: #475569; }
 
 // ── Étape badges ──────────────────────────────────────────────────────────────
 
 .etape-badge {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 6px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.3px;
-  border: 1px solid;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid transparent;
 
-  &--1 { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--2 { background: #fffbeb; border-color: #fde68a; color: #92400e; }
-  &--3 { background: #fff7ed; border-color: #fdba74; color: #c2410c; }
-  &--4 { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+  &--etape1 { background: #fffbeb; border-color: #fde68a; color: #b45309; }
+  &--etape2 { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
+  &--etape3 { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+  &--suspendue { background: #7f1d1d; border-color: #7f1d1d; color: #fff; font-weight: 700; }
+  &--pause { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
   &--unknown { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; }
 }
 
-// ── Action button ─────────────────────────────────────────────────────────────
+// ── Actions ───────────────────────────────────────────────────────────────────
 
-.btn-voir {
-  height: 30px;
-  padding: 0 12px;
-  border: 1px solid #e2e8f0;
+.row-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.act {
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 500;
-  color: #475569;
-  background: #fff;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  transition: opacity 0.12s, background 0.12s;
 
-  &:hover { background: #f8fafc; border-color: #cbd5e1; }
+  &--primary {
+    background: linear-gradient(135deg, #1a56db, #1d4ed8);
+    color: #fff;
+    &:hover { opacity: 0.9; }
+  }
+  &--ghost {
+    background: #fff;
+    border-color: #e2e8f0;
+    color: #64748b;
+    font-weight: 500;
+    &:hover { background: #f8fafc; border-color: #cbd5e1; }
+  }
+}
+
+// ── Config reminder ───────────────────────────────────────────────────────────
+
+.config-reminder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: #64748b;
+
+  i { color: #94a3b8; font-size: 14px; flex-shrink: 0; }
+
+  &__text { line-height: 1.5; }
+
+  b { color: #475569; font-weight: 600; }
+  b.ok { color: #0e9f6e; font-weight: 600; }
+}
+
+// ── Cartes mobiles ────────────────────────────────────────────────────────────
+
+.fcard {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: #fff;
+
+  &--danger { background: #fef9f9; border-color: #fecaca; }
+
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  &__nom { font-size: 14px; font-weight: 700; color: #0f172a; }
+  &__ref { margin-top: 2px; font-size: 11px; color: #94a3b8; }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px 12px;
+    margin-bottom: 12px;
+
+    > div { display: flex; flex-direction: column; gap: 1px; }
+  }
+  &__k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #94a3b8; font-weight: 600; }
+  &__v { font-size: 13px; font-weight: 600; color: #0f172a; }
 }

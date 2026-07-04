@@ -64,6 +64,9 @@
 
   // Ligne mise en avant (ex : campagne en cours) — teinte discrète
   &--active > td { background: #f8fbff; }
+
+  // Ligne en alerte (ex : impayé suspendu) — teinte rouge très discrète
+  &--danger > td { background: #fef9f9; }
 }
 
 // ── Cartes mobiles ──────────────────────────────────────────────────────────
