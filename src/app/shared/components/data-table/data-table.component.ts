@@ -58,6 +58,8 @@ export class DataTableComponent<T = unknown> {
   readonly pageSize = input(5);
   /** Champ identifiant de ligne (pour `@for track`). */
   readonly trackKey = input('id');
+  /** Alternance de fond (zebra) une ligne sur deux. */
+  readonly striped = input(false);
   /** Clé i18n du message d'état vide. */
   readonly emptyMessage = input('COMMON.NO_DATA');
   /** Clé i18n du libellé de pagination (params : start/end/total). */

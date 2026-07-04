@@ -1,6 +1,5 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
-@use '../../../../styles/data-table' as *;
 
 :host { display: block; }
 
@@ -49,24 +48,6 @@
   overflow: hidden;
 }
 
-// ── Styles PrimeNG table ──────────────────────────────────────────────────────
-
-@include data-table('campagnes-table');
-
-// Hover conditionnel : ligne active (EN_COURS) vs standard
-:host ::ng-deep .campagnes-table {
-  .p-datatable-tbody > tr.campagnes-row--active > td {
-    background: #f8fbff;
-  }
-
-  .p-datatable-tbody > tr:not(.campagnes-row--active):hover > td {
-    background: #f5f7fa;
-  }
-
-  .p-datatable-tbody > tr.campagnes-row--active:hover > td {
-    background: #eef4ff;
-  }
-}
 
 // ── Cellule campagne ──────────────────────────────────────────────────────────
 

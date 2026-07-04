@@ -55,120 +55,98 @@
 
   <!-- Carte tableau -->
   <div class="campagnes-card">
-    <p-table
-      [value]="campagnesFiltrees()"
+    <app-data-table
+      [columns]="columns"
+      [rows]="campagnesFiltrees()"
       [loading]="loading()"
-      [rowHover]="true"
-      styleClass="campagnes-table"
+      [pageSize]="0"
+      [rowClass]="rowClassCampagne"
+      trackKey="campagneId"
+      emptyMessage="CAMPAGNES.EMPTY"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col">{{ 'CAMPAGNES.COL_CAMPAGNE' | translate }}</th>
-          <th scope="col">{{ 'CAMPAGNES.COL_PLANIFIEE' | translate }}</th>
-          <th scope="col">{{ 'CAMPAGNES.COL_AGENTS' | translate }}</th>
-          <th scope="col" class="th-center">{{ 'CAMPAGNES.COL_AVANCEMENT' | translate }}</th>
-          <th scope="col">{{ 'CAMPAGNES.COL_STATUT' | translate }}</th>
-          <th scope="col">{{ 'COMMON.ACTIONS' | translate }}</th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-c>
+      <ng-template appCol="campagne" let-c>
         @let prog = progressions().get(c.campagneId);
         @let cloturee = c.statut === 'CLOTUREE';
-        <tr [class.campagnes-row--active]="c.statut === 'EN_COURS'">
+        <div class="campagne-cell">
+          <span class="campagne-cell__nom" [class.campagne-cell__nom--muted]="cloturee">{{ c.nom }}</span>
+          <span class="campagne-cell__meta">
+            @if (cloturee) {
+              @if (prog) {
+                {{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.RELEVES_LABEL' | translate }}
+              } @else if (c.dateCloture) {
+                {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yy' }}
+              }
+            } @else {
+              {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yy' }}
+              @if (prog) {
+                &thinsp;·&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.ABONNES' | translate }}
+              }
+            }
+          </span>
+        </div>
+      </ng-template>
 
-          <!-- Campagne -->
-          <td>
-            <div class="campagne-cell">
-              <span class="campagne-cell__nom" [class.campagne-cell__nom--muted]="cloturee">{{ c.nom }}</span>
-              <span class="campagne-cell__meta">
-                @if (cloturee) {
-                  @if (prog) {
-                    {{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.RELEVES_LABEL' | translate }}
-                  } @else if (c.dateCloture) {
-                    {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yy' }}
-                  }
-                } @else {
-                  {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yy' }}
-                  @if (prog) {
-                    &thinsp;·&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.ABONNES' | translate }}
-                  }
-                }
-              </span>
+      <ng-template appCol="planifiee" let-c>
+        <span class="campagnes-table__date" [class.campagnes-table__muted]="c.statut === 'CLOTUREE'">
+          {{ c.datePlanifiee ? (c.datePlanifiee | date:'dd/MM/yyyy') : '—' }}
+        </span>
+      </ng-template>
+
+      <ng-template appCol="agents" let-c>
+        <span class="campagnes-table__agents" [class.campagnes-table__muted]="c.statut === 'CLOTUREE'">
+          {{ formatAgents(c.agents) }}
+        </span>
+      </ng-template>
+
+      <ng-template appCol="avancement" let-c>
+        @let prog = progressions().get(c.campagneId);
+        @let cloturee = c.statut === 'CLOTUREE';
+        @if (prog) {
+          <div class="mini-bar">
+            <div class="mini-bar__track">
+              <div
+                class="mini-bar__fill"
+                [style.width.%]="progressionPct(prog)"
+                [class.mini-bar__fill--done]="cloturee"
+              ></div>
             </div>
-          </td>
-
-          <!-- Planifiée -->
-          <td class="campagnes-table__date" [class.campagnes-table__muted]="cloturee">
-            {{ c.datePlanifiee ? (c.datePlanifiee | date:'dd/MM/yyyy') : '—' }}
-          </td>
-
-          <!-- Agents -->
-          <td class="campagnes-table__agents" [class.campagnes-table__muted]="cloturee">
-            {{ formatAgents(c.agents) }}
-          </td>
-
-          <!-- Avancement -->
-          <td class="campagnes-table__avancement">
-            @if (prog) {
-              <div class="mini-bar">
-                <div class="mini-bar__track">
-                  <div
-                    class="mini-bar__fill"
-                    [style.width.%]="progressionPct(prog)"
-                    [class.mini-bar__fill--done]="cloturee"
-                  ></div>
-                </div>
-                <span class="mini-bar__label" [class.mini-bar__label--muted]="cloturee">
-                  {{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }}
-                </span>
-              </div>
-            } @else if (!loading()) {
-              <div class="mini-bar">
-                <span class="mini-bar__skeleton"></span>
-              </div>
-            }
-          </td>
-
-          <!-- Statut -->
-          <td>
-            <span class="statut-badge statut-badge--{{ c.statut | lowercase }}">
-              {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
+            <span class="mini-bar__label" [class.mini-bar__label--muted]="cloturee">
+              {{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }}
             </span>
-          </td>
-
-          <!-- Actions -->
-          <td>
-          <div class="campagnes-table__actions">
-            <a class="btn-action btn-action--voir" [routerLink]="['/campagnes', c.campagneId]">
-              {{ 'COMMON.SEE' | translate }}
-            </a>
-            @if (c.statut === 'EN_COURS' && canCreate()) {
-              <button
-                class="btn-action btn-action--cloturer"
-                [disabled]="cloturantId() === c.campagneId"
-                (click)="cloturer(c.campagneId)"
-              >
-                @if (cloturantId() === c.campagneId) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                }
-                {{ 'CAMPAGNES.CLOTURER' | translate }}
-              </button>
-            }
           </div>
-          </td>
-        </tr>
+        } @else if (!loading()) {
+          <div class="mini-bar">
+            <span class="mini-bar__skeleton"></span>
+          </div>
+        }
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="campagnes-table__empty">
-            <i class="pi pi-calendar"></i>
-            {{ 'CAMPAGNES.EMPTY' | translate }}
-          </td>
-        </tr>
+      <ng-template appCol="statut" let-c>
+        <span class="statut-badge statut-badge--{{ c.statut | lowercase }}">
+          {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
+        </span>
       </ng-template>
-    </p-table>
+
+      <ng-template appCol="actions" let-c>
+        <div class="campagnes-table__actions">
+          <a class="btn-action btn-action--voir" [routerLink]="['/campagnes', c.campagneId]">
+            {{ 'COMMON.SEE' | translate }}
+          </a>
+          @if (c.statut === 'EN_COURS' && canCreate()) {
+            <button
+              class="btn-action btn-action--cloturer"
+              [disabled]="cloturantId() === c.campagneId"
+              (click)="cloturer(c.campagneId)"
+            >
+              @if (cloturantId() === c.campagneId) {
+                <i class="pi pi-spin pi-spinner"></i>
+              }
+              {{ 'CAMPAGNES.CLOTURER' | translate }}
+            </button>
+          }
+        </div>
+      </ng-template>
+    </app-data-table>
   </div>
 
 </div>

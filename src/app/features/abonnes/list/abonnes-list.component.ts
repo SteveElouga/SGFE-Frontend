@@ -16,7 +16,6 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -28,13 +27,14 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
 import { PageFiltersComponent } from '../../../shared/components/page-filters/page-filters.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
+import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
+import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 
 @Component({
   selector: 'app-abonnes-list',
   imports: [
     FormsModule,
     RouterLink,
-    TableModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
@@ -44,6 +44,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     StatusBadgeComponent,
     PageTopbarComponent,
     PageFiltersComponent,
+    DataTableComponent,
+    DataTableCellDirective,
     CompteurPipe,
     TranslatePipe,
   ],
@@ -68,6 +70,22 @@ export class AbonnesListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly statutFilter = signal<StatutAbonne | null>(null);
   readonly quartierFilter = signal<string | null>(null);
+
+  readonly columns: DataTableColumn[] = [
+    { key: 'numero', header: 'ABONNES.NUMERO' },
+    { key: 'nom', header: 'ABONNES.NOM_PRENOM' },
+    { key: 'localisation', header: 'ABONNES.QUARTIER_CAMP' },
+    { key: 'compteur', header: 'ABONNES.NUMERO_COMPTEUR' },
+    { key: 'statut', header: 'COMMON.STATUS' },
+    { key: 'actions', header: 'COMMON.ACTIONS' },
+  ];
+
+  /** Clé i18n du message vide selon qu'un filtre est actif ou non. */
+  readonly emptyKey = computed(() =>
+    this.searchTerm() || this.statutFilter() || this.quartierFilter()
+      ? 'ABONNES.NO_RESULT_FILTERS'
+      : 'ABONNES.NO_RESULT',
+  );
 
   readonly filteredAbonnes = computed(() => {
     let list = this.abonnes();

@@ -116,92 +116,71 @@
 
   <!-- Carte tableau -->
   <div class="abonnes-card">
-    <p-table
-      [value]="filteredAbonnes()"
+    <app-data-table
+      [columns]="columns"
+      [rows]="filteredAbonnes()"
       [loading]="loading()"
-      [paginator]="filteredAbonnes().length > 5"
-      [rows]="5"
-      [rowHover]="true"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="'ABONNES.TABLE_SUMMARY' | translate"
-      styleClass="abonnes-table"
+      [pageSize]="5"
+      [striped]="true"
+      trackKey="id"
+      [emptyMessage]="emptyKey()"
     >
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col">{{ 'ABONNES.NUMERO' | translate }}</th>
-          <th scope="col" class="th-wrap">{{ 'ABONNES.NOM_PRENOM' | translate }}</th>
-          <th scope="col">{{ 'ABONNES.QUARTIER_CAMP' | translate }}</th>
-          <th scope="col">{{ 'ABONNES.NUMERO_COMPTEUR' | translate }}</th>
-          <th scope="col">{{ 'COMMON.STATUS' | translate }}</th>
-          <th scope="col">{{ 'COMMON.ACTIONS' | translate }}</th>
-        </tr>
+      <ng-template appCol="numero" let-abonne>
+        <span class="abonnes-table__numero">{{ abonne.numeroAbonne }}</span>
       </ng-template>
 
-      <ng-template pTemplate="body" let-abonne let-rowIndex="rowIndex">
-        <tr [class.abonnes-row--even]="rowIndex % 2 !== 0">
-          <td>
-            <span class="abonnes-table__numero">{{ abonne.numeroAbonne }}</span>
-          </td>
-          <td>
-            <div class="abonnes-table__nom">{{ abonne.nom }} {{ abonne.prenom }}</div>
-          </td>
-          <td class="abonnes-table__localisation">
-            @if (abonne.compteur) {
-              {{ abonne.compteur.quartier }} · Camp {{ abonne.compteur.camp }}
-            } @else {
-              <span class="abonnes-table__dash">—</span>
-            }
-          </td>
-          <td>
-            @if (abonne.compteur) {
-              <span class="abonnes-table__compteur">{{ abonne.compteur.numeroCompteur | compteur }}</span>
-            } @else {
-              <span class="abonnes-table__dash">—</span>
-            }
-          </td>
-          <td>
-            <app-status-badge [status]="abonne.statut" />
-          </td>
-          <td>
-            <div class="abonnes-table__actions">
-              <button
-                type="button"
-                class="abonnes-table__action-btn"
-                (click)="voirAbonne(abonne.id)"
-              >{{ 'ABONNES.VOIR' | translate }}</button>
-
-              @if (abonne.statut === 'ACTIF') {
-                <button
-                  type="button"
-                  class="abonnes-table__action-btn"
-                  (click)="modifierAbonne(abonne.id)"
-                >{{ 'ABONNES.MODIFIER' | translate }}</button>
-              }
-
-              @if (abonne.statut === 'SUSPENDU') {
-                <button
-                  type="button"
-                  class="abonnes-table__action-btn abonnes-table__action-btn--reactiver"
-                  (click)="confirmReactiver(abonne)"
-                >{{ 'ABONNES.REACTIVER' | translate }}</button>
-              }
-            </div>
-          </td>
-        </tr>
+      <ng-template appCol="nom" let-abonne>
+        <div class="abonnes-table__nom">{{ abonne.nom }} {{ abonne.prenom }}</div>
       </ng-template>
 
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td colspan="6" class="abonnes-table__empty">
-            @if (searchTerm() || statutFilter() || quartierFilter()) {
-              {{ 'ABONNES.NO_RESULT_FILTERS' | translate }}
-            } @else {
-              {{ 'ABONNES.NO_RESULT' | translate }}
-            }
-          </td>
-        </tr>
+      <ng-template appCol="localisation" let-abonne>
+        <span class="abonnes-table__localisation">
+          @if (abonne.compteur) {
+            {{ abonne.compteur.quartier }} · Camp {{ abonne.compteur.camp }}
+          } @else {
+            <span class="abonnes-table__dash">—</span>
+          }
+        </span>
       </ng-template>
-    </p-table>
+
+      <ng-template appCol="compteur" let-abonne>
+        @if (abonne.compteur) {
+          <span class="abonnes-table__compteur">{{ abonne.compteur.numeroCompteur | compteur }}</span>
+        } @else {
+          <span class="abonnes-table__dash">—</span>
+        }
+      </ng-template>
+
+      <ng-template appCol="statut" let-abonne>
+        <app-status-badge [status]="abonne.statut" />
+      </ng-template>
+
+      <ng-template appCol="actions" let-abonne>
+        <div class="abonnes-table__actions">
+          <button
+            type="button"
+            class="abonnes-table__action-btn"
+            (click)="voirAbonne(abonne.id)"
+          >{{ 'ABONNES.VOIR' | translate }}</button>
+
+          @if (abonne.statut === 'ACTIF') {
+            <button
+              type="button"
+              class="abonnes-table__action-btn"
+              (click)="modifierAbonne(abonne.id)"
+            >{{ 'ABONNES.MODIFIER' | translate }}</button>
+          }
+
+          @if (abonne.statut === 'SUSPENDU') {
+            <button
+              type="button"
+              class="abonnes-table__action-btn abonnes-table__action-btn--reactiver"
+              (click)="confirmReactiver(abonne)"
+            >{{ 'ABONNES.REACTIVER' | translate }}</button>
+          }
+        </div>
+      </ng-template>
+    </app-data-table>
   </div>
 
 </div>
