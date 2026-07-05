@@ -6,8 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -18,26 +16,17 @@ import { GET_CAMPAGNE_ACTIVE } from '../../../graphql/queries/campagnes.queries'
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 
-interface HistCampagne {
-  campagneId: string;
-  nomCampagne: string;
-  totalAbonnes: number;
-  nbReleves: number;
-  pourcentageProgression: number;
-  consommationTotale: number;
-}
-
 interface StatsGlobales {
   consommationTotaleGlobale: number;
   montantTotalFactureGlobal: number;
   montantTotalEncaisseGlobal: number;
-  historiqueCampagnes: HistCampagne[];
 }
 
 interface CampagneEnCours {
   nom: string;
   nbReleves: number;
   totalAbonnes: number;
+  nonReleves: number;
   pourcentage: number;
 }
 
@@ -46,9 +35,15 @@ interface ImpayesResume {
   count: number;
 }
 
+interface ActiviteItem {
+  montant: number;
+  date: string;
+  mode: string;
+}
+
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, DecimalPipe, TranslatePipe, PageTopbarComponent],
+  imports: [TranslatePipe, PageTopbarComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +63,7 @@ export class DashboardComponent implements OnInit {
   readonly stats = signal<StatsGlobales | null>(null);
   readonly campagneEnCours = signal<CampagneEnCours | null>(null);
   readonly impayes = signal<ImpayesResume | null>(null);
+  readonly activite = signal<ActiviteItem[] | null>(null);
 
   /** Taux de recouvrement global (encaissé / facturé). */
   readonly tauxRecouvrement = computed(() => {
@@ -82,14 +78,16 @@ export class DashboardComponent implements OnInit {
 
   async load(): Promise<void> {
     this.loading.set(true);
-    const [stats, enCours, impayes] = await Promise.all([
+    const [stats, enCours, impayes, activite] = await Promise.all([
       this.loadStats(),
       this.loadCampagneEnCours(),
       this.loadImpayes(),
+      this.loadActivite(),
     ]);
     this.stats.set(stats);
     this.campagneEnCours.set(enCours);
     this.impayes.set(impayes);
+    this.activite.set(activite);
     this.loading.set(false);
   }
 
@@ -126,6 +124,7 @@ export class DashboardComponent implements OnInit {
         nom: formatPeriodeCampagne(enCours.periodeMois, enCours.periodeAnnee, lang),
         nbReleves: p.nbReleves,
         totalAbonnes: p.totalAbonnes,
+        nonReleves: p.nbEnAttente,
         pourcentage: Math.round(p.pourcentage),
       };
     } catch {
@@ -144,6 +143,33 @@ export class DashboardComponent implements OnInit {
     } catch {
       return null;
     }
+  }
+
+  /** Activité récente = derniers paiements enregistrés — `null` si indisponible. */
+  private async loadActivite(): Promise<ActiviteItem[] | null> {
+    try {
+      const paiements = await this.facturesService.getAllPaiements();
+      return [...paiements]
+        .sort((a, b) => (b.datePaiement ?? '').localeCompare(a.datePaiement ?? ''))
+        .slice(0, 6)
+        .map((p) => ({ montant: p.montant, date: p.datePaiement, mode: p.modePaiement }));
+    } catch {
+      return null;
+    }
+  }
+
+  /** Temps relatif localisé (« il y a 5 min » / « 5 min ago »). */
+  relativeTime(iso: string): string {
+    if (!iso) return '';
+    const then = new Date(iso).getTime();
+    if (Number.isNaN(then)) return '';
+    const lang = this.translate.currentLang() ?? 'fr';
+    const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+    const mins = Math.round((then - Date.now()) / 60000);
+    if (Math.abs(mins) < 60) return rtf.format(mins, 'minute');
+    const hours = Math.round(mins / 60);
+    if (Math.abs(hours) < 24) return rtf.format(hours, 'hour');
+    return rtf.format(Math.round(hours / 24), 'day');
   }
 
   formatFCFA(n: number): string {
