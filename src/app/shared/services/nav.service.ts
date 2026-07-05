@@ -22,7 +22,7 @@ export class NavService {
   private readonly notifications = inject(NotificationsService);
 
   readonly items: NavItem[] = [
-    { label: 'NAV.DASHBOARD', icon: 'pi-th-large', route: '/dashboard' },
+    { label: 'NAV.DASHBOARD', icon: 'pi-th-large', route: '/dashboard', roles: ['ADMIN'] },
     { label: 'NAV.TERRAIN', icon: 'pi-map-marker', route: '/terrain', roles: ['AGENT'] },
     { label: 'NAV.ABONNES', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
     { label: 'NAV.CAMPAGNES', icon: 'pi-calendar', route: '/campagnes', roles: ['ADMIN', 'SUPERVISEUR', 'AGENT'] },
