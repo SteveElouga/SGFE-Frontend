@@ -14,6 +14,7 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { GET_STATS_GLOBALES } from '../../../graphql/queries/stats.queries';
 import { GET_CAMPAGNE_ACTIVE } from '../../../graphql/queries/campagnes.queries';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
+import { Paiement, SoldeFacture } from '../../../shared/models/facture.model';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 
 interface StatsGlobales {
@@ -36,9 +37,10 @@ interface ImpayesResume {
 }
 
 interface ActiviteItem {
+  type: 'paiement' | 'impaye';
   montant: number;
-  date: string;
-  mode: string;
+  date?: string;
+  mode?: string;
 }
 
 @Component({
@@ -78,16 +80,18 @@ export class DashboardComponent implements OnInit {
 
   async load(): Promise<void> {
     this.loading.set(true);
-    const [stats, enCours, impayes, activite] = await Promise.all([
+    const [stats, enCours, impayes, paiements] = await Promise.all([
       this.loadStats(),
       this.loadCampagneEnCours(),
       this.loadImpayes(),
-      this.loadActivite(),
+      this.loadPaiements(),
     ]);
     this.stats.set(stats);
     this.campagneEnCours.set(enCours);
-    this.impayes.set(impayes);
-    this.activite.set(activite);
+    this.impayes.set(
+      impayes ? { total: impayes.reduce((sum, i) => sum + (i.soldeRestant ?? 0), 0), count: impayes.length } : null,
+    );
+    this.activite.set(this.buildActivite(paiements, impayes));
     this.loading.set(false);
   }
 
@@ -132,30 +136,43 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  /** Impayés actifs — `null` si indisponible. */
-  private async loadImpayes(): Promise<ImpayesResume | null> {
+  private async loadImpayes(): Promise<SoldeFacture[] | null> {
     try {
-      const impayes = await this.facturesService.getImpayes();
-      return {
-        total: impayes.reduce((sum, i) => sum + (i.soldeRestant ?? 0), 0),
-        count: impayes.length,
-      };
+      return await this.facturesService.getImpayes();
     } catch {
       return null;
     }
   }
 
-  /** Activité récente = derniers paiements enregistrés — `null` si indisponible. */
-  private async loadActivite(): Promise<ActiviteItem[] | null> {
+  private async loadPaiements(): Promise<Paiement[] | null> {
     try {
-      const paiements = await this.facturesService.getAllPaiements();
-      return [...paiements]
-        .sort((a, b) => (b.datePaiement ?? '').localeCompare(a.datePaiement ?? ''))
-        .slice(0, 6)
-        .map((p) => ({ montant: p.montant, date: p.datePaiement, mode: p.modePaiement }));
+      return await this.facturesService.getAllPaiements();
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Activité récente = derniers paiements (verts) + impayés à recouvrer (rouges).
+   * `null` seulement si les deux sources sont indisponibles.
+   */
+  private buildActivite(paiements: Paiement[] | null, impayes: SoldeFacture[] | null): ActiviteItem[] | null {
+    if (paiements === null && impayes === null) return null;
+    const items: ActiviteItem[] = [];
+
+    for (const p of [...(paiements ?? [])]
+      .sort((a, b) => (b.datePaiement ?? '').localeCompare(a.datePaiement ?? ''))
+      .slice(0, 4)) {
+      items.push({ type: 'paiement', montant: p.montant, date: p.datePaiement, mode: p.modePaiement });
+    }
+
+    for (const i of [...(impayes ?? [])]
+      .sort((a, b) => b.soldeRestant - a.soldeRestant)
+      .slice(0, 3)) {
+      items.push({ type: 'impaye', montant: i.soldeRestant });
+    }
+
+    return items;
   }
 
   /** Temps relatif localisé (« il y a 5 min » / « 5 min ago »). */

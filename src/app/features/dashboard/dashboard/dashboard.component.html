@@ -86,11 +86,19 @@
         <div class="dash-activite">
           @for (a of acts; track $index) {
             <div class="act-row">
-              <span class="act-row__icon act-row__icon--paiement"><i class="pi pi-credit-card"></i></span>
-              <div class="act-row__body">
-                <div class="act-row__text">{{ 'DASHBOARD.ACT_PAIEMENT' | translate:{ montant: formatFCFA(a.montant) } }}</div>
-                <div class="act-row__meta">{{ ('FACTURATION.MODE.' + a.mode) | translate }} · {{ relativeTime(a.date) }}</div>
-              </div>
+              @if (a.type === 'paiement') {
+                <span class="act-row__icon act-row__icon--paiement"><i class="pi pi-credit-card"></i></span>
+                <div class="act-row__body">
+                  <div class="act-row__text">{{ 'DASHBOARD.ACT_PAIEMENT' | translate:{ montant: formatFCFA(a.montant) } }}</div>
+                  <div class="act-row__meta">{{ ('FACTURATION.MODE.' + a.mode) | translate }} · {{ relativeTime(a.date ?? '') }}</div>
+                </div>
+              } @else {
+                <span class="act-row__icon act-row__icon--impaye"><i class="pi pi-exclamation-circle"></i></span>
+                <div class="act-row__body">
+                  <div class="act-row__text">{{ 'DASHBOARD.ACT_IMPAYE' | translate:{ montant: formatFCFA(a.montant) } }}</div>
+                  <div class="act-row__meta">{{ 'DASHBOARD.ACT_IMPAYE_META' | translate }}</div>
+                </div>
+              }
             </div>
           }
         </div>
