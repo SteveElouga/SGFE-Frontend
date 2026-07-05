@@ -651,7 +651,9 @@
       "ACTIF": "Active",
       "EN_RETARD": "Behind",
       "INACTIF": "Inactive"
-    }
+    },
+    "COL_AGENT": "Agent",
+    "AGENTS_EMPTY": "No agent assigned to this campaign."
   },
   "FACTURATION": {
     "TITLE": "Invoices",
@@ -966,7 +968,28 @@
     "SUBTITLE": "Statistics and exports",
     "SOON": "Coming soon",
     "CS_TITLE": "Reports and analytics",
-    "CS_DESC": "Analytical dashboards (consumption, collection, Excel/PDF exports) are coming soon, once the statistical aggregates are exposed on the server."
+    "CS_DESC": "Analytical dashboards (consumption, collection, Excel/PDF exports) are coming soon, once the statistical aggregates are exposed on the server.",
+    "ERROR_LOAD": "Failed to load statistics",
+    "KPI_CONSO": "Total consumption",
+    "KPI_FACTURE": "Total billed",
+    "KPI_ENCAISSE": "Total collected",
+    "KPI_RECOUVREMENT": "Collection rate",
+    "EXPORTS_TITLE": "Exports",
+    "EXPORT_FACTURES": "Invoices",
+    "EXPORT_PAIEMENTS": "Payments",
+    "EXPORT_IMPAYES": "Overdue report",
+    "EXPORT_SYNTHESE": "Summary",
+    "EXPORT_OK": "{{n}} rows exported",
+    "EXPORT_DONE": "Export downloaded",
+    "SELECT_CAMPAGNE": "Campaign",
+    "SELECT_CAMPAGNE_PLACEHOLDER": "Select a campaign",
+    "PAR_CAMPAGNE": "per campaign",
+    "GLOBAL": "global",
+    "HIST_TITLE": "Campaign history",
+    "COL_CAMPAGNE": "Campaign",
+    "COL_RELEVES": "Readings",
+    "COL_CONSO": "Consumption",
+    "COL_PROGRESSION": "Progress"
   },
   "ESPACE": {
     "TITLE": "Subscriber Area",

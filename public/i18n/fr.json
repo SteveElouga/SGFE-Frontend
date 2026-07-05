@@ -651,7 +651,9 @@
       "ACTIF": "Actif",
       "EN_RETARD": "En retard",
       "INACTIF": "Inactif"
-    }
+    },
+    "COL_AGENT": "Agent",
+    "AGENTS_EMPTY": "Aucun agent affecté à cette campagne."
   },
   "FACTURATION": {
     "TITLE": "Factures",
@@ -966,7 +968,28 @@
     "SUBTITLE": "Statistiques et exports",
     "SOON": "Bientôt disponible",
     "CS_TITLE": "Rapports et analyses",
-    "CS_DESC": "Les tableaux de bord analytiques (consommation, recouvrement, exports Excel/PDF) arriveront prochainement, une fois les agrégats statistiques exposés côté serveur."
+    "CS_DESC": "Les tableaux de bord analytiques (consommation, recouvrement, exports Excel/PDF) arriveront prochainement, une fois les agrégats statistiques exposés côté serveur.",
+    "ERROR_LOAD": "Impossible de charger les statistiques",
+    "KPI_CONSO": "Consommation totale",
+    "KPI_FACTURE": "Total facturé",
+    "KPI_ENCAISSE": "Total encaissé",
+    "KPI_RECOUVREMENT": "Taux de recouvrement",
+    "EXPORTS_TITLE": "Exports",
+    "EXPORT_FACTURES": "Factures",
+    "EXPORT_PAIEMENTS": "Paiements",
+    "EXPORT_IMPAYES": "Bilan des impayés",
+    "EXPORT_SYNTHESE": "Synthèse",
+    "EXPORT_OK": "{{n}} lignes exportées",
+    "EXPORT_DONE": "Export téléchargé",
+    "SELECT_CAMPAGNE": "Campagne",
+    "SELECT_CAMPAGNE_PLACEHOLDER": "Sélectionner une campagne",
+    "PAR_CAMPAGNE": "par campagne",
+    "GLOBAL": "global",
+    "HIST_TITLE": "Historique des campagnes",
+    "COL_CAMPAGNE": "Campagne",
+    "COL_RELEVES": "Relevés",
+    "COL_CONSO": "Consommation",
+    "COL_PROGRESSION": "Progression"
   },
   "ESPACE": {
     "TITLE": "Espace Abonné",

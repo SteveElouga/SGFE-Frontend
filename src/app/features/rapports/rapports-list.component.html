@@ -1,0 +1,124 @@
+<app-page-topbar [title]="'RAPPORTS.TITLE' | translate" [subtitle]="'RAPPORTS.SUBTITLE' | translate" />
+
+<div class="rap">
+
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="load()" />
+  }
+
+  @if (loading()) {
+    <div class="rap__loading"><i class="pi pi-spin pi-spinner"></i></div>
+  } @else if (stats(); as s) {
+
+    <!-- KPI -->
+    <section class="rap-kpi">
+      <div class="kpi kpi--accent-blue">
+        <div class="kpi__value">{{ formatM3(s.consommationTotaleGlobale) }}</div>
+        <div class="kpi__label">{{ 'RAPPORTS.KPI_CONSO' | translate }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }}</div>
+        <div class="kpi__label">{{ 'RAPPORTS.KPI_FACTURE' | translate }}</div>
+      </div>
+      <div class="kpi kpi--accent-green">
+        <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }}</div>
+        <div class="kpi__label">{{ 'RAPPORTS.KPI_ENCAISSE' | translate }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__value">{{ tauxRecouvrement() }}%</div>
+        <div class="kpi__label">{{ 'RAPPORTS.KPI_RECOUVREMENT' | translate }}</div>
+      </div>
+    </section>
+
+    <!-- Exports -->
+    <h2 class="rap__section-title">{{ 'RAPPORTS.EXPORTS_TITLE' | translate }}</h2>
+
+    <div class="rap-export-bar">
+      <label class="rap-export-bar__label" for="rap-campagne">{{ 'RAPPORTS.SELECT_CAMPAGNE' | translate }}</label>
+      <p-select
+        inputId="rap-campagne"
+        [options]="campagneOptions()"
+        [ngModel]="selectedCampagneId()"
+        (ngModelChange)="selectedCampagneId.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="'RAPPORTS.SELECT_CAMPAGNE_PLACEHOLDER' | translate"
+        appendTo="body"
+      />
+    </div>
+
+    <section class="rap-exports">
+      <!-- Factures CSV (par campagne) -->
+      <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportFactures()">
+        <span class="export-card__icon export-card__icon--blue"><i class="pi pi-file"></i></span>
+        <span class="export-card__text">
+          <span class="export-card__title">{{ 'RAPPORTS.EXPORT_FACTURES' | translate }}</span>
+          <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
+        </span>
+        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'factures'"
+           [class.pi-spinner]="exporting() === 'factures'" [class.pi-download]="exporting() !== 'factures'"></i>
+      </button>
+
+      <!-- Paiements CSV (par campagne) -->
+      <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportPaiements()">
+        <span class="export-card__icon export-card__icon--green"><i class="pi pi-credit-card"></i></span>
+        <span class="export-card__text">
+          <span class="export-card__title">{{ 'RAPPORTS.EXPORT_PAIEMENTS' | translate }}</span>
+          <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
+        </span>
+        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'paiements'"
+           [class.pi-spinner]="exporting() === 'paiements'" [class.pi-download]="exporting() !== 'paiements'"></i>
+      </button>
+
+      <!-- Synthèse PDF (par campagne) -->
+      <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportSynthese()">
+        <span class="export-card__icon export-card__icon--violet"><i class="pi pi-chart-bar"></i></span>
+        <span class="export-card__text">
+          <span class="export-card__title">{{ 'RAPPORTS.EXPORT_SYNTHESE' | translate }}</span>
+          <span class="export-card__sub">PDF · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
+        </span>
+        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'synthese'"
+           [class.pi-spinner]="exporting() === 'synthese'" [class.pi-download]="exporting() !== 'synthese'"></i>
+      </button>
+
+      <!-- Bilan des impayés PDF (global) -->
+      <button type="button" class="export-card" [disabled]="!!exporting()" (click)="exportBilan()">
+        <span class="export-card__icon export-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
+        <span class="export-card__text">
+          <span class="export-card__title">{{ 'RAPPORTS.EXPORT_IMPAYES' | translate }}</span>
+          <span class="export-card__sub">PDF · {{ 'RAPPORTS.GLOBAL' | translate }}</span>
+        </span>
+        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'bilan'"
+           [class.pi-spinner]="exporting() === 'bilan'" [class.pi-download]="exporting() !== 'bilan'"></i>
+      </button>
+    </section>
+
+    <!-- Historique des campagnes -->
+    @if (s.historiqueCampagnes.length > 0) {
+      <h2 class="rap__section-title">{{ 'RAPPORTS.HIST_TITLE' | translate }}</h2>
+      <div class="rap-table-wrap">
+        <table class="rap-table">
+          <thead>
+            <tr>
+              <th>{{ 'RAPPORTS.COL_CAMPAGNE' | translate }}</th>
+              <th class="col-num">{{ 'RAPPORTS.COL_RELEVES' | translate }}</th>
+              <th class="col-num">{{ 'RAPPORTS.COL_CONSO' | translate }}</th>
+              <th class="col-num">{{ 'RAPPORTS.COL_PROGRESSION' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of s.historiqueCampagnes; track h.campagneId) {
+              <tr>
+                <td class="rap-camp">{{ h.nomCampagne }}</td>
+                <td class="col-num">{{ h.nbReleves }} / {{ h.totalAbonnes }}</td>
+                <td class="col-num">{{ formatM3(h.consommationTotale) }}</td>
+                <td class="col-num">{{ h.pourcentageProgression | number:'1.0-0' }}%</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+  }
+</div>
