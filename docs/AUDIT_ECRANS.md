@@ -38,7 +38,7 @@
 | 10 / MB-04 | Factures + paiement | `facturation/list` + `detail` | ✅ | |
 | 11 / MB-05 | Détail Facture | `facturation/detail` | 🟡 | Journal WhatsApp partiel (`Envoi.typeEnvoi` manquant) ; statut/solde = heuristique front. |
 | 12 | Liste Paiements | `paiements/list` | 🟡 | Colonne Opérateur en « — » ; export CSV à confirmer. |
-| 13 / MB-08 | Rapports & Exports | `rapports` | ⛔ | Placeholder. Bloqué : agrégats stats backend. |
+| 13 / MB-08 | Rapports & Exports | `rapports` | ✅ | Livré (PR #34) : KPIs `statsGlobales` + 4 exports serveur (CSV factures/paiements, PDF synthèse/bilan). |
 | 14 | Formulaire Abonné (modif) | `abonnes/form` | ✅ | |
 | 15 | Création Campagne | `campagnes/form` | ✅ | |
 
