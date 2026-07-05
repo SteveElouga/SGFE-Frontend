@@ -172,6 +172,22 @@
           }
         </div>
       </ng-template>
+
+      <ng-template appCardRow let-abonne>
+        <button type="button" class="acard" (click)="voirAbonne(abonne.id)">
+          <span class="acard__avatar">{{ abonne.nom.charAt(0).toUpperCase() }}</span>
+          <span class="acard__info">
+            <span class="acard__nom">{{ abonne.nom }} {{ abonne.prenom }}</span>
+            <span class="acard__sub">
+              {{ abonne.numeroAbonne }}@if (abonne.compteur) { · {{ abonne.compteur.numeroCompteur | compteur }} · {{ abonne.compteur.quartier }}, Camp {{ abonne.compteur.camp }} }
+            </span>
+          </span>
+          <span class="acard__right">
+            <app-status-badge [status]="abonne.statut" />
+            <i class="pi pi-chevron-right acard__chevron"></i>
+          </span>
+        </button>
+      </ng-template>
     </app-data-table>
   </div>
 
