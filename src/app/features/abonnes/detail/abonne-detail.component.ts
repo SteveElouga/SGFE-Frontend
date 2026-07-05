@@ -420,7 +420,8 @@ export class AbonneDetailComponent {
     const n = Number.parseInt(this.newNumeroCompteur(), 10);
     const camp = Number.parseInt(this.newCamp(), 10);
     const indexInitial = Number.parseFloat(this.newIndexInitial());
-    if (!n || !camp) return;
+    // Attendre le dernier index (index de fermeture) pour ne pas envoyer 0 par erreur.
+    if (!n || !camp || this.remplacerDernierIndexLoading()) return;
 
     this.remplacerLoading.set(true);
     const input: RemplacerCompteurInput = {
@@ -429,6 +430,8 @@ export class AbonneDetailComponent {
       camp,
       indexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
       datePose: this.newDatePose(),
+      // Index de fermeture de l'ancien compteur (« Dernier index conservé »).
+      indexFermeture: this.remplacerDernierIndex() ?? 0,
     };
     try {
       const newCompteur = await this.abonnesService.remplacerCompteur(this.abonneId, input);

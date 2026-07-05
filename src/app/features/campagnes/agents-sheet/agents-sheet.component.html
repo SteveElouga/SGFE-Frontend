@@ -1,0 +1,76 @@
+<div
+  class="agents-overlay"
+  [class.agents-overlay--open]="open()"
+  (click)="onClose()"
+  aria-hidden="true"
+></div>
+
+<div
+  class="agents-sheet"
+  [class.agents-sheet--open]="open()"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-hidden]="!open()"
+>
+  <div class="agents-sheet__handle"></div>
+
+  <div class="agents-sheet__title">{{ 'CAMPAGNES.AGENTS_SHEET.TITLE' | translate }}</div>
+  <div class="agents-sheet__subtitle">
+    {{ 'CAMPAGNES.AGENTS_SHEET.SUBTITLE' | translate:{ n: selectedCount() } }}
+  </div>
+
+  <div class="agents-search">
+    <i class="pi pi-search"></i>
+    <input
+      type="text"
+      [ngModel]="search()"
+      (ngModelChange)="onSearch($event)"
+      [placeholder]="'CAMPAGNES.AGENTS_SHEET.SEARCH' | translate"
+    />
+  </div>
+
+  <div class="agents-list">
+    @if (loading()) {
+      <div class="agents-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    } @else {
+      @for (a of filtered(); track a.id) {
+        <button
+          type="button"
+          class="agent-row"
+          [class.agent-row--selected]="isSelected(a)"
+          [class.agent-row--disabled]="!a.isActive"
+          [class.agent-row--locked]="isLocked(a)"
+          [disabled]="!a.isActive || isLocked(a)"
+          (click)="toggle(a)"
+        >
+          <span class="agent-avatar">{{ initial(a.username) }}</span>
+          <span class="agent-info">
+            <span class="agent-name">{{ a.username }}</span>
+            <span class="agent-sub">
+              @if (!a.isActive) {
+                {{ 'CAMPAGNES.AGENTS_SHEET.DISABLED' | translate }}
+              } @else if (isLocked(a)) {
+                {{ 'CAMPAGNES.AGENTS_SHEET.ALREADY' | translate }}
+              } @else {
+                {{ a.phoneNumber || ('CAMPAGNES.AGENTS_SHEET.AGENT' | translate) }}
+              }
+            </span>
+          </span>
+          <span class="agent-check" [class.agent-check--on]="isSelected(a)">
+            @if (isSelected(a)) { <i class="pi pi-check"></i> }
+          </span>
+        </button>
+      } @empty {
+        <div class="agents-empty">{{ 'CAMPAGNES.AGENTS_SHEET.EMPTY' | translate }}</div>
+      }
+    }
+  </div>
+
+  <button type="button" class="agents-save" [disabled]="saving()" (click)="onSave()">
+    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    {{ 'CAMPAGNES.AGENTS_SHEET.SAVE' | translate }}
+  </button>
+  <button type="button" class="agents-cancel" (click)="onClose()">
+    {{ 'COMMON.CANCEL' | translate }}
+  </button>
+</div>

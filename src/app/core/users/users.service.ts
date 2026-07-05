@@ -5,7 +5,7 @@ import {
   CREATE_USER,
   DEACTIVATE_USER,
   REACTIVATE_USER,
-  RESEND_USER_ACTIVATION,
+  RESET_USER_PASSWORD,
   UPDATE_USER,
 } from '../../graphql/mutations/users.mutations';
 import { GET_USERS } from '../../graphql/queries/users.queries';
@@ -86,15 +86,16 @@ export class UsersService {
     return user;
   }
 
-  // PENDING BACKEND: re-déclenche le flux d'activation selon le rôle
-  async resendUserActivation(id: string): Promise<User> {
+  // Réinitialisation de mot de passe / renvoi d'activation (même mutation).
+  // Le backend choisit le canal (e-mail ADMIN / OTP WhatsApp sinon).
+  async resetUserPassword(id: string): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ resendUserActivation: User }>({
-        mutation: RESEND_USER_ACTIVATION,
+      this.apollo.mutate<{ resetUserPassword: User }>({
+        mutation: RESET_USER_PASSWORD,
         variables: { id },
       }),
     );
-    const user = result.data?.resendUserActivation;
+    const user = result.data?.resetUserPassword;
     if (!user) throw new Error('Réponse invalide du serveur');
     return user;
   }

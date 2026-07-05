@@ -58,3 +58,28 @@ export const MARQUER_NON_RELEVE = gql`
     }
   }
 `;
+
+// PENDING DEPLOY (PR #68 feat/campagne-audit-correction-releve) — corrige un
+// index déjà RELEVE (ADMIN toutes / SUPERVISEUR ses campagnes). Ajoute une
+// entrée CORRECTION à l'audit. NE PAS brancher tant que l'introspection ne
+// montre pas corrigerReleve + les champs audit sur le Gateway (sinon la query
+// casse). Voir docs/BESOINS_API_tournee_agent.md.
+export const CORRIGER_RELEVE = gql`
+  mutation CorrigerReleve($input: CorrigerReleveInput!) {
+    corrigerReleve(input: $input) {
+      releveId
+      nouveauIndex
+      consommation
+      statut
+      audit {
+        action
+        auteur {
+          username
+          role
+        }
+        nouvelIndex
+        horodatage
+      }
+    }
+  }
+`;

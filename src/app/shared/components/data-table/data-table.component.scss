@@ -69,12 +69,21 @@
   &--danger > td { background: #fef9f9; }
 }
 
+// ── Défilement horizontal ────────────────────────────────────────────────────
+// Contient un tableau trop large DANS sa carte (scroll horizontal interne) au
+// lieu de déborder la page — filet de sécurité mobile pour les listes sans
+// cartes (abonnés, campagnes, paiements, utilisateurs).
+.dt__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 // ── Cartes mobiles ──────────────────────────────────────────────────────────
 .dt__cards { display: none; }
 
 .dt--has-cards {
   @media (max-width: 720px) {
-    .dt__table { display: none; }
+    .dt__scroll { display: none; }
     .dt__cards { display: flex; flex-direction: column; }
   }
 }

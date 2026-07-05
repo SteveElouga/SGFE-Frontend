@@ -54,8 +54,7 @@ export const DEACTIVATE_USER = gql`
   }
 `;
 
-// PENDING BACKEND: symétrique de deactivateUser (is_active = True).
-// Backend s'est engagé à l'ajouter (cf. docs/BESOINS_API_utilisateurs.md).
+// Symétrique de deactivateUser (is_active = True). Livré côté backend.
 export const REACTIVATE_USER = gql`
   ${USER_FIELDS}
   mutation ReactivateUser($id: ID!) {
@@ -65,13 +64,14 @@ export const REACTIVATE_USER = gql`
   }
 `;
 
-// PENDING BACKEND: re-déclenche le flux d'activation selon le rôle
-// (lien e-mail Brevo pour ADMIN, OTP WhatsApp sinon). Sert à la fois au
-// « Réinitialiser le mot de passe » et au « Renvoyer le lien d'activation ».
-export const RESEND_USER_ACTIVATION = gql`
+// Déclenche la réinitialisation de mot de passe / renvoi d'activation (même
+// mutation). Le backend choisit le canal selon l'état + le rôle de la cible :
+// lien e-mail Brevo pour ADMIN, OTP WhatsApp sinon. Ne renvoie JAMAIS de mot de
+// passe. Auth ADMIN requise (sinon PERMISSION_DENIED).
+export const RESET_USER_PASSWORD = gql`
   ${USER_FIELDS}
-  mutation ResendUserActivation($id: ID!) {
-    resendUserActivation(id: $id) {
+  mutation ResetUserPassword($id: ID!) {
+    resetUserPassword(id: $id) {
       ...UserFieldsFull
     }
   }

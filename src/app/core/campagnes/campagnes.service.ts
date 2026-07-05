@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import {
   Campagne,
+  CorrigerReleveInput,
   CreateCampagneInput,
   DernierIndex,
   MarquerNonReleveInput,
@@ -16,10 +17,12 @@ import {
   GET_DERNIER_INDEX,
   GET_PROGRESSION,
   GET_RELEVES,
+  GET_RELEVES_PAR_AGENT,
 } from '../../graphql/queries/campagnes.queries';
 import {
   AFFECTER_AGENT,
   CLOTURER_CAMPAGNE,
+  CORRIGER_RELEVE,
   CREER_CAMPAGNE,
   MARQUER_NON_RELEVE,
   SAISIR_INDEX,
@@ -133,5 +136,31 @@ export class CampagnesService {
       }),
     );
     return result.data!.marquerNonReleve;
+  }
+
+  // PENDING DEPLOY (PR #68) — ne pas appeler tant que le Gateway n'expose pas
+  // corrigerReleve / relevesParAgent (cf. RELEVE_AUDIT_READY côté UI).
+
+  /** Corrige un index déjà RELEVE (ADMIN / SUPERVISEUR propriétaire). */
+  async corrigerReleve(input: CorrigerReleveInput): Promise<Releve> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ corrigerReleve: Releve }>({
+        mutation: CORRIGER_RELEVE,
+        variables: { input },
+      }),
+    );
+    return result.data!.corrigerReleve;
+  }
+
+  /** Relevés d'un agent dans une campagne (écran « Voir la tournée »). */
+  async getRelevesParAgent(campagneId: string, agentId: string): Promise<Releve[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ relevesParAgent: Releve[] }>({
+        query: GET_RELEVES_PAR_AGENT,
+        variables: { campagneId, agentId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.relevesParAgent;
   }
 }

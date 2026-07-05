@@ -1,0 +1,258 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: contents; }
+
+// ── Overlay ─────────────────────────────────────────────────────────────────
+.agents-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+
+  &--open {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity 0.25s ease, visibility 0s;
+  }
+}
+
+// ── Bottom sheet ────────────────────────────────────────────────────────────
+.agents-sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 1001;
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 24px 24px 0 0;
+  padding: 10px 20px 22px;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+
+  transform: translate(-50%, 100%);
+  visibility: hidden;
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
+  will-change: transform;
+
+  &--open {
+    transform: translate(-50%, 0);
+    visibility: visible;
+    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
+  }
+
+  // Desktop : sheet centrée façon dialog
+  @media (min-width: 721px) {
+    bottom: auto;
+    top: 50%;
+    border-radius: 20px;
+    transform: translate(-50%, calc(-50% + 24px));
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease,
+      visibility 0s linear 0.28s;
+    opacity: 0;
+
+    &--open {
+      transform: translate(-50%, -50%);
+      opacity: 1;
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, visibility 0s;
+    }
+  }
+
+  &__handle {
+    width: 40px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 0 auto 14px;
+
+    @media (min-width: 721px) { display: none; }
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+  &__subtitle {
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 14px;
+  }
+}
+
+// ── Recherche ───────────────────────────────────────────────────────────────
+.agents-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 40px;
+  padding: 0 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  margin-bottom: 12px;
+
+  i { color: #94a3b8; font-size: 13px; }
+
+  input {
+    flex: 1;
+    border: none;
+    background: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: #0f172a;
+
+    &::placeholder { color: #94a3b8; }
+  }
+}
+
+// ── Liste ───────────────────────────────────────────────────────────────────
+.agents-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  min-height: 60px;
+}
+
+.agents-loading {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  color: $color-primary;
+  font-size: 20px;
+}
+
+.agents-empty {
+  text-align: center;
+  padding: 30px 10px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.agent-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 11px 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+
+  &:hover:not(:disabled) { background: #f8fafc; }
+
+  &--selected {
+    border: 1.5px solid $color-primary;
+    background: #f5f8ff;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.06);
+  }
+
+  &--disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &--locked { cursor: default; }
+}
+
+.agent-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0e9f6e, #1a56db);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.agent-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.agent-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-sub {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 1px;
+}
+
+.agent-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 1.5px solid #cbd5e1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, border-color 0.12s;
+
+  i { font-size: 12px; color: #fff; }
+
+  &--on {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────────
+.agents-save {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1a56db, #1d4ed8);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.35);
+  margin-bottom: 8px;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.92; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.agents-cancel {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: #f8fafc; }
+}

@@ -45,6 +45,24 @@ export const GET_RELEVES = gql`
   }
 `;
 
+// PENDING DEPLOY (PR #68) — relevés d'UN agent, pour l'écran « Voir la tournée ».
+// ADMIN toutes / SUPERVISEUR ses campagnes / AGENT sa propre tournée.
+// NE PAS brancher tant que relevesParAgent n'apparaît pas à l'introspection.
+export const GET_RELEVES_PAR_AGENT = gql`
+  query GetRelevesParAgent($campagneId: String!, $agentId: String!) {
+    relevesParAgent(campagneId: $campagneId, agentId: $agentId) {
+      releveId
+      abonneId
+      ancienIndex
+      nouveauIndex
+      consommation
+      statut
+      observation
+      dateReleve
+    }
+  }
+`;
+
 export const GET_PROGRESSION = gql`
   query GetProgression($campagneId: String!) {
     progression(campagneId: $campagneId) {
@@ -91,6 +109,43 @@ export const GET_CAMPAGNE_ACTIVE = gql`
       periodeMois
       periodeAnnee
       statut
+    }
+  }
+`;
+
+// ── Agents affectés — PENDING BACKEND ───────────────────────────────────────
+// TROU CONFIRMÉ (introspection live 2026-07-04) : le type `Campagne` n'expose
+// AUCUN champ `agents`, et il n'existe aucune query pour lire les affectations.
+// `affecterAgent` est donc écriture-seule → le détail campagne ne peut pas
+// afficher les agents, et le bottom sheet MC-03 ne peut ni pré-cocher ni
+// verrouiller les agents déjà affectés. Voir docs/BESOINS_API_campagne_agents.md.
+//
+// PRIORITÉ 1 (lecture, indispensable) : exposer `agents { id username }` sur le
+// type `Campagne`. Il suffira alors d'ajouter le champ à GET_CAMPAGNE — le
+// frontend est prêt (agentsLabel + assignedUsernames du sheet). À défaut d'un
+// champ sur le type, cette query dédiée fait aussi l'affaire :
+export const GET_CAMPAGNE_AGENTS = gql`
+  query GetCampagneAgents($campagneId: String!) {
+    campagneAgents(campagneId: $campagneId) {
+      id
+      username
+    }
+  }
+`;
+
+// PRIORITÉ 2 (temps réel, confort) : souscription poussant la liste d'agents à
+// jour quand un agent est affecté/retiré (deux ADMIN/SUPERVISEUR en parallèle,
+// ou rafraîchissement après affecterAgent). À brancher via subscribeToMore sur
+// le détail campagne une fois la lecture (P1) livrée. Aligné sur le pattern
+// factureUpdated / progressionUpdated (arg optionnel = flux filtré par campagne).
+export const CAMPAGNE_AGENTS_UPDATED_SUB = gql`
+  subscription CampagneAgentsUpdated($campagneId: ID!) {
+    campagneAgentsUpdated(campagneId: $campagneId) {
+      campagneId
+      agents {
+        id
+        username
+      }
     }
   }
 `;
