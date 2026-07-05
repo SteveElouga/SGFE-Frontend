@@ -1,0 +1,94 @@
+<div class="nb">
+  <!-- Cloche -->
+  <button
+    #bellBtn
+    type="button"
+    class="nb__bell"
+    [class.nb__bell--active]="open()"
+    (click)="toggle()"
+    [attr.aria-label]="'NOTIFICATIONS.PANEL_TITLE' | translate"
+    aria-haspopup="true"
+    [attr.aria-expanded]="open()"
+  >
+    <i class="pi pi-bell"></i>
+    @if (unreadCount() > 0) {
+      <span class="nb__count">{{ unreadCount() }}</span>
+    }
+  </button>
+
+  <!-- Fermeture au clic extérieur -->
+  @if (open()) {
+    <div class="nb__backdrop" (click)="close()" aria-hidden="true"></div>
+  }
+
+  <!-- Panneau : rendu en permanence, glisse via transition CSS (droite ↔ gauche) -->
+  <div class="nb__panel" [class.nb__panel--open]="open()" role="menu" [attr.aria-hidden]="!open()">
+    <div class="nb__arrow"></div>
+
+      <!-- En-tête -->
+      <div class="nb__header">
+        <div>
+          <div class="nb__title">{{ 'NOTIFICATIONS.PANEL_TITLE' | translate }}</div>
+          <div class="nb__subtitle">{{ 'NOTIFICATIONS.UNREAD_COUNT' | translate:{ n: unreadCount() } }}</div>
+        </div>
+        <div class="nb__header-actions">
+          @if (unreadCount() > 0) {
+            <button type="button" class="nb__mark" (click)="markAllRead()">
+              {{ 'NOTIFICATIONS.MARK_ALL_READ_SHORT' | translate }}
+            </button>
+          }
+          <button
+            type="button"
+            class="nb__close"
+            [attr.aria-label]="'COMMON.CLOSE' | translate"
+            (click)="close()"
+          >
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Onglets -->
+      <div class="nb__tabs">
+        <button
+          type="button"
+          class="nb__tab"
+          [class.nb__tab--active]="tab() === 'ALL'"
+          (click)="tab.set('ALL')"
+        >{{ 'NOTIFICATIONS.TAB_ALL' | translate }}</button>
+        <button
+          type="button"
+          class="nb__tab"
+          [class.nb__tab--active]="tab() === 'UNREAD'"
+          (click)="tab.set('UNREAD')"
+        >{{ 'NOTIFICATIONS.TAB_UNREAD' | translate }} · {{ unreadCount() }}</button>
+      </div>
+
+      <!-- Liste -->
+      <div class="nb__list">
+        @for (n of recent(); track n.id) {
+          <button
+            type="button"
+            class="nb__item nb__item--{{ n.tone }}"
+            [class.nb__item--unread]="!n.read"
+            (click)="onItemClick(n.id)"
+          >
+            <span class="nb__icon nb__icon--{{ n.tone }}"><i class="pi {{ n.icon }}"></i></span>
+            <span class="nb__body">
+              <span class="nb__item-title">{{ n.title }}</span>
+              <span class="nb__item-msg">{{ n.message }}</span>
+              <span class="nb__item-time">{{ relativeTime(n.createdAt) }}</span>
+            </span>
+            @if (!n.read) { <span class="nb__dot"></span> }
+          </button>
+        } @empty {
+          <div class="nb__empty">{{ 'NOTIFICATIONS.EMPTY' | translate }}</div>
+        }
+      </div>
+
+      <!-- Pied -->
+      <a class="nb__footer" routerLink="/notifications" (click)="close()">
+        {{ 'NOTIFICATIONS.SEE_ALL' | translate }}
+      </a>
+  </div>
+</div>

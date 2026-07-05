@@ -1,0 +1,72 @@
+<app-page-topbar [title]="'NOTIFICATIONS.TITLE' | translate" [subtitle]="subtitle()" [showBell]="false">
+  @if (unreadCount() > 0) {
+    <button type="button" class="mark-all" (click)="markAllRead()">
+      <i class="pi pi-check"></i> {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+    </button>
+  }
+</app-page-topbar>
+
+<!-- Filtres -->
+<div class="notif-filters">
+  @for (chip of chips; track chip.value) {
+    <button
+      type="button"
+      class="chip"
+      [class.chip--active]="filter() === chip.value"
+      (click)="filter.set(chip.value)"
+    >
+      {{ chip.labelKey | translate }}
+      @if (chipCount(chip) !== null) {
+        <span class="chip__count" [class.chip__count--alert]="chip.value === 'UNREAD'">
+          {{ chipCount(chip) }}
+        </span>
+      }
+    </button>
+  }
+</div>
+
+<!-- Fil -->
+<div class="notif-feed">
+  @if (isEmpty()) {
+    <div class="notif-empty">
+      <i class="pi pi-bell-slash"></i>
+      <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
+    </div>
+  }
+
+  @for (group of groups(); track group.key) {
+    <div class="notif-group-label">{{ group.labelKey | translate }}</div>
+    <div class="notif-card">
+      @for (n of group.items; track n.id) {
+        <div
+          class="notif-item notif-item--{{ n.tone }}"
+          [class.notif-item--unread]="!n.read"
+          (click)="onItemClick(n)"
+        >
+          <span class="notif-item__icon notif-item__icon--{{ n.tone }}">
+            <i class="pi {{ n.icon }}"></i>
+          </span>
+          <div class="notif-item__body">
+            <div class="notif-item__title" [class.notif-item__title--read]="n.read">{{ n.title }}</div>
+            <div class="notif-item__msg">{{ n.message }}</div>
+            @if (n.actions?.length) {
+              <div class="notif-item__actions">
+                @for (a of n.actions; track a.type) {
+                  <button
+                    type="button"
+                    class="notif-act notif-act--{{ a.variant }}"
+                    (click)="onAction(n, a, $event)"
+                  >{{ a.labelKey | translate }}</button>
+                }
+              </div>
+            }
+          </div>
+          <div class="notif-item__meta">
+            <span class="notif-item__time">{{ relativeTime(n.createdAt) }}</span>
+            @if (!n.read) { <span class="notif-item__dot"></span> }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
