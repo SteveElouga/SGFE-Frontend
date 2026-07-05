@@ -19,10 +19,7 @@ import { Role, User } from '../../../shared/models/user.model';
 import { isValidCameroonPhone, maskPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
-
-// Backend livré (introspection 2026-07-05) : reactivateUser + resetUserPassword
-// existent. Les actions d'activation / réinitialisation sont donc actives.
-const ACTIVATION_ACTIONS_READY = true;
+import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
 
 @Component({
   selector: 'app-utilisateur-edit',
@@ -47,7 +44,7 @@ export class UtilisateurEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
 
-  readonly activationReady = ACTIVATION_ACTIONS_READY;
+  readonly activationReady = BACKEND_CAPABILITIES.ACTIVATION_ACTIONS;
 
   readonly user = signal<User | null>(null);
   readonly loading = signal(true);
