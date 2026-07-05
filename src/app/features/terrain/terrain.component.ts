@@ -230,38 +230,20 @@ export class TerrainComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [campagnesRes, abonnesRes] = await Promise.all([
+      // `abonnes` est réservé ADMIN côté backend (ANO-015) : un AGENT authentifié
+      // reçoit PERMISSION_DENIED. On isole cet appel pour qu'un refus ne fasse
+      // pas échouer tout le chargement — l'agent doit voir ses relevés même sans
+      // les noms/quartiers (repli sur l'ID abonné, géré par carteAbonne()).
+      const [campagnesRes, abonnesMap] = await Promise.all([
         firstValueFrom(
           this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
             query: GET_CAMPAGNES,
             fetchPolicy: 'network-only',
           }),
         ),
-        firstValueFrom(
-          this.apollo.query<{
-            abonnes: Array<{
-              id: string;
-              numeroAbonne: string;
-              nom: string;
-              prenom: string;
-              compteur?: { numeroCompteur: number; quartier: string; camp: number } | null;
-            }>;
-          }>({ query: GET_ABONNES, fetchPolicy: 'cache-first' }),
-        ),
+        this.loadAbonnesMap(),
       ]);
-
-      const map = new Map<string, AbonneInfo>();
-      for (const a of abonnesRes.data?.abonnes ?? []) {
-        map.set(a.id, {
-          numeroAbonne: a.numeroAbonne,
-          nom: a.nom,
-          prenom: a.prenom,
-          numeroCompteur: a.compteur?.numeroCompteur ?? null,
-          quartier: a.compteur?.quartier ?? null,
-          camp: a.compteur?.camp ?? null,
-        });
-      }
-      this.abonnesMap.set(map);
+      this.abonnesMap.set(abonnesMap);
 
       const campagnes = campagnesRes.data?.campagnes ?? [];
       const active =
@@ -284,6 +266,37 @@ export class TerrainComponent implements OnInit {
       this.error.set(message || this.translate.instant('TERRAIN.ERROR_LOAD'));
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async loadAbonnesMap(): Promise<Map<string, AbonneInfo>> {
+    try {
+      const res = await firstValueFrom(
+        this.apollo.query<{
+          abonnes: Array<{
+            id: string;
+            numeroAbonne: string;
+            nom: string;
+            prenom: string;
+            compteur?: { numeroCompteur: number; quartier: string; camp: number } | null;
+          }>;
+        }>({ query: GET_ABONNES, fetchPolicy: 'cache-first', context: { silentError: true } }),
+      );
+      const map = new Map<string, AbonneInfo>();
+      for (const a of res.data?.abonnes ?? []) {
+        map.set(a.id, {
+          numeroAbonne: a.numeroAbonne,
+          nom: a.nom,
+          prenom: a.prenom,
+          numeroCompteur: a.compteur?.numeroCompteur ?? null,
+          quartier: a.compteur?.quartier ?? null,
+          camp: a.compteur?.camp ?? null,
+        });
+      }
+      return map;
+    } catch {
+      // Rôle sans accès à `abonnes` (AGENT) : la liste reste utilisable, dégradée.
+      return new Map();
     }
   }
 
