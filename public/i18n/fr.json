@@ -366,7 +366,18 @@
     "ABONNES_TITLE": "Abonnés",
     "ABONNES_DESC": "Gérer les abonnés et leurs compteurs d'eau",
     "USERS_TITLE": "Utilisateurs",
-    "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs"
+    "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs",
+    "ERROR_LOAD": "Impossible de charger le tableau de bord",
+    "KPI_CAMPAGNE": "Campagne en cours",
+    "KPI_FACTURE": "Montant facturé",
+    "KPI_ENCAISSE": "Encaissé",
+    "KPI_IMPAYES": "Impayés actifs",
+    "DES_RELEVES": "des relevés",
+    "NO_CAMPAGNE": "Aucune campagne en cours",
+    "CONSO_TOTALE": "Conso totale",
+    "RECOUVRE": "recouvré",
+    "FACTURES_IMPAYEES": "factures impayées",
+    "RECENT_CAMPAGNES": "Campagnes récentes"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",

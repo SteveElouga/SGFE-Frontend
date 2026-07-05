@@ -1,36 +1,74 @@
-<div class="dashboard">
-  <header class="dashboard__header">
-    <div>
-      <h1 class="dashboard__title">{{ 'DASHBOARD.TITLE' | translate }}</h1>
-      @if (user()) {
-        <p class="dashboard__welcome">{{ 'DASHBOARD.WELCOME' | translate:{ username: user()!.username } }}</p>
-      }
-    </div>
-  </header>
+<app-page-topbar [title]="'DASHBOARD.TITLE' | translate" [subtitle]="campagneEnCours()?.nom ?? ''" />
 
-  <div class="dashboard__grid">
+<div class="dash">
 
-    <a routerLink="/abonnes" class="dashboard__card dashboard__card--primary">
-      <div class="dashboard__card-icon">
-        <i class="pi pi-users"></i>
-      </div>
-      <div class="dashboard__card-body">
-        <h2 class="dashboard__card-title">{{ 'DASHBOARD.ABONNES_TITLE' | translate }}</h2>
-        <p class="dashboard__card-desc">{{ 'DASHBOARD.ABONNES_DESC' | translate }}</p>
-      </div>
-      <i class="pi pi-arrow-right dashboard__card-arrow"></i>
-    </a>
+  @if (error()) {
+    <app-error-banner [message]="error()!" (retry)="load()" />
+  }
 
-    <a routerLink="/utilisateurs" class="dashboard__card">
-      <div class="dashboard__card-icon">
-        <i class="pi pi-user-edit"></i>
-      </div>
-      <div class="dashboard__card-body">
-        <h2 class="dashboard__card-title">{{ 'DASHBOARD.USERS_TITLE' | translate }}</h2>
-        <p class="dashboard__card-desc">{{ 'DASHBOARD.USERS_DESC' | translate }}</p>
-      </div>
-      <i class="pi pi-arrow-right dashboard__card-arrow"></i>
-    </a>
+  @if (loading()) {
+    <div class="dash__loading"><i class="pi pi-spin pi-spinner"></i></div>
+  } @else if (stats(); as s) {
 
-  </div>
+    <!-- KPI -->
+    <section class="dash-kpi">
+      <!-- Campagne en cours -->
+      <div class="kpi kpi--campagne">
+        <div class="kpi__label">{{ 'DASHBOARD.KPI_CAMPAGNE' | translate }}</div>
+        @if (campagneEnCours(); as c) {
+          <div class="kpi__figure">
+            <span class="kpi__num">{{ c.nbReleves }}</span>
+            <span class="kpi__den">/ {{ c.totalAbonnes }}</span>
+          </div>
+          <div class="kpi__bar">
+            <div class="kpi__bar-fill" [style.width.%]="c.pourcentage"></div>
+          </div>
+          <div class="kpi__hint kpi__hint--blue">↑ {{ c.pourcentage }}% {{ 'DASHBOARD.DES_RELEVES' | translate }}</div>
+        } @else {
+          <div class="kpi__empty">{{ 'DASHBOARD.NO_CAMPAGNE' | translate }}</div>
+        }
+      </div>
+
+      <!-- Montant facturé -->
+      <div class="kpi">
+        <div class="kpi__label">{{ 'DASHBOARD.KPI_FACTURE' | translate }}</div>
+        <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }} <small>FCFA</small></div>
+        <div class="kpi__hint">{{ 'DASHBOARD.CONSO_TOTALE' | translate }} : {{ formatM3(s.consommationTotaleGlobale) }}</div>
+      </div>
+
+      <!-- Encaissé -->
+      <div class="kpi kpi--green">
+        <div class="kpi__label">{{ 'DASHBOARD.KPI_ENCAISSE' | translate }}</div>
+        <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }} <small>FCFA</small></div>
+        <div class="kpi__hint kpi__hint--green">{{ tauxRecouvrement() }}% {{ 'DASHBOARD.RECOUVRE' | translate }}</div>
+      </div>
+
+      <!-- Impayés actifs -->
+      <div class="kpi kpi--red">
+        <div class="kpi__label">{{ 'DASHBOARD.KPI_IMPAYES' | translate }}</div>
+        <div class="kpi__value kpi__value--red">{{ formatFCFA(impayesTotal()) }} <small>FCFA</small></div>
+        <div class="kpi__hint kpi__hint--red">{{ impayesCount() }} {{ 'DASHBOARD.FACTURES_IMPAYEES' | translate }}</div>
+      </div>
+    </section>
+
+    <!-- Campagnes récentes -->
+    <h2 class="dash__section-title">{{ 'DASHBOARD.RECENT_CAMPAGNES' | translate }}</h2>
+    @if (s.historiqueCampagnes.length > 0) {
+      <div class="dash-camps">
+        @for (h of s.historiqueCampagnes; track h.campagneId) {
+          <a class="camp-row" [routerLink]="['/campagnes', h.campagneId]">
+            <span class="camp-row__name">{{ h.nomCampagne }}</span>
+            <span class="camp-row__bar">
+              <span class="camp-row__bar-fill" [style.width.%]="h.pourcentageProgression"></span>
+            </span>
+            <span class="camp-row__pct">{{ h.pourcentageProgression | number:'1.0-0' }}%</span>
+            <span class="camp-row__meta">{{ h.nbReleves }}/{{ h.totalAbonnes }}</span>
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="dash-empty">{{ 'COMMON.NO_DATA' | translate }}</div>
+    }
+
+  }
 </div>

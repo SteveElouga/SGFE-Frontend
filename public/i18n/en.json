@@ -366,7 +366,18 @@
     "ABONNES_TITLE": "Subscribers",
     "ABONNES_DESC": "Manage subscribers and their water meters",
     "USERS_TITLE": "Users",
-    "USERS_DESC": "Manage agent, accountant and administrator accounts"
+    "USERS_DESC": "Manage agent, accountant and administrator accounts",
+    "ERROR_LOAD": "Failed to load the dashboard",
+    "KPI_CAMPAGNE": "Current campaign",
+    "KPI_FACTURE": "Amount billed",
+    "KPI_ENCAISSE": "Collected",
+    "KPI_IMPAYES": "Active unpaid",
+    "DES_RELEVES": "of readings",
+    "NO_CAMPAGNE": "No campaign in progress",
+    "CONSO_TOTALE": "Total consumption",
+    "RECOUVRE": "collected",
+    "FACTURES_IMPAYEES": "unpaid invoices",
+    "RECENT_CAMPAGNES": "Recent campaigns"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
