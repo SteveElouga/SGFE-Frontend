@@ -627,6 +627,25 @@
       "INACTIVE": "Disabled",
       "CONFIRM": "I confirm the final closure of the {{nom}} campaign",
       "CONFIRM_BTN": "Close and generate {{n}} invoices"
+    },
+    "REPARTITION_TITLE": "Breakdown by zone",
+    "COL_ZONE": "Zone · Camp",
+    "COL_ABONNES": "Subscribers",
+    "COL_RELEVES": "Readings",
+    "COL_PROGRESSION": "Progress",
+    "AGENTS_TITLE": "Assigned agents",
+    "AGENTS_PENDING": "Agent assignment is active. Tracking cards (status, zones, progress) will appear here once the API exposes assigned agents.",
+    "VOIR_TOURNEE": "View route",
+    "SYNC_PREFIX": "Sync",
+    "SYNC_NOW": "just now",
+    "SYNC_MIN": "{{n}} min ago",
+    "SYNC_HOUR": "{{n}} h ago",
+    "SYNC_DAY": "{{n}} d ago",
+    "AGENT_STATUT": {
+      "EN_TOURNEE": "On route",
+      "ACTIF": "Active",
+      "EN_RETARD": "Behind",
+      "INACTIF": "Inactive"
     }
   },
   "FACTURATION": {

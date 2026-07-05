@@ -627,6 +627,25 @@
       "INACTIVE": "Désactivé",
       "CONFIRM": "Je confirme la clôture définitive de la campagne {{nom}}",
       "CONFIRM_BTN": "Clôturer et générer {{n}} factures"
+    },
+    "REPARTITION_TITLE": "Répartition par zone",
+    "COL_ZONE": "Zone · Camp",
+    "COL_ABONNES": "Abonnés",
+    "COL_RELEVES": "Relevés",
+    "COL_PROGRESSION": "Progression",
+    "AGENTS_TITLE": "Agents affectés",
+    "AGENTS_PENDING": "L'affectation d'agents est active. Les cartes de suivi (statut, zones, progression) s'afficheront ici dès que l'API expose les agents affectés.",
+    "VOIR_TOURNEE": "Voir la tournée",
+    "SYNC_PREFIX": "Sync",
+    "SYNC_NOW": "à l'instant",
+    "SYNC_MIN": "il y a {{n}} min",
+    "SYNC_HOUR": "il y a {{n}} h",
+    "SYNC_DAY": "il y a {{n}} j",
+    "AGENT_STATUT": {
+      "EN_TOURNEE": "En tournée",
+      "ACTIF": "Actif",
+      "EN_RETARD": "En retard",
+      "INACTIF": "Inactif"
     }
   },
   "FACTURATION": {

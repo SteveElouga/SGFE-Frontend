@@ -1,8 +1,24 @@
 export type StatutCampagne = 'PLANIFIEE' | 'EN_COURS' | 'CLOTUREE';
 export type StatutReleve = 'A_RELEVER' | 'RELEVE' | 'NON_RELEVE' | 'ESTIME';
 
+export interface AgentZone {
+  nom: string;
+  camp: number;
+}
+
 export interface CampagneAgent {
   username: string;
+  // ── PENDING BACKEND (docs/BESOINS_API_campagne_agents.md, P1 + P4) ─────────
+  // Le type `Campagne` n'expose pas encore `agents` : ces champs restent vides
+  // tant que le backend ne les fournit pas. La section « Agents affectés » du
+  // détail campagne affiche alors un état « en attente ». Ne PAS ajouter ces
+  // champs à GET_CAMPAGNE avant leur exposition (champ inconnu = query cassée).
+  id?: string;
+  zones?: AgentZone[];
+  statutTournee?: 'EN_TOURNEE' | 'ACTIF' | 'EN_RETARD' | 'INACTIF';
+  derniereSyncLe?: string;
+  nbAbonnesAssignes?: number;
+  nbReleves?: number;
 }
 
 export interface Campagne {

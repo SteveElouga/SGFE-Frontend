@@ -108,9 +108,9 @@ export class AbonnesService {
       });
   }
 
-  async getAbonnesActifs(): Promise<Array<{ id: string; quartier: string | null }>> {
+  async getAbonnesActifs(): Promise<Array<{ id: string; quartier: string | null; camp: number | null }>> {
     const result = await firstValueFrom(
-      this.apollo.query<{ abonnesActifs: Array<{ id: string; compteur?: { quartier: string } | null }> }>({
+      this.apollo.query<{ abonnesActifs: Array<{ id: string; compteur?: { quartier: string; camp: number } | null }> }>({
         query: GET_ABONNES_ACTIFS,
         fetchPolicy: 'cache-first',
       }),
@@ -118,6 +118,7 @@ export class AbonnesService {
     return (result.data?.abonnesActifs ?? []).map((a) => ({
       id: a.id,
       quartier: a.compteur?.quartier ?? null,
+      camp: a.compteur?.camp ?? null,
     }));
   }
 
