@@ -7,17 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, LowerCasePipe } from '@angular/common';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { CampagnesService } from '../../core/campagnes/campagnes.service';
-import { AuthService } from '../../core/auth/auth.service';
-import { OfflineSaisieService, QueuedSaisie } from '../../core/terrain/offline-saisie.service';
+import { AuthService, extractGqlError } from '../../core/auth/auth.service';
+import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
 import { Campagne, Releve } from '../../shared/models/campagne.model';
-import { extractGqlError } from '../../core/auth/auth.service';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
@@ -31,28 +30,33 @@ interface AbonneInfo {
   camp: number | null;
 }
 
-/** Carte d'un abonné restant à relever. */
-interface AReleverCard {
+type EntryStatus = 'A_RELEVER' | 'RELEVE' | 'ESTIME' | 'NON_RELEVE' | 'PENDING';
+type Filtre = 'TOUS' | 'A_RELEVER' | 'RELEVE';
+type View = 'list' | 'saisie' | 'success';
+
+/** Ligne de la liste des relevés (écran 07). */
+interface Entry {
   abonneId: string;
   nom: string;
-  initials: string;
   sub: string;
+  detail: string;
+  status: EntryStatus;
   ancienIndex: number;
+  numeroAbonne: string;
+  compteurLine: string;
 }
 
-/** Carte d'un relevé traité (en attente de sync ou synchronisé). */
-interface DoneCard {
-  key: string;
-  abonneId: string;
+interface SuccessInfo {
   nom: string;
-  initials: string;
-  detail: string;
-  synced: boolean;
-  erreur?: string;
+  numeroAbonne: string;
+  ancienIndex: number;
+  nouvelIndex: number;
+  conso: number;
+  ts: number;
 }
 
 @Component({
-  imports: [FormsModule, DecimalPipe, ToastModule, TranslatePipe, ErrorBannerComponent],
+  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent],
   providers: [MessageService],
   templateUrl: './terrain.component.html',
   styleUrl: './terrain.component.scss',
@@ -72,138 +76,151 @@ export class TerrainComponent implements OnInit {
   readonly releves = signal<Releve[]>([]);
   readonly abonnesMap = signal<Map<string, AbonneInfo>>(new Map());
 
-  // ── Feuille de saisie d'index ───────────────────────────────────────────────
-  readonly saisieCarte = signal<AReleverCard | null>(null);
+  readonly view = signal<View>('list');
+  readonly filtre = signal<Filtre>('TOUS');
+
+  // ── Saisie (écran 08) ───────────────────────────────────────────────────────
+  readonly saisieEntry = signal<Entry | null>(null);
   readonly nouvelIndex = signal('');
-  readonly submitting = signal(false);
+  readonly observation = signal('');
 
   // ── Feuille M-07 : non relevé / estimé ──────────────────────────────────────
   readonly m07Visible = signal(false);
   readonly m07Statut = signal<'NON_RELEVE' | 'ESTIME'>('NON_RELEVE');
   readonly m07Observation = signal('');
 
-  readonly agentNom = computed(() => this.auth.user()?.username ?? '');
-  readonly agentInitial = computed(() => (this.agentNom()[0] ?? '?').toUpperCase());
+  // ── Succès (écran 09) ───────────────────────────────────────────────────────
+  readonly success = signal<SuccessInfo | null>(null);
 
+  readonly agentNom = computed(() => this.auth.user()?.username ?? '');
   readonly campagneNom = computed(() => this.campagne()?.nom ?? '');
 
-  private carteAbonne(abonneId: string): { nom: string; initials: string; info: AbonneInfo | undefined } {
+  private carteAbonne(abonneId: string): { nom: string; info: AbonneInfo | undefined } {
     const info = this.abonnesMap().get(abonneId);
     const nom = info ? `${info.prenom} ${info.nom}`.trim() : abonneId;
-    const initials = info
-      ? `${info.prenom[0] ?? ''}${info.nom[0] ?? ''}`.toUpperCase()
-      : '?';
-    return { nom, initials, info };
+    return { nom, info };
   }
 
-  private abonneSub(info: AbonneInfo | undefined): string {
+  private localisation(info: AbonneInfo | undefined): string {
     if (!info) return '';
     const parts: string[] = [];
-    if (info.numeroCompteur != null) parts.push(`Compteur ${info.numeroCompteur}`);
-    if (info.quartier) {
-      const camp = info.camp != null ? `, Camp ${info.camp}` : '';
-      parts.push(info.quartier + camp);
-    }
+    if (info.quartier) parts.push(info.quartier);
+    if (info.camp != null) parts.push(`Camp ${info.camp}`);
+    if (info.numeroCompteur != null) parts.push(`C-${String(info.numeroCompteur).padStart(4, '0')}`);
     return parts.join(' · ');
   }
 
-  private releveDetail(r: Releve): string {
-    if (r.statut === 'ESTIME') return this.translate.instant('TERRAIN.ESTIME');
-    if (r.statut === 'NON_RELEVE') return this.translate.instant('TERRAIN.NON_RELEVE');
-    return this.translate.instant('TERRAIN.CARD_INDEX_SHORT', {
-      index: r.nouveauIndex.toLocaleString('fr-FR'),
-      conso: r.consommation,
-    });
-  }
+  /** Liste unifiée : relevés serveur surchargés par la file locale. */
+  readonly entries = computed((): Entry[] => {
+    // Surcharge par abonné : le premier de la file (le plus récent) fait foi.
+    const override = new Map<string, { status: EntryStatus; detail: string }>();
+    for (const q of this.offline.queue()) {
+      if (override.has(q.abonneId)) continue;
+      override.set(q.abonneId, this.queueOverride(q));
+    }
 
-  readonly aRelever = computed((): AReleverCard[] => {
-    const submitted = this.offline.submittedAbonneIds();
-    return this.releves()
-      .filter((r) => r.statut === 'A_RELEVER' && !submitted.has(r.abonneId))
-      .map((r) => {
-        const { nom, initials, info } = this.carteAbonne(r.abonneId);
-        return {
-          abonneId: r.abonneId,
-          nom,
-          initials,
-          sub: this.abonneSub(info),
-          ancienIndex: r.ancienIndex,
-        };
-      });
+    return this.releves().map((r): Entry => {
+      const { nom, info } = this.carteAbonne(r.abonneId);
+      const base = {
+        abonneId: r.abonneId,
+        nom,
+        sub: this.localisation(info),
+        ancienIndex: r.ancienIndex,
+        numeroAbonne: info?.numeroAbonne ?? '',
+        compteurLine: this.saisieCompteurLine(info),
+      };
+      const ov = override.get(r.abonneId);
+      if (ov) return { ...base, status: ov.status, detail: ov.detail };
+      return { ...base, status: r.statut, detail: this.serverDetail(r) };
+    });
   });
 
-  private doneFromQueue(q: QueuedSaisie): DoneCard {
-    const { nom, initials } = this.carteAbonne(q.abonneId);
-    const time = this.formatTime(q.ts);
-    let detail: string;
-    if (q.kind === 'INDEX') {
-      detail = this.translate.instant('TERRAIN.CARD_INDEX', {
-        index: (q.nouveauIndex ?? 0).toLocaleString('fr-FR'),
-        conso: q.consommation ?? 0,
-        time,
-      });
-    } else {
-      const statutLabel = this.translate.instant(
-        q.kind === 'ESTIME' ? 'TERRAIN.ESTIME' : 'TERRAIN.NON_RELEVE',
-      );
-      detail = this.translate.instant('TERRAIN.CARD_STATUT', { statut: statutLabel, time });
+  private queueOverride(q: {
+    state: string;
+    kind: 'INDEX' | 'NON_RELEVE' | 'ESTIME';
+    nouveauIndex: number | null;
+    consommation: number | null;
+    observation: string;
+  }): { status: EntryStatus; detail: string } {
+    if (q.state === 'PENDING' || q.state === 'ERROR') {
+      let detail: string;
+      if (q.kind === 'INDEX') {
+        detail = this.translate.instant('TERRAIN.CARD_INDEX_SHORT', {
+          index: (q.nouveauIndex ?? 0).toLocaleString('fr-FR'),
+          conso: q.consommation ?? 0,
+        });
+      } else {
+        detail = this.translate.instant(q.kind === 'ESTIME' ? 'TERRAIN.ESTIME' : 'TERRAIN.NON_RELEVE');
+      }
+      return { status: 'PENDING', detail };
     }
-    return {
-      key: q.id,
-      abonneId: q.abonneId,
-      nom: q.abonneNom || nom,
-      initials,
-      detail,
-      synced: q.state === 'SYNCED',
-      erreur: q.state === 'ERROR' ? q.erreur : undefined,
-    };
+    // Synchronisé : reflété comme « fait » jusqu'au prochain rechargement serveur.
+    if (q.kind === 'INDEX') {
+      return { status: 'RELEVE', detail: this.translate.instant('TERRAIN.CARD_CONSO', { conso: q.consommation ?? 0 }) };
+    }
+    if (q.kind === 'ESTIME') return { status: 'ESTIME', detail: this.translate.instant('TERRAIN.ESTIME') };
+    return { status: 'NON_RELEVE', detail: q.observation || this.translate.instant('TERRAIN.NON_RELEVE') };
   }
 
-  readonly enAttente = computed((): DoneCard[] =>
-    this.offline.pending().map((q) => this.doneFromQueue(q)),
+  private serverDetail(r: Releve): string {
+    if (r.statut === 'RELEVE' || r.statut === 'ESTIME') {
+      return this.translate.instant('TERRAIN.CARD_CONSO', { conso: r.consommation });
+    }
+    if (r.statut === 'NON_RELEVE') {
+      return r.observation || this.translate.instant('TERRAIN.NON_RELEVE');
+    }
+    return this.translate.instant('TERRAIN.ANCIEN_IDX', { index: r.ancienIndex.toLocaleString('fr-FR') });
+  }
+
+  readonly countTous = computed(() => this.entries().length);
+  readonly countARelever = computed(() => this.entries().filter((e) => e.status === 'A_RELEVER').length);
+  readonly countReleve = computed(
+    () => this.entries().filter((e) => e.status === 'RELEVE' || e.status === 'ESTIME' || e.status === 'PENDING').length,
   );
 
-  readonly synchronises = computed((): DoneCard[] => {
-    const submitted = this.offline.submittedAbonneIds();
-    const fromQueue = this.offline.synced().map((q) => this.doneFromQueue(q));
-    const fromServer = this.releves()
-      .filter((r) => r.statut !== 'A_RELEVER' && !submitted.has(r.abonneId))
-      .map((r): DoneCard => {
-        const { nom, initials } = this.carteAbonne(r.abonneId);
-        return {
-          key: r.releveId,
-          abonneId: r.abonneId,
-          nom,
-          initials,
-          detail: this.releveDetail(r),
-          synced: true,
-        };
-      });
-    return [...fromQueue, ...fromServer];
+  readonly filteredEntries = computed((): Entry[] => {
+    const f = this.filtre();
+    const list = this.entries();
+    if (f === 'A_RELEVER') return list.filter((e) => e.status === 'A_RELEVER');
+    if (f === 'RELEVE') return list.filter((e) => e.status === 'RELEVE' || e.status === 'ESTIME' || e.status === 'PENDING');
+    return list;
   });
 
-  // ── Saisie : consommation live + validation ────────────────────────────────
+  readonly progressPct = computed(() => {
+    const total = this.countTous();
+    if (total === 0) return 0;
+    return Math.round(((total - this.countARelever()) / total) * 100);
+  });
+  readonly nbFaits = computed(() => this.countTous() - this.countARelever());
+
+  // ── Saisie : consommation live + validation (RV-001) ────────────────────────
   readonly consoLive = computed((): number | null => {
-    const carte = this.saisieCarte();
+    const e = this.saisieEntry();
     const idx = Number.parseInt(this.nouvelIndex(), 10);
-    if (!carte || Number.isNaN(idx)) return null;
-    return idx - carte.ancienIndex;
+    if (!e || Number.isNaN(idx)) return null;
+    return idx - e.ancienIndex;
   });
 
   readonly indexInvalide = computed(() => {
-    const carte = this.saisieCarte();
+    const e = this.saisieEntry();
     const idx = Number.parseInt(this.nouvelIndex(), 10);
-    if (!carte || this.nouvelIndex().trim() === '' || Number.isNaN(idx)) return false;
-    return idx < carte.ancienIndex;
+    if (!e || this.nouvelIndex().trim() === '' || Number.isNaN(idx)) return false;
+    return idx < e.ancienIndex;
   });
 
   readonly saisieValide = computed(() => {
-    const carte = this.saisieCarte();
+    const e = this.saisieEntry();
     const idx = Number.parseInt(this.nouvelIndex(), 10);
-    return !!carte && !Number.isNaN(idx) && idx >= carte.ancienIndex;
+    return !!e && !Number.isNaN(idx) && idx >= e.ancienIndex;
   });
 
   readonly m07Valide = computed(() => this.m07Observation().trim().length > 0);
+
+  /** Prochain abonné à relever (hors abonné courant), pour l'écran de succès. */
+  readonly prochain = computed((): Entry | null => {
+    const currentId = this.success()?.numeroAbonne;
+    return this.entries().find((e) => e.status === 'A_RELEVER' && e.numeroAbonne !== currentId) ?? null;
+  });
 
   ngOnInit(): void {
     void this.load();
@@ -215,9 +232,10 @@ export class TerrainComponent implements OnInit {
     try {
       const [campagnesRes, abonnesRes] = await Promise.all([
         firstValueFrom(
-          this.apollo.query<{
-            campagnes: Array<Campagne & { statut: string }>;
-          }>({ query: GET_CAMPAGNES, fetchPolicy: 'network-only' }),
+          this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
+            query: GET_CAMPAGNES,
+            fetchPolicy: 'network-only',
+          }),
         ),
         firstValueFrom(
           this.apollo.query<{
@@ -245,7 +263,6 @@ export class TerrainComponent implements OnInit {
       }
       this.abonnesMap.set(map);
 
-      // Campagne active de l'agent : la plus récente EN_COURS.
       const campagnes = campagnesRes.data?.campagnes ?? [];
       const active =
         campagnes.find((c) => c.statut === 'EN_COURS') ??
@@ -253,13 +270,13 @@ export class TerrainComponent implements OnInit {
           b.periodeAnnee !== a.periodeAnnee
             ? b.periodeAnnee - a.periodeAnnee
             : b.periodeMois - a.periodeMois,
-        )[0] ?? null;
+        )[0] ??
+        null;
       this.campagne.set(active);
 
       if (active) {
         const releves = await this.campagnesService.getReleves(active.campagneId);
         this.releves.set(releves);
-        // Purge des saisies locales déjà reflétées côté serveur.
         this.offline.clearSynced();
       }
     } catch (err: unknown) {
@@ -270,35 +287,73 @@ export class TerrainComponent implements OnInit {
     }
   }
 
-  // ── Feuille de saisie ───────────────────────────────────────────────────────
+  private saisieCompteurLine(info: AbonneInfo | undefined): string {
+    if (!info) return '';
+    const parts: string[] = [];
+    if (info.numeroCompteur != null) parts.push(`Compteur C-${String(info.numeroCompteur).padStart(4, '0')}`);
+    if (info.quartier) parts.push(`${info.quartier}${info.camp != null ? `, Camp ${info.camp}` : ''}`);
+    return parts.join(' · ');
+  }
 
-  openSaisie(carte: AReleverCard): void {
-    this.saisieCarte.set(carte);
+  // ── Navigation liste ────────────────────────────────────────────────────────
+
+  setFiltre(f: Filtre): void {
+    this.filtre.set(f);
+  }
+
+  openSaisie(entry: Entry): void {
+    if (entry.status !== 'A_RELEVER') return;
+    this.saisieEntry.set(entry);
     this.nouvelIndex.set('');
+    this.observation.set('');
+    this.m07Visible.set(false);
+    this.view.set('saisie');
+  }
+
+  backToList(): void {
+    this.view.set('list');
+    this.saisieEntry.set(null);
     this.m07Visible.set(false);
   }
 
-  closeSaisie(): void {
-    this.saisieCarte.set(null);
-    this.m07Visible.set(false);
-  }
+  // ── Saisie (écran 08) ───────────────────────────────────────────────────────
 
   confirmSaisie(): void {
-    const carte = this.saisieCarte();
+    const e = this.saisieEntry();
     const campagne = this.campagne();
-    if (!carte || !campagne || !this.saisieValide()) return;
+    if (!e || !campagne || !this.saisieValide()) return;
     const nouveauIndex = Number.parseInt(this.nouvelIndex(), 10);
+    const conso = nouveauIndex - e.ancienIndex;
     this.offline.enqueue({
       kind: 'INDEX',
       campagneId: campagne.campagneId,
-      abonneId: carte.abonneId,
-      abonneNom: carte.nom,
+      abonneId: e.abonneId,
+      abonneNom: e.nom,
       nouveauIndex,
-      consommation: nouveauIndex - carte.ancienIndex,
-      observation: '',
+      consommation: conso,
+      observation: this.observation().trim(),
     });
-    this.toastSaved(carte.nom);
-    this.closeSaisie();
+    this.success.set({
+      nom: e.nom,
+      numeroAbonne: e.numeroAbonne,
+      ancienIndex: e.ancienIndex,
+      nouvelIndex: nouveauIndex,
+      conso,
+      ts: Date.now(),
+    });
+    this.toastSaved(e.nom);
+    this.view.set('success');
+  }
+
+  // ── Succès (écran 09) ───────────────────────────────────────────────────────
+
+  releverSuivant(): void {
+    const next = this.prochain();
+    if (next) {
+      this.openSaisie(next);
+    } else {
+      this.backToList();
+    }
   }
 
   // ── Feuille M-07 : non relevé / estimé ──────────────────────────────────────
@@ -318,20 +373,21 @@ export class TerrainComponent implements OnInit {
   }
 
   confirmM07(): void {
-    const carte = this.saisieCarte();
+    const e = this.saisieEntry();
     const campagne = this.campagne();
-    if (!carte || !campagne || !this.m07Valide()) return;
+    if (!e || !campagne || !this.m07Valide()) return;
     this.offline.enqueue({
       kind: this.m07Statut(),
       campagneId: campagne.campagneId,
-      abonneId: carte.abonneId,
-      abonneNom: carte.nom,
+      abonneId: e.abonneId,
+      abonneNom: e.nom,
       nouveauIndex: null,
       consommation: null,
       observation: this.m07Observation().trim(),
     });
-    this.toastSaved(carte.nom);
-    this.closeSaisie();
+    this.toastSaved(e.nom);
+    this.m07Visible.set(false);
+    this.backToList();
   }
 
   private toastSaved(nom: string): void {

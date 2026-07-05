@@ -103,6 +103,22 @@
       <ng-template appCol="statut" let-r>
         <span class="statut-badge statut-badge--{{ statutClass(r) }}">{{ statutLabel(r) }}</span>
       </ng-template>
+
+      <ng-template appCardRow let-r>
+        <button type="button" class="pcard" (click)="voirFacture(r.factureId)">
+          <div class="pcard__top">
+            <div class="pcard__id">
+              <span class="pcard__abonne">{{ r.abonneNom }}</span>
+              <span class="pcard__ref">{{ r.numeroFacture }} · {{ formatDate(r.datePaiement) }}</span>
+            </div>
+            <span class="pcard__montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ formatFCFA(r.montant) }}</span>
+          </div>
+          <div class="pcard__bottom">
+            <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">{{ 'FACTURATION.MODE.' + r.modePaiement | translate }}</span>
+            <span class="statut-badge statut-badge--{{ statutClass(r) }}">{{ statutLabel(r) }}</span>
+          </div>
+        </button>
+      </ng-template>
     </app-data-table>
   </div>
 

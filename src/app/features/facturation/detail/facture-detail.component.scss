@@ -467,3 +467,43 @@
 
   i { margin-top: 1px; flex-shrink: 0; }
 }
+
+// ── Paiement en bottom sheet (mobile · MB-06) ─────────────────────────────────
+.paiement-form__backdrop { display: none; }
+.paiement-form__grip { display: none; }
+
+@media (max-width: 768px) {
+  .paiement-form__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 99;
+  }
+  .paiement-form {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+  }
+  .paiement-form__grip {
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin: 0 auto 14px;
+  }
+
+  // MB-05 : table de calcul plus compacte sur mobile
+  .calc-table__head > div { padding: 8px 8px; font-size: 9px; }
+  .calc-val { padding: 10px 8px; }
+}

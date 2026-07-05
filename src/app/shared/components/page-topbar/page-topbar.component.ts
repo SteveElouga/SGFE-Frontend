@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-page-topbar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NotificationBellComponent],
   template: `
     <header class="page-topbar">
       <div class="page-topbar__left">
@@ -17,7 +18,12 @@ import { RouterLink } from '@angular/router';
           <span class="page-topbar__subtitle">{{ subtitle() }}</span>
         }
       </div>
-      <ng-content />
+      <div class="page-topbar__right">
+        <ng-content />
+        @if (showBell()) {
+          <app-notification-bell />
+        }
+      </div>
     </header>
   `,
   styleUrl: './page-topbar.component.scss',
@@ -31,4 +37,6 @@ export class PageTopbarComponent {
   subtitle = input<string>('');
   backLink = input<string>('');
   backLabel = input<string>('');
+  /** Afficher la cloche de notifications (false sur la page Notifications elle-même). */
+  showBell = input(true);
 }

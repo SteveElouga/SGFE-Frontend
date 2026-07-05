@@ -6,9 +6,13 @@
     "FACTURES": "Invoices",
     "PAIEMENTS": "Payments",
     "IMPAYES": "Unpaid",
+    "NOTIFICATIONS": "Notifications",
     "CONFIGURATION": "Settings",
     "TERRAIN": "Readings",
-    "PARAMETRES": "Settings"
+    "PARAMETRES": "Settings",
+    "PLUS": "More",
+    "ENVOIS": "Sends",
+    "RAPPORTS": "Reports"
   },
   "USER_MENU": {
     "PROFILE": "My profile",
@@ -312,9 +316,15 @@
       "SUCCESS_DEACTIVATED": "Account deactivated",
       "SUCCESS_DEACTIVATED_DETAIL": "{{ username }} can no longer sign in.",
       "SUCCESS_RESENT": "Activation resent",
-      "SUCCESS_RESENT_EMAIL": "An activation link was emailed to {{ username }}.",
-      "SUCCESS_RESENT_WHATSAPP": "An activation code was sent by WhatsApp to {{ username }}."
-    }
+      "SUCCESS_RESENT_EMAIL": "An email with a link was sent to {{email}}.",
+      "SUCCESS_RESENT_WHATSAPP": "A 6-digit code was sent via WhatsApp to {{phone}}."
+    },
+    "EMAIL": "Email",
+    "ACTIF": "Active",
+    "INACTIF": "Disabled",
+    "REACTIVER": "Reactivate",
+    "SUCCESS_REACTIVATION": "User reactivated",
+    "SUCCESS_REACTIVATION_DETAIL": "{{username}} can sign in again"
   },
   "AUTH": {
     "LOGIN_TITLE": "Sign in",
@@ -586,6 +596,37 @@
       "MOBILE_MONEY_LABEL": "Mobile Money number (optional)",
       "MOBILE_MONEY_HINT": "9-digit Cameroonian number — e.g. 658552294. Shown in WhatsApp message.",
       "MOBILE_MONEY_ERROR": "Number must be exactly 9 digits."
+    },
+    "AGENTS_SHEET": {
+      "TRIGGER": "Assign agents",
+      "TITLE": "Assign agents",
+      "SUBTITLE": "{{n}} agents assigned to this campaign",
+      "SEARCH": "Search for an agent…",
+      "SAVE": "Save assignment",
+      "SUCCESS": "{{n}} agent(s) assigned",
+      "DISABLED": "Disabled account — unavailable",
+      "ALREADY": "Already assigned",
+      "AGENT": "Agent",
+      "EMPTY": "No agent available"
+    },
+    "CLOTURE": {
+      "TITLE": "Close the {{nom}} campaign?",
+      "DESC_1": "Closing triggers automatic invoice generation.",
+      "IRREVERSIBLE": "This action is irreversible",
+      "DESC_2": "— the campaign can no longer be modified.",
+      "RELEVES": "read",
+      "ESTIMES": "estimated",
+      "NON_RELEVES": "not read",
+      "RESTANTS": "remaining",
+      "WARN": "{{sans}} subscribers without a reading ({{restants}} remaining + {{nonReleves}} not read) will not be billed this month. The {{estimes}} estimated readings will be billed based on the estimate.",
+      "SUM_FACTURES": "Invoices to generate (read + estimated)",
+      "SUM_PDF": "PDFs generated with company logo",
+      "SUM_WA": "Automatic WhatsApp send (20-day tokenized link)",
+      "SUM_TARIF": "Applied rate (copied into each invoice)",
+      "ACTIVE": "Enabled",
+      "INACTIVE": "Disabled",
+      "CONFIRM": "I confirm the final closure of the {{nom}} campaign",
+      "CONFIRM_BTN": "Close and generate {{n}} invoices"
     }
   },
   "FACTURATION": {
@@ -785,6 +826,43 @@
       "MSG": "« Your water line has been suspended due to an unpaid balance of {{montant}} ({{mois}} invoice). To reinstate your water line, contact our customer service. »"
     }
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "SUBTITLE": "{{unread}} unread · {{total}} total",
+    "PANEL_TITLE": "Notifications",
+    "UNREAD_COUNT": "{{n}} unread",
+    "MARK_ALL_READ": "Mark all as read",
+    "MARK_ALL_READ_SHORT": "Mark all read",
+    "SEE_ALL": "See all notifications",
+    "TAB_ALL": "All",
+    "TAB_UNREAD": "Unread",
+    "EMPTY": "No notifications",
+    "TOAST_RETRY": "WhatsApp resend triggered",
+    "FILTER": {
+      "ALL": "All",
+      "UNREAD": "Unread",
+      "PAIEMENTS": "Payments",
+      "RELANCES": "Reminders & overdue",
+      "SYSTEME": "System"
+    },
+    "GROUP": {
+      "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "WEEK": "This week",
+      "OLDER": "Older"
+    },
+    "TIME": {
+      "NOW": "just now",
+      "MIN": "{{n}} min ago",
+      "HOUR": "{{n}} h ago",
+      "YESTERDAY": "Yesterday · {{time}}"
+    },
+    "ACTION": {
+      "RETRY": "↻ Retry",
+      "FIX_NUMBER": "Fix number",
+      "VIEW_RECEIPT": "View receipt"
+    }
+  },
   "TERRAIN": {
     "TITLE": "My readings",
     "OFFLINE_TITLE": "Offline — network unavailable",
@@ -821,6 +899,55 @@
     "TOAST_SAVED_OFFLINE": "Saved offline — will sync",
     "ERROR_LOAD": "Unable to load readings",
     "EMPTY": "All readings done ✓",
-    "NO_CAMPAGNE": "No campaign in progress"
+    "NO_CAMPAGNE": "No campaign in progress",
+    "PROGRESS": "{{faits}} / {{total}} subscribers",
+    "FILTER_ALL": "All",
+    "FILTER_A_RELEVER": "To read",
+    "FILTER_RELEVE": "Read",
+    "CARD_CONSO": "{{conso}} m³ entered",
+    "ANCIEN_IDX": "Prev. idx: {{index}} m³",
+    "SAISIR_TITLE": "Enter index",
+    "BACK": "Back",
+    "ANCIEN_INDEX_RO": "Previous index (read-only)",
+    "LECTURE_SEULE": "read-only",
+    "DOIT_ETRE": "Must be ≥ {{ancien}} m³",
+    "CONSO_CALC": "Calculated consumption",
+    "OBSERVATION_OPT": "Note (optional)",
+    "OBSERVATION_PH": "Meter readable, subscriber present…",
+    "ENREGISTRER": "Save",
+    "MARQUER_NR_EST": "Mark not read / estimated",
+    "SUCCESS_TITLE": "Index saved!",
+    "RESUME": "Reading summary",
+    "ENREGISTRE_A": "Saved at {{time}} · {{agent}}",
+    "PROCHAIN": "Next subscriber to read",
+    "RELEVER_SUIVANT": "Read the next one",
+    "RETOUR_LISTE": "Back to list",
+    "STATUT": {
+      "A_RELEVER": "To read",
+      "RELEVE": "✓ Read",
+      "ESTIME": "Estimated",
+      "NON_RELEVE": "Not read",
+      "PENDING": "⟳ Pending"
+    }
+  },
+  "ENVOIS": {
+    "TITLE": "WhatsApp sends",
+    "SUBTITLE": "whatsapp-web.js delivery tracking",
+    "SOON": "Coming soon",
+    "CS_TITLE": "WhatsApp delivery tracking",
+    "CS_DESC": "Detailed send tracking (delivered / pending / failed statuses, message ID and manual resend) is coming soon, once the send-history API is available on the server."
+  },
+  "RAPPORTS": {
+    "TITLE": "Reports",
+    "SUBTITLE": "Statistics and exports",
+    "SOON": "Coming soon",
+    "CS_TITLE": "Reports and analytics",
+    "CS_DESC": "Analytical dashboards (consumption, collection, Excel/PDF exports) are coming soon, once the statistical aggregates are exposed on the server."
+  },
+  "ESPACE": {
+    "TITLE": "Subscriber Area",
+    "SOON": "Coming soon",
+    "CS_TITLE": "Public subscriber area",
+    "CS_DESC": "Consulting your invoices and consumption through this secure link is coming soon, once tokenized access is available on the server."
   }
 }

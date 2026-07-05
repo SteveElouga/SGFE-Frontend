@@ -52,11 +52,17 @@
           }
         </p>
       </div>
-      @if (c.statut === 'EN_COURS' && canActOnCampagne()) {
-        <button class="btn btn--danger" [disabled]="cloturant()" (click)="cloturer()">
-          @if (cloturant()) { <i class="pi pi-spin pi-spinner"></i> }
-          {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
-        </button>
+      @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
+        <div class="detail-header__actions">
+          <button class="btn btn--outline" (click)="openAgentsSheet()">
+            <i class="pi pi-users"></i> {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
+          </button>
+          @if (c.statut === 'EN_COURS') {
+            <button class="btn btn--danger" (click)="openClotureModal()">
+              <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
+            </button>
+          }
+        </div>
       }
     </div>
 
@@ -186,6 +192,133 @@
             }
           </tbody>
         </table>
+      </div>
+
+      <!-- Relevés en cartes (mobile · MB-02) -->
+      <div class="releves-mobile">
+        @for (r of relevesFiltres(); track r.releveId) {
+          @let isReleve = r.statut === 'RELEVE' || r.statut === 'ESTIME';
+          <div class="rm-card">
+            <span class="rm-card__dot rm-card__dot--{{ r.statut | lowercase }}"></span>
+            <div class="rm-card__info">
+              <span class="rm-card__nom">{{ abonnesMap().get(r.abonneId) ?? (r.abonneId | slice:0:8) }}</span>
+              <span class="rm-card__sub">
+                @if (isReleve) {
+                  {{ r.consommation | number:'1.0-0' }} m³ · {{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }} {{ r.nouveauIndex | number:'1.0-0' }}
+                } @else {
+                  {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
+                }
+              </span>
+            </div>
+            <span class="releve-chip releve-chip--{{ r.statut | lowercase }}">
+              {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
+            </span>
+          </div>
+        } @empty {
+          <div class="releves-mobile__empty">
+            <i class="pi pi-list"></i>
+            {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (canActOnCampagne()) {
+    <app-agents-sheet
+      [open]="showAgentsSheet()"
+      [campagneId]="campagneId"
+      [assignedUsernames]="assignedUsernames()"
+      (close)="closeAgentsSheet()"
+      (saved)="load()"
+    />
+  }
+
+  <!-- ── Modal de clôture (écran 18) ── -->
+  @if (clotureModalVisible()) {
+    <div class="cloture-overlay" (click)="closeClotureModal()">
+      <div class="cloture-modal" (click)="$event.stopPropagation()">
+        <div class="cloture-modal__head">
+          <div class="cloture-modal__icon"><i class="pi pi-lock"></i></div>
+          <div>
+            <div class="cloture-modal__title">{{ 'CAMPAGNES.CLOTURE.TITLE' | translate:{ nom: periode() } }}</div>
+            <div class="cloture-modal__desc">
+              {{ 'CAMPAGNES.CLOTURE.DESC_1' | translate }}
+              <b class="cloture-modal__irr">{{ 'CAMPAGNES.CLOTURE.IRREVERSIBLE' | translate }}</b>
+              {{ 'CAMPAGNES.CLOTURE.DESC_2' | translate }}
+            </div>
+          </div>
+        </div>
+
+        <div class="cloture-modal__body">
+          <div class="cloture-stats">
+            <div class="cloture-stat cloture-stat--ok">
+              <span class="cloture-stat__n">{{ relevesByStatut().releve }}</span>
+              <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RELEVES' | translate }} ✓</span>
+            </div>
+            <div class="cloture-stat cloture-stat--est">
+              <span class="cloture-stat__n">{{ relevesByStatut().estime }}</span>
+              <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.ESTIMES' | translate }}</span>
+            </div>
+            <div class="cloture-stat cloture-stat--nr">
+              <span class="cloture-stat__n">{{ relevesByStatut().nonReleve }}</span>
+              <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.NON_RELEVES' | translate }}</span>
+            </div>
+            <div class="cloture-stat cloture-stat--rest">
+              <span class="cloture-stat__n">{{ relevesByStatut().aRelever }}</span>
+              <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RESTANTS' | translate }}</span>
+            </div>
+          </div>
+
+          @if (sansReleve() > 0) {
+            <div class="cloture-warn">
+              <span class="cloture-warn__icon">⚠</span>
+              <span>{{ 'CAMPAGNES.CLOTURE.WARN' | translate:{ sans: sansReleve(), restants: relevesByStatut().aRelever, nonReleves: relevesByStatut().nonReleve, estimes: relevesByStatut().estime } }}</span>
+            </div>
+          }
+
+          <div class="cloture-summary">
+            <div class="cloture-summary__row">
+              <span>{{ 'CAMPAGNES.CLOTURE.SUM_FACTURES' | translate }}</span>
+              <span class="cloture-summary__v">{{ facturesAGenerer() }}</span>
+            </div>
+            <div class="cloture-summary__row">
+              <span>{{ 'CAMPAGNES.CLOTURE.SUM_PDF' | translate }}</span>
+              <span class="cloture-summary__v">{{ facturesAGenerer() }}</span>
+            </div>
+            <div class="cloture-summary__row">
+              <span>{{ 'CAMPAGNES.CLOTURE.SUM_WA' | translate }}</span>
+              <span class="cloture-summary__v" [class.cloture-summary__v--green]="campagne()?.envoyerWhatsappAuto">
+                {{ (campagne()?.envoyerWhatsappAuto ? 'CAMPAGNES.CLOTURE.ACTIVE' : 'CAMPAGNES.CLOTURE.INACTIVE') | translate }}
+              </span>
+            </div>
+            @if (tarifActuel(); as t) {
+              <div class="cloture-summary__row">
+                <span>{{ 'CAMPAGNES.CLOTURE.SUM_TARIF' | translate }}</span>
+                <span class="cloture-summary__v">{{ t.prixM3 | number:'1.0-0' }} FCFA/m³</span>
+              </div>
+            }
+          </div>
+
+          <label class="cloture-check">
+            <input type="checkbox" [ngModel]="clotureConfirme()" (ngModelChange)="clotureConfirme.set($event)" />
+            <span>{{ 'CAMPAGNES.CLOTURE.CONFIRM' | translate:{ nom: periode() } }}</span>
+          </label>
+
+          <div class="cloture-actions">
+            <button class="btn btn--outline cloture-actions__cancel" (click)="closeClotureModal()">
+              {{ 'COMMON.CANCEL' | translate }}
+            </button>
+            <button
+              class="btn btn--dark cloture-actions__confirm"
+              [disabled]="!clotureConfirme() || cloturant()"
+              (click)="cloturer()"
+            >
+              @if (cloturant()) { <i class="pi pi-spin pi-spinner"></i> }
+              <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURE.CONFIRM_BTN' | translate:{ n: facturesAGenerer() } }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   }

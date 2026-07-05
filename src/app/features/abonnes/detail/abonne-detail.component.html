@@ -637,8 +637,10 @@
       </div>
       <div>
         <h3 class="meter-header__title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
-        @if (abonne()) {
-          <p class="meter-header__sub">{{ abonne()!.nom }} {{ abonne()!.prenom }}</p>
+        @if (abonne(); as a) {
+          <p class="meter-header__sub">
+            {{ a.prenom }} {{ a.nom }} · {{ a.numeroAbonne }}@if (a.compteur) { · {{ a.compteur.quartier }}, Camp {{ a.compteur.camp }} }
+          </p>
         }
       </div>
     </div>

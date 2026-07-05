@@ -6,9 +6,13 @@
     "FACTURES": "Factures",
     "PAIEMENTS": "Paiements",
     "IMPAYES": "Impayés",
+    "NOTIFICATIONS": "Notifications",
     "CONFIGURATION": "Configuration",
     "TERRAIN": "Relevés",
-    "PARAMETRES": "Paramètres"
+    "PARAMETRES": "Paramètres",
+    "PLUS": "Plus",
+    "ENVOIS": "Envois",
+    "RAPPORTS": "Rapports"
   },
   "USER_MENU": {
     "PROFILE": "Mon profil",
@@ -312,9 +316,15 @@
       "SUCCESS_DEACTIVATED": "Compte désactivé",
       "SUCCESS_DEACTIVATED_DETAIL": "{{ username }} ne peut plus se connecter.",
       "SUCCESS_RESENT": "Activation renvoyée",
-      "SUCCESS_RESENT_EMAIL": "Un lien d'activation a été envoyé par e-mail à {{ username }}.",
-      "SUCCESS_RESENT_WHATSAPP": "Un code d'activation a été envoyé par WhatsApp à {{ username }}."
-    }
+      "SUCCESS_RESENT_EMAIL": "Un e-mail avec un lien a été envoyé à {{email}}.",
+      "SUCCESS_RESENT_WHATSAPP": "Un code à 6 chiffres a été envoyé par WhatsApp au {{phone}}."
+    },
+    "EMAIL": "Email",
+    "ACTIF": "Actif",
+    "INACTIF": "Désactivé",
+    "REACTIVER": "Réactiver",
+    "SUCCESS_REACTIVATION": "Utilisateur réactivé",
+    "SUCCESS_REACTIVATION_DETAIL": "{{username}} peut de nouveau se connecter"
   },
   "AUTH": {
     "LOGIN_TITLE": "Connexion",
@@ -586,6 +596,37 @@
       "SUBMIT": "Créer la campagne",
       "MOIS": "Mois",
       "ANNEE": "Année"
+    },
+    "AGENTS_SHEET": {
+      "TRIGGER": "Affecter des agents",
+      "TITLE": "Affecter des agents",
+      "SUBTITLE": "{{n}} agents affectés à cette campagne",
+      "SEARCH": "Rechercher un agent…",
+      "SAVE": "Enregistrer l'affectation",
+      "SUCCESS": "{{n}} agent(s) affecté(s)",
+      "DISABLED": "Compte désactivé — indisponible",
+      "ALREADY": "Déjà affecté",
+      "AGENT": "Agent",
+      "EMPTY": "Aucun agent disponible"
+    },
+    "CLOTURE": {
+      "TITLE": "Clôturer la campagne {{nom}} ?",
+      "DESC_1": "La clôture déclenche la génération automatique des factures.",
+      "IRREVERSIBLE": "Cette action est irréversible",
+      "DESC_2": "— la campagne ne pourra plus être modifiée.",
+      "RELEVES": "relevés",
+      "ESTIMES": "estimés",
+      "NON_RELEVES": "non relevés",
+      "RESTANTS": "restants",
+      "WARN": "{{sans}} abonnés sans relevé ({{restants}} restants + {{nonReleves}} non relevés) ne seront pas facturés ce mois-ci. Les {{estimes}} relevés estimés seront facturés sur la base de l'estimation.",
+      "SUM_FACTURES": "Factures à générer (relevés + estimés)",
+      "SUM_PDF": "PDF générés avec logo société",
+      "SUM_WA": "Envoi WhatsApp automatique (lien tokenisé 20 j)",
+      "SUM_TARIF": "Tarif appliqué (copié dans chaque facture)",
+      "ACTIVE": "Activé",
+      "INACTIVE": "Désactivé",
+      "CONFIRM": "Je confirme la clôture définitive de la campagne {{nom}}",
+      "CONFIRM_BTN": "Clôturer et générer {{n}} factures"
     }
   },
   "FACTURATION": {
@@ -785,6 +826,43 @@
       "MSG": "« Votre ligne d'eau a été suspendue en raison d'un impayé de {{montant}} (Facture {{mois}}). Pour rétablir votre ligne d'eau, contactez notre service client. »"
     }
   },
+  "NOTIFICATIONS": {
+    "TITLE": "Notifications",
+    "SUBTITLE": "{{unread}} non lues · {{total}} au total",
+    "PANEL_TITLE": "Notifications",
+    "UNREAD_COUNT": "{{n}} non lues",
+    "MARK_ALL_READ": "Tout marquer comme lu",
+    "MARK_ALL_READ_SHORT": "Tout marquer lu",
+    "SEE_ALL": "Voir toutes les notifications",
+    "TAB_ALL": "Toutes",
+    "TAB_UNREAD": "Non lues",
+    "EMPTY": "Aucune notification",
+    "TOAST_RETRY": "Renvoi WhatsApp relancé",
+    "FILTER": {
+      "ALL": "Toutes",
+      "UNREAD": "Non lues",
+      "PAIEMENTS": "Paiements",
+      "RELANCES": "Relances & impayés",
+      "SYSTEME": "Système"
+    },
+    "GROUP": {
+      "TODAY": "Aujourd'hui",
+      "YESTERDAY": "Hier",
+      "WEEK": "Cette semaine",
+      "OLDER": "Plus ancien"
+    },
+    "TIME": {
+      "NOW": "à l'instant",
+      "MIN": "il y a {{n}} min",
+      "HOUR": "il y a {{n}} h",
+      "YESTERDAY": "Hier · {{time}}"
+    },
+    "ACTION": {
+      "RETRY": "↻ Réessayer",
+      "FIX_NUMBER": "Corriger le n°",
+      "VIEW_RECEIPT": "Voir le reçu"
+    }
+  },
   "TERRAIN": {
     "TITLE": "Mes relevés",
     "OFFLINE_TITLE": "Hors ligne — réseau indisponible",
@@ -821,6 +899,55 @@
     "TOAST_SAVED_OFFLINE": "Enregistré hors ligne — sera synchronisé",
     "ERROR_LOAD": "Impossible de charger les relevés",
     "EMPTY": "Tous les relevés sont faits ✓",
-    "NO_CAMPAGNE": "Aucune campagne en cours"
+    "NO_CAMPAGNE": "Aucune campagne en cours",
+    "PROGRESS": "{{faits}} / {{total}} abonnés",
+    "FILTER_ALL": "Tous",
+    "FILTER_A_RELEVER": "À relever",
+    "FILTER_RELEVE": "Relevé",
+    "CARD_CONSO": "{{conso}} m³ saisis",
+    "ANCIEN_IDX": "Ancien idx : {{index}} m³",
+    "SAISIR_TITLE": "Saisir l'index",
+    "BACK": "Retour",
+    "ANCIEN_INDEX_RO": "Ancien index (lecture seule)",
+    "LECTURE_SEULE": "lecture seule",
+    "DOIT_ETRE": "Doit être ≥ {{ancien}} m³",
+    "CONSO_CALC": "Consommation calculée",
+    "OBSERVATION_OPT": "Observation (optionnelle)",
+    "OBSERVATION_PH": "Compteur lisible, abonné présent…",
+    "ENREGISTRER": "Enregistrer",
+    "MARQUER_NR_EST": "Marquer non relevé / estimé",
+    "SUCCESS_TITLE": "Index enregistré !",
+    "RESUME": "Résumé du relevé",
+    "ENREGISTRE_A": "Enregistré à {{time}} · {{agent}}",
+    "PROCHAIN": "Prochain abonné à relever",
+    "RELEVER_SUIVANT": "Relever le suivant",
+    "RETOUR_LISTE": "Retour à la liste",
+    "STATUT": {
+      "A_RELEVER": "À relever",
+      "RELEVE": "✓ Relevé",
+      "ESTIME": "Estimé",
+      "NON_RELEVE": "Non relevé",
+      "PENDING": "⟳ En attente"
+    }
+  },
+  "ENVOIS": {
+    "TITLE": "Envois WhatsApp",
+    "SUBTITLE": "Suivi des envois whatsapp-web.js",
+    "SOON": "Bientôt disponible",
+    "CS_TITLE": "Suivi des envois WhatsApp",
+    "CS_DESC": "Le suivi détaillé des envois (statuts délivré / en attente / échec, ID message et renvoi manuel) arrive prochainement, une fois l'API d'historique des envois disponible côté serveur."
+  },
+  "RAPPORTS": {
+    "TITLE": "Rapports",
+    "SUBTITLE": "Statistiques et exports",
+    "SOON": "Bientôt disponible",
+    "CS_TITLE": "Rapports et analyses",
+    "CS_DESC": "Les tableaux de bord analytiques (consommation, recouvrement, exports Excel/PDF) arriveront prochainement, une fois les agrégats statistiques exposés côté serveur."
+  },
+  "ESPACE": {
+    "TITLE": "Espace Abonné",
+    "SOON": "Bientôt disponible",
+    "CS_TITLE": "Espace abonné public",
+    "CS_DESC": "La consultation de vos factures et de votre consommation via ce lien sécurisé arrivera prochainement, une fois l'accès tokenisé disponible côté serveur."
   }
 }

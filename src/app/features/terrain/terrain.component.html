@@ -1,184 +1,240 @@
 <p-toast position="bottom-center" />
 
 <div class="terrain">
-  <!-- App header -->
-  <header class="t-header">
-    <div>
-      <div class="t-header__title">{{ 'TERRAIN.TITLE' | translate }}</div>
-      <div class="t-header__sub">
-        @if (campagneNom()) { {{ campagneNom() }} · }{{ agentNom() }}
-      </div>
-    </div>
-    <div class="t-avatar">{{ agentInitial() }}</div>
-  </header>
 
-  <!-- Bannière hors ligne (M-08) -->
-  @if (!offline.online()) {
-    <div class="t-offline">
-      <i class="pi pi-wifi t-offline__icon"></i>
-      <div>
-        <div class="t-offline__title">{{ 'TERRAIN.OFFLINE_TITLE' | translate }}</div>
-        <div class="t-offline__sub">{{ 'TERRAIN.OFFLINE_SUB' | translate }}</div>
-      </div>
-    </div>
-  }
+  @if (loading()) {
+    <div class="t-loading"><i class="pi pi-spin pi-spinner"></i></div>
+  } @else {
+    @switch (view()) {
 
-  <div class="t-body">
-    @if (error()) {
-      <app-error-banner [message]="error()!" (retry)="load()" />
-    }
-
-    @if (loading()) {
-      <div class="t-loading"><i class="pi pi-spin pi-spinner"></i></div>
-    } @else {
-
-      <!-- Carte de synchronisation (M-08) -->
-      @if (offline.pendingCount() > 0) {
-        <div class="sync-card">
-          <div class="sync-card__icon"><i class="pi pi-sync" [class.pi-spin]="offline.syncing()"></i></div>
-          <div class="sync-card__body">
-            <div class="sync-card__title">
-              {{ 'TERRAIN.SYNC_PENDING' | translate: { count: offline.pendingCount() } }}
-            </div>
-            <div class="sync-card__sub">{{ 'TERRAIN.SYNC_AUTO' | translate }}</div>
+      <!-- ═══════════ 07 — Liste des relevés ═══════════ -->
+      @case ('list') {
+        <header class="t-head">
+          <div class="t-head__campagne">{{ campagneNom() || ('TERRAIN.NO_CAMPAGNE' | translate) }}</div>
+          <div class="t-head__title-row">
+            <span class="t-head__title">{{ 'TERRAIN.TITLE' | translate }}</span>
           </div>
-          <button
-            class="sync-card__retry"
-            [disabled]="offline.syncing() || !offline.online()"
-            (click)="offline.retry()"
-          >{{ 'TERRAIN.RETRY' | translate }}</button>
-        </div>
-      }
+          <div class="t-progress-row">
+            <span>{{ 'TERRAIN.PROGRESS' | translate: { faits: nbFaits(), total: countTous() } }}</span>
+            <span>{{ progressPct() }}%</span>
+          </div>
+          <div class="t-progress"><div class="t-progress__fill" [style.width.%]="progressPct()"></div></div>
+        </header>
 
-      <!-- À relever -->
-      @if (aRelever().length > 0) {
-        <div class="t-section-label">{{ 'TERRAIN.SECTION_A_RELEVER' | translate }}</div>
-        <div class="t-list">
-          @for (c of aRelever(); track c.abonneId) {
-            <button type="button" class="t-card t-card--action" (click)="openSaisie(c)">
-              <span class="t-card__avatar t-card__avatar--blue">{{ c.initials }}</span>
-              <span class="t-card__info">
-                <span class="t-card__name">{{ c.nom }}</span>
-                <span class="t-card__detail">{{ c.sub }}</span>
-              </span>
-              <i class="pi pi-chevron-right t-card__chevron"></i>
+        @if (!offline.online()) {
+          <div class="t-offline">
+            <i class="pi pi-wifi t-offline__icon"></i>
+            <div>
+              <div class="t-offline__title">{{ 'TERRAIN.OFFLINE_TITLE' | translate }}</div>
+              <div class="t-offline__sub">{{ 'TERRAIN.OFFLINE_SUB' | translate }}</div>
+            </div>
+          </div>
+        }
+
+        <div class="t-body">
+          @if (error()) { <app-error-banner [message]="error()!" (retry)="load()" /> }
+
+          @if (offline.pendingCount() > 0) {
+            <div class="sync-card">
+              <div class="sync-card__icon"><i class="pi pi-sync" [class.pi-spin]="offline.syncing()"></i></div>
+              <div class="sync-card__body">
+                <div class="sync-card__title">{{ 'TERRAIN.SYNC_PENDING' | translate: { count: offline.pendingCount() } }}</div>
+                <div class="sync-card__sub">{{ 'TERRAIN.SYNC_AUTO' | translate }}</div>
+              </div>
+              <button class="sync-card__retry" [disabled]="offline.syncing() || !offline.online()" (click)="offline.retry()">
+                {{ 'TERRAIN.RETRY' | translate }}
+              </button>
+            </div>
+          }
+
+          <!-- Chips de filtre -->
+          <div class="chips">
+            <button class="chip" [class.chip--active]="filtre() === 'TOUS'" (click)="setFiltre('TOUS')">
+              {{ 'TERRAIN.FILTER_ALL' | translate }} ({{ countTous() }})
             </button>
-          }
+            <button class="chip" [class.chip--active]="filtre() === 'A_RELEVER'" (click)="setFiltre('A_RELEVER')">
+              {{ 'TERRAIN.FILTER_A_RELEVER' | translate }} ({{ countARelever() }})
+            </button>
+            <button class="chip" [class.chip--active]="filtre() === 'RELEVE'" (click)="setFiltre('RELEVE')">
+              {{ 'TERRAIN.FILTER_RELEVE' | translate }} ({{ countReleve() }})
+            </button>
+          </div>
+
+          <!-- Liste -->
+          <div class="rows">
+            @for (e of filteredEntries(); track e.abonneId) {
+              @let clickable = e.status === 'A_RELEVER';
+              <button
+                type="button"
+                class="row"
+                [class.row--done]="e.status === 'RELEVE' || e.status === 'ESTIME'"
+                [class.row--action]="clickable"
+                [disabled]="!clickable"
+                (click)="openSaisie(e)"
+              >
+                <span class="row__info">
+                  <span class="row__name" [class.row__name--muted]="!clickable">{{ e.nom }}</span>
+                  <span class="row__sub">{{ e.sub }}</span>
+                  <span class="row__detail row__detail--{{ e.status | lowercase }}">{{ e.detail }}</span>
+                </span>
+                <span class="row__right">
+                  <span class="row-badge row-badge--{{ e.status | lowercase }}">
+                    {{ 'TERRAIN.STATUT.' + e.status | translate }}
+                  </span>
+                  @if (clickable) { <i class="pi pi-chevron-right row__chevron"></i> }
+                </span>
+              </button>
+            } @empty {
+              <div class="t-empty">
+                <i class="pi pi-inbox"></i>
+                <span>{{ (campagne() ? 'TERRAIN.EMPTY' : 'TERRAIN.NO_CAMPAGNE') | translate }}</span>
+              </div>
+            }
+          </div>
         </div>
       }
 
-      <!-- En attente de sync -->
-      @if (enAttente().length > 0) {
-        <div class="t-section-label">{{ 'TERRAIN.SECTION_PENDING' | translate }}</div>
-        <div class="t-list">
-          @for (c of enAttente(); track c.key) {
-            <div class="t-card t-card--pending">
-              <span class="t-card__avatar t-card__avatar--amber">{{ c.initials }}</span>
-              <span class="t-card__info">
-                <span class="t-card__name">{{ c.nom }}</span>
-                <span class="t-card__detail">{{ c.detail }}</span>
-                @if (c.erreur) { <span class="t-card__err">{{ c.erreur }}</span> }
-              </span>
-              <span class="t-badge t-badge--pending">⟳ {{ 'TERRAIN.BADGE_PENDING' | translate }}</span>
+      <!-- ═══════════ 08 — Saisie index ═══════════ -->
+      @case ('saisie') {
+        @if (saisieEntry(); as e) {
+          <header class="t-head t-head--row">
+            <button class="t-back" (click)="backToList()" [attr.aria-label]="'TERRAIN.BACK' | translate">
+              <i class="pi pi-chevron-left"></i>
+            </button>
+            <div>
+              <div class="t-head__title">{{ 'TERRAIN.SAISIR_TITLE' | translate }}</div>
+              <div class="t-head__sub">{{ e.nom }} · {{ e.numeroAbonne }}</div>
             </div>
-          }
-        </div>
-      }
+          </header>
+          <div class="info-bar">{{ e.compteurLine }}</div>
 
-      <!-- Synchronisés -->
-      @if (synchronises().length > 0) {
-        <div class="t-section-label">{{ 'TERRAIN.SECTION_SYNCED' | translate }}</div>
-        <div class="t-list">
-          @for (c of synchronises(); track c.key) {
-            <div class="t-card t-card--synced">
-              <span class="t-card__avatar t-card__avatar--slate">{{ c.initials }}</span>
-              <span class="t-card__info">
-                <span class="t-card__name">{{ c.nom }}</span>
-                <span class="t-card__detail">{{ c.detail }}</span>
-              </span>
-              <span class="t-badge t-badge--synced">✓ {{ 'TERRAIN.BADGE_SYNCED' | translate }}</span>
+          <div class="saisie-body">
+            <!-- Ancien index -->
+            <div class="field">
+              <div class="field__label">{{ 'TERRAIN.ANCIEN_INDEX_RO' | translate }}</div>
+              <div class="idx-box idx-box--old">
+                <span class="idx-box__value">{{ e.ancienIndex | number:'1.0-0' }}</span>
+                <span class="idx-box__unit">m³</span>
+                <span class="idx-box__tag">{{ 'TERRAIN.LECTURE_SEULE' | translate }}</span>
+              </div>
             </div>
-          }
-        </div>
+
+            <!-- Nouvel index -->
+            <div class="field">
+              <div class="field__label field__label--strong">{{ 'TERRAIN.NOUVEL_INDEX' | translate }} *</div>
+              <div class="idx-box idx-box--new" [class.idx-box--error]="indexInvalide()">
+                <input
+                  class="idx-box__input"
+                  inputmode="numeric"
+                  [attr.aria-label]="'TERRAIN.NOUVEL_INDEX' | translate"
+                  placeholder="—"
+                  [ngModel]="nouvelIndex()"
+                  (ngModelChange)="nouvelIndex.set($event)"
+                  autofocus
+                />
+                <span class="idx-box__unit idx-box__unit--new">m³</span>
+              </div>
+              <div class="field__hint" [class.field__hint--error]="indexInvalide()">
+                {{ 'TERRAIN.DOIT_ETRE' | translate: { ancien: (e.ancienIndex | number:'1.0-0') } }}
+              </div>
+            </div>
+
+            <!-- Consommation calculée -->
+            @if (consoLive() !== null && !indexInvalide()) {
+              <div class="conso-card">
+                <div class="conso-card__label">{{ 'TERRAIN.CONSO_CALC' | translate }}</div>
+                <div class="conso-card__value">{{ consoLive() }} m³</div>
+              </div>
+            }
+
+            <!-- Observation optionnelle -->
+            <div class="field">
+              <div class="field__label">{{ 'TERRAIN.OBSERVATION_OPT' | translate }}</div>
+              <textarea
+                class="obs-input"
+                rows="2"
+                maxlength="200"
+                [attr.aria-label]="'TERRAIN.OBSERVATION_OPT' | translate"
+                [placeholder]="'TERRAIN.OBSERVATION_PH' | translate"
+                [ngModel]="observation()"
+                (ngModelChange)="observation.set($event)"
+              ></textarea>
+            </div>
+
+            <div class="saisie-actions">
+              <button class="btn-primary" [disabled]="!saisieValide()" (click)="confirmSaisie()">
+                ✓ {{ 'TERRAIN.ENREGISTRER' | translate }}
+                @if (saisieValide()) { ({{ consoLive() }} m³) }
+              </button>
+              <button class="btn-danger-outline" (click)="openM07()">
+                {{ 'TERRAIN.MARQUER_NR_EST' | translate }}
+              </button>
+            </div>
+          </div>
+        }
       }
 
-      @if (aRelever().length === 0 && enAttente().length === 0 && synchronises().length === 0) {
-        <div class="t-empty">
-          <i class="pi pi-inbox"></i>
-          <span>{{ (campagne() ? 'TERRAIN.EMPTY' : 'TERRAIN.NO_CAMPAGNE') | translate }}</span>
-        </div>
+      <!-- ═══════════ 09 — Confirmation succès ═══════════ -->
+      @case ('success') {
+        @if (success(); as s) {
+          <div class="succ-head">
+            <div class="succ-head__check">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                <path d="M5 14l6.5 6.5L23 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="succ-head__title">{{ 'TERRAIN.SUCCESS_TITLE' | translate }}</div>
+            <div class="succ-head__sub">{{ s.nom }} · {{ s.numeroAbonne }}</div>
+          </div>
+
+          <div class="succ-body">
+            <div class="succ-summary-title">{{ 'TERRAIN.RESUME' | translate }}</div>
+            <div class="succ-card">
+              <div class="succ-row succ-row--muted">
+                <span>{{ 'TERRAIN.ANCIEN_INDEX' | translate }}</span>
+                <span>{{ s.ancienIndex | number:'1.0-0' }} m³</span>
+              </div>
+              <div class="succ-row">
+                <span>{{ 'TERRAIN.NOUVEL_INDEX' | translate }}</span>
+                <span class="succ-row__strong">{{ s.nouvelIndex | number:'1.0-0' }} m³</span>
+              </div>
+              <div class="succ-row succ-row--conso">
+                <span>{{ 'TERRAIN.CONSO_CALC' | translate }}</span>
+                <span class="succ-row__conso">{{ s.conso }} m³</span>
+              </div>
+            </div>
+            <div class="succ-meta">{{ 'TERRAIN.ENREGISTRE_A' | translate: { time: formatTime(s.ts), agent: agentNom() } }}</div>
+
+            @if (prochain(); as next) {
+              <div class="next-card">
+                <div class="next-card__label">{{ 'TERRAIN.PROCHAIN' | translate }}</div>
+                <div class="next-card__name">{{ next.nom }}</div>
+                <div class="next-card__sub">{{ next.sub }} · {{ 'TERRAIN.ANCIEN_IDX' | translate: { index: (next.ancienIndex | number:'1.0-0') } }}</div>
+              </div>
+            }
+
+            <div class="saisie-actions">
+              @if (prochain()) {
+                <button class="btn-success" (click)="releverSuivant()">{{ 'TERRAIN.RELEVER_SUIVANT' | translate }} →</button>
+              }
+              <button class="btn-ghost" (click)="backToList()">{{ 'TERRAIN.RETOUR_LISTE' | translate }}</button>
+            </div>
+          </div>
+        }
       }
     }
-  </div>
-
-  <!-- ── Feuille de saisie d'index ── -->
-  @if (saisieCarte(); as c) {
-    <div class="sheet-overlay" (click)="closeSaisie()">
-      <div class="sheet" (click)="$event.stopPropagation()">
-        <div class="sheet__grip"></div>
-        <div class="sheet__head">
-          <div>
-            <div class="sheet__title">{{ c.nom }}</div>
-            <div class="sheet__sub">{{ c.sub }}</div>
-          </div>
-        </div>
-
-        <div class="idx-grid">
-          <div class="idx-cell">
-            <span class="idx-cell__label">{{ 'TERRAIN.ANCIEN_INDEX' | translate }}</span>
-            <span class="idx-cell__value">{{ c.ancienIndex | number:'1.0-0' }} <small>m³</small></span>
-          </div>
-          <div class="idx-cell idx-cell--new" [class.idx-cell--error]="indexInvalide()">
-            <span class="idx-cell__label">{{ 'TERRAIN.NOUVEL_INDEX' | translate }}</span>
-            <input
-              class="idx-input"
-              inputmode="numeric"
-              [attr.aria-label]="'TERRAIN.NOUVEL_INDEX' | translate"
-              [placeholder]="'— —'"
-              [ngModel]="nouvelIndex()"
-              (ngModelChange)="nouvelIndex.set($event)"
-              autofocus
-            />
-          </div>
-        </div>
-
-        @if (consoLive() !== null && !indexInvalide()) {
-          <div class="conso-live">
-            {{ 'TERRAIN.CONSO_LIVE' | translate: { conso: consoLive() } }}
-          </div>
-        }
-        @if (indexInvalide()) {
-          <div class="conso-live conso-live--error">
-            <i class="pi pi-exclamation-circle"></i>
-            {{ 'TERRAIN.INDEX_INVALIDE' | translate: { ancien: (c.ancienIndex | number:'1.0-0') } }}
-          </div>
-        }
-
-        <button class="btn-primary" [disabled]="!saisieValide() || submitting()" (click)="confirmSaisie()">
-          {{ 'TERRAIN.CONFIRMER' | translate }}
-        </button>
-        <button class="btn-link-danger" (click)="openM07()">
-          {{ 'TERRAIN.IMPOSSIBLE' | translate }}
-        </button>
-      </div>
-    </div>
   }
 
   <!-- ── Feuille M-07 : non relevé / estimé ── -->
   @if (m07Visible()) {
-    <div class="sheet-overlay sheet-overlay--top" (click)="cancelM07()">
+    <div class="sheet-overlay" (click)="cancelM07()">
       <div class="sheet" (click)="$event.stopPropagation()">
         <div class="sheet__grip"></div>
         <div class="sheet__title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
         <div class="sheet__sub sheet__sub--mb">{{ 'TERRAIN.M07_SUB' | translate }}</div>
 
         <div class="m07-options">
-          <button
-            type="button"
-            class="m07-opt m07-opt--danger"
-            [class.m07-opt--selected]="m07Statut() === 'NON_RELEVE'"
-            (click)="setM07Statut('NON_RELEVE')"
-          >
+          <button type="button" class="m07-opt m07-opt--danger" [class.m07-opt--selected]="m07Statut() === 'NON_RELEVE'" (click)="setM07Statut('NON_RELEVE')">
             <span class="m07-opt__radio"></span>
             <span class="m07-opt__body">
               <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
@@ -186,12 +242,7 @@
             </span>
             <span class="m07-opt__emoji">🚪</span>
           </button>
-          <button
-            type="button"
-            class="m07-opt"
-            [class.m07-opt--selected]="m07Statut() === 'ESTIME'"
-            (click)="setM07Statut('ESTIME')"
-          >
+          <button type="button" class="m07-opt" [class.m07-opt--selected]="m07Statut() === 'ESTIME'" (click)="setM07Statut('ESTIME')">
             <span class="m07-opt__radio"></span>
             <span class="m07-opt__body">
               <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
@@ -219,11 +270,7 @@
           {{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}
         </div>
 
-        <button
-          class="btn-danger"
-          [disabled]="!m07Valide()"
-          (click)="confirmM07()"
-        >
+        <button class="btn-danger" [disabled]="!m07Valide()" (click)="confirmM07()">
           {{ (m07Statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
         </button>
         <button class="btn-ghost" (click)="cancelM07()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>

@@ -20,7 +20,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
-import { DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
+import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 
@@ -69,6 +69,7 @@ interface PaiementRow {
     FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
+    DataTableCardDirective,
   ],
   templateUrl: './paiements-list.component.html',
   styleUrl: './paiements-list.component.scss',

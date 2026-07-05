@@ -1258,3 +1258,14 @@
   align-items: center;
   color: #94a3b8;
 }
+
+// ── Responsive fiche abonné (mobile · MB-01) ──────────────────────────────────
+@media (max-width: 768px) {
+  .abonne-content { padding: 14px 12px; gap: 12px; }
+  .abonne-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .abonne-info-grid { grid-template-columns: 1fr; }
+  .abonne-header-card { flex-wrap: wrap; }
+  .abonne-header-card__actions { width: 100%; justify-content: flex-start; }
+  .abonne-tabs__nav { overflow-x: auto; }
+  .abonne-tab-pane, .abonne-invoices { overflow-x: auto; }
+}
