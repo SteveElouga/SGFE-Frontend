@@ -11,14 +11,12 @@ import { DecimalPipe } from '@angular/common';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { GET_STATS_GLOBALES } from '../../../graphql/queries/stats.queries';
 import { GET_CAMPAGNE_ACTIVE } from '../../../graphql/queries/campagnes.queries';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 
 interface HistCampagne {
   campagneId: string;
@@ -43,9 +41,14 @@ interface CampagneEnCours {
   pourcentage: number;
 }
 
+interface ImpayesResume {
+  total: number;
+  count: number;
+}
+
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, DecimalPipe, TranslatePipe, PageTopbarComponent, ErrorBannerComponent],
+  imports: [RouterLink, DecimalPipe, TranslatePipe, PageTopbarComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,17 +57,17 @@ export class DashboardComponent implements OnInit {
   private readonly apollo = inject(Apollo);
   private readonly campagnesService = inject(CampagnesService);
   private readonly facturesService = inject(FacturesService);
-  private readonly auth = inject(AuthService);
   private readonly translate = inject(TranslateService);
 
-  readonly user = this.auth.user;
-
   readonly loading = signal(true);
-  readonly error = signal<string | null>(null);
+  /**
+   * Chaque source se charge indépendamment (`null` = indisponible) : un service
+   * en panne (ex. Reporting → `SERVICE_UNAVAILABLE`) dégrade sa carte sans
+   * casser le reste du tableau de bord.
+   */
   readonly stats = signal<StatsGlobales | null>(null);
   readonly campagneEnCours = signal<CampagneEnCours | null>(null);
-  readonly impayesTotal = signal(0);
-  readonly impayesCount = signal(0);
+  readonly impayes = signal<ImpayesResume | null>(null);
 
   /** Taux de recouvrement global (encaissé / facturé). */
   readonly tauxRecouvrement = computed(() => {
@@ -79,33 +82,31 @@ export class DashboardComponent implements OnInit {
 
   async load(): Promise<void> {
     this.loading.set(true);
-    this.error.set(null);
-    try {
-      const [stats, enCours, impayes] = await Promise.all([
-        this.loadStats(),
-        this.loadCampagneEnCours(),
-        this.loadImpayes(),
-      ]);
-      this.stats.set(stats);
-      this.campagneEnCours.set(enCours);
-      this.impayesTotal.set(impayes.total);
-      this.impayesCount.set(impayes.count);
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.error.set(message || this.translate.instant('DASHBOARD.ERROR_LOAD'));
-    } finally {
-      this.loading.set(false);
-    }
+    const [stats, enCours, impayes] = await Promise.all([
+      this.loadStats(),
+      this.loadCampagneEnCours(),
+      this.loadImpayes(),
+    ]);
+    this.stats.set(stats);
+    this.campagneEnCours.set(enCours);
+    this.impayes.set(impayes);
+    this.loading.set(false);
   }
 
-  private async loadStats(): Promise<StatsGlobales> {
-    const res = await firstValueFrom(
-      this.apollo.query<{ statsGlobales: StatsGlobales }>({
-        query: GET_STATS_GLOBALES,
-        fetchPolicy: 'network-only',
-      }),
-    );
-    return res.data!.statsGlobales;
+  /** Agrégats globaux — `null` si le service Reporting est indisponible. */
+  private async loadStats(): Promise<StatsGlobales | null> {
+    try {
+      const res = await firstValueFrom(
+        this.apollo.query<{ statsGlobales: StatsGlobales }>({
+          query: GET_STATS_GLOBALES,
+          fetchPolicy: 'network-only',
+          context: { silentError: true },
+        }),
+      );
+      return res.data?.statsGlobales ?? null;
+    } catch {
+      return null;
+    }
   }
 
   /** Campagne EN_COURS + sa progression (même approche que la sidebar). */
@@ -132,7 +133,8 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  private async loadImpayes(): Promise<{ total: number; count: number }> {
+  /** Impayés actifs — `null` si indisponible. */
+  private async loadImpayes(): Promise<ImpayesResume | null> {
     try {
       const impayes = await this.facturesService.getImpayes();
       return {
@@ -140,7 +142,7 @@ export class DashboardComponent implements OnInit {
         count: impayes.length,
       };
     } catch {
-      return { total: 0, count: 0 };
+      return null;
     }
   }
 

@@ -377,7 +377,9 @@
     "CONSO_TOTALE": "Total consumption",
     "RECOUVRE": "collected",
     "FACTURES_IMPAYEES": "unpaid invoices",
-    "RECENT_CAMPAGNES": "Recent campaigns"
+    "RECENT_CAMPAGNES": "Recent campaigns",
+    "STATS_UNAVAILABLE": "Statistics temporarily unavailable (Reporting service).",
+    "INDISPONIBLE": "Unavailable"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",

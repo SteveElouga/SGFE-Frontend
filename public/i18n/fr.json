@@ -377,7 +377,9 @@
     "CONSO_TOTALE": "Conso totale",
     "RECOUVRE": "recouvré",
     "FACTURES_IMPAYEES": "factures impayées",
-    "RECENT_CAMPAGNES": "Campagnes récentes"
+    "RECENT_CAMPAGNES": "Campagnes récentes",
+    "STATS_UNAVAILABLE": "Statistiques momentanément indisponibles (service Reporting).",
+    "INDISPONIBLE": "Indisponible"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
