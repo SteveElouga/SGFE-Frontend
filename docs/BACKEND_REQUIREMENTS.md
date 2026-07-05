@@ -193,8 +193,8 @@ champs il montre juste le message générique (comportement actuel).
 | `ACTIVATION_ACTIONS` | 21b | ✅ **livré** (`reactivateUser`, `resetUserPassword`) |
 | `WHATSAPP_ENVOI_HISTORY` | 11, 23 | Query `envois` + `Envoi.{messageId,statut,typeEnvoi,raisonEchec}` + `renvoyerEnvoi` |
 | `ESPACE_ABONNE` | 06, 25, M-06, MB-10 | Query publique `espaceAbonne(token)` + erreurs `TOKEN_EXPIRED/REVOKED` |
-| `RAPPORTS` | 13, MB-08 | Query `rapportSynthese` + 4 exports REST |
-| `CAMPAGNE_AGENTS_READ` | 29, MC-03 | `campagne.agents` (read) + `retirerAgent` |
+| `RAPPORTS` | 13, MB-08 | ✅ **livré** (PR #34) — `statsGlobales` (GraphQL) + 4 exports REST (CSV/PDF) |
+| `CAMPAGNE_AGENTS_READ` | 29, MC-03 | 🟡 read-path livré (`agentsCampagne`, `repartitionParZone`, `resumeCloture`) ; `retirerAgent` / `affecterZones` restants |
 | `RELANCE_EVENTS` | 17 | Query `relanceEvents(factureId)` |
 | `DASHBOARD_SUPERVISEUR` | 32, MC-06 | Filtrage `created_by` (rôle JWT) |
 | `NOTIFICATIONS_BACKEND` | (centre notif.) | Query/mutations/subscription `notifications` |
