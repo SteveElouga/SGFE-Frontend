@@ -25,7 +25,7 @@ import { FilterBarComponent } from '../../../shared/components/filter-bar/filter
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
-import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 
 @Component({
   selector: 'app-abonnes-list',
@@ -40,6 +40,7 @@ import { DataTableCellDirective } from '../../../shared/components/data-table/da
     FilterBarComponent,
     DataTableComponent,
     DataTableCellDirective,
+    DataTableCardDirective,
     CompteurPipe,
     TranslatePipe,
   ],

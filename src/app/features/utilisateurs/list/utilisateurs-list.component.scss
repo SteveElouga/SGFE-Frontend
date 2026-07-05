@@ -33,19 +33,71 @@
 
 .users-table__user {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 10px;
+
+  &--off {
+    opacity: 0.6;
+    .users-table__username { text-decoration: line-through; }
+    .users-table__avatar { background: #cbd5e1; }
+  }
+}
+
+.users-table__avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .users-table__username {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: #0f172a;
 }
 
 .users-table__email {
   font-size: 12px;
   color: #64748b;
+}
+
+// ── Pill de rôle (couleurs du design) ─────────────────────────────────────────
+.role-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &--admin       { background: #eff6ff; color: #1a56db; }
+  &--comptable   { background: #faf5ff; color: #7c3aed; }
+  &--agent       { background: #f0fdf4; color: #0e9f6e; }
+  &--superviseur { background: #ecfeff; color: #0e7490; }
+  &--off         { background: #f1f5f9; color: #94a3b8; }
+}
+
+// ── Statut (point + texte) ────────────────────────────────────────────────────
+.statut-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #15803d;
+
+  &__mark { width: 7px; height: 7px; border-radius: 50%; background: #0e9f6e; }
+
+  &--off {
+    color: #94a3b8;
+    .statut-dot__mark { background: #cbd5e1; }
+  }
 }
 
 .users-table__phone {
@@ -90,6 +142,12 @@
     border-color: #fca5a5;
   }
 
+  &--success:hover {
+    background: #f0fdf4;
+    color: #0e9f6e;
+    border-color: #86efac;
+  }
+
   i { font-size: 13px; }
 }
 
@@ -99,3 +157,75 @@
   color: #64748b;
   font-size: 14px;
 }
+
+// ── Carte mobile (via data-table appCardRow) ──────────────────────────────────
+// Sur mobile, le wrapper devient transparent : chaque .ucard est une carte
+// autonome (comme .fcard des impayés).
+@media (max-width: 720px) {
+  .users-card {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
+}
+
+.ucard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+
+  &--off {
+    opacity: 0.6;
+    .users-table__username { text-decoration: line-through; }
+    .users-table__avatar { background: #cbd5e1; }
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__email {
+    font-size: 12px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+}
+
+// Le pill de rôle ne rétrécit pas (le nom tronque à sa place).
+.ucard__head .role-pill { flex-shrink: 0; }
+
+// Avatar un peu plus grand sur la carte mobile.
+.ucard .users-table__avatar { width: 40px; height: 40px; font-size: 15px; }

@@ -9,7 +9,6 @@ import {
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { TagModule } from 'primeng/tag';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -18,20 +17,12 @@ import { extractGqlError } from '../../../core/auth/auth.service';
 import { UsersService } from '../../../core/users/users.service';
 import { Role, User } from '../../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
-import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
-import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
-
-const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
-  ADMIN: 'danger',
-  AGENT: 'success',
-  COMPTABLE: 'info',
-  SUPERVISEUR: 'warn',
-};
+import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 
 @Component({
   selector: 'app-utilisateurs-list',
@@ -41,10 +32,9 @@ const ROLE_SEVERITY: Record<Role, 'danger' | 'warn' | 'success' | 'info'> = {
     RouterLink,
     DataTableComponent,
     DataTableCellDirective,
-    TagModule,
+    DataTableCardDirective,
     ConfirmDialogModule,
     ErrorBannerComponent,
-    StatusBadgeComponent,
     PageTopbarComponent,
     FilterBarComponent,
     TooltipDirective,
@@ -72,10 +62,10 @@ export class UtilisateursListComponent implements OnInit {
 
   readonly columns: DataTableColumn[] = [
     { key: 'username', header: 'UTILISATEURS.USERNAME' },
-    { key: 'phone', header: 'UTILISATEURS.PHONE' },
+    { key: 'email', header: 'UTILISATEURS.EMAIL' },
     { key: 'role', header: 'UTILISATEURS.ROLE' },
-    { key: 'statut', header: 'COMMON.STATUS' },
     { key: 'createdAt', header: 'UTILISATEURS.CREATED_AT' },
+    { key: 'statut', header: 'COMMON.STATUS' },
     { key: 'actions', header: '' },
   ];
 
@@ -135,8 +125,6 @@ export class UtilisateursListComponent implements OnInit {
     return list;
   });
 
-  readonly roleSeverity = (role: Role) => ROLE_SEVERITY[role];
-
   ngOnInit(): void {
     this.loadUsers();
   }
@@ -182,5 +170,22 @@ export class UtilisateursListComponent implements OnInit {
       const { message } = extractGqlError(error);
       this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || this.translate.instant('ERRORS.GENERIC'));
     }
+  }
+
+  async reactivate(user: User): Promise<void> {
+    try {
+      const updated = await this.usersService.reactivateUser(user.id);
+      this.users.update((list) =>
+        list.map((u) => (u.id === updated.id ? updated : u)),
+      );
+      this.toast.success(this.translate.instant('UTILISATEURS.SUCCESS_REACTIVATION'), this.translate.instant('UTILISATEURS.SUCCESS_REACTIVATION_DETAIL', { username: user.username }));
+    } catch (error: unknown) {
+      const { message } = extractGqlError(error);
+      this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || this.translate.instant('ERRORS.GENERIC'));
+    }
+  }
+
+  initial(user: User): string {
+    return (user.username[0] ?? '?').toUpperCase();
   }
 }

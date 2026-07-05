@@ -54,28 +54,28 @@
       [emptyMessage]="emptyMsg()"
     >
       <ng-template appCol="username" let-user>
-        <div class="users-table__user">
+        <div class="users-table__user" [class.users-table__user--off]="!user.isActive">
+          <span class="users-table__avatar">{{ initial(user) }}</span>
           <span class="users-table__username">{{ user.username }}</span>
-          @if (user.email) {
-            <span class="users-table__email">{{ user.email }}</span>
-          }
         </div>
       </ng-template>
 
-      <ng-template appCol="phone" let-user><span class="users-table__phone">{{ user.phoneNumber }}</span></ng-template>
+      <ng-template appCol="email" let-user><span class="users-table__email">{{ user.email || '—' }}</span></ng-template>
 
       <ng-template appCol="role" let-user>
-        <p-tag
-          [value]="'UTILISATEURS.ROLES.' + user.role | translate"
-          [severity]="roleSeverity(user.role)"
-        />
-      </ng-template>
-
-      <ng-template appCol="statut" let-user>
-        <app-status-badge [status]="user.isActive ? 'ACTIVE' : 'INACTIVE'" />
+        <span class="role-pill role-pill--{{ user.role.toLowerCase() }}" [class.role-pill--off]="!user.isActive">
+          {{ 'UTILISATEURS.ROLES.' + user.role | translate }}
+        </span>
       </ng-template>
 
       <ng-template appCol="createdAt" let-user><span class="users-table__date">{{ user.createdAt | date:'dd/MM/yyyy' }}</span></ng-template>
+
+      <ng-template appCol="statut" let-user>
+        <span class="statut-dot" [class.statut-dot--off]="!user.isActive">
+          <span class="statut-dot__mark"></span>
+          {{ (user.isActive ? 'UTILISATEURS.ACTIF' : 'UTILISATEURS.INACTIF') | translate }}
+        </span>
+      </ng-template>
 
       <ng-template appCol="actions" let-user>
         <div class="users-table__actions">
@@ -97,7 +97,52 @@
             >
               <i class="pi pi-ban"></i>
             </button>
+          } @else {
+            <button
+              type="button"
+              class="users-table__action-btn users-table__action-btn--success"
+              [appTooltip]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
+              [tooltipPosition]="'left'"
+              (click)="reactivate(user)"
+            >
+              <i class="pi pi-refresh"></i>
+            </button>
           }
+        </div>
+      </ng-template>
+
+      <ng-template appCardRow let-user>
+        <div class="ucard" [class.ucard--off]="!user.isActive">
+          <span class="users-table__avatar">{{ initial(user) }}</span>
+          <div class="ucard__body">
+            <div class="ucard__head">
+              <span class="users-table__username ucard__name">{{ user.username }}</span>
+              <span class="role-pill role-pill--{{ user.role.toLowerCase() }}" [class.role-pill--off]="!user.isActive">
+                {{ 'UTILISATEURS.ROLES.' + user.role | translate }}
+              </span>
+            </div>
+            @if (user.email) {
+              <span class="ucard__email">{{ user.email }}</span>
+            }
+            <span class="statut-dot" [class.statut-dot--off]="!user.isActive">
+              <span class="statut-dot__mark"></span>
+              {{ (user.isActive ? 'UTILISATEURS.ACTIF' : 'UTILISATEURS.INACTIF') | translate }}
+            </span>
+          </div>
+          <div class="ucard__actions">
+            <button type="button" class="users-table__action-btn" (click)="editUser(user)">
+              <i class="pi pi-pencil"></i>
+            </button>
+            @if (user.isActive) {
+              <button type="button" class="users-table__action-btn users-table__action-btn--danger" (click)="confirmDeactivate(user)">
+                <i class="pi pi-ban"></i>
+              </button>
+            } @else {
+              <button type="button" class="users-table__action-btn users-table__action-btn--success" (click)="reactivate(user)">
+                <i class="pi pi-refresh"></i>
+              </button>
+            }
+          </div>
         </div>
       </ng-template>
     </app-data-table>
