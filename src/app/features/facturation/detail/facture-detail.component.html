@@ -151,7 +151,9 @@
       }
 
       @if (showForm()) {
+        <div class="paiement-form__backdrop" (click)="showForm.set(false)" aria-hidden="true"></div>
         <div class="paiement-form">
+          <div class="paiement-form__grip"></div>
           <div class="paiement-form__grid">
             <div class="pf-field">
               <label class="pf-label" for="det-montant">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>

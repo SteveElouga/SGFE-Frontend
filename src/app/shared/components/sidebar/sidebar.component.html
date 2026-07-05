@@ -6,10 +6,18 @@
       <path d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z" fill="white" fill-opacity=".95"/>
       <path d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z" fill="#0e9f6e" fill-opacity=".85"/>
     </svg>
-    <div>
+    <div class="sidebar__logo-text">
       <span class="sidebar__logo-name">AquaBill</span>
       <span class="sidebar__logo-tagline">Facturation eau</span>
     </div>
+    <button
+      type="button"
+      class="sidebar__close"
+      aria-label="Fermer le menu"
+      (click)="layout.closeMenu()"
+    >
+      <i class="pi pi-times"></i>
+    </button>
   </div>
 
   <!-- Campagne active -->
@@ -29,7 +37,7 @@
 
   <!-- Navigation -->
   <nav class="sidebar__nav">
-    @for (item of visibleNavItems(); track item.route) {
+    @for (item of nav.visibleItems(); track item.route) {
       @if (item.disabled) {
         <span class="sidebar__nav-item sidebar__nav-item--disabled">
           <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
@@ -43,8 +51,11 @@
         >
           <i class="pi {{ item.icon }} sidebar__nav-icon"></i>
           <span class="sidebar__nav-label">{{ item.label | translate }}</span>
-          @if (item.badge) {
-            <span class="sidebar__nav-badge">{{ item.badge }}</span>
+          @if (nav.badgeFor(item); as badge) {
+            <span
+              class="sidebar__nav-badge"
+              [class.sidebar__nav-badge--alert]="item.route === '/notifications'"
+            >{{ badge }}</span>
           }
         </a>
       }

@@ -47,6 +47,14 @@ export const routes: Routes = [
         (m) => m.ActivateOtpComponent,
       ),
   },
+  {
+    // Espace abonné public (lien WhatsApp tokenisé) — AUCUN authGuard.
+    path: 'espace/:token',
+    loadComponent: () =>
+      import('./features/espace-abonne/espace-abonne.component').then(
+        (m) => m.EspaceAbonneComponent,
+      ),
+  },
 
   // ── Authenticated shell ────────────────────────────────────────────────────
   {
@@ -196,6 +204,22 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'envois',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
+        loadComponent: () =>
+          import('./features/envois/envois-list.component').then(
+            (m) => m.EnvoisListComponent,
+          ),
+      },
+      {
+        path: 'rapports',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
+        loadComponent: () =>
+          import('./features/rapports/rapports-list.component').then(
+            (m) => m.RapportsListComponent,
+          ),
+      },
+      {
         path: 'impayes',
         canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
         children: [
@@ -221,6 +245,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/configuration/configuration.component').then(
             (m) => m.ConfigurationComponent,
+          ),
+      },
+      {
+        path: 'notifications',
+        loadComponent: () =>
+          import('./features/notifications/notifications.component').then(
+            (m) => m.NotificationsComponent,
           ),
       },
       {

@@ -16,7 +16,9 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
+import { FacturesService } from '../../../core/factures/factures.service';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
+import { Tarif } from '../../../shared/models/facture.model';
 import {
   Campagne,
   Progression,
@@ -24,6 +26,7 @@ import {
   formatPeriodeCampagne,
 } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -37,6 +40,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     FormsModule,
     SelectModule,
     ErrorBannerComponent,
+    AgentsSheetComponent,
     TranslatePipe,
   ],
   templateUrl: './campagne-detail.component.html',
@@ -46,13 +50,28 @@ import { ToastService } from '../../../shared/services/toast.service';
 export class CampagneDetailComponent implements OnInit {
   private readonly service = inject(CampagnesService);
   private readonly abonnesService = inject(AbonnesService);
+  private readonly facturesService = inject(FacturesService);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
 
-  private readonly campagneId: string;
+  readonly campagneId: string;
   private campagneQuery!: QueryRef<{ campagne: Campagne }>;
+
+  // ── Affectation d'agents (MC-03) ─────────────────────────────────────────
+  readonly showAgentsSheet = signal(false);
+  readonly assignedUsernames = computed(
+    () => this.campagne()?.agents?.map((a) => a.username) ?? [],
+  );
+
+  openAgentsSheet(): void {
+    this.showAgentsSheet.set(true);
+  }
+
+  closeAgentsSheet(): void {
+    this.showAgentsSheet.set(false);
+  }
 
   // ── État ───────────────────────────────────────────────────────────────────
   readonly loading = signal(true);
@@ -61,6 +80,20 @@ export class CampagneDetailComponent implements OnInit {
   readonly progression = signal<Progression | null>(null);
   readonly releves = signal<Releve[]>([]);
   readonly cloturant = signal(false);
+
+  // ── Modal de clôture (écran 18) ──────────────────────────────────────────────
+  readonly clotureModalVisible = signal(false);
+  readonly clotureConfirme = signal(false);
+  readonly tarifActuel = signal<Tarif | null>(null);
+
+  readonly facturesAGenerer = computed(() => {
+    const s = this.relevesByStatut();
+    return s.releve + s.estime;
+  });
+  readonly sansReleve = computed(() => {
+    const s = this.relevesByStatut();
+    return s.aRelever + s.nonReleve;
+  });
 
   // ── Filtres relevés ────────────────────────────────────────────────────────
   readonly filtreReleveStatut = signal('TOUS');
@@ -168,6 +201,10 @@ export class CampagneDetailComponent implements OnInit {
       this.progression.set(progression);
       this.releves.set(releves);
       this.loadAbonnesMap();
+      void this.facturesService
+        .getTarifActuel()
+        .then((t) => this.tarifActuel.set(t))
+        .catch(() => undefined);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
@@ -191,11 +228,21 @@ export class CampagneDetailComponent implements OnInit {
       });
   }
 
+  openClotureModal(): void {
+    this.clotureConfirme.set(false);
+    this.clotureModalVisible.set(true);
+  }
+
+  closeClotureModal(): void {
+    this.clotureModalVisible.set(false);
+  }
+
   async cloturer(): Promise<void> {
-    if (this.cloturant()) return;
+    if (this.cloturant() || !this.clotureConfirme()) return;
     this.cloturant.set(true);
     try {
       await this.service.cloturerCampagne(this.campagneId);
+      this.clotureModalVisible.set(false);
       await this.load();
       this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CLOTUREE'));
     } catch (err: unknown) {

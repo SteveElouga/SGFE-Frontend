@@ -11,22 +11,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { UserMenuComponent } from '../user-menu/user-menu.component';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../../../core/auth/auth.service';
+import { LayoutService } from '../../services/layout.service';
+import { NavService } from '../../services/nav.service';
 import { Campagne, Progression, formatPeriodeCampagne } from '../../models/campagne.model';
 import {
   GET_CAMPAGNE_ACTIVE,
   GET_PROGRESSION,
 } from '../../../graphql/queries/campagnes.queries';
-import { Role } from '../../models/user.model';
-
-interface NavItem {
-  label: string;
-  icon: string;
-  route: string;
-  roles?: Role[];
-  badge?: number | null;
-  disabled?: boolean;
-}
 
 interface SidebarCampagne {
   campagneId: string;
@@ -44,9 +35,8 @@ interface SidebarCampagne {
 })
 export class SidebarComponent implements OnInit {
   private readonly apollo = inject(Apollo);
-  private readonly auth = inject(AuthService);
-
-  private readonly role = this.auth.role;
+  protected readonly layout = inject(LayoutService);
+  protected readonly nav = inject(NavService);
 
   readonly campagneActive = signal<SidebarCampagne | null>(null);
 
@@ -64,24 +54,6 @@ export class SidebarComponent implements OnInit {
       label: `${Math.round(p.pourcentage)}% · ${p.nbReleves}/${p.totalAbonnes} relevés`,
     };
   });
-
-  readonly navItems: NavItem[] = [
-    { label: 'NAV.DASHBOARD', icon: 'pi-th-large', route: '/dashboard' },
-    { label: 'NAV.TERRAIN', icon: 'pi-map-marker', route: '/terrain', roles: ['ADMIN', 'AGENT'] },
-    { label: 'NAV.ABONNES', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
-    { label: 'NAV.CAMPAGNES', icon: 'pi-calendar', route: '/campagnes', roles: ['ADMIN', 'SUPERVISEUR', 'AGENT'] },
-    { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', roles: ['ADMIN', 'COMPTABLE'] },
-    { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', roles: ['ADMIN', 'COMPTABLE'] },
-    { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', roles: ['ADMIN', 'COMPTABLE'] },
-    { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'] },
-  ];
-
-  readonly visibleNavItems = computed(() =>
-    this.navItems.filter((item) => {
-      if (!item.roles) return true;
-      return item.roles.includes(this.role() as Role);
-    }),
-  );
 
   ngOnInit(): void {
     this.loadCampagneActive();

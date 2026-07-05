@@ -18,6 +18,19 @@
   min-width: 0;
 }
 
+// Groupe de droite : actions projetées + cloche de notifications
+.page-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .page-topbar { padding: 0 14px; }
+  .page-topbar__left { align-items: center; }
+}
+
 .page-topbar__title {
   font-size: 17px;
   font-weight: 700;
