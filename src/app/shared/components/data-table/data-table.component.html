@@ -5,7 +5,8 @@
 } @else {
   <div class="dt" [class.dt--has-cards]="!!cardTemplate()">
 
-    <!-- ── Tableau (desktop) ─────────────────────────────────────────────── -->
+    <!-- ── Tableau : scroll horizontal interne si trop large (mobile) ────── -->
+    <div class="dt__scroll">
     <table class="dt__table" [class.dt__table--striped]="striped()">
       <thead>
         <tr>
@@ -53,6 +54,7 @@
         }
       </tbody>
     </table>
+    </div>
 
     <!-- ── Cartes (mobile ≤ 720px, si un template appCardRow est fourni) ──── -->
     @if (cardTemplate(); as card) {

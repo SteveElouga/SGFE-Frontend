@@ -20,6 +20,20 @@ export interface Campagne {
   agents?: CampagneAgent[];
 }
 
+export interface Auteur {
+  id: string;
+  username: string;
+  role: 'ADMIN' | 'AGENT' | 'SUPERVISEUR';
+}
+
+export interface ReleveAudit {
+  action: 'SAISIE' | 'CORRECTION';
+  auteur: Auteur;
+  ancienIndex: number;
+  nouvelIndex: number;
+  horodatage: string;
+}
+
 export interface Releve {
   releveId: string;
   abonneId: string;
@@ -29,6 +43,20 @@ export interface Releve {
   dateReleve: string;
   observation: string;
   statut: StatutReleve;
+  // ── PR #68 (PENDING DEPLOY) — audit & correction de relevé ────────────────
+  // Champs optionnels : non demandés par les queries actuelles tant que le
+  // backend n'est pas déployé (un champ inconnu casserait toute la query).
+  agentId?: string; // P3 : agent/admin ayant saisi (écran « tournée »)
+  saisiPar?: Auteur | null; // P1 : auteur de la saisie initiale
+  saisiLe?: string; // P1 : ISO 8601 de la saisie
+  audit?: ReleveAudit[]; // P2 : journal complet (saisie + corrections)
+}
+
+export interface CorrigerReleveInput {
+  campagneId: string;
+  abonneId: string;
+  nouveauIndex: number;
+  observation?: string;
 }
 
 export interface Progression {

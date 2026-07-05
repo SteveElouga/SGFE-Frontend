@@ -30,6 +30,8 @@ export interface RemplacerCompteurInput {
   camp: number;
   indexInitial: number;
   datePose: string;
+  /** Dernier index relevé de l'ancien compteur (index de fermeture, archivé). */
+  indexFermeture: number;
 }
 
 export interface CreateAbonneInput {

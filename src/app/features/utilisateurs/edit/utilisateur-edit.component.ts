@@ -16,14 +16,13 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { UsersService } from '../../../core/users/users.service';
 import { Role, User } from '../../../shared/models/user.model';
-import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
+import { isValidCameroonPhone, maskPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 
-// Passe à `true` quand le backend a déployé reactivateUser + resendUserActivation
-// (cf. docs/BESOINS_API_utilisateurs.md). Tant que false, ces boutons sont
-// désactivés avec un tooltip « bientôt disponible » — aucune mutation fantôme.
-const ACTIVATION_ACTIONS_READY = false;
+// Backend livré (introspection 2026-07-05) : reactivateUser + resetUserPassword
+// existent. Les actions d'activation / réinitialisation sont donc actives.
+const ACTIVATION_ACTIONS_READY = true;
 
 @Component({
   selector: 'app-utilisateur-edit',
@@ -230,11 +229,16 @@ export class UtilisateurEditComponent implements OnInit {
     if (!u || !this.activationReady) return;
     this.resendLoading.set(true);
     try {
-      await this.usersService.resendUserActivation(u.id);
-      const detailKey = u.role === 'ADMIN'
-        ? 'UTILISATEURS.EDIT.SUCCESS_RESENT_EMAIL'
-        : 'UTILISATEURS.EDIT.SUCCESS_RESENT_WHATSAPP';
-      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT'), this.translate.instant(detailKey, { username: u.username }));
+      await this.usersService.resetUserPassword(u.id);
+      // Le canal dépend du rôle de la cible : ADMIN = lien e-mail, sinon OTP
+      // WhatsApp. La mutation ne renvoie pas le canal → on le déduit du rôle.
+      const detail =
+        u.role === 'ADMIN'
+          ? this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT_EMAIL', { email: u.email })
+          : this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT_WHATSAPP', {
+              phone: maskPhone(u.phoneNumber),
+            });
+      this.toast.success(this.translate.instant('UTILISATEURS.EDIT.SUCCESS_RESENT'), detail);
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
