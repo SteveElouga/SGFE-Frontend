@@ -11,6 +11,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfigurationService } from '../../core/configuration/configuration.service';
@@ -67,6 +68,7 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
     PageTopbarComponent,
     WhatsappLinkComponent,
     ConfirmDialogModule,
+    DialogModule,
     TranslatePipe,
   ],
   providers: [ConfirmationService],
@@ -277,6 +279,9 @@ export class ConfigurationComponent implements OnInit {
   // ── Tarif actuel (action dédiée, non rétroactive — RV-004) ──────────────────
 
   editTarif(): void {
+    const t = this.tarifActuel();
+    this.tarifPrixM3.set(t ? String(t.prixM3) : '');
+    this.tarifDateEffet.set(new Date().toISOString().slice(0, 10));
     this.editingTarif.set(true);
   }
 

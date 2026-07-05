@@ -102,31 +102,73 @@
             <div class="config-card__title">{{ 'CONFIGURATION.SECTION_TARIF_ACTUEL' | translate }}</div>
             <div class="config-card__sub">{{ 'CONFIGURATION.TARIF_HINT' | translate }}</div>
 
-            @if (!editingTarif()) {
-              <div class="tarif-row">
-                <div class="tarif-current">
-                  <div class="tarif-current__label">{{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}</div>
-                  <div class="tarif-current__box">
-                    @if (tarifActuel()) {
-                      <span class="tarif-current__value">{{ tarifActuel()!.prixM3 | number:'1.0-0' }}</span>
-                    } @else {
-                      <span class="tarif-current__empty">{{ 'CONFIGURATION.TARIF_NONE' | translate }}</span>
-                    }
+            <div class="tarif-row">
+              <div class="tarif-current">
+                <div class="tarif-current__label">{{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}</div>
+                <div class="tarif-current__box">
+                  @if (tarifActuel()) {
+                    <span class="tarif-current__value">{{ tarifActuel()!.prixM3 | number:'1.0-0' }}</span>
+                  } @else {
+                    <span class="tarif-current__empty">{{ 'CONFIGURATION.TARIF_NONE' | translate }}</span>
+                  }
+                </div>
+              </div>
+              <button class="btn btn--dark-outline" (click)="editTarif()">{{ 'CONFIGURATION.TARIF_MODIFIER' | translate }}</button>
+            </div>
+
+            <!-- Modale : modifier le tarif du m³ (écran 30) -->
+            <p-dialog
+              [visible]="editingTarif()"
+              (visibleChange)="$event ? null : resetTarif()"
+              [modal]="true"
+              [showHeader]="false"
+              [draggable]="false"
+              [dismissableMask]="true"
+              [style]="{ width: '480px' }"
+            >
+              <div class="tarif-modal">
+                <div class="tarif-modal__header">
+                  <div class="tarif-modal__icon" aria-hidden="true"><i class="pi pi-dollar"></i></div>
+                  <div>
+                    <h3 class="tarif-modal__title">{{ 'CONFIGURATION.TARIF_MODAL_TITLE' | translate }}</h3>
+                    <p class="tarif-modal__sub">{{ 'CONFIGURATION.TARIF_MODAL_SUB' | translate }}</p>
                   </div>
                 </div>
-                <button class="btn btn--dark-outline" (click)="editTarif()">{{ 'CONFIGURATION.TARIF_MODIFIER' | translate }}</button>
-              </div>
-            } @else {
-              <div class="tarif-edit">
-                <div class="form-field">
-                  <label class="form-field__label" for="tarif-prix">{{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}</label>
-                  <input id="tarif-prix" pInputText type="number" min="1" class="form-field__input" [ngModel]="tarifPrixM3()" (ngModelChange)="tarifPrixM3.set($event)" />
+
+                <div class="tarif-modal__compare">
+                  <div class="tarif-modal__col">
+                    <span class="tarif-modal__col-label">{{ 'CONFIGURATION.TARIF_ACTUEL_LABEL' | translate }}</span>
+                    <span class="tarif-modal__col-value">
+                      @if (tarifActuel()) { {{ tarifActuel()!.prixM3 | number:'1.0-0' }} } @else { — }
+                      <small>FCFA/m³</small>
+                    </span>
+                  </div>
+                  <div class="tarif-modal__arrow" aria-hidden="true"><i class="pi pi-arrow-right"></i></div>
+                  <div class="tarif-modal__col tarif-modal__col--new">
+                    <span class="tarif-modal__col-label">{{ 'CONFIGURATION.TARIF_NOUVEAU_LABEL' | translate }}</span>
+                    <span class="tarif-modal__col-value">
+                      {{ tarifPrixM3() || '—' }} <small>FCFA/m³</small>
+                    </span>
+                  </div>
                 </div>
-                <div class="form-field">
-                  <label class="form-field__label" for="tarif-date">{{ 'CONFIGURATION.TARIF_DATE_EFFET' | translate }}</label>
-                  <input id="tarif-date" pInputText type="date" class="form-field__input" [ngModel]="tarifDateEffet()" (ngModelChange)="tarifDateEffet.set($event)" />
+
+                <div class="tarif-modal__fields">
+                  <div class="form-field">
+                    <label class="form-field__label" for="tarif-prix">{{ 'CONFIGURATION.TARIF_PRIX_M3' | translate }}</label>
+                    <input id="tarif-prix" pInputText type="number" min="1" class="form-field__input" [ngModel]="tarifPrixM3()" (ngModelChange)="tarifPrixM3.set($event)" />
+                  </div>
+                  <div class="form-field">
+                    <label class="form-field__label" for="tarif-date">{{ 'CONFIGURATION.TARIF_DATE_EFFET' | translate }}</label>
+                    <input id="tarif-date" pInputText type="date" class="form-field__input" [ngModel]="tarifDateEffet()" (ngModelChange)="tarifDateEffet.set($event)" />
+                  </div>
                 </div>
-                <div class="tarif-edit__actions">
+
+                <div class="tarif-modal__warning">
+                  <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                  <span>{{ 'CONFIGURATION.TARIF_WARNING' | translate }}</span>
+                </div>
+
+                <div class="tarif-modal__actions">
                   <button class="btn btn--ghost" [disabled]="tarifSaving()" (click)="resetTarif()">{{ 'COMMON.CANCEL' | translate }}</button>
                   <button class="btn btn--primary" [disabled]="!tarifDirty() || tarifSaving()" (click)="saveTarif()">
                     @if (tarifSaving()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-check"></i> }
@@ -134,7 +176,7 @@
                   </button>
                 </div>
               </div>
-            }
+            </p-dialog>
 
             <!-- Historique des tarifs (aucune API dédiée — lecture partielle) -->
             <div class="hist-head">
