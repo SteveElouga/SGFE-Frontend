@@ -31,8 +31,8 @@ export const BACKEND_CAPABILITIES = {
   /** Accès public tokenisé à l'espace abonné (écrans 06 / 25 / M-06 / MB-10). */
   ESPACE_ABONNE: false,
 
-  /** Agrégats statistiques + exports (écran 13 / MB-08). */
-  RAPPORTS: false,
+  /** ✅ Livré — agrégats `statsGlobales` (GraphQL) + 4 exports REST (écran 13 / MB-08, PR #69/#79). */
+  RAPPORTS: true,
 
   /** Dashboard superviseur filtré `created_by` (écran 32 / MC-06). */
   DASHBOARD_SUPERVISEUR: false,
