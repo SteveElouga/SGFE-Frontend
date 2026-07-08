@@ -64,11 +64,11 @@
   [title]="'ABONNES.TITLE' | translate"
   [subtitle]="statutSummary()"
 >
-  <a routerLink="/abonnes/nouveau" class="page-topbar-action">
+  <a routerLink="/abonnes/nouveau" class="page-topbar-action" [attr.aria-label]="'ABONNES.NEW' | translate">
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
     </svg>
-    {{ 'ABONNES.NEW' | translate }}
+    <span class="page-topbar-action__label">{{ 'ABONNES.NEW' | translate }}</span>
   </a>
 </app-page-topbar>
 
@@ -85,7 +85,18 @@
     (searchChange)="searchTerm.set($event)"
     searchPlaceholder="ABONNES.SEARCH_PLACEHOLDER"
   >
+    <!-- Statut : chips segmentés en mobile, dropdown en desktop -->
+    <div class="abonnes-statut-chips">
+      <app-filter-chips
+        [options]="statutChips()"
+        [total]="abonnes().length"
+        [value]="statutFilter()"
+        (valueChange)="onStatutChip($event)"
+      />
+    </div>
+
     <p-select
+      class="abonnes-statut-select"
       [options]="statutOptions()"
       [ngModel]="statutFilter()"
       (ngModelChange)="statutFilter.set($event)"

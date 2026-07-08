@@ -1,5 +1,32 @@
+import type { BadgeTone } from '../components/badge/badge.component';
+
 export type StatutCampagne = 'PLANIFIEE' | 'EN_COURS' | 'CLOTUREE';
 export type StatutReleve = 'A_RELEVER' | 'RELEVE' | 'NON_RELEVE' | 'ESTIME';
+
+/** Teinte de la puce de statut d'une campagne. */
+export function campagneStatutTone(statut: StatutCampagne): BadgeTone {
+  switch (statut) {
+    case 'PLANIFIEE':
+    case 'EN_COURS':
+      return 'info';
+    case 'CLOTUREE':
+      return 'success';
+  }
+}
+
+/** Teinte de la puce de statut d'un relevé. */
+export function releveStatutTone(statut: StatutReleve): BadgeTone {
+  switch (statut) {
+    case 'RELEVE':
+      return 'success';
+    case 'ESTIME':
+      return 'warning';
+    case 'NON_RELEVE':
+      return 'danger';
+    case 'A_RELEVER':
+      return 'neutral';
+  }
+}
 
 export interface AgentZone {
   nom: string;
@@ -75,12 +102,51 @@ export interface CorrigerReleveInput {
   observation?: string;
 }
 
+// ── Agents affectés & répartition par zone (queries backend dédiées) ─────────
+export interface ZoneStat {
+  quartier: string;
+  camp: number | null;
+}
+
+/** Agent affecté à une campagne (query `agentsCampagne`). */
+export interface AgentAffecte {
+  agentId: string;
+  username: string;
+  role: string;
+  statut: string | null; // EN_TOURNEE | ACTIF | EN_RETARD | INACTIF (chaîne backend)
+  derniereActivite: string | null;
+  nbReleves: number;
+  zones: ZoneStat[];
+}
+
+/** Ligne de répartition par zone (query `repartitionParZone`). */
+export interface ZoneRepartition {
+  quartier: string;
+  camp: number | null;
+  agentId: string | null;
+  agentUsername: string | null;
+  nbAbonnes: number;
+  nbReleves: number;
+  pct: number;
+}
+
 export interface Progression {
   campagneId: string;
   totalAbonnes: number;
   nbReleves: number;
   nbEnAttente: number;
   pourcentage: number;
+}
+
+/** Ventilation autoritative pour la modale de clôture (écran 18). */
+export interface ResumeCloture {
+  campagneId: string;
+  totalAbonnes: number;
+  nbReleves: number;
+  nbEstimes: number;
+  nbNonReleves: number;
+  nbRestants: number;
+  nbFacturesAGenerer: number;
 }
 
 export interface DernierIndex {

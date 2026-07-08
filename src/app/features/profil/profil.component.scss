@@ -1,7 +1,14 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+  // Conteneur de requête : la page s'adapte à sa largeur réelle (viewport ou
+  // panneau étroit), y compris le padding de .profil-content (descendant).
+  container-type: inline-size;
+  container-name: profil;
+}
 
 // ── Contenu ───────────────────────────────────────────────────────────────────
 
@@ -219,37 +226,49 @@
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   gap: 6px;
   height: 40px;
   padding: 0 18px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
   transition: background 0.15s, opacity 0.15s;
 
-  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  &:disabled { opacity: 0.45; }
 
   &--primary {
-    background: $color-primary;
-    color: #fff;
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
+    @include btn-variant($color-primary, #fff, $hover-bg: color.adjust($color-primary, $lightness: -8%));
   }
 
   &--outline {
-    background: transparent;
-    color: #1e293b;
-    border: 1.5px solid #1e293b;
-    &:hover:not(:disabled) { background: #f8fafc; }
+    @include btn-variant(transparent, #1e293b, $border: 1.5px solid #1e293b, $hover-bg: #f8fafc);
   }
 
   &--danger {
-    background: #fee2e2;
-    color: #991b1b;
-    border: 1.5px solid #fca5a5;
-    &:hover:not(:disabled) { background: #fecaca; }
+    @include btn-variant(#fee2e2, #991b1b, $border: 1.5px solid #fca5a5, $hover-bg: #fecaca);
+  }
+}
+
+// ── Mobile (carte étroite) ────────────────────────────────────────────────────
+@container profil (max-width: 600px) {
+  .profil-content { padding: 14px 12px; }
+
+  // Carte avatar plus compacte
+  .profil-avatar-card { padding: 16px; gap: 14px; }
+  .profil-avatar { width: 56px; height: 56px; }
+  .profil-avatar__initials { font-size: 22px; }
+  .profil-identity__username { font-size: 18px; }
+
+  // En-têtes / corps de section resserrés
+  .profil-section__header { padding: 12px 16px; }
+  .profil-section__body { padding: 16px; }
+  .profil-section__footer { padding: 12px 16px 16px; }
+
+  // Boutons pleine largeur → cibles tactiles confortables
+  .profil-section__footer .btn,
+  .profil-section__body > .btn { // bouton « Se déconnecter »
+    width: 100%;
+    justify-content: center;
   }
 }

@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   computed,
   inject,
   signal,
@@ -25,6 +24,9 @@ import { NotificationsService } from '../../../core/notifications/notifications.
   templateUrl: './notification-bell.component.html',
   styleUrl: './notification-bell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'onEscape()',
+  },
 })
 export class NotificationBellComponent {
   private readonly service = inject(NotificationsService);
@@ -54,7 +56,6 @@ export class NotificationBellComponent {
     this.bellBtn()?.nativeElement.focus();
   }
 
-  @HostListener('document:keydown.escape')
   onEscape(): void {
     this.close();
   }

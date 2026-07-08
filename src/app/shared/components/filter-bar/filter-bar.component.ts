@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -25,6 +25,10 @@ import { TranslatePipe } from '@ngx-translate/core';
   templateUrl: './filter-bar.component.html',
   styleUrl: './filter-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // ViewEncapsulation.None : permet de mettre les contrôles PROJETÉS (p-select,
+  // boutons) en pleine largeur en mobile sans ::ng-deep (même approche que
+  // page-topbar). Les sélecteurs restent préfixés .filter-bar (faible collision).
+  encapsulation: ViewEncapsulation.None,
 })
 export class FilterBarComponent {
   /** Valeur du champ de recherche. */

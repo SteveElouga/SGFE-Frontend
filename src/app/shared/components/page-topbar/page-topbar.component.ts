@@ -2,6 +2,20 @@ import { ChangeDetectionStrategy, Component, ViewEncapsulation, input } from '@a
 import { RouterLink } from '@angular/router';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 
+/**
+ * Barre de titre standard des pages (54px fixes) : titre + sous-titre optionnel,
+ * fil d'ariane retour optionnel, cloche de notifications à droite, et zone
+ * d'actions **projetée** (`<ng-content>` — ex. bouton « + Nouveau »).
+ *
+ * `ViewEncapsulation.None` afin que les actions projetées héritent de la classe
+ * utilitaire `.page-topbar-action` sans `::ng-deep`.
+ *
+ * ```html
+ * <app-page-topbar [title]="'ABONNES.TITLE' | translate" [subtitle]="summary()">
+ *   <a class="page-topbar-action" routerLink="new">…</a>
+ * </app-page-topbar>
+ * ```
+ */
 @Component({
   selector: 'app-page-topbar',
   standalone: true,

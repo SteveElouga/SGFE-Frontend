@@ -42,9 +42,7 @@
           }
         </div>
         <div class="detail-card__actions-col">
-          <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
-            {{ 'FACTURATION.STATUT.' + f.statut | translate }}
-          </span>
+          <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
           <div class="detail-card__btns">
             <button
               type="button"
@@ -97,7 +95,7 @@
         </div>
         <div class="calc-table__total">
           <span class="calc-table__total-label">{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
-          <span class="calc-table__total-value">{{ formatFCFA(f.montant) }}</span>
+          <span class="calc-table__total-value">{{ f.montant | fcfa }}</span>
         </div>
       </div>
     </div>
@@ -120,7 +118,7 @@
           @for (p of paiements(); track p.paiementId) {
             <div class="paiement-row">
               <div>
-                <div class="paiement-row__amount">{{ formatFCFA(p.montant) }}</div>
+                <div class="paiement-row__amount">{{ p.montant | fcfa }}</div>
                 <div class="paiement-row__meta">
                   {{ 'FACTURATION.MODE.' + p.modePaiement | translate }} · {{ formatDate(p.datePaiement) }}
                   @if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
@@ -226,8 +224,12 @@
 
     <!-- Correction manuelle du statut -->
     <div class="detail-card detail-card--correction">
-      <div class="card-row-header">
-        <div class="calc-title">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}</div>
+      <div class="correction-head">
+        <span class="correction-head__icon" aria-hidden="true"><i class="pi pi-pencil"></i></span>
+        <div class="correction-head__text">
+          <div class="calc-title">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}</div>
+          <p class="correction-desc">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_DESC' | translate }}</p>
+        </div>
       </div>
       <div class="correction-row">
         <p-select
@@ -240,11 +242,12 @@
           styleClass="correction-select"
         />
         <button
-          class="btn btn--ghost btn--sm"
+          class="btn btn--primary correction-apply"
           [disabled]="!newStatut() || newStatut() === f.statut || changingStatut() || statutCorrectionIncoherent()"
           (click)="corrigerStatut()"
         >
           @if (changingStatut()) { <i class="pi pi-spin pi-spinner"></i> }
+          @else { <i class="pi pi-check"></i> }
           {{ 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT' | translate }}
         </button>
       </div>

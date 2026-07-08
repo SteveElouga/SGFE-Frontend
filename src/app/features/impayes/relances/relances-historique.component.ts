@@ -17,6 +17,7 @@ import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 
 /** Délais par défaut des relances graduées (configurables dans Paramètres). */
@@ -94,7 +95,7 @@ export class RelancesHistoriqueComponent implements OnInit {
       'RELANCES.HEADER_META',
       {
         facture: this.facture()?.numeroFacture ?? '—',
-        solde: this.formatFCFA(this.soldeRestant()),
+        solde: formatFcfa(this.soldeRestant()),
         jours: this.retardJours(),
       },
       lang,
@@ -105,7 +106,7 @@ export class RelancesHistoriqueComponent implements OnInit {
     const lang = this.translate.currentLang() ?? undefined;
     return this.translate.instant(
       'RELANCES.BTN_PAIEMENT',
-      { solde: this.formatFCFA(this.soldeRestant()) },
+      { solde: formatFcfa(this.soldeRestant()) },
       lang,
     );
   });
@@ -116,7 +117,7 @@ export class RelancesHistoriqueComponent implements OnInit {
     const dateDepassement = this.suivi()?.dateDepassement ?? null;
     const params = {
       abonne: this.greeting(),
-      montant: this.formatFCFA(this.facture()?.montant ?? this.solde()?.montantTotal ?? 0),
+      montant: formatFcfa(this.facture()?.montant ?? this.solde()?.montantTotal ?? 0),
       mois: this.moisLabel(),
     };
 
@@ -247,10 +248,6 @@ export class RelancesHistoriqueComponent implements OnInit {
     const d = new Date(dateStr);
     if (Number.isNaN(d.getTime())) return null;
     return Math.max(0, Math.floor((Date.now() - d.getTime()) / 86_400_000));
-  }
-
-  formatFCFA(n: number): string {
-    return `${n.toLocaleString('fr-FR')} FCFA`;
   }
 
   private formatDateCourte(d: Date | null): string {

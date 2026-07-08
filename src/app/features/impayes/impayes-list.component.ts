@@ -24,6 +24,7 @@ import {
   DataTableCellDirective,
 } from '../../shared/components/data-table/data-table.directives';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
+import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
 
 /** Fenêtre de pause des relances après réception d'un acompte (EF-IMP). */
 const PAUSE_ACOMPTE_JOURS = 5;
@@ -154,7 +155,7 @@ export class ImpayesListComponent implements OnInit {
     const lang = this.translate.currentLang() ?? undefined;
     return this.translate.instant(
       'IMPAYES.SUBTITLE_FULL',
-      { count: this.nbImpayes(), solde: this.formatFCFA(this.totalSolde()) },
+      { count: this.nbImpayes(), solde: formatFcfa(this.totalSolde()) },
       lang,
     );
   });
@@ -339,10 +340,6 @@ export class ImpayesListComponent implements OnInit {
     if (Number.isNaN(d.getTime())) return null;
     const diff = Date.now() - d.getTime();
     return Math.max(0, Math.floor(diff / 86_400_000));
-  }
-
-  formatFCFA(n: number): string {
-    return `${n.toLocaleString('fr-FR')} FCFA`;
   }
 
   formatNombre(n: number): string {

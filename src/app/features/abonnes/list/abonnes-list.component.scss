@@ -1,7 +1,17 @@
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host {
   display: block;
+}
+
+// ── Filtre statut : dropdown (desktop) ↔ chips segmentés (mobile) ─────────────
+// Les chips (maquette mobile) remplacent le select de statut sous ~640px.
+.abonnes-statut-chips { display: none; }
+
+@media (max-width: 640px) {
+  .abonnes-statut-chips { display: block; }
+  .abonnes-statut-select { display: none; }
 }
 
 // Topbar et filtres → portés par PageTopbarComponent et PageFiltersComponent
@@ -255,18 +265,14 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--ghost {
-    background: none;
-    border: 1px solid #e2e8f0;
-    color: #475569;
-    &:hover:not(:disabled) { background: #f8fafc; }
+    @include btn-variant(none, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc);
   }
 
   &--success {
-    background: linear-gradient(135deg, #047857, #065f46);
-    border: none;
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
-    &:hover:not(:disabled) { opacity: 0.9; }
+    @include btn-variant(
+      linear-gradient(135deg, #047857, #065f46), #fff,
+      $shadow: 0 2px 8px rgba(4, 120, 87, 0.28), $hover-opacity: 0.9
+    );
   }
 }
 

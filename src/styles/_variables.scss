@@ -11,3 +11,16 @@ $spacing-sm: 8px;
 $spacing-md: 16px;
 $spacing-lg: 24px;
 $spacing-xl: 32px;
+
+// Masque la scrollbar d'un conteneur défilable (le défilement reste possible
+// à la molette / au toucher / au drag). À inclure sur les zones à défilement
+// horizontal (barres d'onglets, wrappers de tableaux…).
+@mixin hide-scrollbar {
+  scrollbar-width: none;        // Firefox
+  -ms-overflow-style: none;     // IE / ancien Edge
+  &::-webkit-scrollbar {        // Chrome / Safari / Edge
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}

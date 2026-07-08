@@ -4,11 +4,11 @@
   [subtitle]="statsSubtitle()"
 >
   @if (canCreate()) {
-    <button class="page-topbar-action" (click)="navigateToCreate()">
+    <button class="page-topbar-action" (click)="navigateToCreate()" [attr.aria-label]="'CAMPAGNES.NEW' | translate">
       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
         <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
       </svg>
-      {{ 'CAMPAGNES.NEW' | translate }}
+      <span class="page-topbar-action__label">{{ 'CAMPAGNES.NEW' | translate }}</span>
     </button>
   }
 </app-page-topbar>
@@ -114,9 +114,7 @@
       </ng-template>
 
       <ng-template appCol="statut" let-c>
-        <span class="statut-badge statut-badge--{{ c.statut | lowercase }}">
-          {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
-        </span>
+        <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
       </ng-template>
 
       <ng-template appCol="actions" let-c>

@@ -66,7 +66,13 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.json",
+            "allowedHosts": [
+              ".trycloudflare.com",
+              ".ngrok-free.app",
+              ".ngrok.app",
+              ".ngrok.io"
+            ]
           },
           "configurations": {
             "production": {

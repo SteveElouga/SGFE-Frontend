@@ -16,6 +16,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/facture.model';
+import { BadgeComponent, BadgeTone } from '../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
@@ -23,6 +24,7 @@ import { DataTableComponent, DataTableColumn } from '../../shared/components/dat
 import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
+import { FcfaPipe, formatFcfa } from '../../shared/pipes/fcfa.pipe';
 
 interface CampagneItem {
   campagneId: string;
@@ -70,6 +72,8 @@ interface PaiementRow {
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
+    FcfaPipe,
+    BadgeComponent,
   ],
   templateUrl: './paiements-list.component.html',
   styleUrl: './paiements-list.component.scss',
@@ -179,7 +183,7 @@ export class PaiementsListComponent implements OnInit {
     const campagne = this.campagnes().find((c) => c.campagneId === campagneId);
     const periode = campagne ? this.formatPeriode(campagne) : '';
     const count = this.rows().length;
-    const total = this.formatFCFA(this.totalMontant());
+    const total = formatFcfa(this.totalMontant());
     return periode ? `${periode} · ${count} · ${total}` : `${count} · ${total}`;
   });
 
@@ -300,10 +304,6 @@ export class PaiementsListComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  formatFCFA(n: number): string {
-    return `${n.toLocaleString('fr-FR')} FCFA`;
-  }
-
   formatDate(d: string): string {
     if (!d) return '—';
     try {
@@ -325,10 +325,10 @@ export class PaiementsListComponent implements OnInit {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
 
-  statutClass(r: PaiementRow): string {
-    if (r.statutFacture === 'PAYEE') return 'solde';
-    if (r.statutFacture === 'PARTIELLE') return 'partiel';
-    return 'autre';
+  statutTone(r: PaiementRow): BadgeTone {
+    if (r.statutFacture === 'PAYEE') return 'success';
+    if (r.statutFacture === 'PARTIELLE') return 'warning';
+    return 'neutral';
   }
 
   statutLabel(r: PaiementRow): string {

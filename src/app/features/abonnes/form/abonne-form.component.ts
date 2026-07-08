@@ -21,6 +21,7 @@ import {
 } from '../../../core/abonnes/abonnes.service';
 import { Abonne } from '../../../shared/models/abonne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
   isValidCameroonPhone,
@@ -31,7 +32,7 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, RouterLink, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent],
+  imports: [FormsModule, RouterLink, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent, SkeletonComponent],
   providers: [DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',

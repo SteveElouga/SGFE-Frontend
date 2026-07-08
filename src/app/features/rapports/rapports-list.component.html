@@ -17,11 +17,11 @@
         <div class="kpi__label">{{ 'RAPPORTS.KPI_CONSO' | translate }}</div>
       </div>
       <div class="kpi">
-        <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }}</div>
+        <div class="kpi__value">{{ s.montantTotalFactureGlobal | fcfa }}</div>
         <div class="kpi__label">{{ 'RAPPORTS.KPI_FACTURE' | translate }}</div>
       </div>
       <div class="kpi kpi--accent-green">
-        <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }}</div>
+        <div class="kpi__value kpi__value--green">{{ s.montantTotalEncaisseGlobal | fcfa }}</div>
         <div class="kpi__label">{{ 'RAPPORTS.KPI_ENCAISSE' | translate }}</div>
       </div>
       <div class="kpi">

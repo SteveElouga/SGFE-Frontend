@@ -67,3 +67,18 @@ textarea {
     padding: $spacing-lg;
   }
 }
+
+// ── Mobile : masquer TOUTES les scrollbars (le défilement reste possible) ──────
+// Règle globale (non encapsulée) → s'applique aussi aux zones défilables internes
+// des composants, quel que soit l'écran.
+@media (max-width: 768px) {
+  * {
+    scrollbar-width: none;      // Firefox
+    -ms-overflow-style: none;   // ancien Edge / IE
+  }
+  *::-webkit-scrollbar {        // Chrome / Safari / Edge / WebView mobile
+    width: 0;
+    height: 0;
+    display: none;
+  }
+}

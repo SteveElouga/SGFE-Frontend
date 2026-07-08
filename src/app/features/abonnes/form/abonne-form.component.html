@@ -23,10 +23,10 @@
   <!-- Squelette chargement (mode édition) -->
   @if (pageLoading()) {
     <div class="af-skeleton">
-      <div class="af-skeleton__title"></div>
-      <div class="af-skeleton__section"></div>
-      <div class="af-skeleton__section"></div>
-      <div class="af-skeleton__section af-skeleton__section--short"></div>
+      <app-skeleton width="240px" height="28px" radius="6px" />
+      <app-skeleton height="140px" radius="12px" />
+      <app-skeleton height="140px" radius="12px" />
+      <app-skeleton height="90px" radius="12px" />
     </div>
   }
 

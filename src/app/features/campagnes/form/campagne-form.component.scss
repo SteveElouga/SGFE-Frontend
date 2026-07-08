@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -475,8 +476,7 @@
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   justify-content: center;
   gap: 8px;
   height: 48px;
@@ -484,28 +484,20 @@
   border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
-  cursor: pointer;
-  border: none;
   transition: background 0.15s, opacity 0.15s;
 
-  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  &:disabled { opacity: 0.45; }
 
   &--primary {
     flex: 1;
-    background: $color-primary;
-    color: #fff;
-    box-shadow: 0 4px 14px rgba($color-primary, 0.3);
-
-    &:hover:not(:disabled) {
-      background: color.adjust($color-primary, $lightness: -8%);
-    }
+    @include btn-variant(
+      $color-primary, #fff,
+      $shadow: 0 4px 14px rgba($color-primary, 0.3),
+      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+    );
   }
 
   &--outline {
-    background: #fff;
-    color: #475569;
-    border: 1.5px solid #e2e8f0;
-
-    &:hover:not(:disabled) { background: #f8fafc; }
+    @include btn-variant(#fff, #475569, $border: 1.5px solid #e2e8f0, $hover-bg: #f8fafc);
   }
 }
