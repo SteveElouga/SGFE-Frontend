@@ -76,6 +76,7 @@
 .dt__scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  @include hide-scrollbar;
 }
 
 // ── Cartes mobiles ──────────────────────────────────────────────────────────

@@ -7,6 +7,22 @@ import { AuthService } from '../auth/auth.service';
 
 const AUTH_RETRIED_CONTEXT_KEY = 'authRetried';
 
+// Opérations d'authentification / pré-auth : un UNAUTHENTICATED y est une
+// réponse FINALE légitime (mauvais identifiants, token de reset expiré, pas de
+// cookie…), pas un access token périmé à rafraîchir. Les exclure du retry évite
+// que « Refresh token manquant/invalide » masque la vraie erreur (ex. login),
+// et coupe la boucle circulaire sur RefreshToken lui-même.
+const NON_RETRYABLE_OPERATIONS = new Set([
+  'Login',
+  'RefreshToken',
+  'Logout',
+  'RequestPasswordReset',
+  'ActivateAccount',
+  'ResetPassword',
+  'RequestPhoneOtp',
+  'VerifyOtpAndSetPassword',
+]);
+
 export function createAuthErrorLink(injector: Injector): ErrorLink {
   let refreshing: Promise<void> | null = null;
 
@@ -18,12 +34,12 @@ export function createAuthErrorLink(injector: Injector): ErrorLink {
     const isUnauthenticated = error.errors.some(
       (graphQLError) => graphQLError.extensions?.['code'] === 'UNAUTHENTICATED',
     );
-    // Never retry the refresh-token operation itself: that would create a
-    // circular dependency where the refresh waits on itself to resolve.
+    // Ne retente via refresh QUE les opérations authentifiées dont l'access
+    // token a expiré — jamais les opérations d'auth elles-mêmes (cf. liste).
     if (
       !isUnauthenticated ||
       operation.getContext()[AUTH_RETRIED_CONTEXT_KEY] ||
-      operation.operationName === 'RefreshToken'
+      NON_RETRYABLE_OPERATIONS.has(operation.operationName ?? '')
     ) {
       return;
     }

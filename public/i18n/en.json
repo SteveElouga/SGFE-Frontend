@@ -48,7 +48,8 @@
     "STATUS": "Status",
     "MIN_2_CHARS": "Minimum 2 characters",
     "INTEGER_MIN_1": "Integer ≥ 1 required",
-    "SEE": "View"
+    "SEE": "View",
+    "ALL": "All"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -366,7 +367,27 @@
     "ABONNES_TITLE": "Subscribers",
     "ABONNES_DESC": "Manage subscribers and their water meters",
     "USERS_TITLE": "Users",
-    "USERS_DESC": "Manage agent, accountant and administrator accounts"
+    "USERS_DESC": "Manage agent, accountant and administrator accounts",
+    "ERROR_LOAD": "Failed to load the dashboard",
+    "KPI_CAMPAGNE": "Current campaign",
+    "KPI_FACTURE": "Amount billed",
+    "KPI_ENCAISSE": "Collected",
+    "KPI_IMPAYES": "Active unpaid",
+    "DES_RELEVES": "of readings",
+    "NO_CAMPAGNE": "No campaign in progress",
+    "CONSO_TOTALE": "Total consumption",
+    "RECOUVRE": "collected",
+    "FACTURES_IMPAYEES": "unpaid invoices",
+    "RECENT_CAMPAGNES": "Recent campaigns",
+    "STATS_UNAVAILABLE": "Statistics temporarily unavailable (Reporting service).",
+    "INDISPONIBLE": "Unavailable",
+    "RELEVES_EN_COURS": "Readings in progress",
+    "ABONNES_RELEVES": "subscribers read",
+    "KPI_NON_RELEVES": "Not read",
+    "ABONNES_RESTANTS": "subscribers remaining",
+    "ACTIVITE_TITLE": "Recent activity",
+    "ACT_PAIEMENT": "Payment of {{ montant }} FCFA",
+    "NO_ACTIVITE": "No recent activity"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -731,6 +752,7 @@
       "MOBILE_MONEY": "Mobile Money payment",
       "ERROR_LOAD": "Failed to load invoice",
       "CORRIGER_STATUT_TITLE": "Correct status",
+      "CORRIGER_STATUT_DESC": "Manually adjust the invoice status. Use with caution: this records no payment.",
       "STATUT_PLACEHOLDER": "Choose a status…",
       "BTN_CORRIGER_STATUT": "Apply",
       "STATUT_INCOHERENT": "Status inconsistent with the remaining balance ({{solde}} FCFA). The only consistent status is “{{statut}}”."

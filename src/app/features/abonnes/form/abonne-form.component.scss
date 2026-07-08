@@ -81,27 +81,6 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  animation: af-pulse 1.4s ease infinite;
-}
-
-@keyframes af-pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
-}
-
-.af-skeleton__title {
-  height: 28px;
-  width: 240px;
-  background: #e2e8f0;
-  border-radius: 6px;
-}
-
-.af-skeleton__section {
-  height: 140px;
-  background: #e2e8f0;
-  border-radius: 12px;
-
-  &--short { height: 90px; }
 }
 
 // ── Bannière erreur de chargement ─────────────────────────────────────────────

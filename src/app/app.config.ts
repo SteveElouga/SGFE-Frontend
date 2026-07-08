@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  Injector,
   inject,
   isDevMode,
   provideAppInitializer,
@@ -15,7 +16,12 @@ import { providePrimeNG } from 'primeng/config';
 
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
-import { apolloProviders } from './core/graphql/apollo.config';
+import { apolloProviders, apolloCache } from './core/graphql/apollo.config';
+import {
+  restorePersistedCache,
+  setupCachePersistence,
+  setupLogoutPurge,
+} from './core/graphql/apollo-persistence';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { AquaBillPreset } from './core/theme/aquabill-preset';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -29,6 +35,16 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([jwtInterceptor])),
     ...apolloProviders,
     MessageService,
+    // Restaure le cache Apollo persistant (données offline), le sauvegarde quand
+    // l'utilisateur quitte l'app, et le purge à la déconnexion. Synchrone → la
+    // restauration est terminée avant que le refresh/les queries ne s'exécutent.
+    provideAppInitializer(() => {
+      const injector = inject(Injector);
+      const auth = inject(AuthService);
+      restorePersistedCache(apolloCache);
+      setupCachePersistence(apolloCache);
+      setupLogoutPurge(auth, injector);
+    }),
     // Silently restore the session from the refresh_token cookie on app
     // boot — the access token only ever lives in memory, so it's lost on
     // every page reload. Failure here just means "not logged in", not an

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -20,8 +20,10 @@ import {
   Campagne,
   CampagneAgent,
   StatutCampagne,
+  campagneStatutTone,
   formatPeriodeCampagne,
 } from '../../../shared/models/campagne.model';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
@@ -39,7 +41,6 @@ interface MiniProgression {
   imports: [
     RouterLink,
     DatePipe,
-    LowerCasePipe,
     FormsModule,
     SelectModule,
     ErrorBannerComponent,
@@ -48,12 +49,16 @@ interface MiniProgression {
     DataTableComponent,
     DataTableCellDirective,
     TranslatePipe,
+    BadgeComponent,
   ],
   templateUrl: './campagnes-list.component.html',
   styleUrl: './campagnes-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampagnesListComponent implements OnInit {
+  /** Exposé au template pour la teinte de la puce de statut. */
+  protected readonly campagneStatutTone = campagneStatutTone;
+
   private readonly service = inject(CampagnesService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);

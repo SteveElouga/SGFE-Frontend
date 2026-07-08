@@ -1,36 +1,46 @@
 import {
   Directive,
   ElementRef,
-  HostListener,
   OnDestroy,
   Renderer2,
+  inject,
   input,
 } from '@angular/core';
 
+/**
+ * Tooltip léger rendu en `position: fixed` sur `document.body` — il échappe
+ * ainsi à l'`overflow`/`z-index` des conteneurs (tableaux, cartes). Apparaît
+ * après un délai de survol, se masque au départ, au clic ou à la destruction.
+ *
+ * ```html
+ * <button [appTooltip]="'ABONNES.TOOLTIP' | translate" tooltipPosition="bottom">…</button>
+ * ```
+ */
 @Directive({
   selector: '[appTooltip]',
-  standalone: true,
+  host: {
+    '(mouseenter)': 'onMouseEnter()',
+    '(mouseleave)': 'onHide()',
+    '(click)': 'onHide()',
+  },
 })
 export class TooltipDirective implements OnDestroy {
+  /** Texte affiché (déjà traduit). Une valeur vide désactive le tooltip. */
   readonly appTooltip = input.required<string>();
+  /** Position du panneau relativement à l'élément hôte. */
   readonly tooltipPosition = input<'top' | 'bottom' | 'left' | 'right'>('top');
+
+  private readonly el: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly renderer = inject(Renderer2);
 
   private panel: HTMLElement | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
 
-  constructor(
-    private readonly el: ElementRef<HTMLElement>,
-    private readonly renderer: Renderer2,
-  ) {}
-
-  @HostListener('mouseenter')
   onMouseEnter(): void {
     if (!this.appTooltip()) return;
     this.showTimer = setTimeout(() => this.show(), 300);
   }
 
-  @HostListener('mouseleave')
-  @HostListener('click')
   onHide(): void {
     if (this.showTimer) {
       clearTimeout(this.showTimer);

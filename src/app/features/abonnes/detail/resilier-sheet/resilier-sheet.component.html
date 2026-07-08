@@ -1,0 +1,71 @@
+<!-- ══ Résiliation — bottom sheet mobile / dialog desktop (31 · MC-05) ══ -->
+<app-bottom-sheet [open]="open()" (close)="close.emit()">
+  <div class="resil-body">
+
+    <!-- En-tête personnalisé -->
+    <div class="resil-header">
+      <div class="resil-header__icon" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+            stroke="#dc2626" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M12 9v4M12 17h.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="resil-header__title">{{ title() }}</h3>
+        <p class="resil-header__desc">{{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <table class="resil-summary">
+      <tbody>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_STATUT_LABEL' | translate }}</th>
+          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_LABEL' | translate : { num: compteurNumDisplay() } }}</th>
+          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="resil-summary__row">
+          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_LABEL' | translate }}</th>
+          <td class="resil-summary__val resil-summary__val--kept">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Note informative -->
+    <div class="resil-info">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="5.8" stroke="#64748b" stroke-width="1.2"/>
+        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      {{ 'ABONNES.DETAIL.RESIL_INFO' | translate }}
+    </div>
+
+    <!-- Checkbox de confirmation -->
+    <label class="resil-checkbox">
+      <input type="checkbox"
+        [ngModel]="confirme()"
+        (ngModelChange)="confirme.set($event)"
+        name="resilierConfirme"
+      />
+      <span>{{ 'ABONNES.DETAIL.RESIL_CHECKBOX' | translate }}</span>
+    </label>
+
+    <!-- Actions -->
+    <div class="resil-footer">
+      <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--danger" (click)="confirm()" [disabled]="loading() || !confirme()">
+        @if (loading()) {
+          {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.RESILIER_DEFINITIF' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

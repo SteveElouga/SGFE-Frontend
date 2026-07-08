@@ -20,12 +20,19 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { Tarif } from '../../../shared/models/facture.model';
 import {
+  AgentAffecte,
   Campagne,
   Progression,
   Releve,
+  ResumeCloture,
+  ZoneRepartition,
+  campagneStatutTone,
   formatPeriodeCampagne,
+  releveStatutTone,
 } from '../../../shared/models/campagne.model';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
@@ -42,12 +49,22 @@ import { ToastService } from '../../../shared/services/toast.service';
     ErrorBannerComponent,
     AgentsSheetComponent,
     TranslatePipe,
+    BadgeComponent,
+    SkeletonComponent,
   ],
   templateUrl: './campagne-detail.component.html',
   styleUrl: './campagne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    // Fermeture au clavier de la modale de clôture (équivalent du clic sur le fond).
+    '(document:keydown.escape)': 'onEscape()',
+  },
 })
 export class CampagneDetailComponent implements OnInit {
+  /** Exposés au template pour la teinte des puces de statut. */
+  protected readonly campagneStatutTone = campagneStatutTone;
+  protected readonly releveStatutTone = releveStatutTone;
+
   private readonly service = inject(CampagnesService);
   private readonly abonnesService = inject(AbonnesService);
   private readonly facturesService = inject(FacturesService);
@@ -59,11 +76,11 @@ export class CampagneDetailComponent implements OnInit {
   readonly campagneId: string;
   private campagneQuery!: QueryRef<{ campagne: Campagne }>;
 
-  // ── Affectation d'agents (MC-03) ─────────────────────────────────────────
+  // ── Agents affectés & répartition (queries backend dédiées) ──────────────
   readonly showAgentsSheet = signal(false);
-  readonly assignedUsernames = computed(
-    () => this.campagne()?.agents?.map((a) => a.username) ?? [],
-  );
+  readonly agentsData = signal<AgentAffecte[]>([]);
+  readonly repartData = signal<ZoneRepartition[]>([]);
+  readonly assignedUsernames = computed(() => this.agentsData().map((a) => a.username));
 
   openAgentsSheet(): void {
     this.showAgentsSheet.set(true);
@@ -85,13 +102,38 @@ export class CampagneDetailComponent implements OnInit {
   readonly clotureModalVisible = signal(false);
   readonly clotureConfirme = signal(false);
   readonly tarifActuel = signal<Tarif | null>(null);
+  /** Ventilation autoritative chargée à l'ouverture de la modale (null → repli heuristique). */
+  readonly resumeCloture = signal<ResumeCloture | null>(null);
 
-  readonly facturesAGenerer = computed(() => {
-    const s = this.relevesByStatut();
-    return s.releve + s.estime;
+  /**
+   * Compteurs de la modale de clôture : privilégie `resumeCloture` (backend
+   * autoritatif, écran 18) et retombe sur l'agrégat client `relevesByStatut`
+   * si absent (non chargé ou rôle sans accès).
+   */
+  readonly clotureStats = computed(() => {
+    const r = this.resumeCloture();
+    if (r) {
+      return {
+        releve: r.nbReleves,
+        estime: r.nbEstimes,
+        nonReleve: r.nbNonReleves,
+        aRelever: r.nbRestants,
+        facturesAGenerer: r.nbFacturesAGenerer,
+      };
+    }
+    const h = this.relevesByStatut();
+    return {
+      releve: h.releve,
+      estime: h.estime,
+      nonReleve: h.nonReleve,
+      aRelever: h.aRelever,
+      facturesAGenerer: h.releve + h.estime,
+    };
   });
+
+  readonly facturesAGenerer = computed(() => this.clotureStats().facturesAGenerer);
   readonly sansReleve = computed(() => {
-    const s = this.relevesByStatut();
+    const s = this.clotureStats();
     return s.aRelever + s.nonReleve;
   });
 
@@ -128,30 +170,32 @@ export class CampagneDetailComponent implements OnInit {
   });
 
   readonly agentsLabel = computed(() => {
-    const agents = this.campagne()?.agents;
-    return agents?.length ? agents.map((a) => a.username).join(' · ') : null;
+    const agents = this.agentsData();
+    return agents.length ? agents.map((a) => a.username).join(' · ') : null;
   });
 
-  // Cartes « Agents affectés » (maquette Détail campagne). Alimentées par
-  // `campagne.agents` — VIDE tant que le backend n'expose pas ce champ
-  // (état « en attente » affiché). Voir docs/BESOINS_API_campagne_agents.md.
-  readonly agentsAffectes = computed(() =>
-    (this.campagne()?.agents ?? []).map((a) => {
-      const total = a.nbAbonnesAssignes ?? 0;
+  // Cartes « Agents affectés » — alimentées par la query `agentsCampagne`
+  // (total abonnés par agent dérivé de la répartition par zone).
+  readonly agentsAffectes = computed(() => {
+    const repart = this.repartData();
+    return this.agentsData().map((a) => {
+      const total = repart
+        .filter((z) => z.agentId === a.agentId)
+        .reduce((s, z) => s + (z.nbAbonnes ?? 0), 0);
       const done = a.nbReleves ?? 0;
       return {
-        id: a.id ?? a.username,
+        id: a.agentId,
         username: a.username,
         initials: this.agentInitials(a.username),
-        statut: a.statutTournee ?? null,
-        zones: a.zones ?? [],
+        statut: a.statut,
+        zones: (a.zones ?? []).map((z) => ({ nom: z.quartier, camp: z.camp })),
         nbReleves: done,
         nbAbonnes: total,
         pct: total ? Math.round((done / total) * 100) : 0,
-        syncLe: a.derniereSyncLe ?? null,
+        syncLe: a.derniereActivite,
       };
-    }),
-  );
+    });
+  });
 
   private agentInitials(username: string): string {
     const parts = username.split(/[._\- ]/).filter(Boolean);
@@ -159,18 +203,24 @@ export class CampagneDetailComponent implements OnInit {
     return s.toUpperCase();
   }
 
+  // Statut de tournée : le backend renvoie une chaîne libre → normalisation
+  // tolérante (variantes de casse/format).
   agentStatutClass(statut: string | null): string {
-    switch (statut) {
-      case 'EN_TOURNEE': return 'agent-statut--tournee';
-      case 'ACTIF': return 'agent-statut--actif';
-      case 'EN_RETARD': return 'agent-statut--retard';
-      default: return 'agent-statut--inactif';
-    }
+    const s = (statut ?? '').toUpperCase();
+    if (s.includes('TOURN')) return 'agent-statut--tournee';
+    if (s.includes('RETARD')) return 'agent-statut--retard';
+    if (s.includes('ACTIF') || s.includes('ACTIVE')) return 'agent-statut--actif';
+    return 'agent-statut--inactif';
   }
 
   agentStatutLabel(statut: string | null): string {
-    const key = statut ? `CAMPAGNES.AGENT_STATUT.${statut}` : 'CAMPAGNES.AGENT_STATUT.INACTIF';
-    return this.translate.instant(key);
+    const s = (statut ?? '').toUpperCase();
+    let key: string | null = null;
+    if (s.includes('TOURN')) key = 'EN_TOURNEE';
+    else if (s.includes('RETARD')) key = 'EN_RETARD';
+    else if (s.includes('ACTIF') || s.includes('ACTIVE')) key = 'ACTIF';
+    else if (!s || s.includes('INACTIF')) key = 'INACTIF';
+    return key ? this.translate.instant(`CAMPAGNES.AGENT_STATUT.${key}`) : (statut ?? '');
   }
 
   agentSyncLabel(iso: string | null): string {
@@ -210,32 +260,19 @@ export class CampagneDetailComponent implements OnInit {
     ];
   });
 
-  // Répartition par zone (quartier · camp) — dérivée des relevés réels.
-  // Abonnés = relevés de la zone ; Relevés = statuts RELEVE/ESTIME.
-  // (Colonne « Agent » différée : nécessite la lecture des affectations
-  //  d'agents, non exposée par le backend — cf. docs/BESOINS_API_campagne_agents.md.)
-  readonly repartitionZones = computed(() => {
-    const zoneMap = this.abonneZones();
-    const groups = new Map<
-      string,
-      { key: string; quartier: string; camp: number | null; abonnes: number; releves: number }
-    >();
-    for (const r of this.releves()) {
-      const z = zoneMap.get(r.abonneId);
-      if (!z) continue;
-      const key = `${z.quartier}·${z.camp ?? '—'}`;
-      let g = groups.get(key);
-      if (!g) {
-        g = { key, quartier: z.quartier, camp: z.camp, abonnes: 0, releves: 0 };
-        groups.set(key, g);
-      }
-      g.abonnes++;
-      if (r.statut === 'RELEVE' || r.statut === 'ESTIME') g.releves++;
-    }
-    return [...groups.values()]
-      .map((g) => ({ ...g, pct: g.abonnes ? Math.round((g.releves / g.abonnes) * 100) : 0 }))
-      .sort((a, b) => a.quartier.localeCompare(b.quartier, 'fr') || (a.camp ?? 0) - (b.camp ?? 0));
-  });
+  // Répartition par zone — query backend `repartitionParZone` (inclut l'agent).
+  readonly repartitionZones = computed(() =>
+    this.repartData().map((z) => ({
+      key: `${z.quartier}·${z.camp ?? '—'}·${z.agentId ?? ''}`,
+      quartier: z.quartier,
+      camp: z.camp,
+      agentUsername: z.agentUsername,
+      agentInitials: z.agentUsername ? this.agentInitials(z.agentUsername) : null,
+      abonnes: z.nbAbonnes,
+      releves: z.nbReleves,
+      pct: Math.round(z.pct ?? 0),
+    })),
+  );
 
   readonly relevesFiltres = computed(() => {
     let list = this.releves();
@@ -285,6 +322,7 @@ export class CampagneDetailComponent implements OnInit {
       this.progression.set(progression);
       this.releves.set(releves);
       this.loadAbonnesMap();
+      void this.loadAgents();
       void this.facturesService
         .getTarifActuel()
         .then((t) => this.tarifActuel.set(t))
@@ -295,6 +333,17 @@ export class CampagneDetailComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  // Agents affectés + répartition par zone — non bloquant (la page reste
+  // fonctionnelle si ces queries échouent).
+  private async loadAgents(): Promise<void> {
+    const [agents, repart] = await Promise.allSettled([
+      this.service.getAgentsCampagne(this.campagneId),
+      this.service.getRepartitionZone(this.campagneId),
+    ]);
+    if (agents.status === 'fulfilled') this.agentsData.set(agents.value);
+    if (repart.status === 'fulfilled') this.repartData.set(repart.value);
   }
 
   private loadAbonnesMap(): void {
@@ -319,11 +368,24 @@ export class CampagneDetailComponent implements OnInit {
 
   openClotureModal(): void {
     this.clotureConfirme.set(false);
+    this.resumeCloture.set(null);
     this.clotureModalVisible.set(true);
+    // Ventilation autoritative (non bloquant : la modale reste utilisable via l'heuristique).
+    this.service
+      .getResumeCloture(this.campagneId)
+      .then((r) => this.resumeCloture.set(r))
+      .catch(() => {
+        /* repli sur relevesByStatut */
+      });
   }
 
   closeClotureModal(): void {
     this.clotureModalVisible.set(false);
+  }
+
+  /** Escape ferme la modale de clôture (accessibilité clavier). */
+  onEscape(): void {
+    if (this.clotureModalVisible()) this.closeClotureModal();
   }
 
   async cloturer(): Promise<void> {

@@ -15,6 +15,11 @@ import {
   UPDATE_INFOS_SOCIETE,
 } from '../../graphql/mutations/configuration.mutations';
 
+/**
+ * Accès GraphQL aux paramètres de l'application : informations société, table de
+ * configuration clé/valeur, et actions WhatsApp (test d'envoi, révocation des
+ * tokens d'accès abonnés). Alimente l'écran Configuration. Singleton.
+ */
 @Injectable({ providedIn: 'root' })
 export class ConfigurationService {
   private readonly apollo = inject(Apollo);

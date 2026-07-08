@@ -26,11 +26,6 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-  .page-topbar { padding: 0 14px; }
-  .page-topbar__left { align-items: center; }
-}
-
 .page-topbar__title {
   font-size: 17px;
   font-weight: 700;
@@ -82,4 +77,47 @@
 
   &:hover { opacity: 0.88; }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+// Placé APRÈS les règles de base pour que les surcharges mobiles (margin-left,
+// flex-basis…) gagnent bien à spécificité égale.
+@media (max-width: 768px) {
+  .page-topbar { padding: 0 14px; }
+  .page-topbar__left { align-items: center; }
+}
+
+// Mobile : le sous-titre passe JUSTE SOUS le titre (empilé), tout en gardant le
+// header à 54px (les 2 lignes compactes tiennent dedans, centrées). Les boutons
+// d'ajout se réduisent à leur icône « + » (libellé masqué).
+@media (max-width: 640px) {
+  .page-topbar__left {
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: wrap;          // le sous-titre peut passer à la ligne
+    align-items: baseline;
+    row-gap: 0;
+  }
+  .page-topbar__title {
+    flex-shrink: 0;
+    line-height: 1.15;
+  }
+  // Sous-titre sur sa propre ligne, aligné SOUS le titre (pas de retrait gauche).
+  .page-topbar__subtitle {
+    flex-basis: 100%;
+    margin-left: 0;
+    line-height: 1.15;
+    font-size: 11.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-topbar__right { flex-shrink: 0; gap: 8px; }
+
+  // Bouton d'ajout : icône « + » seule (libellé masqué → carré compact).
+  .page-topbar-action {
+    gap: 0;
+    padding: 9px 11px;
+  }
+  .page-topbar-action__label { display: none; }
 }

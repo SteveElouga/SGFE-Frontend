@@ -19,3 +19,20 @@
     input { width: 100%; }
   }
 }
+
+// Mobile : filtres empilés en pleine largeur (recherche + contrôles projetés).
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .filter-bar__search { min-width: 0; }
+
+  // Contrôles projetés (p-select, boutons…) sur toute la largeur.
+  .filter-bar > * { width: 100%; }
+  .filter-bar p-select,
+  .filter-bar .p-select { width: 100%; }
+}

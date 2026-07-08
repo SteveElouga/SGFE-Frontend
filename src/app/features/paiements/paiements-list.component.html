@@ -89,7 +89,7 @@
       <ng-template appCol="numeroFacture" let-r><span class="col-facture">{{ r.numeroFacture }}</span></ng-template>
 
       <ng-template appCol="montant" let-r>
-        <span class="col-montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ formatFCFA(r.montant) }}</span>
+        <span class="col-montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ r.montant | fcfa }}</span>
       </ng-template>
 
       <ng-template appCol="mode" let-r>
@@ -101,7 +101,7 @@
       <ng-template appCol="operateur" let-r><span class="col-operateur">—</span></ng-template>
 
       <ng-template appCol="statut" let-r>
-        <span class="statut-badge statut-badge--{{ statutClass(r) }}">{{ statutLabel(r) }}</span>
+        <app-badge [tone]="statutTone(r)" [label]="statutLabel(r)" />
       </ng-template>
 
       <ng-template appCardRow let-r>
@@ -111,11 +111,11 @@
               <span class="pcard__abonne">{{ r.abonneNom }}</span>
               <span class="pcard__ref">{{ r.numeroFacture }} · {{ formatDate(r.datePaiement) }}</span>
             </div>
-            <span class="pcard__montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ formatFCFA(r.montant) }}</span>
+            <span class="pcard__montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ r.montant | fcfa }}</span>
           </div>
           <div class="pcard__bottom">
             <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">{{ 'FACTURATION.MODE.' + r.modePaiement | translate }}</span>
-            <span class="statut-badge statut-badge--{{ statutClass(r) }}">{{ statutLabel(r) }}</span>
+            <app-badge [tone]="statutTone(r)" [label]="statutLabel(r)" />
           </div>
         </button>
       </ng-template>

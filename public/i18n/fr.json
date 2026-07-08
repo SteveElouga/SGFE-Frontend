@@ -48,7 +48,8 @@
     "STATUS": "Statut",
     "MIN_2_CHARS": "Minimum 2 caractères",
     "INTEGER_MIN_1": "Entier ≥ 1 requis",
-    "SEE": "Voir"
+    "SEE": "Voir",
+    "ALL": "Tous"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -366,7 +367,27 @@
     "ABONNES_TITLE": "Abonnés",
     "ABONNES_DESC": "Gérer les abonnés et leurs compteurs d'eau",
     "USERS_TITLE": "Utilisateurs",
-    "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs"
+    "USERS_DESC": "Gérer les comptes agents, comptables et administrateurs",
+    "ERROR_LOAD": "Impossible de charger le tableau de bord",
+    "KPI_CAMPAGNE": "Campagne en cours",
+    "KPI_FACTURE": "Montant facturé",
+    "KPI_ENCAISSE": "Encaissé",
+    "KPI_IMPAYES": "Impayés actifs",
+    "DES_RELEVES": "des relevés",
+    "NO_CAMPAGNE": "Aucune campagne en cours",
+    "CONSO_TOTALE": "Conso totale",
+    "RECOUVRE": "recouvré",
+    "FACTURES_IMPAYEES": "factures impayées",
+    "RECENT_CAMPAGNES": "Campagnes récentes",
+    "STATS_UNAVAILABLE": "Statistiques momentanément indisponibles (service Reporting).",
+    "INDISPONIBLE": "Indisponible",
+    "RELEVES_EN_COURS": "Relevés en cours",
+    "ABONNES_RELEVES": "abonnés relevés",
+    "KPI_NON_RELEVES": "Non relevés",
+    "ABONNES_RESTANTS": "abonnés restants",
+    "ACTIVITE_TITLE": "Activité récente",
+    "ACT_PAIEMENT": "Paiement de {{ montant }} FCFA",
+    "NO_ACTIVITE": "Aucune activité récente"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -731,6 +752,7 @@
       "MOBILE_MONEY": "Paiement Mobile Money",
       "ERROR_LOAD": "Impossible de charger la facture",
       "CORRIGER_STATUT_TITLE": "Correction du statut",
+      "CORRIGER_STATUT_DESC": "Ajuste manuellement le statut de la facture. À utiliser avec précaution : cela n’enregistre aucun paiement.",
       "STATUT_PLACEHOLDER": "Choisir un statut…",
       "BTN_CORRIGER_STATUT": "Appliquer",
       "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} »."

@@ -1,0 +1,50 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: block; }
+
+.fchips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px;               // évite que le focus-ring soit rogné
+  @include hide-scrollbar;
+}
+
+.fchips__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;             // pilules non compressées → défilement horizontal
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(&--active) { background: #f8fafc; }
+
+  &:focus-visible {
+    outline: 2px solid rgba($color-primary, 0.5);
+    outline-offset: 1px;
+  }
+
+  &--active {
+    background: #0f1c3d;      // navy foncé (maquette)
+    color: #fff;
+    border-color: #0f1c3d;
+  }
+}
+
+.fchips__count {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.55;
+
+  .fchips__chip--active & { opacity: 0.8; }
+}

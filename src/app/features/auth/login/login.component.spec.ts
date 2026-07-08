@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Apollo } from 'apollo-angular';
+import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 
@@ -16,6 +17,7 @@ describe('LoginComponent', () => {
           { path: '**', redirectTo: 'login' },
         ]),
         { provide: Apollo, useValue: { mutate: mutateSpy } },
+        ...provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
       ],
     });
 
@@ -32,7 +34,7 @@ describe('LoginComponent', () => {
     const { component } = setup();
     expect(component.canSubmit()).toBe(false);
 
-    component.username.set('admin');
+    component.identifier.set('admin');
     expect(component.canSubmit()).toBe(false);
 
     component.password.set('secret');
@@ -41,9 +43,10 @@ describe('LoginComponent', () => {
 
   it('shows a generic error message when login fails', async () => {
     const { component, mutateSpy } = setup();
-    mutateSpy.mockReturnValue(throwError(() => new Error('Identifiants incorrects')));
+    // Message technique → le composant affiche le fallback lisible.
+    mutateSpy.mockReturnValue(throwError(() => new Error('Failed to fetch')));
 
-    component.username.set('admin');
+    component.identifier.set('admin');
     component.password.set('wrong-password');
     await component.onSubmit();
 
@@ -72,7 +75,7 @@ describe('LoginComponent', () => {
       }),
     );
 
-    component.username.set('admin');
+    component.identifier.set('admin');
     component.password.set('correct-password');
     await component.onSubmit();
 

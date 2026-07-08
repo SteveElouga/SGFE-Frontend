@@ -77,11 +77,11 @@
   }
 
   &--off {
-    color: #94a3b8;
+    color: #64748b; // WCAG AA sur #f1f5f9 (#94a3b8 échouait le contraste)
     background: #f1f5f9;
     border-color: #e2e8f0;
 
-    .uedit-status-pill__dot { background: #cbd5e1; }
+    .uedit-status-pill__dot { background: #94a3b8; }
   }
 }
 
@@ -92,6 +92,10 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  // Conteneur de requête : les cartes s'adaptent à LEUR largeur réelle
+  // (et pas seulement au viewport), utile si l'écran est dans un panneau étroit.
+  container-type: inline-size;
+  container-name: uedit;
 }
 
 .uedit-card {
@@ -123,6 +127,20 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: wrap;   // le badge de rôle passe sous le nom si trop étroit
+  }
+
+  // Carte étroite : avatar + infos sur la 1re ligne, bouton « Réinitialiser »
+  // en pleine largeur en dessous (sinon il écrase la colonne infos).
+  @container uedit (max-width: 620px) {
+    flex-wrap: wrap;
+
+    .uedit-identity__info { flex-basis: calc(100% - 62px); } // garde infos larges
+
+    .uedit-btn {
+      flex-basis: 100%;
+      justify-content: center;
+    }
   }
 
   &__name {
@@ -322,6 +340,16 @@
     gap: 12px;
     flex-shrink: 0;
   }
+
+  // Carte étroite : description pleine largeur, action(s) en dessous.
+  @container uedit (max-width: 620px) {
+    flex-wrap: wrap;
+
+    .uedit-row__actions {
+      flex-basis: 100%;
+      .uedit-btn { flex: 1; justify-content: center; }
+    }
+  }
 }
 
 .uedit-shield {
@@ -352,6 +380,18 @@
     display: flex;
     gap: 10px;
     flex-shrink: 0;
+  }
+
+  // Carte étroite : note pleine largeur au-dessus, boutons pleine largeur dessous.
+  @container uedit (max-width: 620px) {
+    flex-wrap: wrap;
+
+    .uedit-footer__note { flex-basis: 100%; }
+
+    .uedit-footer__actions {
+      flex-basis: 100%;
+      .uedit-btn { flex: 1; justify-content: center; }
+    }
   }
 }
 
@@ -499,20 +539,6 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  animation: uedit-pulse 1.4s ease infinite;
-
-  &__card {
-    background: #eef2f7;
-    border-radius: 12px;
-    height: 160px;
-
-    &--sm { height: 78px; }
-  }
-}
-
-@keyframes uedit-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.55; }
 }
 
 .uedit-notfound {

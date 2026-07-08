@@ -19,6 +19,16 @@ const TOOLTIPS: Record<BadgeStatus, string> = {
   INACTIVE: 'Compte désactivé — connexion impossible',
 };
 
+/**
+ * Pastille de statut abonné/utilisateur (`ACTIF`/`SUSPENDU`/`RESILIE` +
+ * `ACTIVE`/`INACTIVE`) : libellé et tooltip explicatif dérivés du statut, teinte
+ * portée par la classe `--{statut}`. Réservé à ces statuts ; les autres domaines
+ * (facture, paiement…) utilisent leurs propres puces.
+ *
+ * ```html
+ * <app-status-badge [status]="abonne.statut" />
+ * ```
+ */
 @Component({
   selector: 'app-status-badge',
   standalone: true,

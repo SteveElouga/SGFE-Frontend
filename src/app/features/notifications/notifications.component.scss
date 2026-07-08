@@ -28,6 +28,15 @@
   &:hover { background: #f8fafc; }
 }
 
+// Mobile : bouton icône seule (✓) pour ne pas encombrer la topbar.
+@media (max-width: 640px) {
+  .mark-all {
+    gap: 0;
+    padding: 0 10px;
+  }
+  .mark-all__label { display: none; }
+}
+
 // ── Filtres (chips) ─────────────────────────────────────────────────────────
 .notif-filters {
   background: #fff;

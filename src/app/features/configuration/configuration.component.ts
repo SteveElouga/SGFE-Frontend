@@ -11,7 +11,6 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ConfigurationService } from '../../core/configuration/configuration.service';
@@ -20,6 +19,8 @@ import { ConfigParam, InfosSociete, TestEnvoiResult } from '../../shared/models/
 import { Tarif } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
+import { BottomSheetComponent } from '../../shared/components/bottom-sheet/bottom-sheet.component';
 import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
@@ -66,9 +67,10 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
     InputTextModule,
     ErrorBannerComponent,
     PageTopbarComponent,
+    SkeletonComponent,
     WhatsappLinkComponent,
     ConfirmDialogModule,
-    DialogModule,
+    BottomSheetComponent,
     TranslatePipe,
   ],
   providers: [ConfirmationService],

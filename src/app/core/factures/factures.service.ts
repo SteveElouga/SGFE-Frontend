@@ -35,6 +35,11 @@ import {
   Tarif,
 } from '../../shared/models/facture.model';
 
+/**
+ * Accès GraphQL au domaine facturation & encaissement : factures (par campagne,
+ * détail, statut), soldes et impayés, paiements, envois WhatsApp, génération des
+ * factures et tarif courant. Singleton (`providedIn: 'root'`).
+ */
 @Injectable({ providedIn: 'root' })
 export class FacturesService {
   private readonly apollo = inject(Apollo);

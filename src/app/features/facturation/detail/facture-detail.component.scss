@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -10,6 +11,9 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  // Conteneur de requête : les cartes s'adaptent à leur largeur réelle.
+  container-type: inline-size;
+  container-name: fdetail;
 }
 
 .detail-loading {
@@ -89,55 +93,33 @@
 
 // ── Statut badges ─────────────────────────────────────────────────────────────
 
-.statut-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border: 1px solid;
-
-  &--payee    { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
-  &--partielle { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--impayee  { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
-}
-
 // ── Buttons ───────────────────────────────────────────────────────────────────
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   gap: 5px;
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
   transition: background 0.15s, opacity 0.15s;
 
-  &:disabled { opacity: 0.45; cursor: not-allowed; }
+  &:disabled { opacity: 0.45; }
 
   &--outline {
-    background: #fff;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    &:hover:not(:disabled) { background: #f8fafc; }
+    @include btn-variant(#fff, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc);
   }
 
   &--dark {
-    background: #0f1c3d;
-    color: #fff;
-    &:hover:not(:disabled) { background: #1a2e5a; }
+    @include btn-variant(#0f1c3d, #fff, $hover-bg: #1a2e5a);
   }
 
   &--primary {
-    background: $color-primary;
-    color: #fff;
-    box-shadow: 0 3px 10px rgba($color-primary, 0.3);
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
+    @include btn-variant(
+      $color-primary, #fff,
+      $shadow: 0 3px 10px rgba($color-primary, 0.3),
+      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+    );
   }
 
   &--full { width: 100%; height: 44px; justify-content: center; font-size: 13px; font-weight: 700; }
@@ -443,13 +425,56 @@
   border-left: 3px solid #f59e0b;
 }
 
+.correction-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  margin-bottom: 14px;
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: #fffbeb;
+    color: #b45309;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  &__text { min-width: 0; }
+}
+
+.correction-desc {
+  margin: 3px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
 .correction-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: wrap;
 
-  .correction-select { min-width: 180px; }
+  .correction-select { flex: 1 1 200px; min-width: 0; }
+}
+
+// Bouton « Appliquer » : hauteur alignée sur le select, ton ambre (action
+// manuelle à confirmer). Ne s'efface plus quand désactivé (garde un contour).
+.correction-apply {
+  height: 42px;
+  padding: 0 18px;
+  flex-shrink: 0;
+}
+
+// Rangée empilée (pleine largeur) quand la carte est étroite.
+@container fdetail (max-width: 520px) {
+  .correction-row { flex-wrap: wrap; }
+  .correction-row .correction-select { flex-basis: 100%; }
+  .correction-apply { width: 100%; justify-content: center; }
 }
 
 .correction-warning {

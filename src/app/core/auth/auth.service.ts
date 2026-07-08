@@ -64,6 +64,14 @@ function extractServerErrorMessage(error: unknown, fallback: string): string {
   return message || fallback;
 }
 
+/**
+ * Source de vérité de la session : détient l'access token (en mémoire
+ * uniquement, perdu au reload) et l'utilisateur courant sous forme de signals,
+ * et expose les opérations d'authentification GraphQL — login, refresh
+ * silencieux, logout, OTP/reset, changement d'email et de mot de passe.
+ * Signals dérivés : `isAuthenticated`, `role`, `isAdmin`/`isAgent`/`isComptable`.
+ * Singleton (`providedIn: 'root'`).
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly _accessToken = signal<string | null>(null);
@@ -128,6 +136,10 @@ export class AuthService {
       const result = await firstValueFrom(
         this.apolloClient.mutate<{ refreshToken: AuthPayload }>({
           mutation: REFRESH_TOKEN,
+          // Best-effort : le refresh silencieux (bootstrap + retry 401) ne doit
+          // jamais faire remonter d'erreur globale. Un cookie périmé/invalide
+          // signifie simplement « pas de session » → on retombe sur le login.
+          context: { silentError: true },
         }),
       );
 

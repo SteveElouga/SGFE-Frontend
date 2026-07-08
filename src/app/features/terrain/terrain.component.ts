@@ -18,6 +18,7 @@ import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
 import { Campagne, Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 
@@ -56,7 +57,7 @@ interface SuccessInfo {
 }
 
 @Component({
-  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent],
+  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent, M07SheetComponent],
   providers: [MessageService],
   templateUrl: './terrain.component.html',
   styleUrl: './terrain.component.scss',
@@ -84,10 +85,8 @@ export class TerrainComponent implements OnInit {
   readonly nouvelIndex = signal('');
   readonly observation = signal('');
 
-  // ── Feuille M-07 : non relevé / estimé ──────────────────────────────────────
+  // ── Feuille M-07 : non relevé / estimé (formulaire délégué à M07SheetComponent) ──
   readonly m07Visible = signal(false);
-  readonly m07Statut = signal<'NON_RELEVE' | 'ESTIME'>('NON_RELEVE');
-  readonly m07Observation = signal('');
 
   // ── Succès (écran 09) ───────────────────────────────────────────────────────
   readonly success = signal<SuccessInfo | null>(null);
@@ -214,8 +213,6 @@ export class TerrainComponent implements OnInit {
     return !!e && !Number.isNaN(idx) && idx >= e.ancienIndex;
   });
 
-  readonly m07Valide = computed(() => this.m07Observation().trim().length > 0);
-
   /** Prochain abonné à relever (hors abonné courant), pour l'écran de succès. */
   readonly prochain = computed((): Entry | null => {
     const currentId = this.success()?.numeroAbonne;
@@ -230,38 +227,20 @@ export class TerrainComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [campagnesRes, abonnesRes] = await Promise.all([
+      // `abonnes` est réservé ADMIN côté backend (ANO-015) : un AGENT authentifié
+      // reçoit PERMISSION_DENIED. On isole cet appel pour qu'un refus ne fasse
+      // pas échouer tout le chargement — l'agent doit voir ses relevés même sans
+      // les noms/quartiers (repli sur l'ID abonné, géré par carteAbonne()).
+      const [campagnesRes, abonnesMap] = await Promise.all([
         firstValueFrom(
           this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
             query: GET_CAMPAGNES,
             fetchPolicy: 'network-only',
           }),
         ),
-        firstValueFrom(
-          this.apollo.query<{
-            abonnes: Array<{
-              id: string;
-              numeroAbonne: string;
-              nom: string;
-              prenom: string;
-              compteur?: { numeroCompteur: number; quartier: string; camp: number } | null;
-            }>;
-          }>({ query: GET_ABONNES, fetchPolicy: 'cache-first' }),
-        ),
+        this.loadAbonnesMap(),
       ]);
-
-      const map = new Map<string, AbonneInfo>();
-      for (const a of abonnesRes.data?.abonnes ?? []) {
-        map.set(a.id, {
-          numeroAbonne: a.numeroAbonne,
-          nom: a.nom,
-          prenom: a.prenom,
-          numeroCompteur: a.compteur?.numeroCompteur ?? null,
-          quartier: a.compteur?.quartier ?? null,
-          camp: a.compteur?.camp ?? null,
-        });
-      }
-      this.abonnesMap.set(map);
+      this.abonnesMap.set(abonnesMap);
 
       const campagnes = campagnesRes.data?.campagnes ?? [];
       const active =
@@ -284,6 +263,37 @@ export class TerrainComponent implements OnInit {
       this.error.set(message || this.translate.instant('TERRAIN.ERROR_LOAD'));
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  private async loadAbonnesMap(): Promise<Map<string, AbonneInfo>> {
+    try {
+      const res = await firstValueFrom(
+        this.apollo.query<{
+          abonnes: Array<{
+            id: string;
+            numeroAbonne: string;
+            nom: string;
+            prenom: string;
+            compteur?: { numeroCompteur: number; quartier: string; camp: number } | null;
+          }>;
+        }>({ query: GET_ABONNES, fetchPolicy: 'cache-first', context: { silentError: true } }),
+      );
+      const map = new Map<string, AbonneInfo>();
+      for (const a of res.data?.abonnes ?? []) {
+        map.set(a.id, {
+          numeroAbonne: a.numeroAbonne,
+          nom: a.nom,
+          prenom: a.prenom,
+          numeroCompteur: a.compteur?.numeroCompteur ?? null,
+          quartier: a.compteur?.quartier ?? null,
+          camp: a.compteur?.camp ?? null,
+        });
+      }
+      return map;
+    } catch {
+      // Rôle sans accès à `abonnes` (AGENT) : la liste reste utilisable, dégradée.
+      return new Map();
     }
   }
 
@@ -359,31 +369,26 @@ export class TerrainComponent implements OnInit {
   // ── Feuille M-07 : non relevé / estimé ──────────────────────────────────────
 
   openM07(): void {
-    this.m07Statut.set('NON_RELEVE');
-    this.m07Observation.set('');
     this.m07Visible.set(true);
-  }
-
-  setM07Statut(statut: 'NON_RELEVE' | 'ESTIME'): void {
-    this.m07Statut.set(statut);
   }
 
   cancelM07(): void {
     this.m07Visible.set(false);
   }
 
-  confirmM07(): void {
+  /** La sheet M-07 a validé un statut « non relevé / estimé » → mise en file + retour liste. */
+  onM07Confirm(result: M07Result): void {
     const e = this.saisieEntry();
     const campagne = this.campagne();
-    if (!e || !campagne || !this.m07Valide()) return;
+    if (!e || !campagne) return;
     this.offline.enqueue({
-      kind: this.m07Statut(),
+      kind: result.statut,
       campagneId: campagne.campagneId,
       abonneId: e.abonneId,
       abonneNom: e.nom,
       nouveauIndex: null,
       consommation: null,
-      observation: this.m07Observation().trim(),
+      observation: result.observation,
     });
     this.toastSaved(e.nom);
     this.m07Visible.set(false);

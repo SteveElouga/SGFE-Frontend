@@ -24,6 +24,11 @@ export interface UpdateUserInput {
   phoneNumber?: string;
 }
 
+/**
+ * Gestion des comptes utilisateurs (écran Utilisateurs, ADMIN) via GraphQL :
+ * liste, création, édition, (dés)activation et réinitialisation de mot de passe.
+ * Singleton (`providedIn: 'root'`).
+ */
 @Injectable({ providedIn: 'root' })
 export class UsersService {
   private readonly apollo = inject(Apollo);

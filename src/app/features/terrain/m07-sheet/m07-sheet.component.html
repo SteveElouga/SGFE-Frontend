@@ -1,0 +1,52 @@
+<!-- ══ Bottom sheet M-07 — marquer non relevé / estimé ══ -->
+@if (open()) {
+  <div class="sheet-overlay" (click)="cancel.emit()">
+    <div class="sheet" (click)="$event.stopPropagation()">
+      <div class="sheet__grip"></div>
+      <div class="sheet__title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
+      <div class="sheet__sub sheet__sub--mb">{{ 'TERRAIN.M07_SUB' | translate }}</div>
+
+      <div class="m07-options">
+        <button type="button" class="m07-opt m07-opt--danger" [class.m07-opt--selected]="statut() === 'NON_RELEVE'" (click)="setStatut('NON_RELEVE')">
+          <span class="m07-opt__radio"></span>
+          <span class="m07-opt__body">
+            <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
+            <span class="m07-opt__hint">{{ 'TERRAIN.NON_RELEVE_HINT' | translate }}</span>
+          </span>
+          <span class="m07-opt__emoji">🚪</span>
+        </button>
+        <button type="button" class="m07-opt" [class.m07-opt--selected]="statut() === 'ESTIME'" (click)="setStatut('ESTIME')">
+          <span class="m07-opt__radio"></span>
+          <span class="m07-opt__body">
+            <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
+            <span class="m07-opt__hint">{{ 'TERRAIN.ESTIME_HINT' | translate }}</span>
+          </span>
+          <span class="m07-opt__emoji">📈</span>
+        </button>
+      </div>
+
+      <div class="obs-head">
+        <span>{{ 'TERRAIN.OBSERVATION' | translate }} <span class="req">*</span></span>
+        <span class="obs-count">{{ observation().length }} / 200</span>
+      </div>
+      <textarea
+        class="obs-input"
+        [class.obs-input--error]="!valide()"
+        rows="2"
+        maxlength="200"
+        [attr.aria-label]="'TERRAIN.OBSERVATION' | translate"
+        [ngModel]="observation()"
+        (ngModelChange)="observation.set($event)"
+      ></textarea>
+      <div class="obs-warn">
+        <i class="pi pi-exclamation-circle"></i>
+        {{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}
+      </div>
+
+      <button class="btn-danger" [disabled]="!valide()" (click)="onConfirm()">
+        {{ (statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
+      </button>
+      <button class="btn-ghost" (click)="cancel.emit()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>
+    </div>
+  </div>
+}

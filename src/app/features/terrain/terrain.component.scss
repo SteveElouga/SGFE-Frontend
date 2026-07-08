@@ -105,6 +105,7 @@
   padding: 12px 16px;
   overflow-x: auto;
   border-bottom: 1px solid #f1f5f9;
+  @include hide-scrollbar;
 }
 
 .chip {
@@ -294,81 +295,10 @@
   &__sub { font-size: 11px; color: #64748b; }
 }
 
-// ── Bottom sheet M-07 ─────────────────────────────────────────────────────────
-
-.sheet-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  z-index: 110;
-}
-
-.sheet {
-  width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 24px 24px 0 0;
-  padding: 10px 20px 22px;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
-
-  &__grip { width: 40px; height: 4px; background: #e2e8f0; border-radius: 2px; margin: 0 auto 14px; }
-  &__title { font-size: 17px; font-weight: 700; color: #0f172a; }
-  &__sub { font-size: 11px; color: #64748b; margin-top: 1px; &--mb { margin-bottom: 14px; } }
-}
-
-.m07-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-
-.m07-opt {
-  width: 100%;
-  text-align: left;
-  border: 1.5px solid #e2e8f0;
-  background: #fff;
-  border-radius: 12px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  cursor: pointer;
-
-  &__radio { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid #cbd5e1; background: #fff; flex-shrink: 0; }
-  &__body { flex: 1; min-width: 0; }
-  &__label { display: block; font-size: 13px; font-weight: 600; color: #0f172a; }
-  &__hint { display: block; font-size: 10px; color: #94a3b8; margin-top: 1px; }
-  &__emoji { font-size: 16px; }
-
-  &--selected { border-color: $color-primary; box-shadow: 0 0 0 3px rgba($color-primary, 0.1); .m07-opt__radio { border: 5px solid $color-primary; } }
-  &--danger.m07-opt--selected {
-    border-color: #ef4444;
-    background: #fef2f2;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-    .m07-opt__label { color: #dc2626; }
-    .m07-opt__radio { border-color: #ef4444; }
-  }
-}
-
-.obs-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 5px;
-
-  .req { color: #dc2626; }
-  .obs-count { font-size: 10px; font-weight: 400; color: #94a3b8; }
-}
-
-.obs-warn { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 500; color: #dc2626; margin: 6px 0 16px; }
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn-primary,
-.btn-danger,
 .btn-danger-outline,
 .btn-success,
 .btn-ghost {
@@ -386,17 +316,6 @@
   font-size: 14px;
   font-weight: 700;
   box-shadow: 0 4px 14px rgba($color-primary, 0.4);
-  &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
-}
-
-.btn-danger {
-  height: 48px;
-  background: #dc2626;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
-  margin-bottom: 8px;
   &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 }
 

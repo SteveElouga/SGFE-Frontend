@@ -21,14 +21,14 @@
   <!-- État chargement -->
   @if (loading()) {
     <div class="abonne-skeleton">
-      <div class="abonne-skeleton__header"></div>
+      <app-skeleton height="94px" radius="12px" />
       <div class="abonne-skeleton__kpis">
-        <div class="abonne-skeleton__kpi"></div>
-        <div class="abonne-skeleton__kpi"></div>
-        <div class="abonne-skeleton__kpi"></div>
-        <div class="abonne-skeleton__kpi"></div>
+        <app-skeleton height="80px" radius="10px" />
+        <app-skeleton height="80px" radius="10px" />
+        <app-skeleton height="80px" radius="10px" />
+        <app-skeleton height="80px" radius="10px" />
       </div>
-      <div class="abonne-skeleton__body"></div>
+      <app-skeleton height="260px" radius="12px" />
     </div>
   }
 
@@ -107,7 +107,7 @@
         <div class="abonne-kpi__value">{{ nbFactures() }}</div>
         <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_FACTURES_SINCE' | translate }}</div>
       </div>
-      <div class="abonne-kpi" [ngClass]="soldeKpiClass()"
+      <div class="abonne-kpi" [class]="soldeKpiClass()"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SOLDE' | translate">
         <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SOLDE' | translate }}</div>
         <div class="abonne-kpi__value abonne-kpi__value--solde">{{ soldeFormate() }}</div>
@@ -370,9 +370,9 @@
           <!-- Skeleton chargement -->
           @if (historiqueLoading()) {
             <div class="hist-skeleton">
-              <div class="hist-skeleton__card"></div>
-              <div class="hist-skeleton__entry"></div>
-              <div class="hist-skeleton__entry"></div>
+              <app-skeleton height="110px" radius="10px" />
+              <app-skeleton height="80px" radius="8px" />
+              <app-skeleton height="80px" radius="8px" />
             </div>
           }
 
@@ -466,277 +466,25 @@
   }
 </div>
 
-<!-- ══ Modal Réactivation ══ -->
-<p-dialog
-  [visible]="reactiverDialogVisible()"
-  (visibleChange)="reactiverDialogVisible.set($event)"
-  [modal]="true"
-  [showHeader]="false"
-  [style]="{ width: '460px' }"
-  [draggable]="false"
-  [closable]="false"
-  styleClass="reactiv-dialog"
->
-  <div class="reactiv-body">
+<!-- ══ Réactivation / Résiliation — bottom sheets extraites ══ -->
+<app-reactiver-sheet
+  [open]="reactiverDialogVisible()"
+  [abonne]="abonne()"
+  (close)="reactiverDialogVisible.set(false)"
+  (saved)="onReactived($event)"
+/>
 
-    <!-- En-tête -->
-    <div class="reactiv-header">
-      <div class="reactiv-header__icon" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        <h3 class="reactiv-header__title">{{ reactiverTitle() }}</h3>
-        <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
-      </div>
-    </div>
+<app-resilier-sheet
+  [open]="resilierDialogVisible()"
+  [abonne]="abonne()"
+  (close)="resilierDialogVisible.set(false)"
+  (saved)="onResilied($event)"
+/>
 
-    <!-- Tableau récapitulatif -->
-    <table class="reactiv-summary">
-      <tbody>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_STATUT_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_STATUT_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val reactiv-summary__val--muted">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_VALUE' | translate }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Actions -->
-    <div class="reactiv-footer">
-      <button class="dialog-btn dialog-btn--ghost"
-        (click)="reactiverDialogVisible.set(false)"
-        [disabled]="statutLoading()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button class="dialog-btn dialog-btn--success"
-        (click)="doReactiver()"
-        [disabled]="statutLoading()">
-        @if (statutLoading()) {
-          {{ 'ABONNES.DETAIL.REACTIVER_LOADING' | translate }}
-        } @else {
-          {{ 'ABONNES.DETAIL.REACTIVER_BTN' | translate }}
-        }
-      </button>
-    </div>
-  </div>
-</p-dialog>
-
-<!-- ══ Modal Résiliation ══ -->
-<p-dialog
-  [visible]="resilierDialogVisible()"
-  (visibleChange)="resilierDialogVisible.set($event)"
-  [modal]="true"
-  [showHeader]="false"
-  [style]="{ width: '470px' }"
-  [draggable]="false"
-  [closable]="false"
-  styleClass="resil-dialog"
->
-  <div class="resil-body">
-
-    <!-- En-tête personnalisé -->
-    <div class="resil-header">
-      <div class="resil-header__icon" aria-hidden="true">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-            stroke="#dc2626" stroke-width="1.6" stroke-linejoin="round"/>
-          <path d="M12 9v4M12 17h.01" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div>
-        <h3 class="resil-header__title">{{ resilierTitle() }}</h3>
-        <p class="resil-header__desc">{{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}</p>
-      </div>
-    </div>
-
-    <!-- Tableau récapitulatif -->
-    <table class="resil-summary">
-      <tbody>
-        <tr class="resil-summary__row">
-          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_STATUT_LABEL' | translate }}</th>
-          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_STATUT_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="resil-summary__row">
-          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_LABEL' | translate : { num: compteurNumDisplay() } }}</th>
-          <td class="resil-summary__val">{{ 'ABONNES.DETAIL.RESIL_COMPTEUR_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="resil-summary__row">
-          <th scope="row" class="resil-summary__key">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_LABEL' | translate }}</th>
-          <td class="resil-summary__val resil-summary__val--kept">{{ 'ABONNES.DETAIL.RESIL_HISTORIQUE_VALUE' | translate }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <!-- Note informative -->
-    <div class="resil-info">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-        <circle cx="6.5" cy="6.5" r="5.8" stroke="#64748b" stroke-width="1.2"/>
-        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>
-      {{ 'ABONNES.DETAIL.RESIL_INFO' | translate }}
-    </div>
-
-    <!-- Checkbox de confirmation -->
-    <label class="resil-checkbox">
-      <input type="checkbox"
-        [ngModel]="resilierConfirme()"
-        (ngModelChange)="resilierConfirme.set($event)"
-        name="resilierConfirme"
-      />
-      <span>{{ 'ABONNES.DETAIL.RESIL_CHECKBOX' | translate }}</span>
-    </label>
-
-    <!-- Actions -->
-    <div class="resil-footer">
-      <button class="dialog-btn dialog-btn--ghost"
-        (click)="resilierDialogVisible.set(false)"
-        [disabled]="statutLoading()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button class="dialog-btn dialog-btn--danger"
-        (click)="resilier()"
-        [disabled]="statutLoading() || !resilierConfirme()">
-        @if (statutLoading()) {
-          {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }}
-        } @else {
-          {{ 'ABONNES.DETAIL.RESILIER_DEFINITIF' | translate }}
-        }
-      </button>
-    </div>
-  </div>
-</p-dialog>
-
-<!-- ══ Modal Remplacer compteur ══ -->
-<p-dialog
-  [visible]="remplacerVisible()"
-  (visibleChange)="remplacerVisible.set($event)"
-  [modal]="true"
-  [showHeader]="false"
-  [style]="{ width: '540px' }"
-  [draggable]="false"
-  [closable]="false"
-  styleClass="meter-dialog"
->
-  <div class="meter-body">
-
-    <!-- En-tête -->
-    <div class="meter-header">
-      <div class="meter-header__icon" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M3 11h16M11 3l8 8-8 8" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        <h3 class="meter-header__title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
-        @if (abonne(); as a) {
-          <p class="meter-header__sub">
-            {{ a.prenom }} {{ a.nom }} · {{ a.numeroAbonne }}@if (a.compteur) { · {{ a.compteur.quartier }}, Camp {{ a.compteur.camp }} }
-          </p>
-        }
-      </div>
-    </div>
-
-    <!-- Ancien compteur -->
-    @if (abonne()?.compteur) {
-      @let oldMeter = abonne()!.compteur!;
-      <div class="meter-old-card">
-        <div class="meter-old-card__tag">{{ 'ABONNES.DETAIL.METER_OLD_TAG' | translate }}</div>
-        <div class="meter-old-card__rows">
-          <div class="meter-old-card__row">
-            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.NUM_COMPTEUR' | translate }}</span>
-            <span class="meter-old-card__val meter-old-card__val--mono">{{ oldMeter.numeroCompteur | compteur }}</span>
-          </div>
-          <div class="meter-old-card__row">
-            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
-            <span class="meter-old-card__val">
-              {{ 'ABONNES.DETAIL.METER_OLD_POSE' | translate }}
-              {{ oldMeter.datePose ? (oldMeter.datePose | date:'dd/MM/yyyy') : '—' }}
-            </span>
-          </div>
-          <div class="meter-old-card__row">
-            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.METER_OLD_IDX_LABEL' | translate }}</span>
-            <span class="meter-old-card__val meter-old-card__val--mono">
-              @if (remplacerDernierIndexLoading()) {
-                <span class="meter-old-card__loading">…</span>
-              } @else {
-                {{ remplacerDernierIndexDisplay() }}
-              }
-            </span>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Flèche séparatrice -->
-    <div class="meter-arrow" aria-hidden="true">
-      <div class="meter-arrow__circle">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 3v10M4 9l4 4 4-4" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Nouveau compteur -->
-    <div class="meter-new-card">
-      <div class="meter-new-card__title">{{ 'ABONNES.DETAIL.METER_NEW_TITLE' | translate }}</div>
-      <div class="edit-grid-2">
-        <div class="edit-field">
-          <label class="edit-label" for="newNumero">{{ 'ABONNES.DETAIL.NEW_METER_NUMBER' | translate }}</label>
-          <input pInputText id="newNumero" type="number" min="1"
-            [ngModel]="newNumeroCompteur()" (ngModelChange)="newNumeroCompteur.set($event)" name="newNumero"
-            placeholder="ex. 2001" />
-        </div>
-        <div class="edit-field">
-          <label class="edit-label" for="newIndex">{{ 'ABONNES.DETAIL.INDEX_INITIAL_M3' | translate }}</label>
-          <input pInputText id="newIndex" type="number" min="0" step="0.001"
-            [ngModel]="newIndexInitial()" (ngModelChange)="newIndexInitial.set($event)" name="newIndex"
-            placeholder="0.000" />
-        </div>
-        <div class="edit-field">
-          <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
-          <input pInputText id="newDatePose" type="date"
-            [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" name="newDatePose" />
-        </div>
-      </div>
-
-      <!-- Localisation reprise (lecture seule) -->
-      @if (newQuartier() || newCamp()) {
-        <p class="meter-location-reprise">
-          {{ 'ABONNES.DETAIL.METER_LOCATION_REPRISE' | translate : { quartier: newQuartier(), camp: newCamp() } }}
-        </p>
-      }
-    </div>
-
-    <!-- Note informative bleue -->
-    <div class="meter-info-note">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
-        <circle cx="6.5" cy="6.5" r="5.8" stroke="#1a56db" stroke-width="1.2"/>
-        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#1a56db" stroke-width="1.2" stroke-linecap="round"/>
-      </svg>
-      {{ 'ABONNES.DETAIL.METER_INFO_NOTE' | translate }}
-    </div>
-
-    <!-- Actions -->
-    <div class="meter-footer">
-      <button class="dialog-btn dialog-btn--ghost" (click)="remplacerVisible.set(false)" [disabled]="remplacerLoading()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button class="dialog-btn dialog-btn--primary" (click)="saveRemplacer()" [disabled]="remplacerLoading()">
-        @if (remplacerLoading()) {
-          {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }}
-        } @else {
-          {{ 'ABONNES.DETAIL.METER_CONFIRMER' | translate }}
-        }
-      </button>
-    </div>
-  </div>
-</p-dialog>
+<!-- ══ Remplacer compteur — bottom sheet extraite (écran 19) ══ -->
+<app-remplacer-compteur-sheet
+  [open]="remplacerVisible()"
+  [abonne]="abonne()"
+  (close)="remplacerVisible.set(false)"
+  (saved)="onCompteurRemplace($event)"
+/>

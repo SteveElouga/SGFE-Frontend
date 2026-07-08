@@ -1,0 +1,42 @@
+// Mixins partagés pour les classes `.btn` / `.dialog-btn` de l'app.
+//
+// Chaque écran garde SES valeurs (hauteur, padding, couleurs) — ces mixins ne
+// factorisent que la mécanique répétée (structure de base, motif hover/disabled),
+// pour éliminer la duplication de code sans changer le rendu visuel existant.
+
+// Chrome commun à tous les boutons `.btn`/`.dialog-btn` de l'app.
+@mixin btn-reset {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+
+  &:disabled { cursor: not-allowed; }
+}
+
+// Variante colorée : fond + texte + bordure optionnelle + états hover.
+// `$bg`/`$hover-bg` acceptent aussi bien une couleur qu'un gradient.
+@mixin btn-variant(
+  $bg,
+  $color,
+  $border: none,
+  $hover-bg: null,
+  $hover-color: null,
+  $hover-opacity: null,
+  $hover-border: null,
+  $shadow: null
+) {
+  background: $bg;
+  color: $color;
+  border: $border;
+  @if $shadow { box-shadow: $shadow; }
+
+  @if $hover-bg or $hover-color or $hover-opacity or $hover-border {
+    &:hover:not(:disabled) {
+      @if $hover-bg { background: $hover-bg; }
+      @if $hover-color { color: $hover-color; }
+      @if $hover-opacity { opacity: $hover-opacity; }
+      @if $hover-border { border-color: $hover-border; }
+    }
+  }
+}

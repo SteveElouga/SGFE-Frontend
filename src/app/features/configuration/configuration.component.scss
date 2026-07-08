@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../styles/variables' as *;
+@use '../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -28,20 +29,6 @@
   gap: 12px;
 }
 
-.skeleton-block {
-  background: #e2e8f0;
-  border-radius: 6px;
-  animation: shimmer 1.5s infinite ease-in-out;
-
-  &--title { height: 18px; width: 35%; }
-  &--field { height: 38px; width: 100%; }
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.4; }
-}
-
 // ── Onglets + sauvegarde globale ──────────────────────────────────────────────
 
 .config-tabs {
@@ -61,6 +48,7 @@
   flex: 1;
   min-width: 0;
   overflow-x: auto;
+  @include hide-scrollbar;
 }
 
 .config-tabs__tab {
@@ -87,6 +75,17 @@
 .config-save {
   margin: 7px 0 7px auto;
   box-shadow: 0 3px 10px rgba($color-primary, 0.3);
+}
+
+// Mobile : la nav d'onglets occupe toute la 1re ligne (scroll horizontal) ; le
+// bouton passe en pleine largeur sous les onglets plutôt que flottant à droite.
+@media (max-width: 640px) {
+  .config-tabs__nav { flex-basis: 100%; }
+  .config-save {
+    width: 100%;
+    margin: 0 0 10px;
+    justify-content: center;
+  }
 }
 
 // ── Grille de cartes ──────────────────────────────────────────────────────────
@@ -312,8 +311,10 @@
 
 .tarif-modal__actions {
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column-reverse; // primaire au-dessus, Annuler dessous (MC-04)
   gap: 10px;
+
+  .btn { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 520px) {
@@ -553,8 +554,7 @@
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   justify-content: center;
   gap: 6px;
   height: 36px;
@@ -562,39 +562,26 @@
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
   transition: background 0.15s, opacity 0.15s;
 
   &--sm { height: 30px; padding: 0 12px; font-size: 11px; font-weight: 500; }
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled { opacity: 0.5; }
 
   &--primary {
-    background: $color-primary;
-    color: #fff;
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
+    @include btn-variant($color-primary, #fff, $hover-bg: color.adjust($color-primary, $lightness: -8%));
   }
 
   &--ghost {
-    background: #fff;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    &:hover:not(:disabled) { background: #f8fafc; }
+    @include btn-variant(#fff, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc);
   }
 
   &--dark-outline {
-    background: #fff;
-    color: #0f1c3d;
-    border: 1.5px solid #0f1c3d;
-    &:hover:not(:disabled) { background: #0f1c3d; color: #fff; }
+    @include btn-variant(#fff, #0f1c3d, $border: 1.5px solid #0f1c3d, $hover-bg: #0f1c3d, $hover-color: #fff);
   }
 
   &--danger-outline {
-    background: #fff;
-    color: #dc2626;
-    border: 1px solid #dc2626;
-    &:hover:not(:disabled) { background: #dc2626; color: #fff; }
+    @include btn-variant(#fff, #dc2626, $border: 1px solid #dc2626, $hover-bg: #dc2626, $hover-color: #fff);
   }
 }
 
