@@ -39,17 +39,13 @@
         </div>
       </div>
 
-      <!-- Email — modifiable -->
+      <!-- Email — non modifiable (pas d'API de mise à jour self-service) -->
       <div class="profil-field">
-        <label class="profil-field__label" for="profil-email">{{ 'PROFIL.EMAIL' | translate }}</label>
-        <input
-          id="profil-email"
-          type="email"
-          class="profil-field__input"
-          [ngModel]="email()"
-          (ngModelChange)="email.set($event)"
-          [placeholder]="'PROFIL.EMAIL_PLACEHOLDER' | translate"
-        />
+        <label class="profil-field__label">{{ 'PROFIL.EMAIL' | translate }}</label>
+        <div class="profil-field__readonly">
+          <span>{{ user()?.email || ('PROFIL.NO_EMAIL' | translate) }}</span>
+          <span class="profil-field__badge">{{ 'PROFIL.NOT_EDITABLE' | translate }}</span>
+        </div>
       </div>
 
       <!-- Rôle — non modifiable -->
@@ -63,25 +59,9 @@
         </div>
       </div>
     </div>
-
-    <div class="profil-section__footer">
-      <button
-        class="btn btn--primary"
-        [disabled]="!emailDirty() || emailSaving()"
-        (click)="saveEmail()"
-      >
-        @if (emailSaving()) {
-          <i class="pi pi-spin pi-spinner"></i>
-          {{ 'COMMON.LOADING' | translate }}
-        } @else {
-          <i class="pi pi-check"></i>
-          {{ 'COMMON.SAVE' | translate }}
-        }
-      </button>
-    </div>
   </section>
 
-  <!-- ── Section : Changer le mot de passe ────────────────────────────────── -->
+  <!-- ── Section : Mot de passe (lien de réinitialisation) ─────────────────── -->
   <section class="profil-section">
     <div class="profil-section__header">
       <span class="profil-section__icon"><i class="pi pi-lock"></i></span>
@@ -89,73 +69,32 @@
     </div>
 
     <div class="profil-section__body">
-      <div class="profil-field">
-        <label class="profil-field__label" for="current-pwd">{{ 'PROFIL.CURRENT_PASSWORD' | translate }}</label>
-        <input
-          id="current-pwd"
-          type="password"
-          class="profil-field__input"
-          [ngModel]="currentPassword()"
-          (ngModelChange)="currentPassword.set($event)"
-          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
-          autocomplete="current-password"
-        />
-      </div>
-
-      <div class="profil-field">
-        <label class="profil-field__label" for="new-pwd">{{ 'PROFIL.NEW_PASSWORD' | translate }}</label>
-        <input
-          id="new-pwd"
-          type="password"
-          class="profil-field__input"
-          [ngModel]="newPassword()"
-          (ngModelChange)="newPassword.set($event)"
-          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
-          autocomplete="new-password"
-        />
-        @if (newPassword().length > 0 && newPassword().length < 8) {
-          <span class="profil-field__hint profil-field__hint--error">
-            <i class="pi pi-exclamation-circle"></i>
-            {{ 'PROFIL.PASSWORD_MIN_LENGTH' | translate }}
-          </span>
-        }
-      </div>
-
-      <div class="profil-field">
-        <label class="profil-field__label" for="confirm-pwd">{{ 'PROFIL.CONFIRM_PASSWORD' | translate }}</label>
-        <input
-          id="confirm-pwd"
-          type="password"
-          class="profil-field__input"
-          [class.profil-field__input--error]="passwordMismatch()"
-          [ngModel]="confirmPassword()"
-          (ngModelChange)="confirmPassword.set($event)"
-          [placeholder]="'PROFIL.PASSWORD_PLACEHOLDER' | translate"
-          autocomplete="new-password"
-        />
-        @if (passwordMismatch()) {
-          <span class="profil-field__hint profil-field__hint--error">
-            <i class="pi pi-exclamation-circle"></i>
-            {{ 'PROFIL.PASSWORD_MISMATCH' | translate }}
-          </span>
-        }
-      </div>
+      <p class="profil-reset-desc">{{ 'PROFIL.RESET_DESC' | translate }}</p>
+      @if (resetSent()) {
+        <div class="profil-reset-done">
+          <i class="pi pi-check-circle"></i>
+          {{ 'PROFIL.RESET_SENT' | translate }}
+        </div>
+      }
     </div>
 
     <div class="profil-section__footer">
       <button
         class="btn btn--outline"
-        [disabled]="!passwordValid() || passwordSaving()"
-        (click)="changePassword()"
+        [disabled]="!hasEmail() || resetSending()"
+        (click)="requestPasswordReset()"
       >
-        @if (passwordSaving()) {
+        @if (resetSending()) {
           <i class="pi pi-spin pi-spinner"></i>
           {{ 'COMMON.LOADING' | translate }}
         } @else {
-          <i class="pi pi-lock"></i>
-          {{ 'PROFIL.CHANGE_PASSWORD' | translate }}
+          <i class="pi pi-envelope"></i>
+          {{ 'PROFIL.RESET_BTN' | translate }}
         }
       </button>
+      @if (!hasEmail()) {
+        <span class="profil-reset-hint">{{ 'PROFIL.RESET_NO_EMAIL' | translate }}</span>
+      }
     </div>
   </section>
 

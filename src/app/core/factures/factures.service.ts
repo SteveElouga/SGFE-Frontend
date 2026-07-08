@@ -20,6 +20,7 @@ import {
   ENVOYER_FACTURE_WHATSAPP,
   ENVOYER_TOUTES_FACTURES_WHATSAPP,
   GENERER_FACTURES,
+  RENVOYER_ENVOI,
   RENVOYER_FACTURE_WHATSAPP,
   UPDATE_STATUT_FACTURE,
   UPDATE_TARIF,
@@ -136,6 +137,17 @@ export class FacturesService {
       }),
     );
     return result.data!.renvoyerFactureWhatsapp;
+  }
+
+  /** Rejoue un envoi précis par son id (variante unitaire de renvoiement). */
+  async renvoyerEnvoi(envoiId: string): Promise<Envoi> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ renvoyerEnvoi: Envoi }>({
+        mutation: RENVOYER_ENVOI,
+        variables: { envoiId },
+      }),
+    );
+    return result.data!.renvoyerEnvoi;
   }
 
   async enregistrerPaiement(input: EnregistrerPaiementInput): Promise<Paiement> {

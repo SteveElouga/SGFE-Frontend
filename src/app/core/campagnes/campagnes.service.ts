@@ -3,6 +3,7 @@ import { firstValueFrom } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import {
   AgentAffecte,
+  AgentDisponible,
   Campagne,
   CorrigerReleveInput,
   CreateCampagneInput,
@@ -12,10 +13,13 @@ import {
   Releve,
   ResumeCloture,
   SaisirIndexInput,
+  ZoneDisponible,
+  ZoneInput,
   ZoneRepartition,
 } from '../../shared/models/campagne.model';
 import {
   GET_AGENTS_CAMPAGNE,
+  GET_AGENTS_DISPONIBLES,
   GET_CAMPAGNE,
   GET_CAMPAGNES,
   GET_DERNIER_INDEX,
@@ -24,9 +28,11 @@ import {
   GET_RELEVES_PAR_AGENT,
   GET_REPARTITION_ZONE,
   GET_RESUME_CLOTURE,
+  GET_ZONES_DISPONIBLES,
 } from '../../graphql/queries/campagnes.queries';
 import {
   AFFECTER_AGENT,
+  AFFECTER_ZONES,
   CLOTURER_CAMPAGNE,
   CORRIGER_RELEVE,
   CREER_CAMPAGNE,
@@ -210,5 +216,42 @@ export class CampagnesService {
       }),
     );
     return result.data!.relevesParAgent;
+  }
+
+  /** Agents AGENT actifs affectables (ADMIN + SUPERVISEUR). */
+  async getAgentsDisponibles(): Promise<AgentDisponible[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ agentsDisponibles: AgentDisponible[] }>({
+        query: GET_AGENTS_DISPONIBLES,
+        fetchPolicy: 'cache-first',
+      }),
+    );
+    return result.data!.agentsDisponibles;
+  }
+
+  /** Zones (quartier + camp) et nombre d'abonnés actifs par zone. */
+  async getZonesDisponibles(): Promise<ZoneDisponible[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ zonesDisponibles: ZoneDisponible[] }>({
+        query: GET_ZONES_DISPONIBLES,
+        fetchPolicy: 'cache-first',
+      }),
+    );
+    return result.data!.zonesDisponibles;
+  }
+
+  /** Affecte l'ensemble exact de zones d'un agent (une zone = un seul agent). */
+  async affecterZones(
+    campagneId: string,
+    agentId: string,
+    zones: ZoneInput[],
+  ): Promise<AgentAffecte[]> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ affecterZones: AgentAffecte[] }>({
+        mutation: AFFECTER_ZONES,
+        variables: { campagneId, agentId, zones },
+      }),
+    );
+    return result.data!.affecterZones;
   }
 }

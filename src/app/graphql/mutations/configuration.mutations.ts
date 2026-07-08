@@ -42,3 +42,10 @@ export const REVOQUER_TOUS_TOKENS_ABONNES = gql`
     revoquerTousTokensAbonnes
   }
 `;
+
+// Révocation d'un token d'accès abonné précis (ADMIN).
+export const REVOQUER_TOKEN_ABONNE = gql`
+  mutation RevoquerTokenAbonne($tokenId: String!) {
+    revoquerTokenAbonne(tokenId: $tokenId)
+  }
+`;

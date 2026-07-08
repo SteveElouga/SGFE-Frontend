@@ -325,6 +325,18 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
+  /** Rejoue un envoi WhatsApp précis (échoué) depuis le journal. */
+  async rejouerEnvoi(envoiId: string): Promise<void> {
+    try {
+      await this.facturesService.renvoyerEnvoi(envoiId);
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
+      await this.reload();
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    }
+  }
+
   async corrigerStatut(): Promise<void> {
     const f = this.facture();
     const statut = this.newStatut();

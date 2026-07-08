@@ -1,12 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
@@ -14,16 +12,12 @@ import { ToastService } from '../../shared/services/toast.service';
 
 @Component({
   selector: 'app-profil',
-  imports: [
-    FormsModule,
-    PageTopbarComponent,
-    TranslatePipe,
-  ],
+  imports: [PageTopbarComponent, TranslatePipe],
   templateUrl: './profil.component.html',
   styleUrl: './profil.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProfilComponent implements OnInit {
+export class ProfilComponent {
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
@@ -35,61 +29,29 @@ export class ProfilComponent implements OnInit {
     return u ? u.username.charAt(0).toUpperCase() : '?';
   });
 
-  // ── Email ──────────────────────────────────────────────────────────────────
-  readonly email = signal('');
-  readonly emailSaving = signal(false);
-  readonly emailDirty = computed(() => this.email() !== (this.user()?.email ?? ''));
+  readonly hasEmail = computed(() => !!this.user()?.email);
 
-  // ── Mot de passe ───────────────────────────────────────────────────────────
-  readonly currentPassword = signal('');
-  readonly newPassword = signal('');
-  readonly confirmPassword = signal('');
-  readonly passwordSaving = signal(false);
-  readonly passwordMismatch = computed(
-    () => this.confirmPassword() !== '' && this.newPassword() !== this.confirmPassword(),
-  );
-  readonly passwordValid = computed(
-    () =>
-      this.currentPassword() !== '' &&
-      this.newPassword().length >= 8 &&
-      !this.passwordMismatch(),
-  );
+  readonly resetSending = signal(false);
+  readonly resetSent = signal(false);
 
-  ngOnInit(): void {
-    this.email.set(this.user()?.email ?? '');
-  }
-
-  async saveEmail(): Promise<void> {
-    if (this.emailSaving() || !this.emailDirty()) return;
-    this.emailSaving.set(true);
+  /**
+   * Envoie un lien de réinitialisation de mot de passe à l'e-mail du compte.
+   * L'API n'expose pas de changement de mot de passe self-service (pas de
+   * `changePassword`) : le seul chemin est `requestPasswordReset(email)`.
+   */
+  async requestPasswordReset(): Promise<void> {
+    const email = this.user()?.email;
+    if (!email || this.resetSending()) return;
+    this.resetSending.set(true);
     try {
-      await this.authService.updateEmail(this.email().trim());
-      this.toast.success(this.translate.instant('PROFIL.SUCCESS_EMAIL'));
+      await this.authService.requestPasswordReset(email);
+      this.resetSent.set(true);
+      this.toast.success(this.translate.instant('PROFIL.RESET_SENT'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
-      this.emailSaving.set(false);
-    }
-  }
-
-  async changePassword(): Promise<void> {
-    if (this.passwordSaving() || !this.passwordValid()) return;
-    this.passwordSaving.set(true);
-    try {
-      await this.authService.changePassword(
-        this.currentPassword(),
-        this.newPassword(),
-      );
-      this.currentPassword.set('');
-      this.newPassword.set('');
-      this.confirmPassword.set('');
-      this.toast.success(this.translate.instant('PROFIL.SUCCESS_PASSWORD'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.passwordSaving.set(false);
+      this.resetSending.set(false);
     }
   }
 
