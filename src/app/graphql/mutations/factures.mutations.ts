@@ -68,6 +68,18 @@ export const RENVOYER_FACTURE_WHATSAPP = gql`
   }
 `;
 
+// Rejoue un envoi précis (par son id) — variante unitaire de renvoiement.
+export const RENVOYER_ENVOI = gql`
+  mutation RenvoyerEnvoi($envoiId: String!) {
+    renvoyerEnvoi(envoiId: $envoiId) {
+      envoiId
+      statut
+      dateEnvoi
+      erreur
+    }
+  }
+`;
+
 export const UPDATE_STATUT_FACTURE = gql`
   mutation UpdateStatutFacture($factureId: String!, $statut: String!) {
     updateStatutFacture(factureId: $factureId, statut: $statut) {

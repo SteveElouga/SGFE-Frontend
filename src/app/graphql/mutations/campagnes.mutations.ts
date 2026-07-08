@@ -25,6 +25,27 @@ export const AFFECTER_AGENT = gql`
   }
 `;
 
+// Affectation d'un ensemble exact de zones (quartier + camp) à un agent.
+export const AFFECTER_ZONES = gql`
+  mutation AffecterZones($campagneId: String!, $agentId: String!, $zones: [ZoneInput!]!) {
+    affecterZones(campagneId: $campagneId, agentId: $agentId, zones: $zones) {
+      agentId
+      username
+      role
+      statut
+      derniereActivite
+      nbReleves
+      zones {
+        quartier
+        camp
+        nbAbonnes
+        nbReleves
+        pct
+      }
+    }
+  }
+`;
+
 export const CLOTURER_CAMPAGNE = gql`
   mutation CloturerCampagne($campagneId: String!) {
     cloturerCampagne(campagneId: $campagneId) {

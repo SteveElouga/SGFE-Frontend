@@ -9,13 +9,10 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { GET_USERS } from '../../../graphql/queries/users.queries';
 
 interface AgentRow {
   id: string;
@@ -24,19 +21,12 @@ interface AgentRow {
   isActive: boolean;
 }
 
-interface UserLite {
-  id: string;
-  username: string;
-  phoneNumber: string;
-  role: string;
-  isActive: boolean;
-}
-
 /**
  * Bottom sheet d'affectation d'agents à une campagne (maquette MC-03).
- * ADMIN / SUPERVISEUR propriétaire. Le backend n'expose que `affecterAgent`
- * (ajout) : les agents déjà affectés sont affichés cochés et verrouillés ;
- * on n'enregistre que les nouvelles affectations.
+ * ADMIN / SUPERVISEUR propriétaire. La liste vient de `agentsDisponibles`
+ * (accessible au SUPERVISEUR, contrairement à `users`). Le backend n'expose que
+ * `affecterAgent` (ajout) : les agents déjà affectés sont affichés cochés et
+ * verrouillés ; on n'enregistre que les nouvelles affectations.
  */
 @Component({
   selector: 'app-agents-sheet',
@@ -47,7 +37,6 @@ interface UserLite {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AgentsSheetComponent {
-  private readonly apollo = inject(Apollo);
   private readonly service = inject(CampagnesService);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
@@ -97,14 +86,7 @@ export class AgentsSheetComponent {
   private async load(): Promise<void> {
     this.loading.set(true);
     try {
-      const result = await firstValueFrom(
-        this.apollo.query<{ users: UserLite[] }>({
-          query: GET_USERS,
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      const agents = (result.data?.users ?? [])
-        .filter((u) => u.role === 'AGENT')
+      const agents = (await this.service.getAgentsDisponibles())
         .map((u) => ({
           id: u.id,
           username: u.username,

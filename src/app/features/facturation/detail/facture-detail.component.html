@@ -270,7 +270,14 @@
                 {{ e.typeEnvoi ?? 'Envoi' }}
                 @if (e.erreur) { · <span class="journal-entry__err">{{ e.erreur }}</span> }
               </span>
-              <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
+              <span class="journal-entry__meta">
+                <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
+                @if (e.erreur) {
+                  <button type="button" class="journal-entry__retry" (click)="rejouerEnvoi(e.envoiId)">
+                    <i class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
+                  </button>
+                }
+              </span>
             </div>
           }
         </div>

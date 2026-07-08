@@ -83,18 +83,3 @@ export const VERIFY_OTP_AND_SET_PASSWORD = gql`
     )
   }
 `;
-
-export const CHANGE_PASSWORD = gql`
-  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
-    changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
-  }
-`;
-
-export const UPDATE_EMAIL = gql`
-  mutation UpdateEmail($email: String!) {
-    updateEmail(email: $email) {
-      id
-      email
-    }
-  }
-`;

@@ -33,6 +33,28 @@ export interface AgentZone {
   camp: number;
 }
 
+/** Agent affectable (query `agentsDisponibles`, ADMIN + SUPERVISEUR). */
+export interface AgentDisponible {
+  id: string;
+  username: string;
+  phoneNumber: string;
+  role: string;
+  isActive: boolean;
+}
+
+/** Zone de relevé et nombre d'abonnés actifs (query `zonesDisponibles`). */
+export interface ZoneDisponible {
+  quartier: string;
+  camp: number;
+  nbAbonnes: number;
+}
+
+/** Zone à affecter à un agent (mutation `affecterZones`). */
+export interface ZoneInput {
+  quartier: string;
+  camp: number;
+}
+
 export interface CampagneAgent {
   username: string;
   // ── PENDING BACKEND (docs/BESOINS_API_campagne_agents.md, P1 + P4) ─────────

@@ -161,39 +161,27 @@ export const GET_CAMPAGNE_ACTIVE = gql`
   }
 `;
 
-// ── Agents affectés — PENDING BACKEND ───────────────────────────────────────
-// TROU CONFIRMÉ (introspection live 2026-07-04) : le type `Campagne` n'expose
-// AUCUN champ `agents`, et il n'existe aucune query pour lire les affectations.
-// `affecterAgent` est donc écriture-seule → le détail campagne ne peut pas
-// afficher les agents, et le bottom sheet MC-03 ne peut ni pré-cocher ni
-// verrouiller les agents déjà affectés. Voir docs/BESOINS_API_campagne_agents.md.
-//
-// PRIORITÉ 1 (lecture, indispensable) : exposer `agents { id username }` sur le
-// type `Campagne`. Il suffira alors d'ajouter le champ à GET_CAMPAGNE — le
-// frontend est prêt (agentsLabel + assignedUsernames du sheet). À défaut d'un
-// champ sur le type, cette query dédiée fait aussi l'affaire :
-export const GET_CAMPAGNE_AGENTS = gql`
-  query GetCampagneAgents($campagneId: String!) {
-    campagneAgents(campagneId: $campagneId) {
+// Agents AGENT actifs affectables (ADMIN + SUPERVISEUR) — remplace l'usage de
+// `users` (réservé ADMIN) pour peupler le sélecteur d'affectation.
+export const GET_AGENTS_DISPONIBLES = gql`
+  query GetAgentsDisponibles {
+    agentsDisponibles {
       id
       username
+      phoneNumber
+      role
+      isActive
     }
   }
 `;
 
-// PRIORITÉ 2 (temps réel, confort) : souscription poussant la liste d'agents à
-// jour quand un agent est affecté/retiré (deux ADMIN/SUPERVISEUR en parallèle,
-// ou rafraîchissement après affecterAgent). À brancher via subscribeToMore sur
-// le détail campagne une fois la lecture (P1) livrée. Aligné sur le pattern
-// factureUpdated / progressionUpdated (arg optionnel = flux filtré par campagne).
-export const CAMPAGNE_AGENTS_UPDATED_SUB = gql`
-  subscription CampagneAgentsUpdated($campagneId: ID!) {
-    campagneAgentsUpdated(campagneId: $campagneId) {
-      campagneId
-      agents {
-        id
-        username
-      }
+// Zones (quartier + camp) et nombre d'abonnés actifs par zone.
+export const GET_ZONES_DISPONIBLES = gql`
+  query GetZonesDisponibles {
+    zonesDisponibles {
+      quartier
+      camp
+      nbAbonnes
     }
   }
 `;

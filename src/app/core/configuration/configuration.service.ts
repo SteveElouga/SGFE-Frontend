@@ -9,6 +9,7 @@ import {
 } from '../../shared/models/configuration.model';
 import { GET_CONFIGS, GET_INFOS_SOCIETE } from '../../graphql/queries/configuration.queries';
 import {
+  REVOQUER_TOKEN_ABONNE,
   REVOQUER_TOUS_TOKENS_ABONNES,
   TESTER_ENVOI_WHATSAPP,
   UPDATE_CONFIG,
@@ -109,5 +110,16 @@ export class ConfigurationService {
       }),
     );
     return result.data?.revoquerTousTokensAbonnes ?? 0;
+  }
+
+  /** Révoque un token d'accès abonné précis (ADMIN). */
+  async revoquerTokenAbonne(tokenId: string): Promise<boolean> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ revoquerTokenAbonne: boolean }>({
+        mutation: REVOQUER_TOKEN_ABONNE,
+        variables: { tokenId },
+      }),
+    );
+    return result.data?.revoquerTokenAbonne ?? false;
   }
 }
