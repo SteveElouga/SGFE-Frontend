@@ -387,8 +387,6 @@
     "ABONNES_RESTANTS": "subscribers remaining",
     "ACTIVITE_TITLE": "Recent activity",
     "ACT_PAIEMENT": "Payment of {{ montant }} FCFA",
-    "ACT_IMPAYE": "Unpaid invoice · {{ montant }} FCFA",
-    "ACT_IMPAYE_META": "To collect",
     "NO_ACTIVITE": "No recent activity"
   },
   "CONFIGURATION": {

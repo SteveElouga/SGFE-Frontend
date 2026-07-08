@@ -17,11 +17,13 @@ import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { Envoi, Facture, ModePaiement, Paiement, SoldeFacture, StatutFacture } from '../../../shared/models/facture.model';
+import { Envoi, Facture, ModePaiement, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { FcfaPipe } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -33,12 +35,17 @@ import { ToastService } from '../../../shared/services/toast.service';
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    FcfaPipe,
+    BadgeComponent,
   ],
   templateUrl: './facture-detail.component.html',
   styleUrl: './facture-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FactureDetailComponent implements OnInit {
+  /** Exposé au template pour la teinte de la puce de statut. */
+  protected readonly factureStatutTone = factureStatutTone;
+
   private readonly facturesService = inject(FacturesService);
   private readonly abonnesService = inject(AbonnesService);
   private readonly campagnesService = inject(CampagnesService);
@@ -341,10 +348,6 @@ export class FactureDetailComponent implements OnInit {
 
   goBack(): void {
     void this.router.navigateByUrl(this.backLink());
-  }
-
-  formatFCFA(n: number): string {
-    return `${n.toLocaleString('fr-FR')} FCFA`;
   }
 
   formatDate(dateStr: string): string {

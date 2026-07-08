@@ -1,0 +1,50 @@
+<!-- ══ Réactivation — bottom sheet mobile / dialog desktop ══ -->
+<app-bottom-sheet [open]="open()" (close)="close.emit()">
+  <div class="reactiv-body">
+
+    <!-- En-tête -->
+    <div class="reactiv-header">
+      <div class="reactiv-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="reactiv-header__title">{{ title() }}</h3>
+        <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <table class="reactiv-summary">
+      <tbody>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_STATUT_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="reactiv-summary__row">
+          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_LABEL' | translate }}</th>
+          <td class="reactiv-summary__val reactiv-summary__val--muted">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Actions -->
+    <div class="reactiv-footer">
+      <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--success" (click)="confirm()" [disabled]="loading()">
+        @if (loading()) {
+          {{ 'ABONNES.DETAIL.REACTIVER_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.REACTIVER_BTN' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

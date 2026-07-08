@@ -71,6 +71,7 @@ describe('SetPasswordComponent', () => {
 
     component.password.set('longenough1');
     component.confirmPassword.set('longenough1');
+    component.fullName.set('Jean Test'); // requis pour valider le mode activation
     await component.onSubmit();
 
     const mutationCall = mutateSpy.mock.calls[0][0];

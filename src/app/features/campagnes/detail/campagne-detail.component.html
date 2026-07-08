@@ -20,9 +20,9 @@
 
   @if (loading()) {
     <div class="detail-skeleton">
-      <div class="detail-skeleton__header"></div>
-      <div class="detail-skeleton__progress"></div>
-      <div class="detail-skeleton__table"></div>
+      <app-skeleton height="88px" radius="14px" />
+      <app-skeleton height="160px" radius="14px" />
+      <app-skeleton height="320px" radius="14px" />
     </div>
   } @else if (campagne()) {
     @let c = campagne()!;
@@ -32,9 +32,7 @@
       <div class="detail-header__left">
         <div class="detail-header__title-row">
           <h1 class="detail-header__nom">{{ c.nom }}</h1>
-          <span class="statut-badge statut-badge--{{ c.statut | lowercase }}">
-            {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
-          </span>
+          <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
         </div>
         <p class="detail-header__meta">
           {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yyyy' }}
@@ -54,9 +52,6 @@
       </div>
       @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
         <div class="detail-header__actions">
-          <button class="btn btn--outline" (click)="openAgentsSheet()">
-            <i class="pi pi-users"></i> {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
-          </button>
           @if (c.statut === 'EN_COURS') {
             <button class="btn btn--danger" (click)="openClotureModal()">
               <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
@@ -171,8 +166,8 @@
           </div>
         } @else {
           <div class="agents-pending">
-            <i class="pi pi-clock"></i>
-            <span>{{ 'CAMPAGNES.AGENTS_PENDING' | translate }}</span>
+            <i class="pi pi-users"></i>
+            <span>{{ 'CAMPAGNES.AGENTS_EMPTY' | translate }}</span>
           </div>
         }
       </section>
@@ -187,6 +182,7 @@
             <thead>
               <tr>
                 <th>{{ 'CAMPAGNES.COL_ZONE' | translate }}</th>
+                <th>{{ 'CAMPAGNES.COL_AGENT' | translate }}</th>
                 <th class="col-num">{{ 'CAMPAGNES.COL_ABONNES' | translate }}</th>
                 <th class="col-num">{{ 'CAMPAGNES.COL_RELEVES' | translate }}</th>
                 <th class="col-prog">{{ 'CAMPAGNES.COL_PROGRESSION' | translate }}</th>
@@ -196,6 +192,16 @@
               @for (z of repartitionZones(); track z.key) {
                 <tr>
                   <td class="zone-name">{{ z.quartier }}@if (z.camp !== null) { · {{ z.camp }} }</td>
+                  <td>
+                    @if (z.agentUsername) {
+                      <span class="zone-agent">
+                        <span class="zone-agent__avatar">{{ z.agentInitials }}</span>
+                        <span class="zone-agent__name">{{ z.agentUsername }}</span>
+                      </span>
+                    } @else {
+                      <span class="zone-agent__none">—</span>
+                    }
+                  </td>
                   <td class="col-num">{{ z.abonnes }}</td>
                   <td class="col-num">{{ z.releves }}</td>
                   <td class="col-prog">
@@ -284,9 +290,7 @@
                   }
                 </td>
                 <td>
-                  <span class="releve-chip releve-chip--{{ r.statut | lowercase }}">
-                    {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
-                  </span>
+                  <app-badge [tone]="releveStatutTone(r.statut)" [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate" />
                 </td>
               </tr>
             }
@@ -319,9 +323,7 @@
                 }
               </span>
             </div>
-            <span class="releve-chip releve-chip--{{ r.statut | lowercase }}">
-              {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
-            </span>
+            <app-badge [tone]="releveStatutTone(r.statut)" [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate" />
           </div>
         } @empty {
           <div class="releves-mobile__empty">
@@ -346,7 +348,13 @@
   <!-- ── Modal de clôture (écran 18) ── -->
   @if (clotureModalVisible()) {
     <div class="cloture-overlay" (click)="closeClotureModal()">
-      <div class="cloture-modal" (click)="$event.stopPropagation()">
+      <div
+        class="cloture-modal"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="'CAMPAGNES.CLOTURE.TITLE' | translate:{ nom: periode() }"
+        (click)="$event.stopPropagation()"
+      >
         <div class="cloture-modal__head">
           <div class="cloture-modal__icon"><i class="pi pi-lock"></i></div>
           <div>
@@ -362,19 +370,19 @@
         <div class="cloture-modal__body">
           <div class="cloture-stats">
             <div class="cloture-stat cloture-stat--ok">
-              <span class="cloture-stat__n">{{ relevesByStatut().releve }}</span>
+              <span class="cloture-stat__n">{{ clotureStats().releve }}</span>
               <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RELEVES' | translate }} ✓</span>
             </div>
             <div class="cloture-stat cloture-stat--est">
-              <span class="cloture-stat__n">{{ relevesByStatut().estime }}</span>
+              <span class="cloture-stat__n">{{ clotureStats().estime }}</span>
               <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.ESTIMES' | translate }}</span>
             </div>
             <div class="cloture-stat cloture-stat--nr">
-              <span class="cloture-stat__n">{{ relevesByStatut().nonReleve }}</span>
+              <span class="cloture-stat__n">{{ clotureStats().nonReleve }}</span>
               <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.NON_RELEVES' | translate }}</span>
             </div>
             <div class="cloture-stat cloture-stat--rest">
-              <span class="cloture-stat__n">{{ relevesByStatut().aRelever }}</span>
+              <span class="cloture-stat__n">{{ clotureStats().aRelever }}</span>
               <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RESTANTS' | translate }}</span>
             </div>
           </div>
@@ -382,7 +390,7 @@
           @if (sansReleve() > 0) {
             <div class="cloture-warn">
               <span class="cloture-warn__icon">⚠</span>
-              <span>{{ 'CAMPAGNES.CLOTURE.WARN' | translate:{ sans: sansReleve(), restants: relevesByStatut().aRelever, nonReleves: relevesByStatut().nonReleve, estimes: relevesByStatut().estime } }}</span>
+              <span>{{ 'CAMPAGNES.CLOTURE.WARN' | translate:{ sans: sansReleve(), restants: clotureStats().aRelever, nonReleves: clotureStats().nonReleve, estimes: clotureStats().estime } }}</span>
             </div>
           }
 

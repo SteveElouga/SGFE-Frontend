@@ -6,38 +6,39 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { AbonnesService, RemplacerCompteurInput } from '../../../core/abonnes/abonnes.service';
-import { CampagnesService } from '../../../core/campagnes/campagnes.service';
+import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
-import { Abonne, HistoriqueCompteurEntry } from '../../../shared/models/abonne.model';
+import { Abonne, Compteur, HistoriqueCompteurEntry, StatutAbonne } from '../../../shared/models/abonne.model';
 import { Facture } from '../../../shared/models/facture.model';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
+import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { RemplacerCompteurSheetComponent } from './remplacer-compteur-sheet/remplacer-compteur-sheet.component';
+import { ReactiverSheetComponent } from './reactiver-sheet/reactiver-sheet.component';
+import { ResilierSheetComponent } from './resilier-sheet/resilier-sheet.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
-    FormsModule,
     RouterLink,
-    DialogModule,
-    InputTextModule,
     DatePipe,
-    NgClass,
     TranslatePipe,
     CompteurPipe,
     ErrorBannerComponent,
     TooltipDirective,
+    SkeletonComponent,
+    RemplacerCompteurSheetComponent,
+    ReactiverSheetComponent,
+    ResilierSheetComponent,
   ],
   templateUrl: './abonne-detail.component.html',
   styleUrl: './abonne-detail.component.scss',
@@ -45,7 +46,6 @@ import { ToastService } from '../../../shared/services/toast.service';
 })
 export class AbonneDetailComponent {
   private readonly abonnesService = inject(AbonnesService);
-  private readonly campagnesService = inject(CampagnesService);
   private readonly facturesService = inject(FacturesService);
   private readonly facturePdf = inject(FacturePdfService);
   private readonly toast = inject(ToastService);
@@ -105,23 +105,14 @@ export class AbonneDetailComponent {
   });
 
 
-  // Modal réactivation
+  // Modales de statut — formulaires délégués aux composants dédiés
+  // (ReactiverSheetComponent / ResilierSheetComponent) ; le parent ne pilote
+  // que leur visibilité et applique le résultat.
   readonly reactiverDialogVisible = signal(false);
-
-  // Modal résiliation
   readonly resilierDialogVisible = signal(false);
-  readonly resilierConfirme = signal(false);
 
-  // Modal remplacer compteur
+  // Modal remplacer compteur (formulaire délégué à RemplacerCompteurSheetComponent).
   readonly remplacerVisible = signal(false);
-  readonly newNumeroCompteur = signal('');
-  readonly newQuartier = signal('');
-  readonly newCamp = signal('');
-  readonly newIndexInitial = signal('0');
-  readonly newDatePose = signal('');
-  readonly remplacerLoading = signal(false);
-  readonly remplacerDernierIndex = signal<number | null>(null);
-  readonly remplacerDernierIndexLoading = signal(false);
 
   readonly initial = computed(() => {
     const a = this.abonne();
@@ -174,7 +165,7 @@ export class AbonneDetailComponent {
   readonly soldeFormate = computed(() => {
     const s = this.abonne()?.soldeImpayes;
     if (s === undefined || s === null) return '—';
-    return `${s.toLocaleString('fr-FR')} FCFA`;
+    return formatFcfa(s);
   });
 
   readonly soldeSub = computed(() => {
@@ -183,32 +174,6 @@ export class AbonneDetailComponent {
     const lang = this.translate.currentLang() ?? undefined;
     const key = s === 0 ? 'ABONNES.DETAIL.SOLDE_ZERO' : 'ABONNES.DETAIL.SOLDE_DU';
     return this.translate.instant(key, {}, lang);
-  });
-
-  readonly reactiverTitle = computed(() => {
-    const a = this.abonne();
-    if (!a) return '';
-    const lang = this.translate.currentLang() ?? undefined;
-    return this.translate.instant('ABONNES.DETAIL.REACTIV_TITLE_NOM', { nom: a.nom, prenom: a.prenom }, lang);
-  });
-
-  readonly resilierTitle = computed(() => {
-    const a = this.abonne();
-    if (!a) return this.translate.instant('ABONNES.DETAIL.RESILIATION_TITLE');
-    const lang = this.translate.currentLang() ?? undefined;
-    return this.translate.instant('ABONNES.DETAIL.RESIL_TITLE_NOM', { nom: a.nom, prenom: a.prenom }, lang);
-  });
-
-  readonly compteurNumDisplay = computed(() => {
-    const c = this.abonne()?.compteur;
-    if (!c) return '—';
-    return `C-${String(c.numeroCompteur).padStart(4, '0')}`;
-  });
-
-  readonly remplacerDernierIndexDisplay = computed(() => {
-    const idx = this.remplacerDernierIndex();
-    if (idx === null) return '—';
-    return `${idx.toLocaleString('fr-FR')} m³`;
   });
 
   constructor(route: ActivatedRoute) {
@@ -353,96 +318,34 @@ export class AbonneDetailComponent {
     this.reactiverDialogVisible.set(true);
   }
 
-  async doReactiver(): Promise<void> {
-    this.statutLoading.set(true);
-    try {
-      const updated = await this.abonnesService.reactiverAbonne(this.abonneId);
-      this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.reactiverDialogVisible.set(false);
-      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.statutLoading.set(false);
-    }
+  /** Applique le statut émis par la sheet de réactivation. */
+  onReactived(statut: StatutAbonne): void {
+    this.abonne.update((a) => (a ? { ...a, statut } : a));
+    this.reactiverDialogVisible.set(false);
+    this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'));
   }
 
   confirmerResiliation(): void {
-    this.resilierConfirme.set(false);
     this.resilierDialogVisible.set(true);
   }
 
-  async resilier(): Promise<void> {
-    if (!this.resilierConfirme()) return;
-    this.statutLoading.set(true);
-    try {
-      const updated = await this.abonnesService.resilierAbonne(this.abonneId);
-      this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.resilierDialogVisible.set(false);
-      this.resilierConfirme.set(false);
-      this.toast.info(this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.statutLoading.set(false);
-    }
+  /** Applique le statut émis par la sheet de résiliation. */
+  onResilied(statut: StatutAbonne): void {
+    this.abonne.update((a) => (a ? { ...a, statut } : a));
+    this.resilierDialogVisible.set(false);
+    this.toast.info(this.translate.instant('ABONNES.DETAIL.TOAST_RESILIE'));
   }
 
   // ── Modal remplacer compteur ─────────────────────────────────────────────────
 
   openRemplacerModal(): void {
-    const c = this.abonne()?.compteur;
-    this.newNumeroCompteur.set('');
-    this.newQuartier.set(c?.quartier ?? '');
-    this.newCamp.set(c?.camp ? String(c.camp) : '');
-    this.newIndexInitial.set('0');
-    this.newDatePose.set(new Date().toISOString().slice(0, 10));
-    this.remplacerDernierIndex.set(null);
     this.remplacerVisible.set(true);
-    void this.loadDernierIndex();
   }
 
-  private async loadDernierIndex(): Promise<void> {
-    this.remplacerDernierIndexLoading.set(true);
-    try {
-      const result = await this.campagnesService.getDernierIndex(this.abonneId);
-      this.remplacerDernierIndex.set(result.dernierIndex);
-    } catch {
-      // Afficher '—' en cas d'erreur — non bloquant
-    } finally {
-      this.remplacerDernierIndexLoading.set(false);
-    }
-  }
-
-  async saveRemplacer(): Promise<void> {
-    const n = Number.parseInt(this.newNumeroCompteur(), 10);
-    const camp = Number.parseInt(this.newCamp(), 10);
-    const indexInitial = Number.parseFloat(this.newIndexInitial());
-    // Attendre le dernier index (index de fermeture) pour ne pas envoyer 0 par erreur.
-    if (!n || !camp || this.remplacerDernierIndexLoading()) return;
-
-    this.remplacerLoading.set(true);
-    const input: RemplacerCompteurInput = {
-      numeroCompteur: n,
-      quartier: this.newQuartier(),
-      camp,
-      indexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
-      datePose: this.newDatePose(),
-      // Index de fermeture de l'ancien compteur (« Dernier index conservé »).
-      indexFermeture: this.remplacerDernierIndex() ?? 0,
-    };
-    try {
-      const newCompteur = await this.abonnesService.remplacerCompteur(this.abonneId, input);
-      this.abonne.update((a) => (a ? { ...a, compteur: newCompteur } : a));
-      this.remplacerVisible.set(false);
-      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_METER_REPLACED'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.remplacerLoading.set(false);
-    }
+  /** Applique le nouveau compteur émis par la bottom-sheet de remplacement. */
+  onCompteurRemplace(newCompteur: Compteur): void {
+    this.abonne.update((a) => (a ? { ...a, compteur: newCompteur } : a));
+    this.remplacerVisible.set(false);
+    this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_METER_REPLACED'));
   }
 }

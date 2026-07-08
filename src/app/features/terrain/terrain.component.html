@@ -226,55 +226,10 @@
   }
 
   <!-- ── Feuille M-07 : non relevé / estimé ── -->
-  @if (m07Visible()) {
-    <div class="sheet-overlay" (click)="cancelM07()">
-      <div class="sheet" (click)="$event.stopPropagation()">
-        <div class="sheet__grip"></div>
-        <div class="sheet__title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
-        <div class="sheet__sub sheet__sub--mb">{{ 'TERRAIN.M07_SUB' | translate }}</div>
-
-        <div class="m07-options">
-          <button type="button" class="m07-opt m07-opt--danger" [class.m07-opt--selected]="m07Statut() === 'NON_RELEVE'" (click)="setM07Statut('NON_RELEVE')">
-            <span class="m07-opt__radio"></span>
-            <span class="m07-opt__body">
-              <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
-              <span class="m07-opt__hint">{{ 'TERRAIN.NON_RELEVE_HINT' | translate }}</span>
-            </span>
-            <span class="m07-opt__emoji">🚪</span>
-          </button>
-          <button type="button" class="m07-opt" [class.m07-opt--selected]="m07Statut() === 'ESTIME'" (click)="setM07Statut('ESTIME')">
-            <span class="m07-opt__radio"></span>
-            <span class="m07-opt__body">
-              <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
-              <span class="m07-opt__hint">{{ 'TERRAIN.ESTIME_HINT' | translate }}</span>
-            </span>
-            <span class="m07-opt__emoji">📈</span>
-          </button>
-        </div>
-
-        <div class="obs-head">
-          <span>{{ 'TERRAIN.OBSERVATION' | translate }} <span class="req">*</span></span>
-          <span class="obs-count">{{ m07Observation().length }} / 200</span>
-        </div>
-        <textarea
-          class="obs-input"
-          [class.obs-input--error]="!m07Valide()"
-          rows="2"
-          maxlength="200"
-          [attr.aria-label]="'TERRAIN.OBSERVATION' | translate"
-          [ngModel]="m07Observation()"
-          (ngModelChange)="m07Observation.set($event)"
-        ></textarea>
-        <div class="obs-warn">
-          <i class="pi pi-exclamation-circle"></i>
-          {{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}
-        </div>
-
-        <button class="btn-danger" [disabled]="!m07Valide()" (click)="confirmM07()">
-          {{ (m07Statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
-        </button>
-        <button class="btn-ghost" (click)="cancelM07()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>
-      </div>
-    </div>
-  }
+  <!-- Feuille M-07 extraite -->
+  <app-m07-sheet
+    [open]="m07Visible()"
+    (cancel)="cancelM07()"
+    (confirm)="onM07Confirm($event)"
+  />
 </div>

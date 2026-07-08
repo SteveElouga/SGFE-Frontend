@@ -1,0 +1,11 @@
+:host {
+  display: block;
+  background: #e2e8f0;
+  animation: aq-shimmer 1.5s infinite ease-in-out;
+}
+
+@keyframes aq-shimmer {
+  0%,
+  100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

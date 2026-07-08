@@ -17,6 +17,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { ExportsService } from '../../core/rapports/exports.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { GET_STATS_GLOBALES } from '../../graphql/queries/stats.queries';
+import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
 
 interface HistCampagne {
@@ -38,7 +39,7 @@ interface StatsGlobales {
 @Component({
   selector: 'app-rapports-list',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, DecimalPipe, SelectModule, PageTopbarComponent, ErrorBannerComponent],
+  imports: [FormsModule, TranslatePipe, DecimalPipe, SelectModule, PageTopbarComponent, ErrorBannerComponent, FcfaPipe],
   templateUrl: './rapports-list.component.html',
   styleUrl: './rapports-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -128,10 +129,6 @@ export class RapportsListComponent implements OnInit {
     } finally {
       this.exporting.set(null);
     }
-  }
-
-  formatFCFA(n: number): string {
-    return `${Math.round(n).toLocaleString('fr-FR')} FCFA`;
   }
 
   formatM3(n: number): string {

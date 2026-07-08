@@ -1,0 +1,116 @@
+<!-- ══ Remplacer compteur — bottom sheet mobile / dialog desktop (19) ══ -->
+<app-bottom-sheet [open]="open()" (close)="close.emit()">
+  <div class="meter-body">
+
+    <!-- En-tête -->
+    <div class="meter-header">
+      <div class="meter-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M3 11h16M11 3l8 8-8 8" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="meter-header__title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
+        @if (abonne(); as a) {
+          <p class="meter-header__sub">
+            {{ a.prenom }} {{ a.nom }} · {{ a.numeroAbonne }}@if (a.compteur) { · {{ a.compteur.quartier }}, Camp {{ a.compteur.camp }} }
+          </p>
+        }
+      </div>
+    </div>
+
+    <!-- Ancien compteur -->
+    @if (abonne()?.compteur) {
+      @let oldMeter = abonne()!.compteur!;
+      <div class="meter-old-card">
+        <div class="meter-old-card__tag">{{ 'ABONNES.DETAIL.METER_OLD_TAG' | translate }}</div>
+        <div class="meter-old-card__rows">
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.NUM_COMPTEUR' | translate }}</span>
+            <span class="meter-old-card__val meter-old-card__val--mono">{{ oldMeter.numeroCompteur | compteur }}</span>
+          </div>
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
+            <span class="meter-old-card__val">
+              {{ 'ABONNES.DETAIL.METER_OLD_POSE' | translate }}
+              {{ oldMeter.datePose ? (oldMeter.datePose | date:'dd/MM/yyyy') : '—' }}
+            </span>
+          </div>
+          <div class="meter-old-card__row">
+            <span class="meter-old-card__key">{{ 'ABONNES.DETAIL.METER_OLD_IDX_LABEL' | translate }}</span>
+            <span class="meter-old-card__val meter-old-card__val--mono">
+              @if (dernierIndexLoading()) {
+                <span class="meter-old-card__loading">…</span>
+              } @else {
+                {{ dernierIndexDisplay() }}
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Flèche séparatrice -->
+    <div class="meter-arrow" aria-hidden="true">
+      <div class="meter-arrow__circle">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 3v10M4 9l4 4 4-4" stroke="#1a56db" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Nouveau compteur -->
+    <div class="meter-new-card">
+      <div class="meter-new-card__title">{{ 'ABONNES.DETAIL.METER_NEW_TITLE' | translate }}</div>
+      <div class="edit-grid-2">
+        <div class="edit-field">
+          <label class="edit-label" for="newNumero">{{ 'ABONNES.DETAIL.NEW_METER_NUMBER' | translate }}</label>
+          <input pInputText id="newNumero" type="number" min="1"
+            [ngModel]="newNumeroCompteur()" (ngModelChange)="newNumeroCompteur.set($event)" name="newNumero"
+            placeholder="ex. 2001" />
+        </div>
+        <div class="edit-field">
+          <label class="edit-label" for="newIndex">{{ 'ABONNES.DETAIL.INDEX_INITIAL_M3' | translate }}</label>
+          <input pInputText id="newIndex" type="number" min="0" step="0.001"
+            [ngModel]="newIndexInitial()" (ngModelChange)="newIndexInitial.set($event)" name="newIndex"
+            placeholder="0.000" />
+        </div>
+        <div class="edit-field">
+          <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
+          <input pInputText id="newDatePose" type="date"
+            [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" name="newDatePose" />
+        </div>
+      </div>
+
+      <!-- Localisation reprise (lecture seule) -->
+      @if (newQuartier() || newCamp()) {
+        <p class="meter-location-reprise">
+          {{ 'ABONNES.DETAIL.METER_LOCATION_REPRISE' | translate : { quartier: newQuartier(), camp: newCamp() } }}
+        </p>
+      }
+    </div>
+
+    <!-- Note informative bleue -->
+    <div class="meter-info-note">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="5.8" stroke="#1a56db" stroke-width="1.2"/>
+        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#1a56db" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      {{ 'ABONNES.DETAIL.METER_INFO_NOTE' | translate }}
+    </div>
+
+    <!-- Actions -->
+    <div class="meter-footer">
+      <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="loading()">
+        @if (loading()) {
+          {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.METER_CONFIRMER' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

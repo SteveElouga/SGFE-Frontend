@@ -1,7 +1,8 @@
 <app-page-topbar [title]="'NOTIFICATIONS.TITLE' | translate" [subtitle]="subtitle()" [showBell]="false">
   @if (unreadCount() > 0) {
-    <button type="button" class="mark-all" (click)="markAllRead()">
-      <i class="pi pi-check"></i> {{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}
+    <button type="button" class="mark-all" (click)="markAllRead()" [attr.aria-label]="'NOTIFICATIONS.MARK_ALL_READ' | translate">
+      <i class="pi pi-check"></i>
+      <span class="mark-all__label">{{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}</span>
     </button>
   }
 </app-page-topbar>

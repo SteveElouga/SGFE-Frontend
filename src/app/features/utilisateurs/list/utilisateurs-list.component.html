@@ -4,11 +4,11 @@
   [title]="'UTILISATEURS.TITLE' | translate"
   [subtitle]="subtitle()"
 >
-  <a routerLink="/utilisateurs/nouveau" class="page-topbar-action">
+  <a routerLink="/utilisateurs/nouveau" class="page-topbar-action" [attr.aria-label]="'UTILISATEURS.NEW' | translate">
     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
       <path d="M6.5 1v11M1 6.5h11" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
     </svg>
-    {{ 'UTILISATEURS.NEW' | translate }}
+    <span class="page-topbar-action__label">{{ 'UTILISATEURS.NEW' | translate }}</span>
   </a>
 </app-page-topbar>
 

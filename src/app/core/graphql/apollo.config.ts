@@ -11,6 +11,20 @@ import { environment } from '../../../environments/environment';
 import { createAuthErrorLink } from './auth-error.link';
 import { createGlobalErrorLink } from './global-error.link';
 
+// Cache partagé (exporté) — l'initializer de persistance le restaure au démarrage
+// et le sauvegarde quand l'utilisateur quitte l'app (offline des données).
+export const apolloCache = new InMemoryCache({
+  typePolicies: {
+    Campagne:     { keyFields: ['campagneId'] },
+    Releve:       { keyFields: ['releveId'] },
+    Progression:  { keyFields: ['campagneId'] },
+    DernierIndex: { keyFields: ['abonneId'] },
+    // Objets imbriqués sans identifiant unique — stockés inline, pas normalisés
+    CampagneAgent: { keyFields: false },
+    ReleveAbonne:  { keyFields: false },
+  },
+});
+
 function apolloOptionsFactory(): ApolloClient.Options {
   const httpLink = inject(HttpLink);
   // Injector, not AuthService directly: AuthService depends on Apollo,
@@ -49,17 +63,7 @@ function apolloOptionsFactory(): ApolloClient.Options {
       createGlobalErrorLink(injector),
       transportLink,
     ]),
-    cache: new InMemoryCache({
-      typePolicies: {
-        Campagne:     { keyFields: ['campagneId'] },
-        Releve:       { keyFields: ['releveId'] },
-        Progression:  { keyFields: ['campagneId'] },
-        DernierIndex: { keyFields: ['abonneId'] },
-        // Objets imbriqués sans identifiant unique — stockés inline, pas normalisés
-        CampagneAgent: { keyFields: false },
-        ReleveAbonne:  { keyFields: false },
-      },
-    }),
+    cache: apolloCache,
     defaultOptions: {
       watchQuery: { fetchPolicy: 'cache-first' },
       query:      { fetchPolicy: 'cache-first' },

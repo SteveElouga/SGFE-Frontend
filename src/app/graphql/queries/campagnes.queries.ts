@@ -45,6 +45,39 @@ export const GET_RELEVES = gql`
   }
 `;
 
+// Agents affectés à une campagne (statut de tournée, zones, relevés) — LIVRÉ.
+export const GET_AGENTS_CAMPAGNE = gql`
+  query GetAgentsCampagne($campagneId: String!) {
+    agentsCampagne(campagneId: $campagneId) {
+      agentId
+      username
+      role
+      statut
+      derniereActivite
+      nbReleves
+      zones {
+        quartier
+        camp
+      }
+    }
+  }
+`;
+
+// Répartition par zone d'une campagne (zone → agent → abonnés/relevés/%) — LIVRÉ.
+export const GET_REPARTITION_ZONE = gql`
+  query GetRepartitionZone($campagneId: String!) {
+    repartitionParZone(campagneId: $campagneId) {
+      quartier
+      camp
+      agentId
+      agentUsername
+      nbAbonnes
+      nbReleves
+      pct
+    }
+  }
+`;
+
 // PENDING DEPLOY (PR #68) — relevés d'UN agent, pour l'écran « Voir la tournée ».
 // ADMIN toutes / SUPERVISEUR ses campagnes / AGENT sa propre tournée.
 // NE PAS brancher tant que relevesParAgent n'apparaît pas à l'introspection.
@@ -71,6 +104,21 @@ export const GET_PROGRESSION = gql`
       nbReleves
       nbEnAttente
       pourcentage
+    }
+  }
+`;
+
+// Ventilation autoritative pour la modale de clôture (ADMIN + SUPERVISEUR).
+export const GET_RESUME_CLOTURE = gql`
+  query ResumeCloture($campagneId: String!) {
+    resumeCloture(campagneId: $campagneId) {
+      campagneId
+      totalAbonnes
+      nbReleves
+      nbEstimes
+      nbNonReleves
+      nbRestants
+      nbFacturesAGenerer
     }
   }
 `;

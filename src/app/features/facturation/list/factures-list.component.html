@@ -138,9 +138,7 @@
       </ng-template>
 
       <ng-template appCol="statut" let-f>
-        <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
-          {{ 'FACTURATION.STATUT.' + f.statut | translate }}
-        </span>
+        <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
       </ng-template>
 
       <ng-template appCol="actions" let-f>
@@ -185,111 +183,18 @@
           </div>
           <div class="fcard__right">
             <span class="fcard__montant">{{ formatNumber(f.montant) }} F</span>
-            <span class="statut-badge statut-badge--{{ f.statut.toLowerCase() }}">
-              {{ 'FACTURATION.STATUT.' + f.statut | translate }}
-            </span>
+            <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
           </div>
         </button>
       </ng-template>
     </app-data-table>
   </div>
 
-  <!-- Inline payment panel -->
-  @if (selectedFacture(); as f) {
-    <div class="payment-panel">
-      <div class="payment-panel__header">
-        <div class="payment-panel__icon">
-          <i class="pi pi-credit-card"></i>
-        </div>
-        <div>
-          <div class="payment-panel__title">{{ 'FACTURATION.PANEL_TITLE' | translate }}</div>
-          <div class="payment-panel__sub">
-            {{ f.numeroFacture }}
-            @if (panelLoading()) {
-              · <i class="pi pi-spin pi-spinner" style="font-size:11px"></i>
-            } @else if (panelSolde() !== null) {
-              · {{ 'FACTURATION.PANEL_SOLDE' | translate }} {{ formatFCFA(panelSolde()!) }}
-            }
-          </div>
-        </div>
-        <button class="payment-panel__close" (click)="closePanel()">
-          <i class="pi pi-times"></i>
-        </button>
-      </div>
-
-      <div class="payment-panel__form">
-        <div class="pf-field">
-          <label class="pf-label" for="pf-montant">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>
-          <input
-            id="pf-montant"
-            type="number"
-            pInputText
-            class="pf-input pf-input--focus"
-            [class.pf-input--error]="montantExceedsSolde()"
-            [ngModel]="pMontant()"
-            (ngModelChange)="pMontant.set($event)"
-            min="1"
-            [max]="soldeRestant()"
-          />
-          @if (montantExceedsSolde()) {
-            <span class="pf-hint pf-hint--error">
-              {{ 'FACTURATION.PANEL_MONTANT_MAX' | translate:{montant: soldeRestant().toLocaleString('fr-FR')} }}
-            </span>
-          }
-        </div>
-
-        <div class="pf-field">
-          <label class="pf-label" for="pf-mode">{{ 'FACTURATION.PANEL_MODE' | translate }}</label>
-          <p-select
-            inputId="pf-mode"
-            [options]="modeOptions()"
-            [ngModel]="pMode()"
-            (ngModelChange)="pMode.set($event)"
-            optionLabel="label"
-            optionValue="value"
-            styleClass="pf-select"
-          />
-        </div>
-
-        <div class="pf-field">
-          <label class="pf-label" for="pf-date">{{ 'FACTURATION.PANEL_DATE' | translate }}</label>
-          <input
-            id="pf-date"
-            type="date"
-            pInputText
-            class="pf-input"
-            [ngModel]="pDate()"
-            (ngModelChange)="pDate.set($event)"
-          />
-        </div>
-
-        <div class="pf-field pf-field--ref">
-          <label class="pf-label" for="pf-ref">
-            {{ 'FACTURATION.PANEL_REF' | translate }}
-            @if (refRequired()) { <span class="pf-required">*</span> }
-          </label>
-          <input
-            id="pf-ref"
-            type="text"
-            pInputText
-            class="pf-input"
-            [ngModel]="pRef()"
-            (ngModelChange)="pRef.set($event)"
-          />
-        </div>
-      </div>
-
-      <button
-        class="payment-panel__submit"
-        [disabled]="!panelValid() || submitting()"
-        (click)="submitPaiement()"
-      >
-        @if (submitting()) {
-          <i class="pi pi-spin pi-spinner"></i>
-        }
-        {{ confirmLabel() }}
-      </button>
-    </div>
-  }
+  <!-- Panneau de paiement inline (extrait) -->
+  <app-paiement-panel
+    [facture]="selectedFacture()"
+    (close)="closePanel()"
+    (saved)="onPaiementSaved()"
+  />
 
 </div>

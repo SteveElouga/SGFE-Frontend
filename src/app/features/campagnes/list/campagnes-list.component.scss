@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -142,36 +143,6 @@
   50%       { opacity: 0.45; }
 }
 
-// ── Badges statut ─────────────────────────────────────────────────────────────
-
-.statut-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-
-  &--planifiee {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
-  }
-
-  &--en_cours {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1d4ed8;
-  }
-
-  &--cloturee {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #166534;
-  }
-}
 
 // ── Boutons d'action ──────────────────────────────────────────────────────────
 
@@ -209,31 +180,23 @@
 // ── Boutons dialog ────────────────────────────────────────────────────────────
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   gap: 6px;
   height: 40px;
   padding: 0 16px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
   transition: background 0.15s, opacity 0.15s;
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled { opacity: 0.5; }
 
   &--primary {
-    background: $color-primary;
-    color: #fff;
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
+    @include btn-variant($color-primary, #fff, $hover-bg: color.adjust($color-primary, $lightness: -8%));
   }
 
   &--ghost {
-    background: transparent;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
-    &:hover:not(:disabled) { background: #f1f5f9; }
+    @include btn-variant(transparent, #64748b, $border: 1px solid #e2e8f0, $hover-bg: #f1f5f9);
   }
 }
 

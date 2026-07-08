@@ -17,7 +17,8 @@ import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { Campagne } from '../../../shared/models/campagne.model';
-import { Facture, ModePaiement, StatutFacture } from '../../../shared/models/facture.model';
+import { Facture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
@@ -25,6 +26,7 @@ import { DataTableComponent, DataTableColumn } from '../../../shared/components/
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { GET_ABONNES } from '../../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../../graphql/queries/campagnes.queries';
+import { PaiementPanelComponent } from './paiement-panel/paiement-panel.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 interface AbonneInfo {
@@ -49,12 +51,17 @@ interface CampagneOption {
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
+    BadgeComponent,
+    PaiementPanelComponent,
   ],
   templateUrl: './factures-list.component.html',
   styleUrl: './factures-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacturesListComponent implements OnInit {
+  /** Exposé au template pour la teinte des puces de statut. */
+  protected readonly factureStatutTone = factureStatutTone;
+
   private readonly facturesService = inject(FacturesService);
   private readonly facturePdf = inject(FacturePdfService);
   private readonly campagnesService = inject(CampagnesService);
@@ -93,25 +100,8 @@ export class FacturesListComponent implements OnInit {
   readonly rowClassFn = (f: Facture): string | null =>
     this.selectedFacture()?.factureId === f.factureId ? 'dt__row--selected' : null;
 
+  /** Facture dont le panneau de paiement est ouvert (null = fermé). */
   readonly selectedFacture = signal<Facture | null>(null);
-  readonly panelSolde = signal<number | null>(null);
-  readonly panelLoading = signal(false);
-  readonly submitting = signal(false);
-
-  readonly pMontant = signal('');
-  readonly pMode = signal<ModePaiement>('ESPECES');
-  readonly pDate = signal('');
-  readonly pRef = signal('');
-
-  readonly modeOptions = computed((): Array<{ label: string; value: ModePaiement }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('FACTURATION.MODE.ESPECES', {}, lang), value: 'ESPECES' },
-      { label: this.translate.instant('FACTURATION.MODE.MOBILE_MONEY', {}, lang), value: 'MOBILE_MONEY' },
-      { label: this.translate.instant('FACTURATION.MODE.CHEQUE', {}, lang), value: 'CHEQUE' },
-      { label: this.translate.instant('FACTURATION.MODE.VIREMENT', {}, lang), value: 'VIREMENT' },
-    ];
-  });
 
   readonly filtreOptions = computed((): Array<{ label: string; value: StatutFacture | 'TOUS' }> => {
     const lang = this.translate.currentLang() ?? undefined;
@@ -148,45 +138,8 @@ export class FacturesListComponent implements OnInit {
       : this.translate.instant('FACTURATION.SUBTITLE', { count }, lang);
   });
 
-  readonly refRequired = computed(
-    () => this.pMode() === 'MOBILE_MONEY' || this.pMode() === 'VIREMENT',
-  );
-
-  readonly soldeRestant = computed(() => this.panelSolde() ?? 0);
-
-  readonly montantExceedsSolde = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    return !Number.isNaN(montant) && montant > this.soldeRestant();
-  });
-
-  readonly panelValid = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    const refOk = !this.refRequired() || !!this.pRef().trim();
-    return (
-      !Number.isNaN(montant) &&
-      montant > 0 &&
-      montant <= this.soldeRestant() &&
-      !!this.pDate() &&
-      refOk
-    );
-  });
-
-  readonly confirmLabel = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    const lang = this.translate.currentLang() ?? undefined;
-    if (Number.isNaN(montant) || montant <= 0) {
-      return this.translate.instant('FACTURATION.PANEL_CONFIRM_EMPTY', {}, lang);
-    }
-    return this.translate.instant(
-      'FACTURATION.PANEL_CONFIRM',
-      { montant: montant.toLocaleString('fr-FR') },
-      lang,
-    );
-  });
-
   ngOnInit(): void {
     const id = this.route.snapshot.params['campagneId'] as string | undefined;
-    this.pDate.set(new Date().toISOString().split('T')[0]);
     if (id) {
       this.campagneId.set(id);
       void this.load();
@@ -373,45 +326,20 @@ export class FacturesListComponent implements OnInit {
     this.closePanel();
   }
 
+  /** Ouvre le panneau de paiement pour une facture (chargement délégué au composant). */
   openPanel(facture: Facture): void {
     this.selectedFacture.set(facture);
-    this.pRef.set('');
-    this.panelSolde.set(null);
-    this.panelLoading.set(true);
-    void this.facturesService.getSoldeFacture(facture.factureId).then((s) => {
-      this.panelSolde.set(s.soldeRestant);
-      this.pMontant.set(s.soldeRestant > 0 ? String(s.soldeRestant) : '');
-      this.panelLoading.set(false);
-    });
   }
 
   closePanel(): void {
     this.selectedFacture.set(null);
-    this.panelSolde.set(null);
   }
 
-  async submitPaiement(): Promise<void> {
-    const f = this.selectedFacture();
-    if (!f || !this.panelValid() || this.submitting()) return;
-    this.submitting.set(true);
-    try {
-      await this.facturesService.enregistrerPaiement({
-        factureId: f.factureId,
-        abonneId: f.abonneId,
-        montant: Number.parseFloat(this.pMontant()),
-        datePaiement: this.pDate(),
-        modePaiement: this.pMode(),
-        referenceTransaction: this.pRef() || undefined,
-      });
-      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
-      this.closePanel();
-      await this.load();
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.submitting.set(false);
-    }
+  /** Le paiement a été enregistré par le panneau → recharge la liste. */
+  async onPaiementSaved(): Promise<void> {
+    this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
+    this.closePanel();
+    await this.load();
   }
 
   async envoyerWhatsapp(factureId: string, event: Event): Promise<void> {
@@ -441,9 +369,5 @@ export class FacturesListComponent implements OnInit {
 
   formatNumber(n: number | null | undefined): string {
     return (n ?? 0).toLocaleString('fr-FR');
-  }
-
-  formatFCFA(n: number | null | undefined): string {
-    return `${(n ?? 0).toLocaleString('fr-FR')} FCFA`;
   }
 }

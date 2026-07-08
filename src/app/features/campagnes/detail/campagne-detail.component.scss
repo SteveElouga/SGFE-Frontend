@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -76,59 +77,36 @@
 
 // ── Badges statut ─────────────────────────────────────────────────────────────
 
-.statut-badge {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  flex-shrink: 0;
-
-  &--planifiee { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
-  &--en_cours  { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
-  &--cloturee  { background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
-}
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
-  display: inline-flex;
-  align-items: center;
+  @include btn-reset;
   gap: 6px;
   height: 40px;
   padding: 0 20px;
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
-  border: none;
   flex-shrink: 0;
   transition: background 0.15s;
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled { opacity: 0.5; }
 
   &--danger {
-    background: #dc2626;
-    color: #fff;
-    &:hover:not(:disabled) { background: #b91c1c; }
+    @include btn-variant(#dc2626, #fff, $hover-bg: #b91c1c);
   }
 
   &--outline {
-    background: #fff;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    &:hover:not(:disabled) { background: #f8fafc; border-color: #cbd5e1; }
+    @include btn-variant(#fff, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc, $hover-border: #cbd5e1);
   }
 
   &--dark {
-    background: #0f1c3d;
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(15, 28, 61, 0.35);
-    &:hover:not(:disabled) { background: #1a2e5a; }
+    @include btn-variant(
+      #0f1c3d, #fff,
+      $shadow: 0 4px 14px rgba(15, 28, 61, 0.35),
+      $hover-bg: #1a2e5a
+    );
   }
 }
 
@@ -447,7 +425,7 @@
 
 // ── Table relevés ─────────────────────────────────────────────────────────────
 
-.releves-table-wrap { overflow-x: auto; }
+.releves-table-wrap { overflow-x: auto; @include hide-scrollbar; }
 
 .releves-table {
   width: 100%;
@@ -517,23 +495,6 @@
 
 // ── Chips statut relevé ───────────────────────────────────────────────────────
 
-.releve-chip {
-  display: inline-flex;
-  align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  text-transform: uppercase;
-  white-space: nowrap;
-
-  &--releve                    { background: #dcfce7; color: #166534; }
-  &--estime                    { background: #e0e7ff; color: #3730a3; }
-  &--non_releve, &--non-releve { background: #fee2e2; color: #991b1b; }
-  &--a_relever, &--a-relever   { background: #f1f5f9; border: 1px solid #e2e8f0; color: #475569; }
-}
 
 .releves-empty-row {
   text-align: center !important;
@@ -549,15 +510,6 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-
-  &__header  { height: 88px;  background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
-  &__progress{ height: 160px; background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
-  &__table   { height: 320px; background: #e2e8f0; border-radius: 14px; animation: shimmer 1.5s infinite ease-in-out; }
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
 }
 
 // ── Relevés en cartes (mobile · MB-02) ────────────────────────────────────────
@@ -741,6 +693,7 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow-x: auto;
+  @include hide-scrollbar;
 }
 
 .zone-table {
@@ -776,6 +729,28 @@
 }
 
 .zone-name { font-weight: 600; white-space: nowrap; }
+
+.zone-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  &__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0e9f6e, #1a56db);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  &__name { font-size: 12px; font-weight: 500; color: #475569; }
+  &__none { color: #cbd5e1; }
+}
 
 .zone-prog {
   display: flex;

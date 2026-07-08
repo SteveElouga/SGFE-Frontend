@@ -387,8 +387,6 @@
     "ABONNES_RESTANTS": "abonnés restants",
     "ACTIVITE_TITLE": "Activité récente",
     "ACT_PAIEMENT": "Paiement de {{ montant }} FCFA",
-    "ACT_IMPAYE": "Facture impayée · {{ montant }} FCFA",
-    "ACT_IMPAYE_META": "À recouvrer",
     "NO_ACTIVITE": "Aucune activité récente"
   },
   "CONFIGURATION": {

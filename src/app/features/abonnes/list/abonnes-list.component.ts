@@ -22,6 +22,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
@@ -38,6 +39,7 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
     StatusBadgeComponent,
     PageTopbarComponent,
     FilterBarComponent,
+    FilterChipsComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -141,6 +143,20 @@ export class AbonnesListComponent implements OnInit {
       { label: this.translate.instant('STATUS.RESILIE', {}, lang), value: 'RESILIE' },
     ];
   });
+
+  /** Chips de statut (mobile) avec compteurs, dérivés des mêmes options. */
+  readonly statutChips = computed((): FilterChip[] => {
+    const all = this.abonnes();
+    return this.statutOptions().map((o) => ({
+      label: o.label,
+      value: o.value,
+      count: all.filter((a) => a.statut === o.value).length,
+    }));
+  });
+
+  onStatutChip(value: string | null): void {
+    this.statutFilter.set(value as StatutAbonne | null);
+  }
 
   ngOnInit(): void {
     this.abonnesQuery = this.abonnesService.watchAbonnes();

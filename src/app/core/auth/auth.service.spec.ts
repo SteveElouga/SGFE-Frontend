@@ -56,9 +56,10 @@ describe('AuthService', () => {
     );
   });
 
-  it('falls back to a generic message on a network/non-GraphQL error', async () => {
+  it('falls back to a generic message on a technical/non-GraphQL error', async () => {
     const { service, mutateSpy } = setup();
-    mutateSpy.mockReturnValue(throwError(() => new Error('network down')));
+    // Message technique (filtré par sanitizeGqlMessage) → le fallback lisible s'applique.
+    mutateSpy.mockReturnValue(throwError(() => new Error('Failed to fetch')));
 
     await expect(service.login('admin', 'wrong-password')).rejects.toThrow(
       'Identifiants incorrects. Veuillez réessayer.',

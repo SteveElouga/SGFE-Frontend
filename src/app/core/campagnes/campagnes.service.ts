@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
 import {
+  AgentAffecte,
   Campagne,
   CorrigerReleveInput,
   CreateCampagneInput,
@@ -9,15 +10,20 @@ import {
   MarquerNonReleveInput,
   Progression,
   Releve,
+  ResumeCloture,
   SaisirIndexInput,
+  ZoneRepartition,
 } from '../../shared/models/campagne.model';
 import {
+  GET_AGENTS_CAMPAGNE,
   GET_CAMPAGNE,
   GET_CAMPAGNES,
   GET_DERNIER_INDEX,
   GET_PROGRESSION,
   GET_RELEVES,
   GET_RELEVES_PAR_AGENT,
+  GET_REPARTITION_ZONE,
+  GET_RESUME_CLOTURE,
 } from '../../graphql/queries/campagnes.queries';
 import {
   AFFECTER_AGENT,
@@ -28,6 +34,12 @@ import {
   SAISIR_INDEX,
 } from '../../graphql/mutations/campagnes.mutations';
 
+/**
+ * Accès GraphQL au domaine « campagnes de relevé » : cycle de vie des campagnes,
+ * relevés/index, progression et clôture, agents affectés et répartition par
+ * zone. Les listes utilisent `watchQuery` (cache-and-network) ; les écritures
+ * passent par des mutations one-shot. Singleton (`providedIn: 'root'`).
+ */
 @Injectable({ providedIn: 'root' })
 export class CampagnesService {
   private readonly apollo = inject(Apollo);
@@ -75,6 +87,18 @@ export class CampagnesService {
       }),
     );
     return result.data!.progression;
+  }
+
+  /** Ventilation autoritative pour la clôture (ADMIN + SUPERVISEUR uniquement). */
+  async getResumeCloture(campagneId: string): Promise<ResumeCloture> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ resumeCloture: ResumeCloture }>({
+        query: GET_RESUME_CLOTURE,
+        variables: { campagneId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.resumeCloture;
   }
 
   async getDernierIndex(abonneId: string): Promise<DernierIndex> {
@@ -150,6 +174,30 @@ export class CampagnesService {
       }),
     );
     return result.data!.corrigerReleve;
+  }
+
+  /** Agents affectés à une campagne (statut de tournée, zones, relevés). */
+  async getAgentsCampagne(campagneId: string): Promise<AgentAffecte[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ agentsCampagne: AgentAffecte[] }>({
+        query: GET_AGENTS_CAMPAGNE,
+        variables: { campagneId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.agentsCampagne;
+  }
+
+  /** Répartition par zone d'une campagne (zone → agent → abonnés/relevés/%). */
+  async getRepartitionZone(campagneId: string): Promise<ZoneRepartition[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ repartitionParZone: ZoneRepartition[] }>({
+        query: GET_REPARTITION_ZONE,
+        variables: { campagneId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.repartitionParZone;
   }
 
   /** Relevés d'un agent dans une campagne (écran « Voir la tournée »). */

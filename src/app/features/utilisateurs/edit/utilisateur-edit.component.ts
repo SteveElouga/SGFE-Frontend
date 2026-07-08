@@ -18,6 +18,7 @@ import { UsersService } from '../../../core/users/users.service';
 import { Role, User } from '../../../shared/models/user.model';
 import { isValidCameroonPhone, maskPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
 
@@ -32,6 +33,7 @@ import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities'
     DialogModule,
     TranslatePipe,
     TooltipDirective,
+    SkeletonComponent,
   ],
   templateUrl: './utilisateur-edit.component.html',
   styleUrl: './utilisateur-edit.component.scss',
