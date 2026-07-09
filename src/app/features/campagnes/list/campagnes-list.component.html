@@ -122,6 +122,18 @@
           <a class="btn-action btn-action--voir" [routerLink]="['/campagnes', c.campagneId]">
             {{ 'COMMON.SEE' | translate }}
           </a>
+          @if (c.statut === 'PLANIFIEE' && canCreate()) {
+            <button
+              class="btn-action btn-action--demarrer"
+              [disabled]="demarrantId() === c.campagneId"
+              (click)="demarrer(c.campagneId)"
+            >
+              @if (demarrantId() === c.campagneId) {
+                <i class="pi pi-spin pi-spinner"></i>
+              }
+              {{ 'CAMPAGNES.DEMARRER' | translate }}
+            </button>
+          }
           @if (c.statut === 'EN_COURS' && canCreate()) {
             <button
               class="btn-action btn-action--cloturer"

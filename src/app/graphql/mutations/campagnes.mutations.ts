@@ -56,6 +56,17 @@ export const CLOTURER_CAMPAGNE = gql`
   }
 `;
 
+// Démarrage à la demande d'une campagne PLANIFIEE → EN_COURS (débloque la saisie
+// des relevés sans attendre le cron 7h / la date planifiée).
+export const DEMARRER_CAMPAGNE = gql`
+  mutation DemarrerCampagne($campagneId: String!) {
+    demarrerCampagne(campagneId: $campagneId) {
+      campagneId
+      statut
+    }
+  }
+`;
+
 export const SAISIR_INDEX = gql`
   mutation SaisirIndex($input: SaisirIndexInput!) {
     saisirIndex(input: $input) {
