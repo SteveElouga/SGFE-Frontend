@@ -104,7 +104,7 @@
           type="button"
           class="abonnes-option"
           [class.abonnes-option--selected]="selectionMode() === 'TOUS'"
-          (click)="selectionMode.set('TOUS')"
+          (click)="selectSelectionMode('TOUS')"
         >
           <span
             class="abonnes-option__radio"
@@ -116,25 +116,32 @@
           }
         </button>
 
+        <!-- Filtrage par zone : `filtreZones` absent du backend (voir
+             backend-capabilities.ts) → désactivé pour éviter une sélection
+             affichée mais non transmise (campagne créée pour TOUS malgré tout). -->
         <button
           type="button"
           class="abonnes-option"
           [class.abonnes-option--selected]="selectionMode() === 'FILTRE'"
-          (click)="selectionMode.set('FILTRE')"
+          [disabled]="!filtreZonesReady"
+          [attr.aria-disabled]="!filtreZonesReady"
+          (click)="selectSelectionMode('FILTRE')"
         >
           <span
             class="abonnes-option__radio"
             [class.abonnes-option__radio--checked]="selectionMode() === 'FILTRE'"
           ></span>
           <span class="abonnes-option__label">{{ 'CAMPAGNES.FORM.ABONNES_FILTRE' | translate }}</span>
-          @if (selectionMode() === 'FILTRE' && selectedZones().size > 0) {
+          @if (!filtreZonesReady) {
+            <span class="abonnes-option__badge abonnes-option__badge--soon">{{ 'CAMPAGNES.FORM.ABONNES_FILTRE_SOON' | translate }}</span>
+          } @else if (selectionMode() === 'FILTRE' && selectedZones().size > 0) {
             <span class="abonnes-option__badge">{{ selectedZones().size }}</span>
           }
         </button>
       </div>
 
       <!-- Zone chips — visible uniquement en mode FILTRE -->
-      @if (selectionMode() === 'FILTRE') {
+      @if (selectionMode() === 'FILTRE' && filtreZonesReady) {
         <div class="zones-filter">
           <span class="zones-filter__title">{{ 'CAMPAGNES.FORM.ZONES_TITLE' | translate }}</span>
           @if (zonesDisponibles().length > 0) {

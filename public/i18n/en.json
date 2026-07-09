@@ -602,6 +602,7 @@
       "SECTION_ABONNES": "Subscriber selection",
       "ABONNES_TOUS": "All active subscribers",
       "ABONNES_FILTRE": "By filter (district / camp)",
+      "ABONNES_FILTRE_SOON": "Coming soon",
       "ABONNES_INFO": "active subscribers included · suspended excluded automatically",
       "ABONNES_FILTRE_INFO": "subscriber(s) included in selected zones",
       "ZONES_TITLE": "Select zones to include",

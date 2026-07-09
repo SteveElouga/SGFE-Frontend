@@ -14,6 +14,7 @@ import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
+import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { GET_USERS } from '../../../graphql/queries/users.queries';
@@ -101,6 +102,19 @@ export class CampagneFormComponent implements OnInit {
 
   // ── Abonnés sélection ───────────────────────────────────────────────────────
   readonly selectionMode = signal<'TOUS' | 'FILTRE'>('TOUS');
+  /**
+   * `filtreZones` n'existe pas encore sur `CreateCampagneInput` côté backend
+   * (voir `backend-capabilities.ts`) : le mode FILTRE resterait sans effet
+   * (campagne créée pour TOUS les abonnés malgré la sélection affichée). On
+   * désactive donc ce choix tant que le champ n'est pas livré, plutôt que de
+   * laisser une sélection qui ne serait pas respectée.
+   */
+  readonly filtreZonesReady = BACKEND_CAPABILITIES.CAMPAGNE_FILTRE_ZONES;
+
+  selectSelectionMode(mode: 'TOUS' | 'FILTRE'): void {
+    if (mode === 'FILTRE' && !this.filtreZonesReady) return;
+    this.selectionMode.set(mode);
+  }
 
   // ── Options ─────────────────────────────────────────────────────────────────
   readonly genererFacturesAuto = signal(true);
@@ -210,6 +224,9 @@ export class CampagneFormComponent implements OnInit {
         periodeMois: date.getMonth() + 1,
         periodeAnnee: date.getFullYear(),
         datePlanifiee: this.formDatePlanifiee(),
+        numeroMobileMoney: this.formMobileMoney().trim(),
+        genererFacturesAuto: this.genererFacturesAuto(),
+        envoyerWhatsappAuto: this.envoyerWhatsappEffectif(),
       });
       for (const agentId of this.selectedAgentIds()) {
         await this.service.affecterAgent(campagne.campagneId, agentId);

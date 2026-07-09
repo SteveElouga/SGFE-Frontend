@@ -28,6 +28,16 @@ export const BACKEND_CAPABILITIES = {
   /** Champ `campagne.agents` (lecture) + mutation `retirerAgent` (écran 29 : pré-cochage / verrouillage / retrait). */
   CAMPAGNE_AGENTS_READ: false,
 
+  /**
+   * `CreateCampagneInput.filtreZones` — absent du schéma live (vérifié par
+   * introspection 2026-07-09 : seuls nom/periodeMois/periodeAnnee/datePlanifiee/
+   * numeroMobileMoney/genererFacturesAuto/envoyerWhatsappAuto/demarrerMaintenant
+   * existent). Tant que `false`, le mode « Filtrer par zone » de la création de
+   * campagne est désactivé (la sélection ne serait pas transmise au serveur —
+   * la campagne inclurait TOUS les abonnés malgré le filtre affiché).
+   */
+  CAMPAGNE_FILTRE_ZONES: false,
+
   /** Accès public tokenisé à l'espace abonné (écrans 06 / 25 / M-06 / MB-10). */
   ESPACE_ABONNE: false,
 
