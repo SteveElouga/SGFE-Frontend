@@ -153,6 +153,7 @@ export class CampagnesListComponent implements OnInit {
 
   // ── Clôture ────────────────────────────────────────────────────────────────
   readonly cloturantId = signal<string | null>(null);
+  readonly demarrantId = signal<string | null>(null);
 
   ngOnInit(): void {
     this.campagnesQuery = this.service.watchCampagnes();
@@ -239,6 +240,22 @@ export class CampagnesListComponent implements OnInit {
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.cloturantId.set(null);
+    }
+  }
+
+  /** Démarre à la demande une campagne PLANIFIEE (débloque la saisie des relevés). */
+  async demarrer(campagneId: string): Promise<void> {
+    if (this.demarrantId()) return;
+    this.demarrantId.set(campagneId);
+    try {
+      await this.service.demarrerCampagne(campagneId);
+      await this.campagnesQuery.refetch();
+      this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_DEMARREE'));
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.demarrantId.set(null);
     }
   }
 }

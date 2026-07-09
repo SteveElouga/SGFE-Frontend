@@ -93,6 +93,14 @@
 
   &:disabled { opacity: 0.5; }
 
+  &--primary {
+    @include btn-variant(
+      $color-primary, #fff,
+      $shadow: 0 4px 14px rgba($color-primary, 0.3),
+      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+    );
+  }
+
   &--danger {
     @include btn-variant(#dc2626, #fff, $hover-bg: #b91c1c);
   }

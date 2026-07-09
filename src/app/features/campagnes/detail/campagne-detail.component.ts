@@ -97,6 +97,7 @@ export class CampagneDetailComponent implements OnInit {
   readonly progression = signal<Progression | null>(null);
   readonly releves = signal<Releve[]>([]);
   readonly cloturant = signal(false);
+  readonly demarrant = signal(false);
 
   // ── Modal de clôture (écran 18) ──────────────────────────────────────────────
   readonly clotureModalVisible = signal(false);
@@ -401,6 +402,22 @@ export class CampagneDetailComponent implements OnInit {
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.cloturant.set(false);
+    }
+  }
+
+  /** Démarre à la demande une campagne PLANIFIEE (débloque la saisie des relevés). */
+  async demarrer(): Promise<void> {
+    if (this.demarrant()) return;
+    this.demarrant.set(true);
+    try {
+      await this.service.demarrerCampagne(this.campagneId);
+      await this.load();
+      this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_DEMARREE'));
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.demarrant.set(false);
     }
   }
 }

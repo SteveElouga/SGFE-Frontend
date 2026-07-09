@@ -36,6 +36,7 @@ import {
   CLOTURER_CAMPAGNE,
   CORRIGER_RELEVE,
   CREER_CAMPAGNE,
+  DEMARRER_CAMPAGNE,
   MARQUER_NON_RELEVE,
   SAISIR_INDEX,
 } from '../../graphql/mutations/campagnes.mutations';
@@ -146,6 +147,17 @@ export class CampagnesService {
         variables: { campagneId },
       }),
     );
+  }
+
+  /** Démarre à la demande une campagne PLANIFIEE (→ EN_COURS). */
+  async demarrerCampagne(campagneId: string): Promise<Campagne> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ demarrerCampagne: Campagne }>({
+        mutation: DEMARRER_CAMPAGNE,
+        variables: { campagneId },
+      }),
+    );
+    return result.data!.demarrerCampagne;
   }
 
   async saisirIndex(input: SaisirIndexInput): Promise<Releve> {

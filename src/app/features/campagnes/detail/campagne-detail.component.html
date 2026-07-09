@@ -52,6 +52,12 @@
       </div>
       @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
         <div class="detail-header__actions">
+          @if (c.statut === 'PLANIFIEE') {
+            <button class="btn btn--primary" (click)="demarrer()" [disabled]="demarrant()">
+              @if (demarrant()) { <i class="pi pi-spin pi-spinner"></i> }
+              <i class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
+            </button>
+          }
           @if (c.statut === 'EN_COURS') {
             <button class="btn btn--danger" (click)="openClotureModal()">
               <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
