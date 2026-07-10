@@ -15,7 +15,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
+import { ZoneInput, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { GET_ABONNES_ACTIFS } from '../../../graphql/queries/abonnes.queries';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -52,6 +52,9 @@ export class CampagneFormComponent implements OnInit {
   // ── Agents ─────────────────────────────────────────────────────────────────
   readonly agents = signal<Agent[]>([]);
   readonly selectedAgentIds = signal<Set<string>>(new Set());
+  // Zones (clé quartier##camp) affectées à chaque agent sélectionné. Vide =
+  // l'agent couvre toute la campagne (aucune restriction, cf. list_tournee).
+  readonly agentZones = signal<Map<string, Set<string>>>(new Map());
 
   readonly selectedAgents = computed(() =>
     this.agents().filter((a) => this.selectedAgentIds().has(a.id)),
@@ -215,6 +218,36 @@ export class CampagneFormComponent implements OnInit {
     const set = new Set(this.selectedAgentIds());
     set.delete(id);
     this.selectedAgentIds.set(set);
+    const az = new Map(this.agentZones());
+    az.delete(id);
+    this.agentZones.set(az);
+  }
+
+  // ── Zones par agent (affectation dès la création) ────────────────────────────
+  isAgentZoneSelected(agentId: string, key: string): boolean {
+    return this.agentZones().get(agentId)?.has(key) ?? false;
+  }
+
+  agentZoneCount(agentId: string): number {
+    return this.agentZones().get(agentId)?.size ?? 0;
+  }
+
+  toggleAgentZone(agentId: string, key: string): void {
+    const az = new Map(this.agentZones());
+    const set = new Set(az.get(agentId) ?? []);
+    if (set.has(key)) set.delete(key);
+    else set.add(key);
+    az.set(agentId, set);
+    this.agentZones.set(az);
+  }
+
+  /** Zones (quartier, camp) choisies pour un agent, prêtes pour affecterZones. */
+  private zonesForAgent(agentId: string): ZoneInput[] {
+    const keys = this.agentZones().get(agentId);
+    if (!keys || keys.size === 0) return [];
+    return this.zonesDisponibles()
+      .filter((z) => keys.has(z.key))
+      .map((z) => ({ quartier: z.quartier, camp: z.camp }));
   }
 
   toggleZone(key: string): void {
@@ -269,7 +302,14 @@ export class CampagneFormComponent implements OnInit {
       }
 
       for (const agentId of this.selectedAgentIds()) {
-        await this.service.affecterAgent(campagne.campagneId, agentId);
+        const zones = this.zonesForAgent(agentId);
+        if (zones.length > 0) {
+          // affecterZones rattache aussi l'agent à la campagne (assigner) : pas
+          // besoin d'un affecterAgent séparé quand des zones sont choisies.
+          await this.service.affecterZones(campagne.campagneId, agentId, zones);
+        } else {
+          await this.service.affecterAgent(campagne.campagneId, agentId);
+        }
       }
 
       this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CREE'));
