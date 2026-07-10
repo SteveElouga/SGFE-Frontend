@@ -1,0 +1,50 @@
+<app-bottom-sheet [open]="open()" (close)="onClose()">
+  <div class="zs-title">{{ 'CAMPAGNES.ZONES_SHEET.TITLE' | translate }}</div>
+  <div class="zs-subtitle">
+    {{ 'CAMPAGNES.ZONES_SHEET.SUBTITLE'
+        | translate:{ agent: agentUsername(), n: selectedCount(), abonnes: selectedAbonnes() } }}
+  </div>
+
+  <div class="zs-list">
+    @if (loading()) {
+      <div class="zs-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    } @else if (loadError()) {
+      <div class="zs-empty">{{ 'CAMPAGNES.ZONES_SHEET.LOAD_ERROR' | translate }}</div>
+    } @else {
+      @for (z of rows(); track z.quartier + '##' + z.camp) {
+        <button
+          type="button"
+          class="zs-row"
+          [class.zs-row--selected]="isSelected(z)"
+          [class.zs-row--locked]="isLocked(z)"
+          [disabled]="isLocked(z)"
+          (click)="toggle(z)"
+        >
+          <span class="zs-info">
+            <span class="zs-name">{{ z.quartier }} · Camp {{ z.camp }}</span>
+            <span class="zs-sub">
+              @if (isLocked(z)) {
+                {{ 'CAMPAGNES.ZONES_SHEET.TAKEN' | translate:{ agent: z.ownerUsername } }}
+              } @else {
+                {{ z.nbAbonnes }} {{ 'CAMPAGNES.ABONNES' | translate }}
+              }
+            </span>
+          </span>
+          <span class="zs-check" [class.zs-check--on]="isSelected(z)">
+            @if (isSelected(z)) { <i class="pi pi-check"></i> }
+          </span>
+        </button>
+      } @empty {
+        <div class="zs-empty">{{ 'CAMPAGNES.ZONES_SHEET.EMPTY' | translate }}</div>
+      }
+    }
+  </div>
+
+  <button type="button" class="zs-save" [disabled]="saving() || loading() || loadError()" (click)="onSave()">
+    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    {{ 'CAMPAGNES.ZONES_SHEET.SAVE' | translate }}
+  </button>
+  <button type="button" class="zs-cancel" (click)="onClose()">
+    {{ 'COMMON.CANCEL' | translate }}
+  </button>
+</app-bottom-sheet>
