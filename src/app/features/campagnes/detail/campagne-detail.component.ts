@@ -35,6 +35,7 @@ import { ErrorBannerComponent } from '../../../shared/components/error-banner/er
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
+import { AbonnesSheetComponent } from '../abonnes-sheet/abonnes-sheet.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -50,6 +51,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     ErrorBannerComponent,
     AgentsSheetComponent,
     ZonesSheetComponent,
+    AbonnesSheetComponent,
     TranslatePipe,
     BadgeComponent,
     SkeletonComponent,
@@ -108,6 +110,17 @@ export class CampagneDetailComponent implements OnInit {
   /** Recharge agents + répartition après affectation des zones. */
   onZonesSaved(): void {
     void this.loadAgents();
+  }
+
+  // ── Rattachement d'abonnés à une campagne déjà créée (#6) ─────────────────
+  readonly showAbonnesSheet = signal(false);
+
+  openAbonnesSheet(): void {
+    this.showAbonnesSheet.set(true);
+  }
+
+  closeAbonnesSheet(): void {
+    this.showAbonnesSheet.set(false);
   }
 
   // ── État ───────────────────────────────────────────────────────────────────
@@ -342,7 +355,10 @@ export class CampagneDetailComponent implements OnInit {
       this.campagne.set(campagneResult.data!.campagne);
       this.progression.set(progression);
       this.releves.set(releves);
-      this.loadAbonnesMap();
+      // Carte des abonnés (filtre par quartier / zones) réservée aux écrans
+      // ADMIN/SUPERVISEUR : la query `abonnesActifs` est refusée à l'AGENT (#14),
+      // inutile de la déclencher (et de logger un PERMISSION_DENIED) pour lui.
+      if (this.canActOnCampagne()) this.loadAbonnesMap();
       void this.loadAgents();
       void this.facturesService
         .getTarifActuel()

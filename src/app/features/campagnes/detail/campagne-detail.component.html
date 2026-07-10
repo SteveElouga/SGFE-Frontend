@@ -52,6 +52,9 @@
       </div>
       @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
         <div class="detail-header__actions">
+          <button class="btn btn--outline" (click)="openAbonnesSheet()">
+            <i class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
+          </button>
           @if (c.statut === 'PLANIFIEE') {
             <button class="btn btn--primary" (click)="demarrer()" [disabled]="demarrant()">
               @if (demarrant()) { <i class="pi pi-spin pi-spinner"></i> }
@@ -174,9 +177,10 @@
 
                 <div class="agent-card__foot">
                   <span class="agent-card__sync">{{ 'CAMPAGNES.SYNC_PREFIX' | translate }} {{ agentSyncLabel(a.syncLe) }}</span>
-                  <a class="agent-card__tournee" [routerLink]="['/campagnes', campagneId, 'tournee', a.id]">
-                    {{ 'CAMPAGNES.VOIR_TOURNEE' | translate }}
-                  </a>
+                  <!-- Lien « Voir la tournée » retiré (#10) : aucune route
+                       /campagnes/:id/tournee/:agentId n'existe → le clic éjectait
+                       vers /login. À rebrancher quand l'écran de tournée
+                       ADMIN/SUPERVISEUR sera routé. -->
                 </div>
               </div>
             }
@@ -365,6 +369,13 @@
   }
 
   @if (canActOnCampagne()) {
+    <app-abonnes-sheet
+      [open]="showAbonnesSheet()"
+      [campagneId]="campagneId"
+      (close)="closeAbonnesSheet()"
+      (saved)="load()"
+    />
+
     <app-agents-sheet
       [open]="showAgentsSheet()"
       [campagneId]="campagneId"
