@@ -15,6 +15,18 @@ export const CREER_CAMPAGNE = gql`
   }
 `;
 
+// Rattache des abonnés SÉLECTIONNÉS à une campagne → crée leurs relevés
+// A_RELEVER (sans ça : « 0 abonné à relever »). Idempotent : les doublons ou
+// abonnés non ACTIF remontent dans `nbIgnores`. ADMIN / SUPERVISEUR (les siennes).
+export const AJOUTER_ABONNES_CAMPAGNE = gql`
+  mutation AjouterAbonnesCampagne($campagneId: String!, $abonneIds: [String!]!) {
+    ajouterAbonnesCampagne(campagneId: $campagneId, abonneIds: $abonneIds) {
+      nbAjoutes
+      nbIgnores
+    }
+  }
+`;
+
 export const AFFECTER_AGENT = gql`
   mutation AffecterAgent($campagneId: String!, $agentId: String!) {
     affecterAgent(campagneId: $campagneId, agentId: $agentId) {

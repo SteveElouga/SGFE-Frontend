@@ -1,4 +1,3 @@
-import { effect, type Injector } from '@angular/core';
 import type { InMemoryCache } from '@apollo/client/core';
 import type { AuthService } from '../auth/auth.service';
 
@@ -9,16 +8,47 @@ import type { AuthService } from '../auth/auth.service';
  * dépendance externe. Le service worker cache la coquille de l'app ; ceci
  * complète en cachant les **données** GraphQL.
  *
- * Sécurité : la clé contient des données de facturation → elle est **purgée à la
- * déconnexion** (voir `setupLogoutPurge`).
+ * Sécurité : la clé contient des données de facturation (montants, soldes). Elle
+ * est **rattachée au `userId`** et n'est restaurée que pour ce même utilisateur
+ * (voir `restorePersistedCacheFor`) — sur un appareil partagé, les données de A
+ * ne peuvent jamais être servies à B. Elle est en outre purgée à la déconnexion
+ * (voir `AuthService.clearSession`).
  */
 const STORAGE_KEY = 'aquabill.apollo-cache';
 
-/** Restaure le cache persistant. Best-effort : sur données corrompues, on repart propre. */
-export function restorePersistedCache(cache: InMemoryCache): void {
+interface PersistedCache {
+  userId: string;
+  data: unknown;
+}
+
+function readPersisted(): PersistedCache | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) cache.restore(JSON.parse(raw));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<PersistedCache>;
+    if (parsed && typeof parsed.userId === 'string' && 'data' in parsed) {
+      return parsed as PersistedCache;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Restaure le cache persistant **uniquement s'il appartient à l'utilisateur
+ * courant**. Tout cache appartenant à un autre utilisateur (ou illisible) est
+ * purgé au lieu d'être chargé — empêche la fuite de données inter-utilisateurs
+ * sur un appareil partagé.
+ */
+export function restorePersistedCacheFor(cache: InMemoryCache, userId: string): void {
+  const persisted = readPersisted();
+  if (!persisted || persisted.userId !== userId) {
+    purgePersistedCache();
+    return;
+  }
+  try {
+    cache.restore(persisted.data as Parameters<InMemoryCache['restore']>[0]);
   } catch {
     purgePersistedCache();
   }
@@ -26,13 +56,17 @@ export function restorePersistedCache(cache: InMemoryCache): void {
 
 /**
  * Sauvegarde l'état du cache quand l'utilisateur **quitte ou masque** l'app
- * (fermeture d'onglet, bascule d'appli mobile). Suffisant pour l'offline sans
- * surcoût d'écriture à chaque requête.
+ * (fermeture d'onglet, bascule d'appli mobile). Le cache n'est persisté que
+ * lorsqu'un utilisateur est authentifié, et toujours estampillé de son `userId`
+ * pour un rechargement strictement rattaché à la bonne identité.
  */
-export function setupCachePersistence(cache: InMemoryCache): void {
+export function setupCachePersistence(cache: InMemoryCache, auth: AuthService): void {
   const save = (): void => {
+    const user = auth.user();
+    if (!user) return; // ne jamais persister un état anonyme / non authentifié
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cache.extract()));
+      const payload: PersistedCache = { userId: user.id, data: cache.extract() };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
       /* quota dépassé / mode privé — persistance simplement ignorée */
     }
@@ -50,26 +84,4 @@ export function purgePersistedCache(): void {
   } catch {
     /* ignore */
   }
-}
-
-/**
- * Purge à la déconnexion, **sans coupler** ce module à `AuthService.clearSession`
- * (fichier édité en parallèle) : on observe la transition **authentifié →
- * déconnecté** via un effet sur le signal `user`. L'état initial « pas encore
- * connecté » (null au démarrage) ne déclenche PAS de purge.
- */
-export function setupLogoutPurge(auth: AuthService, injector: Injector): void {
-  let wasAuthed = false;
-  effect(
-    () => {
-      const user = auth.user();
-      if (user) {
-        wasAuthed = true;
-      } else if (wasAuthed) {
-        wasAuthed = false;
-        purgePersistedCache();
-      }
-    },
-    { injector },
-  );
 }

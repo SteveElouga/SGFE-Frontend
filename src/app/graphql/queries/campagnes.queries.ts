@@ -41,6 +41,12 @@ export const GET_RELEVES = gql`
       statut
       observation
       dateReleve
+      abonneNom
+      abonnePrenom
+      numeroAbonne
+      numeroCompteur
+      quartier
+      camp
     }
   }
 `;
@@ -78,9 +84,9 @@ export const GET_REPARTITION_ZONE = gql`
   }
 `;
 
-// PENDING DEPLOY (PR #68) — relevés d'UN agent, pour l'écran « Voir la tournée ».
-// ADMIN toutes / SUPERVISEUR ses campagnes / AGENT sa propre tournée.
-// NE PAS brancher tant que relevesParAgent n'apparaît pas à l'introspection.
+// Relevés d'UN agent — LIVRÉ. ADMIN toutes / SUPERVISEUR ses campagnes /
+// AGENT sa propre tournée (agentId doit être le sien, sinon PERMISSION_DENIED).
+// Source de données de l'écran terrain agent (cf. terrain.component load()).
 export const GET_RELEVES_PAR_AGENT = gql`
   query GetRelevesParAgent($campagneId: String!, $agentId: String!) {
     relevesParAgent(campagneId: $campagneId, agentId: $agentId) {
@@ -92,6 +98,12 @@ export const GET_RELEVES_PAR_AGENT = gql`
       statut
       observation
       dateReleve
+      abonneNom
+      abonnePrenom
+      numeroAbonne
+      numeroCompteur
+      quartier
+      camp
     }
   }
 `;

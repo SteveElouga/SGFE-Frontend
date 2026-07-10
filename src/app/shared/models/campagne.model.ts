@@ -108,6 +108,17 @@ export interface Releve {
   dateReleve: string;
   observation: string;
   statut: StatutReleve;
+  // ── PR #92 (déployé) — identité de l'abonné jointe côté Gateway (best-effort :
+  // Abonné Service indisponible → chaînes/valeurs vides, la query ne casse pas).
+  // + snapshot de zone (quartier/camp). Permet à l'agent d'afficher les noms
+  // sans accès direct au service Abonné (réservé ADMIN).
+  abonneNom?: string;
+  abonnePrenom?: string;
+  numeroAbonne?: string;
+  abonneAdresse?: string;
+  numeroCompteur?: number | null;
+  quartier?: string | null;
+  camp?: number | null;
   // ── PR #68 (PENDING DEPLOY) — audit & correction de relevé ────────────────
   // Champs optionnels : non demandés par les queries actuelles tant que le
   // backend n'est pas déployé (un champ inconnu casserait toute la query).
@@ -185,7 +196,12 @@ export interface CreateCampagneInput {
   numeroMobileMoney?: string;
   genererFacturesAuto?: boolean;
   envoyerWhatsappAuto?: boolean;
-  filtreZones?: string[]; // pending backend: CreateCampagneInput.filtreZones
+}
+
+/** Résultat de `ajouterAbonnesCampagne` (rattachement idempotent). */
+export interface AjouterAbonnesResult {
+  nbAjoutes: number;
+  nbIgnores: number;
 }
 
 export interface SaisirIndexInput {

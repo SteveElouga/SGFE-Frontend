@@ -146,14 +146,14 @@
           <span class="zones-filter__title">{{ 'CAMPAGNES.FORM.ZONES_TITLE' | translate }}</span>
           @if (zonesDisponibles().length > 0) {
             <div class="zones-list">
-              @for (item of zonesDisponibles(); track item.zone) {
+              @for (item of zonesDisponibles(); track item.key) {
                 <button
                   type="button"
                   class="zone-chip"
-                  [class.zone-chip--selected]="selectedZones().has(item.zone)"
-                  (click)="toggleZone(item.zone)"
+                  [class.zone-chip--selected]="selectedZones().has(item.key)"
+                  (click)="toggleZone(item.key)"
                 >
-                  {{ item.zone }}
+                  {{ item.quartier }} · Camp {{ item.camp }}
                   <span class="zone-chip__count">{{ item.count }}</span>
                 </button>
               }
@@ -251,6 +251,23 @@
             (click)="envoyerWhatsappAuto.set(!envoyerWhatsappAuto())"
             [attr.aria-pressed]="envoyerWhatsappEffectif()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_WHATSAPP' | translate"
+          >
+            <span class="toggle__thumb"></span>
+          </button>
+        </div>
+
+        <div class="option-row">
+          <div class="option-row__content">
+            <span class="option-row__label">{{ 'CAMPAGNES.FORM.OPT_DEMARRER' | translate }}</span>
+            <span class="option-row__desc">{{ 'CAMPAGNES.FORM.OPT_DEMARRER_DESC' | translate }}</span>
+          </div>
+          <button
+            type="button"
+            class="toggle"
+            [class.toggle--on]="demarrerMaintenant()"
+            (click)="demarrerMaintenant.set(!demarrerMaintenant())"
+            [attr.aria-pressed]="demarrerMaintenant()"
+            [attr.aria-label]="'CAMPAGNES.FORM.OPT_DEMARRER' | translate"
           >
             <span class="toggle__thumb"></span>
           </button>

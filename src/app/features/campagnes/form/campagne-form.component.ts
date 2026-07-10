@@ -11,13 +11,11 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
-import { GET_USERS } from '../../../graphql/queries/users.queries';
 import { GET_ABONNES_ACTIFS } from '../../../graphql/queries/abonnes.queries';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -66,18 +64,26 @@ export class CampagneFormComponent implements OnInit {
   readonly abonnesActifs = signal<AbonneActif[] | null>(null);
   readonly nbAbonnesActifs = computed(() => this.abonnesActifs()?.length ?? null);
 
-  // Zones disponibles, dédupliquées depuis abonne.compteur.quartier
+  // Zones disponibles = paires (quartier, camp), dédupliquées depuis les
+  // compteurs des abonnés actifs. La granularité métier d'une zone est
+  // (quartier, camp) partout (proto Zone, affectation d'agents) : filtrer sur le
+  // seul quartier rattacherait d'un coup tous les camps du quartier.
   readonly zonesDisponibles = computed(() => {
     const abonnes = this.abonnesActifs();
     if (!abonnes) return [];
-    const map = new Map<string, number>();
+    const map = new Map<string, { quartier: string; camp: number; count: number }>();
     for (const a of abonnes) {
-      const zone = a.compteur?.quartier?.trim() ?? '';
-      if (zone) map.set(zone, (map.get(zone) ?? 0) + 1);
+      const quartier = a.compteur?.quartier?.trim() ?? '';
+      if (!quartier) continue;
+      const camp = a.compteur!.camp;
+      const key = this.zoneKey(quartier, camp);
+      const entry = map.get(key);
+      if (entry) entry.count += 1;
+      else map.set(key, { quartier, camp, count: 1 });
     }
     return [...map.entries()]
-      .sort((a, b) => a[0].localeCompare(b[0], 'fr'))
-      .map(([zone, count]) => ({ zone, count }));
+      .map(([key, v]) => ({ key, ...v }))
+      .sort((a, b) => a.quartier.localeCompare(b.quartier, 'fr') || a.camp - b.camp);
   });
 
   // Zones sélectionnées (mode FILTRE)
@@ -90,10 +96,7 @@ export class CampagneFormComponent implements OnInit {
     if (this.selectionMode() === 'TOUS') return abonnes.length;
     const zones = this.selectedZones();
     if (zones.size === 0) return 0;
-    return abonnes.filter((a) => {
-      const zone = a.compteur?.quartier?.trim() ?? '';
-      return zones.has(zone);
-    }).length;
+    return abonnes.filter((a) => this.abonneDansZones(a, zones)).length;
   });
 
   // ── Identification ──────────────────────────────────────────────────────────
@@ -103,11 +106,9 @@ export class CampagneFormComponent implements OnInit {
   // ── Abonnés sélection ───────────────────────────────────────────────────────
   readonly selectionMode = signal<'TOUS' | 'FILTRE'>('TOUS');
   /**
-   * `filtreZones` n'existe pas encore sur `CreateCampagneInput` côté backend
-   * (voir `backend-capabilities.ts`) : le mode FILTRE resterait sans effet
-   * (campagne créée pour TOUS les abonnés malgré la sélection affichée). On
-   * désactive donc ce choix tant que le champ n'est pas livré, plutôt que de
-   * laisser une sélection qui ne serait pas respectée.
+   * Le mode FILTRE ne rattache que les abonnés des zones cochées, via
+   * `ajouterAbonnesCampagne(abonneIds)` (ids résolus côté client dans
+   * `resolveAbonneIds()`). Voir `backend-capabilities.ts`.
    */
   readonly filtreZonesReady = BACKEND_CAPABILITIES.CAMPAGNE_FILTRE_ZONES;
 
@@ -119,6 +120,13 @@ export class CampagneFormComponent implements OnInit {
   // ── Options ─────────────────────────────────────────────────────────────────
   readonly genererFacturesAuto = signal(true);
   readonly envoyerWhatsappAuto = signal(true);
+  /**
+   * Démarre la campagne (→ EN_COURS) juste après sa création. Requis pour que
+   * les agents puissent saisir (`saisirIndex` exige EN_COURS). Laisser décoché
+   * si l'on veut d'abord affecter des zones aux agents depuis le détail
+   * (l'ordre correct est : rattacher abonnés → affecter zones → démarrer).
+   */
+  readonly demarrerMaintenant = signal(false);
   readonly formMobileMoney = signal('');
 
   // Mobile Money : 9 chiffres exactement ou vide
@@ -165,13 +173,15 @@ export class CampagneFormComponent implements OnInit {
 
   private async loadAgents(): Promise<void> {
     try {
-      const result = await firstValueFrom(
-        this.apollo.query<{ users: Agent[] }>({
-          query: GET_USERS,
-          fetchPolicy: 'cache-first',
-        }),
+      // `agentsDisponibles` est accessible à ADMIN **et** SUPERVISEUR (au
+      // contraire de `users`, réservé ADMIN → un superviseur n'aurait aucun
+      // agent proposé).
+      const agents = await this.service.getAgentsDisponibles();
+      this.agents.set(
+        agents
+          .filter((a) => a.isActive)
+          .map((a) => ({ id: a.id, username: a.username, role: a.role })),
       );
-      this.agents.set((result.data?.users ?? []).filter((u) => u.role === 'AGENT'));
     } catch {
       // agents non critiques
     }
@@ -207,17 +217,39 @@ export class CampagneFormComponent implements OnInit {
     this.selectedAgentIds.set(set);
   }
 
-  toggleZone(zone: string): void {
+  toggleZone(key: string): void {
     const set = new Set(this.selectedZones());
-    if (set.has(zone)) set.delete(zone);
-    else set.add(zone);
+    if (set.has(key)) set.delete(key);
+    else set.add(key);
     this.selectedZones.set(set);
+  }
+
+  /** Clé d'une zone = paire (quartier, camp), cohérente avec le backend. */
+  private zoneKey(quartier: string, camp: number): string {
+    return `${quartier}##${camp}`;
+  }
+
+  /** Un abonné appartient-il à l'une des zones (quartier, camp) sélectionnées ? */
+  private abonneDansZones(a: AbonneActif, zones: Set<string>): boolean {
+    const quartier = a.compteur?.quartier?.trim() ?? '';
+    return quartier !== '' && zones.has(this.zoneKey(quartier, a.compteur!.camp));
+  }
+
+  /** Ids des abonnés à rattacher selon le mode (TOUS = tous les actifs). */
+  private resolveAbonneIds(): string[] {
+    const abonnes = this.abonnesActifs() ?? [];
+    if (this.selectionMode() === 'TOUS') return abonnes.map((a) => a.id);
+    const zones = this.selectedZones();
+    return abonnes.filter((a) => this.abonneDansZones(a, zones)).map((a) => a.id);
   }
 
   async submit(): Promise<void> {
     if (!this.formValid() || this.submitting()) return;
     this.submitting.set(true);
     try {
+      // Ordre imposé par le backend : 1) créer → 2) rattacher les abonnés (crée
+      // leurs relevés A_RELEVER, sinon « 0 abonné à relever ») → 3) affecter les
+      // agents → 4) démarrer (requis pour la saisie ; après affectation).
       const date = new Date(this.formDatePlanifiee());
       const campagne = await this.service.creerCampagne({
         nom: this.formNom().trim(),
@@ -228,9 +260,20 @@ export class CampagneFormComponent implements OnInit {
         genererFacturesAuto: this.genererFacturesAuto(),
         envoyerWhatsappAuto: this.envoyerWhatsappEffectif(),
       });
+
+      const abonneIds = this.resolveAbonneIds();
+      if (abonneIds.length > 0) {
+        await this.service.ajouterAbonnesCampagne(campagne.campagneId, abonneIds);
+      }
+
       for (const agentId of this.selectedAgentIds()) {
         await this.service.affecterAgent(campagne.campagneId, agentId);
       }
+
+      if (this.demarrerMaintenant()) {
+        await this.service.demarrerCampagne(campagne.campagneId);
+      }
+
       this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CREE'));
       await this.router.navigate(['/campagnes']);
     } catch (err: unknown) {

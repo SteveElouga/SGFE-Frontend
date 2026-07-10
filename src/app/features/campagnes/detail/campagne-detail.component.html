@@ -143,13 +143,24 @@
                   }
                 </div>
 
-                @if (a.zones.length > 0) {
-                  <div class="agent-card__zones">
-                    @for (z of a.zones; track z.nom) {
-                      <span class="agent-zone-tag">{{ z.nom }} · {{ z.camp }}</span>
-                    }
-                  </div>
-                }
+                <div class="agent-card__zones">
+                  @for (z of a.zones; track z.nom) {
+                    <span class="agent-zone-tag">{{ z.nom }} · {{ z.camp }}</span>
+                  } @empty {
+                    <span class="agent-zone-tag agent-zone-tag--empty">
+                      {{ 'CAMPAGNES.ZONES_SHEET.NONE' | translate }}
+                    </span>
+                  }
+                  <button
+                    type="button"
+                    class="agent-zone-edit"
+                    (click)="openZonesSheet({ id: a.id, username: a.username })"
+                    [attr.aria-label]="'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate"
+                  >
+                    <i class="pi pi-pencil"></i>
+                    <span>{{ 'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate }}</span>
+                  </button>
+                </div>
 
                 <div class="agent-card__prog">
                   <div class="agent-card__prog-row">
@@ -277,9 +288,20 @@
               @let isARelever = r.statut === 'A_RELEVER';
               <tr [class.releves-table__row--muted]="isARelever">
                 <td class="col-abonne" [class.col-abonne--muted]="isARelever">
-                  <span class="id-fallback">{{ r.abonneId | slice:0:8 }}…</span>
+                  @let nomAb = ((r.abonnePrenom ?? '') + ' ' + (r.abonneNom ?? '')).trim();
+                  @if (nomAb) {
+                    {{ nomAb }}@if (r.numeroAbonne) { <span class="id-fallback">{{ r.numeroAbonne }}</span> }
+                  } @else {
+                    <span class="id-fallback">{{ r.numeroAbonne || (r.abonneId | slice:0:8) }}…</span>
+                  }
                 </td>
-                <td class="col-meta">{{ abonnesMap().get(r.abonneId) ?? '—' }}</td>
+                <td class="col-meta">
+                  @if (r.quartier) {
+                    {{ r.quartier }}@if (r.camp !== null && r.camp !== undefined) { · {{ r.camp }} }
+                  } @else {
+                    {{ abonnesMap().get(r.abonneId) ?? '—' }}
+                  }
+                </td>
                 <td class="col-num col-anc-index">{{ r.ancienIndex | number:'1.0-0' }}</td>
                 <td class="col-num col-nouv-index">
                   @if (isReleve) {
@@ -320,7 +342,8 @@
           <div class="rm-card">
             <span class="rm-card__dot rm-card__dot--{{ r.statut | lowercase }}"></span>
             <div class="rm-card__info">
-              <span class="rm-card__nom">{{ abonnesMap().get(r.abonneId) ?? (r.abonneId | slice:0:8) }}</span>
+              @let nomCard = ((r.abonnePrenom ?? '') + ' ' + (r.abonneNom ?? '')).trim();
+              <span class="rm-card__nom">{{ nomCard || r.numeroAbonne || (r.abonneId | slice:0:8) }}</span>
               <span class="rm-card__sub">
                 @if (isReleve) {
                   {{ r.consommation | number:'1.0-0' }} m³ · {{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }} {{ r.nouveauIndex | number:'1.0-0' }}
@@ -349,6 +372,18 @@
       (close)="closeAgentsSheet()"
       (saved)="load()"
     />
+
+    @if (zonesAgent(); as za) {
+      <app-zones-sheet
+        [open]="showZonesSheet()"
+        [campagneId]="campagneId"
+        [agentId]="za.id"
+        [agentUsername]="za.username"
+        [agents]="agentsData()"
+        (close)="closeZonesSheet()"
+        (saved)="onZonesSaved()"
+      />
+    }
   }
 
   <!-- ── Modal de clôture (écran 18) ── -->
