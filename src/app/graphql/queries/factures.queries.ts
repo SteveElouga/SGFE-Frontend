@@ -6,6 +6,9 @@ export const GET_FACTURES_PAR_CAMPAGNE = gql`
       factureId
       numeroFacture
       abonneId
+      abonneNom
+      abonneNumero
+      campagneNom
       statut
       consommation
       montant
@@ -20,7 +23,12 @@ export const GET_FACTURES = gql`
       factureId
       numeroFacture
       abonneId
+      abonneNom
+      abonneNumero
       campagneId
+      campagneNom
+      campagnePeriodeMois
+      campagnePeriodeAnnee
       statut
       consommation
       montant
@@ -36,7 +44,10 @@ export const GET_FACTURE = gql`
       factureId
       numeroFacture
       abonneId
+      abonneNom
+      abonneNumero
       campagneId
+      campagneNom
       ancienIndex
       nouveauIndex
       consommation
@@ -93,6 +104,23 @@ export const GET_ENVOIS = gql`
   query GetEnvois($factureId: String!, $abonneId: String) {
     envois(factureId: $factureId, abonneId: $abonneId) {
       envoiId
+      statut
+      dateEnvoi
+      typeEnvoi
+      erreur
+    }
+  }
+`;
+
+// Historique GLOBAL des envois WhatsApp (écran Envois) : `envois` sans filtre
+// renvoie tous les envois (ADMIN, COMPTABLE).
+export const GET_ALL_ENVOIS = gql`
+  query GetAllEnvois {
+    envois {
+      envoiId
+      abonneId
+      factureId
+      typeEnvoi
       statut
       dateEnvoi
       erreur

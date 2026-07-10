@@ -10,8 +10,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
-import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
@@ -24,8 +22,6 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
-import { GET_ABONNES } from '../../../graphql/queries/abonnes.queries';
-import { GET_CAMPAGNES } from '../../../graphql/queries/campagnes.queries';
 import { PaiementPanelComponent } from './paiement-panel/paiement-panel.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
@@ -65,7 +61,6 @@ export class FacturesListComponent implements OnInit {
   private readonly facturesService = inject(FacturesService);
   private readonly facturePdf = inject(FacturePdfService);
   private readonly campagnesService = inject(CampagnesService);
-  private readonly apollo = inject(Apollo);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
@@ -151,26 +146,12 @@ export class FacturesListComponent implements OnInit {
   private async redirectToMostRecentCampagne(): Promise<void> {
     this.loading.set(true);
     try {
-      const result = await firstValueFrom(
-        this.apollo.query<{
-          campagnes: Array<{ campagneId: string; statut: string; periodeMois: number; periodeAnnee: number }>;
-        }>({
-          query: GET_CAMPAGNES,
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      const statutPriority = (s: string) =>
-        s === 'CLOTUREE' ? 0 : s === 'EN_COURS' ? 1 : 2;
-      const sorted = [...(result.data?.campagnes ?? [])].sort((a, b) => {
-        const sp = statutPriority(a.statut) - statutPriority(b.statut);
-        if (sp !== 0) return sp;
-        if (b.periodeAnnee !== a.periodeAnnee) return b.periodeAnnee - a.periodeAnnee;
-        return b.periodeMois - a.periodeMois;
-      });
-      if (sorted.length > 0) {
-        void this.router.navigate(['/factures/campagne', sorted[0].campagneId], {
-          replaceUrl: true,
-        });
+      // Le COMPTABLE n'a pas accès à la query `campagnes` : on dérive la liste
+      // des campagnes des factures (enrichies du nom/période de campagne) et on
+      // redirige vers la plus récente qui possède des factures.
+      const campagnes = this.campagnesDepuisFactures(await this.facturesService.getFactures());
+      if (campagnes.length > 0) {
+        void this.router.navigate(['/factures/campagne', campagnes[0].value], { replaceUrl: true });
       } else {
         this.loading.set(false);
       }
@@ -179,17 +160,42 @@ export class FacturesListComponent implements OnInit {
     }
   }
 
+  /** Campagnes distinctes portées par un lot de factures enrichies, triées de la
+   *  plus récente à la plus ancienne (le COMPTABLE n'a pas accès à `campagnes`). */
+  private campagnesDepuisFactures(factures: Facture[]): CampagneOption[] {
+    const map = new Map<string, { nom: string; mois: number; annee: number }>();
+    for (const f of factures) {
+      if (f.campagneId && !map.has(f.campagneId)) {
+        map.set(f.campagneId, {
+          nom: f.campagneNom ?? '',
+          mois: f.campagnePeriodeMois ?? 0,
+          annee: f.campagnePeriodeAnnee ?? 0,
+        });
+      }
+    }
+    return [...map.entries()]
+      .sort((a, b) => b[1].annee - a[1].annee || b[1].mois - a[1].mois)
+      .map(([value, v]) => ({ label: v.nom, value }));
+  }
+
   async load(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [factures] = await Promise.all([
-        this.facturesService.getFacturesParCampagne(this.campagneId()),
-        this.loadCampagneNom(this.campagneId()),
-        this.loadAbonnes(),
-        this.loadAllCampagnes(),
-      ]);
+      const factures = await this.facturesService.getFacturesParCampagne(this.campagneId());
       this.factures.set(factures);
+      // Nom de campagne et noms/numéros d'abonnés tirés des factures enrichies
+      // — pas de query `campagne`/`abonnes`, refusées au COMPTABLE.
+      this.campagneNom.set(factures[0]?.campagneNom ?? '');
+      const map = new Map<string, AbonneInfo>();
+      for (const f of factures) {
+        map.set(f.abonneId, { nom: f.abonneNom ?? '', prenom: '', numeroAbonne: f.abonneNumero ?? '' });
+      }
+      this.abonnesMap.set(map);
+      // Best-effort (ADMIN) : objet campagne complet pour le toggle WhatsApp auto.
+      void this.loadCampagneObjet(this.campagneId());
+      // Sélecteur multi-campagnes dérivé de toutes les factures.
+      void this.loadAllCampagnes();
       const partielles = factures.filter((f) => f.statut === 'PARTIELLE');
       void this.loadSoldes(partielles);
     } catch (err: unknown) {
@@ -200,55 +206,19 @@ export class FacturesListComponent implements OnInit {
     }
   }
 
-  private async loadCampagneNom(campagneId: string): Promise<void> {
+  private async loadCampagneObjet(campagneId: string): Promise<void> {
     try {
       const campagne = await this.campagnesService.getCampagne(campagneId);
       this.campagne.set(campagne);
-      this.campagneNom.set(campagne.nom);
+      if (!this.campagneNom()) this.campagneNom.set(campagne.nom);
     } catch {
-      // non-critical
-    }
-  }
-
-  private async loadAbonnes(): Promise<void> {
-    try {
-      const result = await firstValueFrom(
-        this.apollo.query<{
-          abonnes: Array<{ id: string; nom: string; prenom: string; numeroAbonne: string }>;
-        }>({
-          query: GET_ABONNES,
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      const map = new Map<string, AbonneInfo>();
-      for (const a of result.data?.abonnes ?? []) {
-        map.set(a.id, { nom: a.nom, prenom: a.prenom, numeroAbonne: a.numeroAbonne });
-      }
-      this.abonnesMap.set(map);
-    } catch {
-      // non-critical
+      // non-critique : query `campagne` refusée au COMPTABLE — le nom vient déjà des factures.
     }
   }
 
   private async loadAllCampagnes(): Promise<void> {
     try {
-      const result = await firstValueFrom(
-        this.apollo.query<{
-          campagnes: Array<{ campagneId: string; nom: string; statut: string; periodeMois: number; periodeAnnee: number }>;
-        }>({
-          query: GET_CAMPAGNES,
-          fetchPolicy: 'cache-first',
-        }),
-      );
-      const statutPriority = (s: string) =>
-        s === 'CLOTUREE' ? 0 : s === 'EN_COURS' ? 1 : 2;
-      const sorted = [...(result.data?.campagnes ?? [])].sort((a, b) => {
-        const sp = statutPriority(a.statut) - statutPriority(b.statut);
-        if (sp !== 0) return sp;
-        if (b.periodeAnnee !== a.periodeAnnee) return b.periodeAnnee - a.periodeAnnee;
-        return b.periodeMois - a.periodeMois;
-      });
-      this.allCampagnes.set(sorted.map((c) => ({ label: c.nom, value: c.campagneId })));
+      this.allCampagnes.set(this.campagnesDepuisFactures(await this.facturesService.getFactures()));
     } catch {
       // non-critical
     }

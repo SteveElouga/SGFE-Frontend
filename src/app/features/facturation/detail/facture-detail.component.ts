@@ -175,7 +175,9 @@ export class FactureDetailComponent implements OnInit {
 
   readonly abonneLabel = computed(() => {
     const a = this.abonne();
-    return a ? `${a.prenom} ${a.nom}`.trim() : '';
+    // Repli sur le nom enrichi porté par la facture quand l'abonné n'est pas
+    // résolu (query `abonne` refusée au COMPTABLE).
+    return a ? `${a.prenom} ${a.nom}`.trim() : (this.facture()?.abonneNom ?? '');
   });
 
   readonly compteurLabel = computed(() => {
@@ -183,7 +185,7 @@ export class FactureDetailComponent implements OnInit {
     return c ? `C-${c.numeroCompteur} · ${c.quartier}, Camp ${c.camp}` : null;
   });
 
-  readonly campagneLabel = computed(() => this.campagne()?.nom ?? '');
+  readonly campagneLabel = computed(() => this.campagne()?.nom ?? this.facture()?.campagneNom ?? '');
 
   readonly periodeLabel = computed(() => {
     const c = this.campagne();

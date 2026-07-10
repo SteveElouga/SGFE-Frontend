@@ -31,6 +31,14 @@ export interface Facture {
   dateGeneration: string;
   pdfPath: string;
   numeroMobileMoney: string;
+  // Champs enrichis côté Gateway (jointure best-effort) : nom de l'abonné et
+  // nom/période de la campagne. Permettent aux écrans factures/paiements de
+  // s'afficher sans les queries `abonnes`/`campagnes` (refusées au COMPTABLE).
+  abonneNom?: string;
+  abonneNumero?: string;
+  campagneNom?: string;
+  campagnePeriodeMois?: number;
+  campagnePeriodeAnnee?: number;
 }
 
 export interface SoldeFacture {
@@ -63,6 +71,7 @@ export interface EnregistrerPaiementInput {
 export interface Envoi {
   envoiId: string;
   factureId: string;
+  abonneId?: string;
   statut: string;
   dateEnvoi: string;
   typeEnvoi?: string;

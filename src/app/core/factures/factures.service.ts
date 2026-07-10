@@ -8,6 +8,7 @@ import {
   GET_SOLDE_FACTURE,
   GET_PAIEMENTS,
   GET_ENVOIS,
+  GET_ALL_ENVOIS,
   GET_TARIF_ACTUEL,
 } from '../../graphql/queries/factures.queries';
 import {
@@ -94,6 +95,17 @@ export class FacturesService {
       this.apollo.query<{ envois: Envoi[] }>({
         query: GET_ENVOIS,
         variables: { factureId },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.envois;
+  }
+
+  /** Historique global des envois WhatsApp (écran Envois) — ADMIN, COMPTABLE. */
+  async getAllEnvois(): Promise<Envoi[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ envois: Envoi[] }>({
+        query: GET_ALL_ENVOIS,
         fetchPolicy: 'network-only',
       }),
     );

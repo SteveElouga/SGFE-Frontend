@@ -8,8 +8,6 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -22,8 +20,6 @@ import { PageTopbarComponent } from '../../shared/components/page-topbar/page-to
 import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
-import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
-import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { FcfaPipe, formatFcfa } from '../../shared/pipes/fcfa.pipe';
 
 interface CampagneItem {
@@ -38,14 +34,9 @@ interface FactureRef {
   factureId: string;
   numeroFacture: string;
   abonneId: string;
+  abonneNom: string;
   campagneId: string;
   statut: StatutFacture;
-}
-
-interface AbonneRef {
-  id: string;
-  nom: string;
-  prenom: string;
 }
 
 interface PaiementRow {
@@ -81,7 +72,6 @@ interface PaiementRow {
 })
 export class PaiementsListComponent implements OnInit {
   private readonly service = inject(FacturesService);
-  private readonly apollo = inject(Apollo);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
@@ -90,7 +80,6 @@ export class PaiementsListComponent implements OnInit {
 
   readonly paiements = signal<Paiement[]>([]);
   readonly campagnes = signal<CampagneItem[]>([]);
-  readonly abonnesMap = signal<Map<string, string>>(new Map());
   readonly facturesMap = signal<Map<string, FactureRef>>(new Map());
 
   readonly selectedCampagneId = signal<string | null>(null);
@@ -128,7 +117,6 @@ export class PaiementsListComponent implements OnInit {
 
   readonly rows = computed((): PaiementRow[] => {
     const facturesMap = this.facturesMap();
-    const abonnesMap = this.abonnesMap();
     const campagneId = this.selectedCampagneId();
 
     let list = this.paiements();
@@ -155,7 +143,7 @@ export class PaiementsListComponent implements OnInit {
     if (term) {
       list = list.filter((p) => {
         const f = facturesMap.get(p.factureId);
-        const nom = f ? (abonnesMap.get(f.abonneId) ?? '') : '';
+        const nom = f?.abonneNom ?? '';
         return nom.toLowerCase().includes(term) || (f?.numeroFacture ?? '').toLowerCase().includes(term);
       });
     }
@@ -166,7 +154,7 @@ export class PaiementsListComponent implements OnInit {
         paiementId: p.paiementId,
         factureId: p.factureId,
         numeroFacture: f?.numeroFacture ?? '—',
-        abonneNom: f ? (abonnesMap.get(f.abonneId) ?? '—') : '—',
+        abonneNom: f?.abonneNom || '—',
         montant: p.montant,
         datePaiement: p.datePaiement,
         modePaiement: p.modePaiement,
@@ -195,56 +183,63 @@ export class PaiementsListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [campagnesRes, paiementsRes, abonnesRes, facturesRes] = await Promise.all([
-        firstValueFrom(
-          this.apollo.query<{ campagnes: CampagneItem[] }>({
-            query: GET_CAMPAGNES,
-            fetchPolicy: 'cache-first',
-          }),
-        ),
+      // Deux queries autorisées au COMPTABLE : les paiements et les factures
+      // (enrichies côté Gateway du nom d'abonné + nom/période de campagne). On
+      // en dérive les noms d'abonnés ET la liste des campagnes — plus besoin
+      // des queries `abonnes`/`campagnes`, réservées à d'autres rôles.
+      // Résilient : si les factures échouent, les paiements restent affichés.
+      const [paiementsRes, facturesRes] = await Promise.allSettled([
         this.service.getAllPaiements(),
-        firstValueFrom(
-          this.apollo.query<{ abonnes: AbonneRef[] }>({
-            query: GET_ABONNES,
-            fetchPolicy: 'cache-first',
-          }),
-        ),
         this.service.getFactures(),
       ]);
 
-      const abonnesMap = new Map<string, string>();
-      for (const a of abonnesRes.data?.abonnes ?? []) {
-        abonnesMap.set(a.id, `${a.prenom} ${a.nom}`);
+      if (paiementsRes.status === 'rejected') {
+        throw paiementsRes.reason;
       }
-      this.abonnesMap.set(abonnesMap);
+      const paiements = paiementsRes.value;
+      const factures = facturesRes.status === 'fulfilled' ? facturesRes.value : [];
 
-      // Toutes les factures (toutes campagnes) : indispensable pour résoudre
-      // abonné / n° facture / statut d'un paiement quelle que soit la campagne.
+      // Toutes les factures (toutes campagnes) : résout abonné / n° facture /
+      // statut d'un paiement via les libellés enrichis portés par la facture.
       const facturesMap = new Map<string, FactureRef>();
-      for (const f of facturesRes) {
+      for (const f of factures) {
         facturesMap.set(f.factureId, {
           factureId: f.factureId,
           numeroFacture: f.numeroFacture,
           abonneId: f.abonneId,
+          abonneNom: f.abonneNom ?? '',
           campagneId: f.campagneId,
           statut: f.statut,
         });
       }
       this.facturesMap.set(facturesMap);
 
-      const sorted = [...(campagnesRes.data?.campagnes ?? [])].sort((a, b) => {
+      // Liste des campagnes dérivée des factures (le COMPTABLE n'a pas accès à
+      // la query `campagnes`) : une entrée par campagne distincte présente.
+      const campMap = new Map<string, CampagneItem>();
+      for (const f of factures) {
+        if (f.campagneId && !campMap.has(f.campagneId)) {
+          campMap.set(f.campagneId, {
+            campagneId: f.campagneId,
+            nom: f.campagneNom ?? '',
+            periodeMois: f.campagnePeriodeMois ?? 0,
+            periodeAnnee: f.campagnePeriodeAnnee ?? 0,
+            statut: '',
+          });
+        }
+      }
+      const sorted = [...campMap.values()].sort((a, b) => {
         if (b.periodeAnnee !== a.periodeAnnee) return b.periodeAnnee - a.periodeAnnee;
         return b.periodeMois - a.periodeMois;
       });
       this.campagnes.set(sorted);
 
-      const sortedPaiements = [...paiementsRes].sort((a, b) =>
+      const sortedPaiements = [...paiements].sort((a, b) =>
         b.datePaiement.localeCompare(a.datePaiement),
       );
       this.paiements.set(sortedPaiements);
 
-      // Défaut : la campagne récente qui a effectivement des paiements
-      // (sinon on afficherait une liste vide sur une campagne sans factures).
+      // Défaut : la campagne récente qui a effectivement des paiements.
       const campagnesAvecPaiements = new Set<string>();
       for (const p of sortedPaiements) {
         const f = facturesMap.get(p.factureId);
