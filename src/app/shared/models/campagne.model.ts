@@ -196,6 +196,9 @@ export interface CreateCampagneInput {
   numeroMobileMoney?: string;
   genererFacturesAuto?: boolean;
   envoyerWhatsappAuto?: boolean;
+  /** Crée la campagne directement EN_COURS (au lieu de PLANIFIEE) en une seule
+   *  opération atomique — évite un 2e appel demarrerCampagne non atomique (#11). */
+  demarrerMaintenant?: boolean;
 }
 
 /** Résultat de `ajouterAbonnesCampagne` (rattachement idempotent). */

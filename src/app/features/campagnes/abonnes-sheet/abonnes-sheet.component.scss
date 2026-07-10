@@ -1,0 +1,139 @@
+@use '../../../../styles/variables' as *;
+
+:host { display: contents; }
+
+// La chrome (overlay, sheet, poignée) vient de <app-bottom-sheet> ; on ne style
+// ici que le contenu projeté.
+
+.as-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.as-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 14px;
+}
+
+.as-loading {
+  display: flex;
+  justify-content: center;
+  padding: 30px;
+  color: $color-primary;
+  font-size: 20px;
+}
+
+.as-empty {
+  text-align: center;
+  padding: 24px 10px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+// ── Choix du mode (tous / par zone) ──────────────────────────────────────────
+.as-modes {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.as-mode {
+  flex: 1;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #fff;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+
+  &:hover { background: #f8fafc; }
+
+  &--on {
+    border: 1.5px solid $color-primary;
+    background: #f5f8ff;
+    color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.06);
+  }
+}
+
+// ── Chips de zone ─────────────────────────────────────────────────────────────
+.as-zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.as-zone {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
+
+  &:hover { background: #f8fafc; }
+
+  &--on {
+    border: 1.5px solid $color-primary;
+    background: #f5f8ff;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.06);
+  }
+
+  &__count {
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 999px;
+    padding: 1px 7px;
+  }
+}
+
+// ── Actions ───────────────────────────────────────────────────────────────────
+.as-save {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #1a56db, #1d4ed8);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(26, 86, 219, 0.35);
+  margin-bottom: 8px;
+  transition: opacity 0.15s;
+
+  &:hover:not(:disabled) { opacity: 0.92; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+.as-cancel {
+  width: 100%;
+  height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  &:hover { background: #f8fafc; }
+}

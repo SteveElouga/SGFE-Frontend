@@ -247,9 +247,10 @@ export class CampagneFormComponent implements OnInit {
     if (!this.formValid() || this.submitting()) return;
     this.submitting.set(true);
     try {
-      // Ordre imposé par le backend : 1) créer → 2) rattacher les abonnés (crée
-      // leurs relevés A_RELEVER, sinon « 0 abonné à relever ») → 3) affecter les
-      // agents → 4) démarrer (requis pour la saisie ; après affectation).
+      // 1) créer (directement EN_COURS si « démarrer maintenant », via le flag
+      // natif atomique #11) → 2) rattacher les abonnés (crée leurs relevés
+      // A_RELEVER, sinon « 0 abonné à relever ») → 3) affecter les agents.
+      // Rattachement et affectation restent valides sur une campagne EN_COURS.
       const date = new Date(this.formDatePlanifiee());
       const campagne = await this.service.creerCampagne({
         nom: this.formNom().trim(),
@@ -259,6 +260,7 @@ export class CampagneFormComponent implements OnInit {
         numeroMobileMoney: this.formMobileMoney().trim(),
         genererFacturesAuto: this.genererFacturesAuto(),
         envoyerWhatsappAuto: this.envoyerWhatsappEffectif(),
+        demarrerMaintenant: this.demarrerMaintenant(),
       });
 
       const abonneIds = this.resolveAbonneIds();
@@ -268,10 +270,6 @@ export class CampagneFormComponent implements OnInit {
 
       for (const agentId of this.selectedAgentIds()) {
         await this.service.affecterAgent(campagne.campagneId, agentId);
-      }
-
-      if (this.demarrerMaintenant()) {
-        await this.service.demarrerCampagne(campagne.campagneId);
       }
 
       this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CREE'));

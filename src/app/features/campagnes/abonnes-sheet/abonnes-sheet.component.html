@@ -1,0 +1,62 @@
+<app-bottom-sheet [open]="open()" (close)="onClose()">
+  <div class="as-title">{{ 'CAMPAGNES.ABONNES_SHEET.TITLE' | translate }}</div>
+  <div class="as-subtitle">
+    {{ 'CAMPAGNES.ABONNES_SHEET.SUBTITLE' | translate: { n: count() } }}
+  </div>
+
+  @if (loading()) {
+    <div class="as-loading"><i class="pi pi-spin pi-spinner"></i></div>
+  } @else if (loadError()) {
+    <div class="as-empty">{{ 'CAMPAGNES.ABONNES_SHEET.LOAD_ERROR' | translate }}</div>
+  } @else {
+    <div class="as-modes">
+      <button
+        type="button"
+        class="as-mode"
+        [class.as-mode--on]="mode() === 'TOUS'"
+        (click)="selectMode('TOUS')"
+      >
+        {{ 'CAMPAGNES.ABONNES_SHEET.TOUS' | translate }}
+      </button>
+      <button
+        type="button"
+        class="as-mode"
+        [class.as-mode--on]="mode() === 'FILTRE'"
+        (click)="selectMode('FILTRE')"
+      >
+        {{ 'CAMPAGNES.ABONNES_SHEET.PAR_ZONE' | translate }}
+      </button>
+    </div>
+
+    @if (mode() === 'FILTRE') {
+      <div class="as-zones">
+        @for (z of zones(); track z.key) {
+          <button
+            type="button"
+            class="as-zone"
+            [class.as-zone--on]="isSelected(z.key)"
+            (click)="toggleZone(z.key)"
+          >
+            {{ z.quartier }} · Camp {{ z.camp }}
+            <span class="as-zone__count">{{ z.count }}</span>
+          </button>
+        } @empty {
+          <div class="as-empty">{{ 'CAMPAGNES.ABONNES_SHEET.AUCUNE_ZONE' | translate }}</div>
+        }
+      </div>
+    }
+  }
+
+  <button
+    type="button"
+    class="as-save"
+    [disabled]="saving() || loadError() || count() === 0"
+    (click)="onSave()"
+  >
+    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    {{ 'CAMPAGNES.ABONNES_SHEET.SAVE' | translate: { n: count() } }}
+  </button>
+  <button type="button" class="as-cancel" (click)="onClose()">
+    {{ 'COMMON.CANCEL' | translate }}
+  </button>
+</app-bottom-sheet>

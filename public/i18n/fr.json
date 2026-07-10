@@ -647,6 +647,17 @@
       "EMPTY": "Aucune zone disponible",
       "LOAD_ERROR": "Impossible de charger les zones. Réessayez."
     },
+    "ABONNES_SHEET": {
+      "TRIGGER": "Ajouter des abonnés",
+      "TITLE": "Ajouter des abonnés",
+      "SUBTITLE": "{{n}} abonné(s) sélectionné(s)",
+      "TOUS": "Tous les actifs",
+      "PAR_ZONE": "Par zone",
+      "AUCUNE_ZONE": "Aucune zone disponible",
+      "LOAD_ERROR": "Impossible de charger les abonnés. Réessayez.",
+      "SAVE": "Rattacher {{n}} abonné(s)",
+      "SUCCESS": "{{ajoutes}} abonné(s) rattaché(s), {{ignores}} ignoré(s)"
+    },
     "CLOTURE": {
       "TITLE": "Clôturer la campagne {{nom}} ?",
       "DESC_1": "La clôture déclenche la génération automatique des factures.",
@@ -992,10 +1003,25 @@
   },
   "ENVOIS": {
     "TITLE": "Envois WhatsApp",
-    "SUBTITLE": "Suivi des envois whatsapp-web.js",
-    "SOON": "Bientôt disponible",
-    "CS_TITLE": "Suivi des envois WhatsApp",
-    "CS_DESC": "Le suivi détaillé des envois (statuts délivré / en attente / échec, ID message et renvoi manuel) arrive prochainement, une fois l'API d'historique des envois disponible côté serveur."
+    "SUBTITLE": "Historique des envois whatsapp-web.js",
+    "EMPTY": "Aucun envoi pour l'instant",
+    "ERROR_LOAD": "Impossible de charger les envois.",
+    "FILTRE_TOUS": "Tous les statuts",
+    "RESEND": "Renvoyer",
+    "RESEND_OK": "Envoi relancé",
+    "STATUT": {
+      "ENVOYE": "Envoyé",
+      "ECHEC": "Échec",
+      "EN_ATTENTE": "En attente"
+    },
+    "TYPE": {
+      "FACTURE": "Facture",
+      "RELANCE_1": "Rappel 1",
+      "RELANCE_2": "Rappel 2",
+      "AVERTISSEMENT": "Avertissement",
+      "SUSPENSION": "Suspension",
+      "RETABLISSEMENT": "Rétablissement"
+    }
   },
   "RAPPORTS": {
     "TITLE": "Rapports",

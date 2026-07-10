@@ -1,81 +1,116 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SelectModule } from 'primeng/select';
+import { FacturesService } from '../../core/factures/factures.service';
+import { extractGqlError } from '../../core/auth/auth.service';
+import { Envoi } from '../../shared/models/facture.model';
+import { BadgeComponent, BadgeTone } from '../../shared/components/badge/badge.component';
+import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { ToastService } from '../../shared/services/toast.service';
+
+type StatutEnvoi = 'ENVOYE' | 'ECHEC' | 'EN_ATTENTE';
 
 /**
- * Écran 23 — Suivi des envois WhatsApp. En attente backend (pas de requête
- * globale des envois, ni d'ID message / type exposés). Placeholder « à venir ».
+ * Écran Envois — historique global des messages WhatsApp (facture / relances /
+ * suspension / rétablissement), avec renvoi des échecs. Alimenté par la query
+ * `envois` sans filtre (ADMIN, COMPTABLE). Complète le journal par-facture.
  */
 @Component({
   selector: 'app-envois-list',
   standalone: true,
-  imports: [TranslatePipe, PageTopbarComponent],
-  template: `
-    <app-page-topbar [title]="'ENVOIS.TITLE' | translate" [subtitle]="'ENVOIS.SUBTITLE' | translate" />
-
-    <div class="envois-cs">
-      <div class="envois-cs__card">
-        <div class="envois-cs__icon"><i class="pi pi-whatsapp"></i></div>
-        <span class="envois-cs__badge">{{ 'ENVOIS.SOON' | translate }}</span>
-        <div class="envois-cs__title">{{ 'ENVOIS.CS_TITLE' | translate }}</div>
-        <p class="envois-cs__desc">{{ 'ENVOIS.CS_DESC' | translate }}</p>
-      </div>
-    </div>
-  `,
-  styles: [
-    `
-      :host { display: block; }
-      .envois-cs {
-        padding: 40px 24px;
-        display: flex;
-        justify-content: center;
-      }
-      .envois-cs__card {
-        max-width: 460px;
-        text-align: center;
-        background: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 36px 32px;
-      }
-      .envois-cs__icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 16px;
-        border-radius: 16px;
-        background: #f0fdf4;
-        color: #0e9f6e;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-      }
-      .envois-cs__badge {
-        display: inline-block;
-        background: #eff6ff;
-        color: #1a56db;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
-        padding: 4px 10px;
-        border-radius: 20px;
-        margin-bottom: 12px;
-      }
-      .envois-cs__title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 8px;
-      }
-      .envois-cs__desc {
-        font-size: 13px;
-        color: #64748b;
-        line-height: 1.6;
-        margin: 0;
-      }
-    `,
-  ],
+  imports: [FormsModule, SelectModule, TranslatePipe, BadgeComponent, ErrorBannerComponent, PageTopbarComponent],
+  templateUrl: './envois-list.component.html',
+  styleUrl: './envois-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EnvoisListComponent {}
+export class EnvoisListComponent implements OnInit {
+  private readonly service = inject(FacturesService);
+  private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
+
+  readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
+  readonly envois = signal<Envoi[]>([]);
+  readonly resending = signal<string | null>(null);
+  readonly filtre = signal<'TOUS' | StatutEnvoi>('TOUS');
+
+  readonly filtreOptions = computed((): Array<{ label: string; value: 'TOUS' | StatutEnvoi }> => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('ENVOIS.FILTRE_TOUS', {}, lang), value: 'TOUS' },
+      { label: this.translate.instant('ENVOIS.STATUT.ENVOYE', {}, lang), value: 'ENVOYE' },
+      { label: this.translate.instant('ENVOIS.STATUT.ECHEC', {}, lang), value: 'ECHEC' },
+      { label: this.translate.instant('ENVOIS.STATUT.EN_ATTENTE', {}, lang), value: 'EN_ATTENTE' },
+    ];
+  });
+
+  readonly rows = computed((): Envoi[] => {
+    const f = this.filtre();
+    const list = this.envois();
+    return f === 'TOUS' ? list : list.filter((e) => e.statut === f);
+  });
+
+  ngOnInit(): void {
+    void this.load();
+  }
+
+  async load(): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      const envois = await this.service.getAllEnvois();
+      this.envois.set([...envois].sort((a, b) => (b.dateEnvoi ?? '').localeCompare(a.dateEnvoi ?? '')));
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.error.set(message || this.translate.instant('ENVOIS.ERROR_LOAD'));
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async renvoyer(e: Envoi): Promise<void> {
+    if (this.resending()) return;
+    this.resending.set(e.envoiId);
+    try {
+      await this.service.renvoyerEnvoi(e.envoiId);
+      this.toast.success(this.translate.instant('ENVOIS.RESEND_OK'));
+      await this.load();
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.resending.set(null);
+    }
+  }
+
+  statutTone(statut: string): BadgeTone {
+    if (statut === 'ENVOYE') return 'success';
+    if (statut === 'ECHEC') return 'danger';
+    return 'warning';
+  }
+
+  /** Libellé traduit d'un type d'envoi, avec repli sur la valeur brute. */
+  typeLabel(t: string | undefined): string {
+    const raw = t || 'FACTURE';
+    const key = 'ENVOIS.TYPE.' + raw;
+    const label = this.translate.instant(key);
+    return label === key ? raw : label;
+  }
+
+  formatDate(d: string): string {
+    if (!d) return '—';
+    try {
+      return new Date(d).toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return d;
+    }
+  }
+}

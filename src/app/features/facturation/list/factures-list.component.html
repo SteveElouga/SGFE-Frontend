@@ -110,7 +110,7 @@
         @let abonne = abonneFor(f.abonneId);
         <div class="col-abonne">
           @if (abonne) {
-            <span class="abonne-nom">{{ abonne.prenom }} {{ abonne.nom }}</span>
+            <span class="abonne-nom">{{ abonne.nom }}</span>
             <span class="abonne-sub">{{ abonne.numeroAbonne }}</span>
           } @else {
             <span class="abonne-nom">—</span>
@@ -177,7 +177,7 @@
         >
           <div class="fcard__info">
             <span class="fcard__nom">
-              @if (abonne) { {{ abonne.prenom }} {{ abonne.nom }} } @else { — }
+              @if (abonne) { {{ abonne.nom }} } @else { — }
             </span>
             <span class="fcard__sub">{{ f.numeroFacture }} · {{ formatNumber(f.consommation) }} m³</span>
           </div>

@@ -17,10 +17,10 @@ export const BACKEND_CAPABILITIES = {
   ACTIVATION_ACTIONS: true,
 
   /**
-   * Query globale d'historique d'envois WhatsApp + champs `Envoi.messageId/statut/typeEnvoi`
-   * (écran 23 ; complète le journal par-facture de l'écran 11).
+   * ✅ Livré — `envois` (sans filtre) renvoie l'historique global, et le type
+   * Envoi expose statut/typeEnvoi/erreur (écran 23). L'écran Envois est câblé.
    */
-  WHATSAPP_ENVOI_HISTORY: false,
+  WHATSAPP_ENVOI_HISTORY: true,
 
   /** Query `relanceEvents(factureId)` — vraie timeline des relances (écran 17, remplace la reconstruction front). */
   RELANCE_EVENTS: false,

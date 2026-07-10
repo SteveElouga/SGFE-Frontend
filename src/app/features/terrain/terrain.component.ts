@@ -258,14 +258,11 @@ export class TerrainComponent implements OnInit {
       );
 
       const campagnes = campagnesRes.data?.campagnes ?? [];
-      const active =
-        campagnes.find((c) => c.statut === 'EN_COURS') ??
-        [...campagnes].sort((a, b) =>
-          b.periodeAnnee !== a.periodeAnnee
-            ? b.periodeAnnee - a.periodeAnnee
-            : b.periodeMois - a.periodeMois,
-        )[0] ??
-        null;
+      // Terrain = saisie, possible uniquement sur une campagne EN_COURS. On ne
+      // retombe PAS sur une PLANIFIEE/CLOTUREE (non relevable) : sans campagne
+      // active, l'écran affiche un état vide explicite plutôt qu'une campagne
+      // sur laquelle l'agent ne peut rien saisir (#15).
+      const active = campagnes.find((c) => c.statut === 'EN_COURS') ?? null;
       this.campagne.set(active);
 
       if (active) {
