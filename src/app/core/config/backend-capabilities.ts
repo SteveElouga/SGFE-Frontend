@@ -28,6 +28,15 @@ export const BACKEND_CAPABILITIES = {
   /** Champ `campagne.agents` (lecture) + mutation `retirerAgent` (écran 29 : pré-cochage / verrouillage / retrait). */
   CAMPAGNE_AGENTS_READ: false,
 
+  /**
+   * ✅ Livré autrement — le filtrage par zone à la création ne passe plus par un
+   * champ `CreateCampagneInput.filtreZones` (inexistant), mais par la mutation
+   * `ajouterAbonnesCampagne(campagneId, abonneIds)` : le formulaire résout les
+   * ids des abonnés des zones cochées côté client et ne rattache que ceux-là.
+   * Le mode « Filtrer par zone » est donc de nouveau actif.
+   */
+  CAMPAGNE_FILTRE_ZONES: true,
+
   /** Accès public tokenisé à l'espace abonné (écrans 06 / 25 / M-06 / MB-10). */
   ESPACE_ABONNE: false,
 

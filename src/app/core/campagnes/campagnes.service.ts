@@ -4,6 +4,7 @@ import { Apollo, QueryRef } from 'apollo-angular';
 import {
   AgentAffecte,
   AgentDisponible,
+  AjouterAbonnesResult,
   Campagne,
   CorrigerReleveInput,
   CreateCampagneInput,
@@ -33,6 +34,7 @@ import {
 import {
   AFFECTER_AGENT,
   AFFECTER_ZONES,
+  AJOUTER_ABONNES_CAMPAGNE,
   CLOTURER_CAMPAGNE,
   CORRIGER_RELEVE,
   CREER_CAMPAGNE,
@@ -138,6 +140,23 @@ export class CampagnesService {
       }),
     );
     return result.data!.affecterAgent;
+  }
+
+  /**
+   * Rattache des abonnés à une campagne → crée leurs relevés `A_RELEVER`.
+   * Idempotent : doublons / abonnés non ACTIF remontent dans `nbIgnores`.
+   */
+  async ajouterAbonnesCampagne(
+    campagneId: string,
+    abonneIds: string[],
+  ): Promise<AjouterAbonnesResult> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ ajouterAbonnesCampagne: AjouterAbonnesResult }>({
+        mutation: AJOUTER_ABONNES_CAMPAGNE,
+        variables: { campagneId, abonneIds },
+      }),
+    );
+    return result.data!.ajouterAbonnesCampagne;
   }
 
   async cloturerCampagne(campagneId: string): Promise<void> {

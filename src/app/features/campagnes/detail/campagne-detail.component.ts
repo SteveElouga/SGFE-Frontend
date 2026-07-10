@@ -34,6 +34,7 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
+import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
@@ -48,6 +49,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     SelectModule,
     ErrorBannerComponent,
     AgentsSheetComponent,
+    ZonesSheetComponent,
     TranslatePipe,
     BadgeComponent,
     SkeletonComponent,
@@ -88,6 +90,24 @@ export class CampagneDetailComponent implements OnInit {
 
   closeAgentsSheet(): void {
     this.showAgentsSheet.set(false);
+  }
+
+  // ── Affectation des zones (par agent) ────────────────────────────────────────
+  readonly showZonesSheet = signal(false);
+  readonly zonesAgent = signal<{ id: string; username: string } | null>(null);
+
+  openZonesSheet(agent: { id: string; username: string }): void {
+    this.zonesAgent.set(agent);
+    this.showZonesSheet.set(true);
+  }
+
+  closeZonesSheet(): void {
+    this.showZonesSheet.set(false);
+  }
+
+  /** Recharge agents + répartition après affectation des zones. */
+  onZonesSaved(): void {
+    void this.loadAgents();
   }
 
   // ── État ───────────────────────────────────────────────────────────────────
