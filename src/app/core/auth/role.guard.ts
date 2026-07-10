@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { Role } from '../../shared/models/user.model';
 import { AuthService } from './auth.service';
+import { landingRouteFor } from './landing';
 
 export function roleGuard(allowedRoles: Role[]): CanActivateFn {
   return () => {
@@ -13,6 +14,8 @@ export function roleGuard(allowedRoles: Role[]): CanActivateFn {
       return true;
     }
 
-    return router.createUrlTree(['/login']);
+    // Rôle authentifié mais non autorisé → renvoi vers son écran d'accueil (et
+    // non /login, qui simulerait une déconnexion). Non authentifié → /login.
+    return router.createUrlTree([landingRouteFor(role)]);
   };
 }

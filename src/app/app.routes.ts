@@ -1,6 +1,9 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
 import { roleGuard } from './core/auth/role.guard';
+import { AuthService } from './core/auth/auth.service';
+import { landingRouteFor } from './core/auth/landing';
 
 export const routes: Routes = [
   // ── Auth (no shell) ────────────────────────────────────────────────────────
@@ -63,9 +66,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/shell/shell.component').then((m) => m.ShellComponent),
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      // Accueil rôle-aware : ADMIN/COMPTABLE → dashboard, AGENT → terrain,
+      // SUPERVISEUR → campagnes (évite d'envoyer un rôle sur un écran interdit).
+      { path: '', pathMatch: 'full', redirectTo: () => landingRouteFor(inject(AuthService).role()) },
       {
         path: 'dashboard',
+        canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
         loadComponent: () =>
           import('./features/dashboard/dashboard/dashboard.component').then(
             (m) => m.DashboardComponent,
@@ -73,7 +79,7 @@ export const routes: Routes = [
       },
       {
         path: 'terrain',
-        canActivate: [roleGuard(['ADMIN', 'AGENT'])],
+        canActivate: [roleGuard(['ADMIN', 'AGENT', 'SUPERVISEUR'])],
         loadComponent: () =>
           import('./features/terrain/terrain.component').then((m) => m.TerrainComponent),
       },

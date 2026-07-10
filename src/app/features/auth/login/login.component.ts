@@ -7,18 +7,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
-import { Role } from '../../../shared/models/user.model';
+import { landingRouteFor } from '../../../core/auth/landing';
 import { AuthBrandPanelComponent } from '../../../shared/components/auth-brand-panel/auth-brand-panel.component';
 import { AuthFieldComponent } from '../../../shared/components/auth-field/auth-field.component';
 import { AuthErrorMessageComponent } from '../../../shared/components/auth-error-message/auth-error-message.component';
 import { AuthSubmitButtonComponent } from '../../../shared/components/auth-submit-button/auth-submit-button.component';
-
-const LANDING_ROUTE_BY_ROLE: Record<Role, string> = {
-  ADMIN: '/dashboard',
-  COMPTABLE: '/dashboard',
-  AGENT: '/terrain',
-  SUPERVISEUR: '/dashboard',
-};
 
 @Component({
   imports: [
@@ -100,7 +93,6 @@ export class LoginComponent {
     }
 
     this.loading.set(false);
-    const role = this.auth.role();
-    await this.router.navigateByUrl(role ? LANDING_ROUTE_BY_ROLE[role] : '/login');
+    await this.router.navigateByUrl(landingRouteFor(this.auth.role()));
   }
 }
