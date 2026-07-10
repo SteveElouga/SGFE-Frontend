@@ -1,7 +1,9 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import type { InMemoryCache } from '@apollo/client/core';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
+import { purgePersistedCache, restorePersistedCacheFor } from '../graphql/apollo-persistence';
 import {
   ACTIVATE_ACCOUNT,
   LOGIN,
@@ -103,6 +105,13 @@ export class AuthService {
         throw new Error('Échec de la connexion');
       }
 
+      // Repart d'un cache propre : sur un appareil partagé, empêche que les
+      // données normalisées d'une session précédente (fetchPolicy cache-first)
+      // soient servies au nouvel utilisateur. La persistance sera ré-estampillée
+      // du nouveau userId à la prochaine sauvegarde.
+      await this.resetStore();
+      purgePersistedCache();
+
       this._accessToken.set(payload.accessToken);
       this._user.set(payload.user);
     } catch (error) {
@@ -148,6 +157,10 @@ export class AuthService {
 
       this._accessToken.set(payload.accessToken);
       this._user.set(payload.user);
+
+      // Réouverture silencieuse (même utilisateur) : restaure ses données
+      // hors-ligne — et uniquement les siennes (blob rattaché à son userId).
+      restorePersistedCacheFor(this.apolloClient.client.cache as InMemoryCache, payload.user.id);
     } catch (error) {
       this.clearSession();
       throw error;
@@ -192,5 +205,18 @@ export class AuthService {
   private clearSession(): void {
     this._accessToken.set(null);
     this._user.set(null);
+    // Vide le cache en mémoire et la persistance : aucune donnée d'une session
+    // fermée (logout ou refresh échoué) ne doit subsister pour la suivante.
+    void this.resetStore();
+    purgePersistedCache();
+  }
+
+  /** Vide le magasin Apollo (données normalisées en mémoire) sans refetch. */
+  private async resetStore(): Promise<void> {
+    try {
+      await this.apolloClient.client.clearStore();
+    } catch {
+      /* pas de client actif / déjà vide — sans conséquence */
+    }
   }
 }

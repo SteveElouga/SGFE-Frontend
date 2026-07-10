@@ -1,6 +1,5 @@
 import {
   ApplicationConfig,
-  Injector,
   inject,
   isDevMode,
   provideAppInitializer,
@@ -17,11 +16,7 @@ import { providePrimeNG } from 'primeng/config';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { apolloProviders, apolloCache } from './core/graphql/apollo.config';
-import {
-  restorePersistedCache,
-  setupCachePersistence,
-  setupLogoutPurge,
-} from './core/graphql/apollo-persistence';
+import { setupCachePersistence } from './core/graphql/apollo-persistence';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { AquaBillPreset } from './core/theme/aquabill-preset';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -35,15 +30,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([jwtInterceptor])),
     ...apolloProviders,
     MessageService,
-    // Restaure le cache Apollo persistant (données offline), le sauvegarde quand
-    // l'utilisateur quitte l'app, et le purge à la déconnexion. Synchrone → la
-    // restauration est terminée avant que le refresh/les queries ne s'exécutent.
+    // Persistance offline du cache : sauvegarde à la fermeture de l'app,
+    // estampillée du userId. La restauration (réouverture même utilisateur) et
+    // les purges (login / échec de refresh / logout) sont pilotées par
+    // AuthService, pour rester strictement rattachées à l'identité de session
+    // et ne jamais servir les données d'un utilisateur à un autre.
     provideAppInitializer(() => {
-      const injector = inject(Injector);
       const auth = inject(AuthService);
-      restorePersistedCache(apolloCache);
-      setupCachePersistence(apolloCache);
-      setupLogoutPurge(auth, injector);
+      setupCachePersistence(apolloCache, auth);
     }),
     // Silently restore the session from the refresh_token cookie on app
     // boot — the access token only ever lives in memory, so it's lost on
