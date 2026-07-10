@@ -647,6 +647,17 @@
       "EMPTY": "No zone available",
       "LOAD_ERROR": "Could not load zones. Please try again."
     },
+    "ABONNES_SHEET": {
+      "TRIGGER": "Add subscribers",
+      "TITLE": "Add subscribers",
+      "SUBTITLE": "{{n}} subscriber(s) selected",
+      "TOUS": "All active",
+      "PAR_ZONE": "By zone",
+      "AUCUNE_ZONE": "No zone available",
+      "LOAD_ERROR": "Could not load subscribers. Please try again.",
+      "SAVE": "Attach {{n}} subscriber(s)",
+      "SUCCESS": "{{ajoutes}} subscriber(s) attached, {{ignores}} skipped"
+    },
     "CLOTURE": {
       "TITLE": "Close the {{nom}} campaign?",
       "DESC_1": "Closing triggers automatic invoice generation.",
@@ -992,10 +1003,25 @@
   },
   "ENVOIS": {
     "TITLE": "WhatsApp sends",
-    "SUBTITLE": "whatsapp-web.js delivery tracking",
-    "SOON": "Coming soon",
-    "CS_TITLE": "WhatsApp delivery tracking",
-    "CS_DESC": "Detailed send tracking (delivered / pending / failed statuses, message ID and manual resend) is coming soon, once the send-history API is available on the server."
+    "SUBTITLE": "whatsapp-web.js send history",
+    "EMPTY": "No sends yet",
+    "ERROR_LOAD": "Could not load sends.",
+    "FILTRE_TOUS": "All statuses",
+    "RESEND": "Resend",
+    "RESEND_OK": "Send retried",
+    "STATUT": {
+      "ENVOYE": "Sent",
+      "ECHEC": "Failed",
+      "EN_ATTENTE": "Pending"
+    },
+    "TYPE": {
+      "FACTURE": "Invoice",
+      "RELANCE_1": "Reminder 1",
+      "RELANCE_2": "Reminder 2",
+      "AVERTISSEMENT": "Warning",
+      "SUSPENSION": "Suspension",
+      "RETABLISSEMENT": "Reinstatement"
+    }
   },
   "RAPPORTS": {
     "TITLE": "Reports",
