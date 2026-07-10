@@ -19,7 +19,6 @@ import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service'
 import { Campagne, Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
-import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 
 interface AbonneInfo {
@@ -48,6 +47,7 @@ interface Entry {
 }
 
 interface SuccessInfo {
+  abonneId: string;
   nom: string;
   numeroAbonne: string;
   ancienIndex: number;
@@ -75,7 +75,6 @@ export class TerrainComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly campagne = signal<Campagne | null>(null);
   readonly releves = signal<Releve[]>([]);
-  readonly abonnesMap = signal<Map<string, AbonneInfo>>(new Map());
 
   readonly view = signal<View>('list');
   readonly filtre = signal<Filtre>('TOUS');
@@ -94,10 +93,27 @@ export class TerrainComponent implements OnInit {
   readonly agentNom = computed(() => this.auth.user()?.username ?? '');
   readonly campagneNom = computed(() => this.campagne()?.nom ?? '');
 
-  private carteAbonne(abonneId: string): { nom: string; info: AbonneInfo | undefined } {
-    const info = this.abonnesMap().get(abonneId);
-    const nom = info ? `${info.prenom} ${info.nom}`.trim() : abonneId;
-    return { nom, info };
+  /**
+   * Identité de l'abonné directement depuis le relevé (jointe côté Gateway,
+   * PR #92) : l'agent n'a pas accès au service Abonné, mais le relevé porte
+   * désormais nom/n° abonné/compteur/zone. Repli sur l'id si champs vides
+   * (best-effort backend : Abonné Service down → chaînes vides).
+   */
+  private carteAbonne(r: Releve): { nom: string; info: AbonneInfo } {
+    const prenom = r.abonnePrenom ?? '';
+    const nom = r.abonneNom ?? '';
+    const full = `${prenom} ${nom}`.trim();
+    const info: AbonneInfo = {
+      numeroAbonne: r.numeroAbonne ?? '',
+      nom,
+      prenom,
+      // 0 = compteur non résolu (jointure abonné best-effort côté Gateway, champ
+      // Int non-nullable défaut 0) → traité comme absent, pas affiché « C-0000 ».
+      numeroCompteur: r.numeroCompteur || null,
+      quartier: r.quartier ?? null,
+      camp: r.camp ?? null,
+    };
+    return { nom: full || r.abonneId, info };
   }
 
   private localisation(info: AbonneInfo | undefined): string {
@@ -119,13 +135,13 @@ export class TerrainComponent implements OnInit {
     }
 
     return this.releves().map((r): Entry => {
-      const { nom, info } = this.carteAbonne(r.abonneId);
+      const { nom, info } = this.carteAbonne(r);
       const base = {
         abonneId: r.abonneId,
         nom,
         sub: this.localisation(info),
         ancienIndex: r.ancienIndex,
-        numeroAbonne: info?.numeroAbonne ?? '',
+        numeroAbonne: info.numeroAbonne,
         compteurLine: this.saisieCompteurLine(info),
       };
       const ov = override.get(r.abonneId);
@@ -215,8 +231,11 @@ export class TerrainComponent implements OnInit {
 
   /** Prochain abonné à relever (hors abonné courant), pour l'écran de succès. */
   readonly prochain = computed((): Entry | null => {
-    const currentId = this.success()?.numeroAbonne;
-    return this.entries().find((e) => e.status === 'A_RELEVER' && e.numeroAbonne !== currentId) ?? null;
+    // Dédup sur abonneId (toujours présent/unique), jamais sur numeroAbonne : ce
+    // dernier peut être vide (jointure abonné best-effort) et exclurait alors
+    // TOUS les A_RELEVER restants → « Relever le suivant » n'enchaînerait plus.
+    const currentId = this.success()?.abonneId;
+    return this.entries().find((e) => e.status === 'A_RELEVER' && e.abonneId !== currentId) ?? null;
   });
 
   ngOnInit(): void {
@@ -227,20 +246,16 @@ export class TerrainComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      // `abonnes` est réservé ADMIN côté backend (ANO-015) : un AGENT authentifié
-      // reçoit PERMISSION_DENIED. On isole cet appel pour qu'un refus ne fasse
-      // pas échouer tout le chargement — l'agent doit voir ses relevés même sans
-      // les noms/quartiers (repli sur l'ID abonné, géré par carteAbonne()).
-      const [campagnesRes, abonnesMap] = await Promise.all([
-        firstValueFrom(
-          this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
-            query: GET_CAMPAGNES,
-            fetchPolicy: 'network-only',
-          }),
-        ),
-        this.loadAbonnesMap(),
-      ]);
-      this.abonnesMap.set(abonnesMap);
+      // L'identité des abonnés (nom, n° abonné, compteur, zone) est portée par
+      // les relevés eux-mêmes (jointe côté Gateway, PR #92) → plus besoin de
+      // charger une carte d'abonnés (query `abonnes` de toute façon réservée
+      // ADMIN). Voir carteAbonne().
+      const campagnesRes = await firstValueFrom(
+        this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
+          query: GET_CAMPAGNES,
+          fetchPolicy: 'network-only',
+        }),
+      );
 
       const campagnes = campagnesRes.data?.campagnes ?? [];
       const active =
@@ -254,7 +269,18 @@ export class TerrainComponent implements OnInit {
       this.campagne.set(active);
 
       if (active) {
-        const releves = await this.campagnesService.getReleves(active.campagneId);
+        // Contrat C.9 : un AGENT ne voit QUE sa tournée —
+        // `relevesParAgent(campagneId, sonId)` renvoie ses relevés saisis + les
+        // A_RELEVER de ses zones (ou toute la campagne s'il n'a aucune zone,
+        // décision prise côté service). On ne retombe JAMAIS sur `releves` (vue
+        // complète) : ce serait une fuite de périmètre (relevés d'autres agents,
+        // saisissables). Une tournée légitimement vide reste vide ; une vraie
+        // erreur de chargement remonte à la bannière via le catch englobant.
+        const user = this.auth.user();
+        const releves =
+          user?.role === 'AGENT'
+            ? await this.campagnesService.getRelevesParAgent(active.campagneId, user.id)
+            : await this.campagnesService.getReleves(active.campagneId);
         this.releves.set(releves);
         this.offline.clearSynced();
       }
@@ -263,37 +289,6 @@ export class TerrainComponent implements OnInit {
       this.error.set(message || this.translate.instant('TERRAIN.ERROR_LOAD'));
     } finally {
       this.loading.set(false);
-    }
-  }
-
-  private async loadAbonnesMap(): Promise<Map<string, AbonneInfo>> {
-    try {
-      const res = await firstValueFrom(
-        this.apollo.query<{
-          abonnes: Array<{
-            id: string;
-            numeroAbonne: string;
-            nom: string;
-            prenom: string;
-            compteur?: { numeroCompteur: number; quartier: string; camp: number } | null;
-          }>;
-        }>({ query: GET_ABONNES, fetchPolicy: 'cache-first', context: { silentError: true } }),
-      );
-      const map = new Map<string, AbonneInfo>();
-      for (const a of res.data?.abonnes ?? []) {
-        map.set(a.id, {
-          numeroAbonne: a.numeroAbonne,
-          nom: a.nom,
-          prenom: a.prenom,
-          numeroCompteur: a.compteur?.numeroCompteur ?? null,
-          quartier: a.compteur?.quartier ?? null,
-          camp: a.compteur?.camp ?? null,
-        });
-      }
-      return map;
-    } catch {
-      // Rôle sans accès à `abonnes` (AGENT) : la liste reste utilisable, dégradée.
-      return new Map();
     }
   }
 
@@ -344,6 +339,7 @@ export class TerrainComponent implements OnInit {
       observation: this.observation().trim(),
     });
     this.success.set({
+      abonneId: e.abonneId,
       nom: e.nom,
       numeroAbonne: e.numeroAbonne,
       ancienIndex: e.ancienIndex,
