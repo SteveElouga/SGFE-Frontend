@@ -142,10 +142,9 @@
 
 .agents-selected {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 10px;
   min-height: 32px;
-  align-items: center;
 }
 
 .agents-empty-hint {
@@ -176,6 +175,76 @@
   transition: color 0.1s;
 
   &:hover { color: #fff; }
+}
+
+// ── Affectation d'un agent à ses zones (dès la création) ─────────────────────
+.agent-assign {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 10px 12px;
+}
+
+.agent-assign__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agent-assign__name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.agent-assign .agent-chip__remove {
+  color: #94a3b8;
+  &:hover { color: #ef4444; }
+}
+
+.agent-assign__label {
+  display: block;
+  margin: 8px 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.agent-assign__zones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.agent-zone-chip {
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #fff;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 11px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, color 0.12s;
+
+  &:hover { background: #f1f5f9; }
+
+  &--on {
+    border-color: $color-primary;
+    background: #f5f8ff;
+    color: $color-primary;
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.06);
+  }
+}
+
+.agent-assign__hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #64748b;
 }
 
 .agents-available {

@@ -63,15 +63,39 @@
         <!-- Chips agents sélectionnés -->
         <div class="agents-selected">
           @for (agent of selectedAgents(); track agent.id) {
-            <span class="agent-chip">
-              {{ agent.username }}
-              <button
-                class="agent-chip__remove"
-                type="button"
-                (click)="removeAgent(agent.id)"
-                [attr.aria-label]="'Retirer ' + agent.username"
-              >✕</button>
-            </span>
+            <div class="agent-assign">
+              <div class="agent-assign__head">
+                <span class="agent-assign__name">{{ agent.username }}</span>
+                <button
+                  class="agent-chip__remove"
+                  type="button"
+                  (click)="removeAgent(agent.id)"
+                  [attr.aria-label]="'Retirer ' + agent.username"
+                >✕</button>
+              </div>
+              @if (zonesDisponibles().length > 0) {
+                <span class="agent-assign__label">{{ 'CAMPAGNES.FORM.AGENT_ZONES_TITLE' | translate }}</span>
+                <div class="agent-assign__zones">
+                  @for (z of zonesDisponibles(); track z.key) {
+                    <button
+                      type="button"
+                      class="agent-zone-chip"
+                      [class.agent-zone-chip--on]="isAgentZoneSelected(agent.id, z.key)"
+                      (click)="toggleAgentZone(agent.id, z.key)"
+                    >
+                      {{ z.quartier }} · Camp {{ z.camp }}
+                    </button>
+                  }
+                </div>
+                <span class="agent-assign__hint">
+                  @if (agentZoneCount(agent.id) === 0) {
+                    {{ 'CAMPAGNES.FORM.AGENT_ZONES_ALL' | translate }}
+                  } @else {
+                    {{ 'CAMPAGNES.FORM.AGENT_ZONES_COUNT' | translate: { n: agentZoneCount(agent.id) } }}
+                  }
+                </span>
+              }
+            </div>
           }
           @if (selectedAgents().length === 0) {
             <span class="agents-empty-hint">{{ 'CAMPAGNES.FORM.AGENTS_EMPTY' | translate }}</span>
