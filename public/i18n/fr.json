@@ -602,6 +602,7 @@
       "SECTION_ABONNES": "Sélection des abonnés",
       "ABONNES_TOUS": "Tous les abonnés actifs",
       "ABONNES_FILTRE": "Par filtre (quartier / camp)",
+      "ABONNES_FILTRE_SOON": "Bientôt disponible",
       "ABONNES_INFO": "abonnés actifs inclus · suspendus exclus automatiquement",
       "ABONNES_FILTRE_INFO": "abonné(s) inclus dans les zones sélectionnées",
       "ZONES_TITLE": "Sélectionner les zones à inclure",
@@ -616,6 +617,8 @@
       "OPT_FACTURES_DESC": "Facturation automatique dès la clôture de la campagne",
       "OPT_WHATSAPP": "Envoyer les factures par WhatsApp",
       "OPT_WHATSAPP_DESC": "Grisé si la génération automatique est désactivée",
+      "OPT_DEMARRER": "Démarrer la campagne maintenant",
+      "OPT_DEMARRER_DESC": "Passe la campagne EN COURS pour permettre la saisie. Laissez décoché si vous voulez d'abord affecter des zones aux agents.",
       "SUBMIT_PREFIX": "Créer la campagne",
       "SUBMIT": "Créer la campagne",
       "MOIS": "Mois",
@@ -632,6 +635,17 @@
       "ALREADY": "Déjà affecté",
       "AGENT": "Agent",
       "EMPTY": "Aucun agent disponible"
+    },
+    "ZONES_SHEET": {
+      "TRIGGER": "Zones",
+      "TITLE": "Affecter des zones",
+      "SUBTITLE": "Tournée de {{agent}} · {{n}} zone(s) · {{abonnes}} abonnés",
+      "TAKEN": "Déjà affectée à {{agent}}",
+      "NONE": "Aucune zone affectée",
+      "SUCCESS": "Zones mises à jour pour {{agent}}",
+      "SAVE": "Enregistrer les zones",
+      "EMPTY": "Aucune zone disponible",
+      "LOAD_ERROR": "Impossible de charger les zones. Réessayez."
     },
     "CLOTURE": {
       "TITLE": "Clôturer la campagne {{nom}} ?",

@@ -602,6 +602,7 @@
       "SECTION_ABONNES": "Subscriber selection",
       "ABONNES_TOUS": "All active subscribers",
       "ABONNES_FILTRE": "By filter (district / camp)",
+      "ABONNES_FILTRE_SOON": "Coming soon",
       "ABONNES_INFO": "active subscribers included · suspended excluded automatically",
       "ABONNES_FILTRE_INFO": "subscriber(s) included in selected zones",
       "ZONES_TITLE": "Select zones to include",
@@ -612,6 +613,8 @@
       "OPT_FACTURES_DESC": "Automatic billing on campaign closure",
       "OPT_WHATSAPP": "Send invoices via WhatsApp",
       "OPT_WHATSAPP_DESC": "Greyed out when automatic generation is disabled",
+      "OPT_DEMARRER": "Start the campaign now",
+      "OPT_DEMARRER_DESC": "Sets the campaign IN PROGRESS so readings can be entered. Leave unchecked if you want to assign zones to agents first.",
       "SUBMIT_PREFIX": "Create campaign",
       "SUBMIT": "Create campaign",
       "MOIS": "Month",
@@ -632,6 +635,17 @@
       "ALREADY": "Already assigned",
       "AGENT": "Agent",
       "EMPTY": "No agent available"
+    },
+    "ZONES_SHEET": {
+      "TRIGGER": "Zones",
+      "TITLE": "Assign zones",
+      "SUBTITLE": "{{agent}}'s tour · {{n}} zone(s) · {{abonnes}} subscribers",
+      "TAKEN": "Already assigned to {{agent}}",
+      "NONE": "No zone assigned",
+      "SUCCESS": "Zones updated for {{agent}}",
+      "SAVE": "Save zones",
+      "EMPTY": "No zone available",
+      "LOAD_ERROR": "Could not load zones. Please try again."
     },
     "CLOTURE": {
       "TITLE": "Close the {{nom}} campaign?",
