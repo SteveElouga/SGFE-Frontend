@@ -360,10 +360,15 @@ export class CampagneDetailComponent implements OnInit {
       // inutile de la déclencher (et de logger un PERMISSION_DENIED) pour lui.
       if (this.canActOnCampagne()) this.loadAbonnesMap();
       void this.loadAgents();
-      void this.facturesService
-        .getTarifActuel()
-        .then((t) => this.tarifActuel.set(t))
-        .catch(() => undefined);
+      // Tarif actuel = aperçu de clôture (action ADMIN/SUPERVISEUR uniquement),
+      // et query réservée ADMIN/SUPERVISEUR côté gateway → ne pas la déclencher
+      // pour l'AGENT (sinon PERMISSION_DENIED + toast global).
+      if (this.canActOnCampagne()) {
+        void this.facturesService
+          .getTarifActuel()
+          .then((t) => this.tarifActuel.set(t))
+          .catch(() => undefined);
+      }
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
