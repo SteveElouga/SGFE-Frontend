@@ -1,7 +1,7 @@
 import type { BadgeTone } from '../components/badge/badge.component';
 
 export type StatutFacture = 'IMPAYEE' | 'PARTIELLE' | 'PAYEE';
-export type ModePaiement = 'ESPECES' | 'CHEQUE' | 'MOBILE_MONEY' | 'VIREMENT';
+export type ModePaiement = 'ESPECES' | 'MOBILE_MONEY' | 'VIREMENT';
 
 /** Teinte de la puce de statut d'une facture (source unique pour tous les écrans). */
 export function factureStatutTone(statut: StatutFacture): BadgeTone {
