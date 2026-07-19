@@ -1,0 +1,48 @@
+# Hooks Git du dépôt frontend — installer avec :  ./scripts/install-hooks.sh
+# (ou `npm run prepare` si le script prepare est ajouté à package.json — voir README).
+# Même outillage que le backend (pre-commit) pour une cohérence inter-dépôts.
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
+default_stages: [pre-commit]
+
+exclude: '^(dist/|\.angular/|coverage/|playwright-report/|test-results/|package-lock\.json)'
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-case-conflict
+
+  # --- Au commit : formatage via le Prettier ÉPINGLÉ du projet (npx => package.json) ---
+  - repo: local
+    hooks:
+      - id: prettier
+        name: Prettier (format)
+        entry: npx prettier --write
+        language: system
+        files: \.(ts|js|mjs|cjs|html|scss|css|json|md)$
+        exclude: '^(dist/|\.angular/|coverage/|package-lock\.json)'
+
+  # --- Message de commit : Conventional Commits (même outil que le backend) ---
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.16.4
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # --- Au push : typecheck + tests unitaires (rapides, un seul environnement) ---
+  - repo: local
+    hooks:
+      - id: frontend-typecheck-tests
+        name: tsc --noEmit + vitest (pre-push)
+        entry: bash -c 'npx tsc --noEmit && npx vitest run'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
