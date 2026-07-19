@@ -110,7 +110,6 @@ export class PaiementsListComponent implements OnInit {
       { label: this.translate.instant('PAIEMENTS.MODE_TOUS', {}, lang), value: 'TOUS' },
       { label: this.translate.instant('FACTURATION.MODE.ESPECES', {}, lang), value: 'ESPECES' as const },
       { label: this.translate.instant('FACTURATION.MODE.MOBILE_MONEY', {}, lang), value: 'MOBILE_MONEY' as const },
-      { label: this.translate.instant('FACTURATION.MODE.CHEQUE', {}, lang), value: 'CHEQUE' as const },
       { label: this.translate.instant('FACTURATION.MODE.VIREMENT', {}, lang), value: 'VIREMENT' as const },
     ];
   });
