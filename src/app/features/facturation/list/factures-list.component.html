@@ -28,14 +28,25 @@
     </div>
   }
 
-  <!-- Filters -->
+  <!-- Filters : chips segmentés en mobile (MB-04), dropdowns en desktop -->
   <app-filter-bar
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
     searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
   >
+    <div class="factures-statut-chips">
+      <app-filter-chips
+        [options]="statutChips()"
+        [total]="factures().length"
+        [value]="statutChipValue()"
+        allLabel="FACTURATION.CHIP_TOUTES"
+        (valueChange)="onStatutChip($event)"
+      />
+    </div>
+
     <!-- Campagne switcher -->
     <p-select
+      class="factures-campagne-select"
       [options]="allCampagnes()"
       [ngModel]="campagneId()"
       (ngModelChange)="onCampagneChange($event)"
@@ -50,6 +61,7 @@
 
     <!-- Statut -->
     <p-select
+      class="factures-statut-select"
       [options]="filtreOptions()"
       [ngModel]="filtreStatut()"
       (ngModelChange)="onStatutChange($event)"

@@ -1,5 +1,5 @@
 <nav class="tabs" aria-label="Navigation principale">
-  @for (item of nav.primaryItems(); track item.route) {
+  @for (item of nav.tabItems(); track item.route) {
     <a
       class="tabs__tab"
       [routerLink]="item.route"
@@ -9,19 +9,11 @@
         <i class="pi {{ item.icon }} tabs__icon"></i>
         @if (nav.badgeFor(item); as badge) {
           <span class="tabs__badge">{{ badge }}</span>
+        } @else if (nav.dotFor(item)) {
+          <span class="tabs__dot"></span>
         }
       </span>
-      <span class="tabs__label">{{ item.label | translate }}</span>
+      <span class="tabs__label">{{ (item.tabLabel ?? item.label) | translate }}</span>
     </a>
   }
-
-  <button
-    type="button"
-    class="tabs__tab tabs__tab--more"
-    [class.tabs__tab--active]="layout.menuOpen()"
-    (click)="layout.openMenu()"
-  >
-    <span class="tabs__icon-wrap"><i class="pi pi-ellipsis-h tabs__icon"></i></span>
-    <span class="tabs__label">{{ 'NAV.PLUS' | translate }}</span>
-  </button>
 </nav>

@@ -20,13 +20,24 @@
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
 
-  <!-- Filtres -->
+  <!-- Filtres : chips segmentés en mobile (pattern M-05), dropdowns en desktop -->
   <app-filter-bar
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
     searchPlaceholder="CAMPAGNES.SEARCH_PLACEHOLDER"
   >
+    <div class="campagnes-statut-chips">
+      <app-filter-chips
+        [options]="statutChips()"
+        [total]="campagnes().length"
+        [value]="statutChipValue()"
+        allLabel="CAMPAGNES.FILTRE.TOUTES"
+        (valueChange)="onStatutChip($event)"
+      />
+    </div>
+
     <p-select
+      class="campagnes-agent-select"
       [options]="agentsDisponibles()"
       [ngModel]="filtreAgent()"
       (ngModelChange)="filtreAgent.set($event)"
@@ -37,6 +48,7 @@
     />
 
     <p-select
+      class="campagnes-statut-select"
       [options]="filtreOptions()"
       [ngModel]="filtreStatut()"
       (ngModelChange)="filtreStatut.set($event)"
@@ -115,6 +127,43 @@
 
       <ng-template appCol="statut" let-c>
         <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
+      </ng-template>
+
+      <!-- Carte mobile (pattern M-05) : tap → détail -->
+      <ng-template appCardRow let-c>
+        @let prog = progressions().get(c.campagneId);
+        @let cloturee = c.statut === 'CLOTUREE';
+        <button type="button" class="ccard" (click)="voirCampagne(c.campagneId)">
+          <span class="ccard__icon ccard__icon--{{ c.statut.toLowerCase() }}" aria-hidden="true">
+            <i class="pi pi-calendar"></i>
+          </span>
+          <span class="ccard__info">
+            <span class="ccard__nom" [class.ccard__nom--muted]="cloturee">{{ c.nom }}</span>
+            <span class="ccard__sub">
+              @if (cloturee) {
+                @if (prog) {
+                  {{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.RELEVES_LABEL' | translate }}
+                } @else if (c.dateCloture) {
+                  {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yy' }}
+                }
+              } @else {
+                {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yy' }}
+                @if (prog) {
+                  &thinsp;·&thinsp;{{ prog.nbReleves }}&thinsp;/&thinsp;{{ prog.totalAbonnes }} {{ 'CAMPAGNES.RELEVES_LABEL' | translate }}
+                }
+              }
+            </span>
+            @if (c.statut === 'EN_COURS' && prog) {
+              <span class="ccard__bar">
+                <span class="ccard__bar-fill" [style.width.%]="progressionPct(prog)"></span>
+              </span>
+            }
+          </span>
+          <span class="ccard__right">
+            <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
+            <i class="pi pi-chevron-right ccard__chevron" aria-hidden="true"></i>
+          </span>
+        </button>
       </ng-template>
 
       <ng-template appCol="actions" let-c>

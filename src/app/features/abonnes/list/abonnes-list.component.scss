@@ -5,13 +5,15 @@
   display: block;
 }
 
-// ── Filtre statut : dropdown (desktop) ↔ chips segmentés (mobile) ─────────────
-// Les chips (maquette mobile) remplacent le select de statut sous ~640px.
+// ── Filtres : dropdowns (desktop) ↔ recherche + chips seuls (mobile M-05) ─────
+// Les chips remplacent le select de statut sous ~640px ; le select Quartier
+// n'existe pas dans la maquette mobile (desktop uniquement).
 .abonnes-statut-chips { display: none; }
 
 @media (max-width: 640px) {
   .abonnes-statut-chips { display: block; }
-  .abonnes-statut-select { display: none; }
+  .abonnes-statut-select,
+  .abonnes-quartier-select { display: none; }
 }
 
 // Topbar et filtres → portés par PageTopbarComponent et PageFiltersComponent
@@ -25,6 +27,8 @@
   gap: 14px;
   background: #f1f5f9;
   min-height: calc(100% - 54px);
+
+  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
 }
 
 // ── Bannière d'erreur ─────────────────────────────────────────────────────────
@@ -281,8 +285,8 @@
   width: 100%;
   text-align: left;
   background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: none;
+  border-radius: 3px;
   padding: 13px 14px;
   display: flex;
   align-items: center;
@@ -303,16 +307,39 @@
     justify-content: center;
     font-size: 15px;
     font-weight: 700;
+
+    // Dégradés variés (M-05) : stables par abonné, ambre = suspendu
+    &--g1 { background: linear-gradient(135deg, #7c3aed, #1a56db); }
+    &--g2 { background: linear-gradient(135deg, #0f1c3d, #1a56db); }
+    &--g3 { background: linear-gradient(135deg, #0e9f6e, #166534); }
+    &--suspendu { background: linear-gradient(135deg, #b45309, #d97706); }
+    &--resilie { background: linear-gradient(135deg, #64748b, #94a3b8); }
   }
   &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  &__nom { font-size: 14px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__nom {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--muted { color: #64748b; }
+  }
   &__sub { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
   &__chevron { color: #d1d5db; font-size: 12px; }
 }
 
-// Mobile : wrapper transparent + espacement entre cartes (via appCardRow)
+// Mobile : wrapper transparent, cartes accolées (1px) avec coins arrondis en
+// tête et pied de groupe (M-05)
 @media (max-width: 720px) {
   .abonnes-card { border: none; background: transparent; border-radius: 0; overflow: visible; }
-  .acard { margin-bottom: 10px; }
+  .acard {
+    margin-bottom: 1px;
+
+    &:first-of-type { border-radius: 12px 12px 3px 3px; }
+    &:last-of-type { border-radius: 3px 3px 12px 12px; }
+    &:only-of-type { border-radius: 12px; }
+  }
 }

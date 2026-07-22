@@ -1,7 +1,7 @@
 {
   "name": "Facturation Eau",
   "short_name": "Eau",
-  "theme_color": "#0e9f6e",
+  "theme_color": "#0f1c3d",
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait",

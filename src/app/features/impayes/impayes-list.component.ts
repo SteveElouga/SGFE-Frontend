@@ -18,6 +18,7 @@ import { SoldeFacture, StatutFacture, SuiviImpaye } from '../../shared/models/fa
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
+import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import {
   DataTableCardDirective,
@@ -63,6 +64,7 @@ interface ImpayeRow {
     ErrorBannerComponent,
     PageTopbarComponent,
     FilterBarComponent,
+    FilterChipsComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -105,6 +107,27 @@ export class ImpayesListComponent implements OnInit {
       { label: this.translate.instant('IMPAYES.ETAPE.4', {}, lang), value: 4 },
     ];
   });
+
+  /** Chips d'étape (mobile, pattern M-05) : « Étape N » + compteurs. */
+  readonly etapeChips = computed((): FilterChip[] => {
+    const lang = this.translate.currentLang() ?? undefined;
+    const all = this.impayes();
+    return [1, 2, 3, 4].map((n) => ({
+      label: this.translate.instant('IMPAYES.CHIP_ETAPE', { n }, lang),
+      value: String(n),
+      count: all.filter((i) => i.etapeActuelle === n).length,
+    }));
+  });
+
+  /** Valeur des chips : `null` = « Tous » (le signal utilise 'TOUS'). */
+  readonly etapeChipValue = computed(() => {
+    const etape = this.filtreEtape();
+    return etape === 'TOUS' ? null : String(etape);
+  });
+
+  onEtapeChip(value: string | null): void {
+    this.filtreEtape.set(value === null ? 'TOUS' : Number(value));
+  }
 
   readonly triOptions = computed((): Array<{ label: string; value: 'ANCIENNETE' | 'SOLDE' }> => {
     const lang = this.translate.currentLang() ?? undefined;
@@ -238,7 +261,7 @@ export class ImpayesListComponent implements OnInit {
     return {
       factureId: s.factureId,
       abonneId,
-      abonneNom: abonne ? `${abonne.prenom} ${abonne.nom}`.trim() : '—',
+      abonneNom: abonne ? `${abonne.nom} ${abonne.prenom}`.trim() : '—',
       numeroAbonne: abonne?.numeroAbonne ?? '—',
       numeroFacture: facture?.numeroFacture ?? '—',
       montantTotal: s.montantTotal,

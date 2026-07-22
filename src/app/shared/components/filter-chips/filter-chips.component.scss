@@ -48,3 +48,17 @@
 
   .fchips__chip--active & { opacity: 0.8; }
 }
+
+// Mobile (M-05) : pilules compactes
+@media (max-width: 640px) {
+  .fchips { gap: 6px; }
+
+  .fchips__chip {
+    height: 28px;
+    padding: 0 12px;
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .fchips__count { font-size: 11px; }
+}

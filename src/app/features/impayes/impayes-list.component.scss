@@ -30,6 +30,17 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
+}
+
+// ── Filtres : dropdowns (desktop) ↔ chips d'étape (mobile M-05) ───────────────
+.impayes-etape-chips { display: none; }
+
+@media (max-width: 640px) {
+  .impayes-etape-chips { display: block; }
+  .impayes-etape-select,
+  .impayes-tri-select { display: none; }
 }
 
 // ── KPI strip ─────────────────────────────────────────────────────────────────
@@ -76,6 +87,14 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
+
+  // Mobile : wrapper transparent, cartes séparées (MB-07)
+  @media (max-width: 720px) {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
 }
 
 .col-abonne {
@@ -184,35 +203,72 @@
   b.ok { color: #0e9f6e; font-weight: 600; }
 }
 
-// ── Cartes mobiles ────────────────────────────────────────────────────────────
+// ── Cartes mobiles (MB-07) ────────────────────────────────────────────────────
 
 .fcard {
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 10px;
+  padding: 13px 14px;
+  margin-bottom: 9px;
   background: #fff;
 
   &--danger { background: #fef9f9; border-color: #fecaca; }
 
+  // En-tête tappable (→ relances) : nom + réf à gauche, solde rouge à droite
   &__top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 9px;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
   }
-  &__nom { font-size: 14px; font-weight: 700; color: #0f172a; }
-  &__ref { margin-top: 2px; font-size: 11px; color: #94a3b8; }
+  &__id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  &__nom { font-size: 13px; font-weight: 700; color: #0f172a; }
+  &__ref { margin-top: 1px; font-size: 10px; color: #94a3b8; }
+  &__solde { font-size: 16px; font-weight: 800; color: #dc2626; flex-shrink: 0; }
 
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px 12px;
-    margin-bottom: 12px;
-
-    > div { display: flex; flex-direction: column; gap: 1px; }
+  // Pied : badge d'étape + bouton « + Paiement » outline bleu
+  &__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
   }
-  &__k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #94a3b8; font-weight: 600; }
-  &__v { font-size: 13px; font-weight: 600; color: #0f172a; }
+  &__pay {
+    border: 1px solid #1a56db;
+    border-radius: 7px;
+    padding: 5px 12px;
+    background: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a56db;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    &:active { background: #eff6ff; }
+  }
+}
+
+// ── Mobile (MB-07) : le sous-titre porte le résumé, les KPI et le rappel de
+// configuration sont desktop-only ; bouton bilan réduit à son icône.
+// Placé en fin de fichier pour l'emporter sur les `display` des règles de base.
+@media (max-width: 768px) {
+  .kpi-strip,
+  .config-reminder { display: none; }
+
+  .bilan-btn {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+    gap: 0;
+
+    .bilan-btn__label { display: none; }
+  }
 }

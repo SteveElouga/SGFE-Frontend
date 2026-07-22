@@ -27,8 +27,9 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
-import { DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import { DataTableCellDirective, DataTableCardDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ToastService } from '../../../shared/services/toast.service';
 
 interface MiniProgression {
@@ -46,8 +47,10 @@ interface MiniProgression {
     ErrorBannerComponent,
     PageTopbarComponent,
     FilterBarComponent,
+    FilterChipsComponent,
     DataTableComponent,
     DataTableCellDirective,
+    DataTableCardDirective,
     TranslatePipe,
     BadgeComponent,
   ],
@@ -146,6 +149,31 @@ export class CampagnesListComponent implements OnInit {
       { label: this.translate.instant('CAMPAGNES.STATUT.CLOTUREE', {}, lang), value: 'CLOTUREE' },
     ] as Array<{ label: string; value: StatutCampagne | 'TOUTES' }>;
   });
+
+  /** Chips de statut (mobile, pattern M-05) : libellés pluriels + compteurs. */
+  readonly statutChips = computed((): FilterChip[] => {
+    const lang = this.translate.currentLang() ?? undefined;
+    const { planifiees, enCours, cloturees } = this.stats();
+    return [
+      { label: this.translate.instant('CAMPAGNES.CHIP_PLANIFIEES', {}, lang), value: 'PLANIFIEE', count: planifiees },
+      { label: this.translate.instant('CAMPAGNES.CHIP_EN_COURS', {}, lang), value: 'EN_COURS', count: enCours },
+      { label: this.translate.instant('CAMPAGNES.CHIP_CLOTUREES', {}, lang), value: 'CLOTUREE', count: cloturees },
+    ];
+  });
+
+  /** Valeur des chips : `null` = « Toutes » (le signal utilise 'TOUTES'). */
+  readonly statutChipValue = computed(() => {
+    const statut = this.filtreStatut();
+    return statut === 'TOUTES' ? null : statut;
+  });
+
+  onStatutChip(value: string | null): void {
+    this.filtreStatut.set((value as StatutCampagne | null) ?? 'TOUTES');
+  }
+
+  voirCampagne(campagneId: string): void {
+    void this.router.navigate(['/campagnes', campagneId]);
+  }
 
   readonly canCreate = computed(
     () => this.auth.isAdmin() || this.auth.role() === 'SUPERVISEUR',

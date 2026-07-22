@@ -79,3 +79,15 @@
   align-items: center;
   justify-content: center;
 }
+
+// Point d'alerte sans nombre (onglet Impayés — maquette M-04)
+.tabs__dot {
+  position: absolute;
+  top: 2px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 1.5px solid #fff;
+}

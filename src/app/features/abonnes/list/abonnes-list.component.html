@@ -107,6 +107,7 @@
     />
 
     <p-select
+      class="abonnes-quartier-select"
       [options]="quartiersOptions()"
       [ngModel]="quartierFilter()"
       (ngModelChange)="quartierFilter.set($event)"
@@ -186,9 +187,9 @@
 
       <ng-template appCardRow let-abonne>
         <button type="button" class="acard" (click)="voirAbonne(abonne.id)">
-          <span class="acard__avatar">{{ abonne.nom.charAt(0).toUpperCase() }}</span>
+          <span class="acard__avatar acard__avatar--{{ avatarVariant(abonne) }}">{{ abonne.nom.charAt(0).toUpperCase() }}</span>
           <span class="acard__info">
-            <span class="acard__nom">{{ abonne.nom }} {{ abonne.prenom }}</span>
+            <span class="acard__nom" [class.acard__nom--muted]="abonne.statut !== 'ACTIF'">{{ abonne.nom }} {{ abonne.prenom }}</span>
             <span class="acard__sub">
               {{ abonne.numeroAbonne }}@if (abonne.compteur) { · {{ abonne.compteur.numeroCompteur | compteur }} · {{ abonne.compteur.quartier }}, Camp {{ abonne.compteur.camp }} }
             </span>

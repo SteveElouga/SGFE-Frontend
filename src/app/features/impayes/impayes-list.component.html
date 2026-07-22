@@ -1,6 +1,7 @@
 <app-page-topbar [title]="'IMPAYES.TITLE' | translate" [subtitle]="subtitle()">
-  <button type="button" class="bilan-btn" (click)="exportBilan()">
-    <i class="pi pi-download"></i> {{ 'IMPAYES.BILAN_PDF' | translate }}
+  <button type="button" class="bilan-btn" (click)="exportBilan()" [attr.aria-label]="'IMPAYES.BILAN_PDF' | translate">
+    <i class="pi pi-download"></i>
+    <span class="bilan-btn__label">{{ 'IMPAYES.BILAN_PDF' | translate }}</span>
   </button>
 </app-page-topbar>
 
@@ -30,13 +31,23 @@
     </div>
   </div>
 
-  <!-- Filters -->
+  <!-- Filters : chips segmentés en mobile (pattern M-05), dropdowns en desktop -->
   <app-filter-bar
     [search]="searchTerm()"
     (searchChange)="onSearchChange($event)"
     searchPlaceholder="IMPAYES.SEARCH_PLACEHOLDER"
   >
+    <div class="impayes-etape-chips">
+      <app-filter-chips
+        [options]="etapeChips()"
+        [total]="nbImpayes()"
+        [value]="etapeChipValue()"
+        (valueChange)="onEtapeChip($event)"
+      />
+    </div>
+
     <p-select
+      class="impayes-etape-select"
       [options]="etapeOptions()"
       [ngModel]="filtreEtape()"
       (ngModelChange)="onEtapeChange($event)"
@@ -45,6 +56,7 @@
       [placeholder]="'IMPAYES.COL_ETAPE' | translate"
     />
     <p-select
+      class="impayes-tri-select"
       [options]="triOptions()"
       [ngModel]="tri()"
       (ngModelChange)="onTriChange($event)"
@@ -109,24 +121,21 @@
         </div>
       </ng-template>
 
+      <!-- Carte mobile (MB-07) : tap sur l'en-tête → relances, bouton + Paiement -->
       <ng-template appCardRow let-row>
         <div class="fcard" [class.fcard--danger]="row.etapeActuelle === 4">
-          <div class="fcard__top">
-            <div>
-              <div class="fcard__nom">{{ row.abonneNom }}</div>
-              <div class="fcard__ref">{{ row.numeroAbonne }} · {{ row.numeroFacture }}</div>
-            </div>
+          <button type="button" class="fcard__top" (click)="voirRelances(row)">
+            <span class="fcard__id">
+              <span class="fcard__nom">{{ row.abonneNom }}</span>
+              <span class="fcard__ref">
+                {{ row.numeroAbonne }}@if (row.retardJours !== null) { · J+{{ row.retardJours }} }@if (row.montantPaye > 0) { · {{ 'IMPAYES.ACOMPTE_RECU' | translate }} }
+              </span>
+            </span>
+            <span class="fcard__solde">{{ formatNombre(row.soldeRestant) }} F</span>
+          </button>
+          <div class="fcard__foot">
             <span class="etape-badge etape-badge--{{ badgeState(row) }}">{{ badgeLabel(row) }}</span>
-          </div>
-          <div class="fcard__grid">
-            <div><span class="fcard__k">{{ 'IMPAYES.COL_MONTANT' | translate }}</span><span class="fcard__v">{{ formatNombre(row.montantTotal) }}</span></div>
-            <div><span class="fcard__k">{{ 'IMPAYES.COL_PAYE' | translate }}</span><span class="fcard__v" [class.col-paye--green]="row.montantPaye > 0">{{ formatNombre(row.montantPaye) }}</span></div>
-            <div><span class="fcard__k">{{ 'IMPAYES.COL_SOLDE' | translate }}</span><span class="fcard__v col-solde">{{ formatNombre(row.soldeRestant) }}</span></div>
-            <div><span class="fcard__k">{{ 'IMPAYES.COL_RETARD' | translate }}</span><span class="fcard__v {{ retardClass(row.retardJours) }}">@if (row.retardJours !== null) { J+{{ row.retardJours }} } @else { — }</span></div>
-          </div>
-          <div class="row-actions">
-            <button type="button" class="act act--primary" (click)="ajouterPaiement(row)">{{ 'IMPAYES.BTN_PAIEMENT' | translate }}</button>
-            <button type="button" class="act act--ghost" (click)="voirRelances(row)">{{ 'IMPAYES.BTN_RELANCES' | translate }}</button>
+            <button type="button" class="fcard__pay" (click)="ajouterPaiement(row)">{{ 'IMPAYES.BTN_PAIEMENT' | translate }}</button>
           </div>
         </div>
       </ng-template>

@@ -40,7 +40,7 @@ export interface FilterChip {
       >
         {{ allLabel() | translate }}
         @if (total() !== null) {
-          <span class="fchips__count">{{ total() }}</span>
+          <span class="fchips__count">({{ total() }})</span>
         }
       </button>
 
@@ -55,7 +55,7 @@ export interface FilterChip {
         >
           {{ translateLabels() ? (opt.label | translate) : opt.label }}
           @if (opt.count !== undefined) {
-            <span class="fchips__count">{{ opt.count }}</span>
+            <span class="fchips__count">({{ opt.count }})</span>
           }
         </button>
       }
