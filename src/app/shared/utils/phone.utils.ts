@@ -1,5 +1,6 @@
-// Validates the local 9-digit format: 6XXXXXXXX (without country code)
-export const LOCAL_PHONE_REGEX = /^6\d{8}$/;
+// Validates a local phone number: minimum 8 digits (Cameroun : numéros à 8 ou 9
+// chiffres selon l'opérateur/l'ancienneté ; on n'impose plus le préfixe 6).
+export const LOCAL_PHONE_REGEX = /^\d{8,15}$/;
 
 export function isValidCameroonPhone(local: string): boolean {
   return LOCAL_PHONE_REGEX.test(local.trim());
