@@ -192,7 +192,7 @@ export class CampagneDetailComponent implements OnInit {
   );
 
   readonly canActOnCampagne = computed(
-    () => this.auth.isAdmin() || this.auth.role() === 'SUPERVISEUR',
+    () => this.auth.isAdmin() || this.auth.isSuperviseur(),
   );
 
   readonly relevesByStatut = computed(() => {
