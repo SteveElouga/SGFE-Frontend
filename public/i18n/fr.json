@@ -12,7 +12,8 @@
     "PARAMETRES": "Paramètres",
     "PLUS": "Plus",
     "ENVOIS": "Envois",
-    "RAPPORTS": "Rapports"
+    "RAPPORTS": "Rapports",
+    "TAB_DASHBOARD": "Dashboard"
   },
   "USER_MENU": {
     "PROFILE": "Mon profil",
@@ -224,7 +225,10 @@
       "NUMERO_INVALID": "Entier ≥ 1 requis",
       "SUCCESS_CREATE_MSG": "Abonné créé avec succès",
       "SUCCESS_EDIT_MSG": "Modifications enregistrées"
-    }
+    },
+    "CHIP_ACTIFS": "Actifs",
+    "CHIP_SUSPENDUS": "Suspendus",
+    "CHIP_RESILIES": "Résiliés"
   },
   "UTILISATEURS": {
     "TITLE": "Utilisateurs",
@@ -375,9 +379,7 @@
     "KPI_IMPAYES": "Impayés actifs",
     "DES_RELEVES": "des relevés",
     "NO_CAMPAGNE": "Aucune campagne en cours",
-    "CONSO_TOTALE": "Conso totale",
     "RECOUVRE": "recouvré",
-    "FACTURES_IMPAYEES": "factures impayées",
     "RECENT_CAMPAGNES": "Campagnes récentes",
     "STATS_UNAVAILABLE": "Statistiques momentanément indisponibles (service Reporting).",
     "INDISPONIBLE": "Indisponible",
@@ -386,8 +388,17 @@
     "KPI_NON_RELEVES": "Non relevés",
     "ABONNES_RESTANTS": "abonnés restants",
     "ACTIVITE_TITLE": "Activité récente",
-    "ACT_PAIEMENT": "Paiement de {{ montant }} FCFA",
-    "NO_ACTIVITE": "Aucune activité récente"
+    "ACT_PAIEMENT": "Paiement {{ montant }} FCFA — {{ numero }}",
+    "NO_ACTIVITE": "Aucune activité récente",
+    "KPI_FACTURE_SHORT": "Facturé",
+    "KPI_FACTURE_HINT": "FCFA · {{ count }} factures",
+    "KPI_FACTURE_HINT_SHORT": "FCFA · {{ count }} fact.",
+    "KPI_IMPAYES_SHORT": "Impayés",
+    "ACT_PAIEMENT_SANS_NUM": "Paiement de {{ montant }} FCFA",
+    "ACT_IMPAYE": "Impayé J+{{ jours }} — {{ numero }}",
+    "ACT_IMPAYE_SANS_NUM": "Impayé de {{ montant }} FCFA",
+    "ACT_IMPAYE_META": "Auto",
+    "CAMPAGNE_OVERLINE": "Campagne {{ periode }}"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -700,7 +711,10 @@
       "INACTIF": "Inactif"
     },
     "COL_AGENT": "Agent",
-    "AGENTS_EMPTY": "Aucun agent affecté à cette campagne."
+    "AGENTS_EMPTY": "Aucun agent affecté à cette campagne.",
+    "CHIP_PLANIFIEES": "Planifiées",
+    "CHIP_EN_COURS": "En cours",
+    "CHIP_CLOTUREES": "Clôturées"
   },
   "FACTURATION": {
     "TITLE": "Factures",
@@ -781,12 +795,19 @@
       "CORRIGER_STATUT_DESC": "Ajuste manuellement le statut de la facture. À utiliser avec précaution : cela n’enregistre aucun paiement.",
       "STATUT_PLACEHOLDER": "Choisir un statut…",
       "BTN_CORRIGER_STATUT": "Appliquer",
-      "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} »."
+      "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} ».",
+      "SOLDE_LABEL": "Solde restant dû",
+      "CONSO_TARIF": "Consommation × tarif",
+      "RESTE_LABEL": "Reste à percevoir"
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",
     "FILTER_STATUT": "Statut",
-    "PAGINATION_INFO": "Affichage {{start}}–{{end}} de {{total}} factures"
+    "PAGINATION_INFO": "Affichage {{start}}–{{end}} de {{total}} factures",
+    "CHIP_TOUTES": "Toutes",
+    "CHIP_IMPAYEES": "Impayées",
+    "CHIP_PARTIELLES": "Partielles",
+    "CHIP_PAYEES": "Payées"
   },
   "PAIEMENTS": {
     "TITLE": "Paiements",
@@ -863,7 +884,9 @@
     "CONFIG_NOTIF_ADMIN": "+ notification admin",
     "CONFIG_SUSPENSION": "suspension auto",
     "CONFIG_ACTIVEE": "activée",
-    "CONFIG_SUFFIX": "configurable dans Paramètres"
+    "CONFIG_SUFFIX": "configurable dans Paramètres",
+    "CHIP_ETAPE": "Étape {{ n }}",
+    "ACOMPTE_RECU": "acompte reçu"
   },
   "RELANCES": {
     "BACK": "Impayés",
@@ -1056,8 +1079,26 @@
   },
   "ESPACE": {
     "TITLE": "Espace Abonné",
-    "SOON": "Bientôt disponible",
-    "CS_TITLE": "Espace abonné public",
-    "CS_DESC": "La consultation de vos factures et de votre consommation via ce lien sécurisé arrivera prochainement, une fois l'accès tokenisé disponible côté serveur."
+    "HEADING": "Vos factures",
+    "LOADING": "Chargement de vos factures…",
+    "SOLDE_TOTAL": "Solde total à régler",
+    "FACTURES_A_REGLER": "{{ n }} facture(s) avec un reste à payer",
+    "TOUT_PAYE": "Tout est réglé — merci !",
+    "LIEN_VALIDE_JUSQU": "Lien valable jusqu'au {{ date }}",
+    "FACTURE": "Facture",
+    "LABEL_RELEVE": "Relevé du",
+    "LABEL_MONTANT": "Montant",
+    "LABEL_SOLDE": "Reste à payer",
+    "LABEL_PAYE": "Déjà réglé",
+    "LABEL_ECHEANCE": "À régler avant le",
+    "PDF": "Télécharger le PDF",
+    "AUCUNE": "Aucune facture",
+    "AUCUNE_DESC": "Vous n'avez aucune facture à consulter pour le moment.",
+    "ERR_TITLE": "Lien invalide ou expiré",
+    "ERR_DESC": "Ce lien n'est plus valable. Demandez un nouveau lien via le message WhatsApp de votre service des eaux.",
+    "ERR_SERVER_TITLE": "Service momentanément indisponible",
+    "ERR_SERVER_DESC": "Vos factures n'ont pas pu être chargées. Merci de réessayer dans un instant.",
+    "RETRY": "Réessayer",
+    "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau"
   }
 }

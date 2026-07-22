@@ -12,7 +12,8 @@
     "PARAMETRES": "Settings",
     "PLUS": "More",
     "ENVOIS": "Sends",
-    "RAPPORTS": "Reports"
+    "RAPPORTS": "Reports",
+    "TAB_DASHBOARD": "Dashboard"
   },
   "USER_MENU": {
     "PROFILE": "My profile",
@@ -224,7 +225,10 @@
       "NUMERO_INVALID": "Integer ≥ 1 required",
       "SUCCESS_CREATE_MSG": "Subscriber created successfully",
       "SUCCESS_EDIT_MSG": "Changes saved"
-    }
+    },
+    "CHIP_ACTIFS": "Active",
+    "CHIP_SUSPENDUS": "Suspended",
+    "CHIP_RESILIES": "Terminated"
   },
   "UTILISATEURS": {
     "TITLE": "Users",
@@ -375,9 +379,7 @@
     "KPI_IMPAYES": "Active unpaid",
     "DES_RELEVES": "of readings",
     "NO_CAMPAGNE": "No campaign in progress",
-    "CONSO_TOTALE": "Total consumption",
     "RECOUVRE": "collected",
-    "FACTURES_IMPAYEES": "unpaid invoices",
     "RECENT_CAMPAGNES": "Recent campaigns",
     "STATS_UNAVAILABLE": "Statistics temporarily unavailable (Reporting service).",
     "INDISPONIBLE": "Unavailable",
@@ -386,8 +388,17 @@
     "KPI_NON_RELEVES": "Not read",
     "ABONNES_RESTANTS": "subscribers remaining",
     "ACTIVITE_TITLE": "Recent activity",
-    "ACT_PAIEMENT": "Payment of {{ montant }} FCFA",
-    "NO_ACTIVITE": "No recent activity"
+    "ACT_PAIEMENT": "Payment {{ montant }} FCFA — {{ numero }}",
+    "NO_ACTIVITE": "No recent activity",
+    "KPI_FACTURE_SHORT": "Billed",
+    "KPI_FACTURE_HINT": "FCFA · {{ count }} invoices",
+    "KPI_FACTURE_HINT_SHORT": "FCFA · {{ count }} inv.",
+    "KPI_IMPAYES_SHORT": "Unpaid",
+    "ACT_PAIEMENT_SANS_NUM": "Payment of {{ montant }} FCFA",
+    "ACT_IMPAYE": "Unpaid D+{{ jours }} — {{ numero }}",
+    "ACT_IMPAYE_SANS_NUM": "Unpaid {{ montant }} FCFA",
+    "ACT_IMPAYE_META": "Auto",
+    "CAMPAGNE_OVERLINE": "Campaign {{ periode }}"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -700,7 +711,10 @@
       "INACTIF": "Inactive"
     },
     "COL_AGENT": "Agent",
-    "AGENTS_EMPTY": "No agent assigned to this campaign."
+    "AGENTS_EMPTY": "No agent assigned to this campaign.",
+    "CHIP_PLANIFIEES": "Planned",
+    "CHIP_EN_COURS": "In progress",
+    "CHIP_CLOTUREES": "Closed"
   },
   "FACTURATION": {
     "TITLE": "Invoices",
@@ -781,12 +795,19 @@
       "CORRIGER_STATUT_DESC": "Manually adjust the invoice status. Use with caution: this records no payment.",
       "STATUT_PLACEHOLDER": "Choose a status…",
       "BTN_CORRIGER_STATUT": "Apply",
-      "STATUT_INCOHERENT": "Status inconsistent with the remaining balance ({{solde}} FCFA). The only consistent status is “{{statut}}”."
+      "STATUT_INCOHERENT": "Status inconsistent with the remaining balance ({{solde}} FCFA). The only consistent status is “{{statut}}”.",
+      "SOLDE_LABEL": "Outstanding balance",
+      "CONSO_TARIF": "Consumption × rate",
+      "RESTE_LABEL": "Remaining to collect"
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",
     "FILTER_STATUT": "Status",
-    "PAGINATION_INFO": "Showing {{start}}–{{end}} of {{total}} invoices"
+    "PAGINATION_INFO": "Showing {{start}}–{{end}} of {{total}} invoices",
+    "CHIP_TOUTES": "All",
+    "CHIP_IMPAYEES": "Unpaid",
+    "CHIP_PARTIELLES": "Partial",
+    "CHIP_PAYEES": "Paid"
   },
   "PAIEMENTS": {
     "TITLE": "Payments",
@@ -863,7 +884,9 @@
     "CONFIG_NOTIF_ADMIN": "+ admin notification",
     "CONFIG_SUSPENSION": "auto suspension",
     "CONFIG_ACTIVEE": "enabled",
-    "CONFIG_SUFFIX": "configurable in Settings"
+    "CONFIG_SUFFIX": "configurable in Settings",
+    "CHIP_ETAPE": "Step {{ n }}",
+    "ACOMPTE_RECU": "deposit received"
   },
   "RELANCES": {
     "BACK": "Overdue",
@@ -1056,8 +1079,26 @@
   },
   "ESPACE": {
     "TITLE": "Subscriber Area",
-    "SOON": "Coming soon",
-    "CS_TITLE": "Public subscriber area",
-    "CS_DESC": "Consulting your invoices and consumption through this secure link is coming soon, once tokenized access is available on the server."
+    "HEADING": "Your invoices",
+    "LOADING": "Loading your invoices…",
+    "SOLDE_TOTAL": "Total amount due",
+    "FACTURES_A_REGLER": "{{ n }} invoice(s) with a balance due",
+    "TOUT_PAYE": "Everything is paid — thank you!",
+    "LIEN_VALIDE_JUSQU": "Link valid until {{ date }}",
+    "FACTURE": "Invoice",
+    "LABEL_RELEVE": "Reading date",
+    "LABEL_MONTANT": "Amount",
+    "LABEL_SOLDE": "Balance due",
+    "LABEL_PAYE": "Already paid",
+    "LABEL_ECHEANCE": "Due by",
+    "PDF": "Download PDF",
+    "AUCUNE": "No invoices",
+    "AUCUNE_DESC": "You have no invoices to view at the moment.",
+    "ERR_TITLE": "Invalid or expired link",
+    "ERR_DESC": "This link is no longer valid. Request a new one from your water utility's WhatsApp message.",
+    "ERR_SERVER_TITLE": "Service temporarily unavailable",
+    "ERR_SERVER_DESC": "Your invoices could not be loaded. Please try again in a moment.",
+    "RETRY": "Retry",
+    "FOOTER": "SGFE · Secure access to your water invoices"
   }
 }
