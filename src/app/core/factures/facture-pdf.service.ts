@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+
+import { AuthService } from '../auth/auth.service';
+import { fetchWithAuthRetry } from '../auth/rest-auth-retry';
 
 /**
  * Ouverture du PDF d'une facture.
@@ -16,6 +18,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class FacturePdfService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
 
   /**
    * Récupère le PDF et l'ouvre dans un nouvel onglet (repli téléchargement si
@@ -27,7 +30,7 @@ export class FacturePdfService {
   async open(factureId: string, filename?: string): Promise<void> {
     const win = window.open('', '_blank');
     try {
-      const blob = await firstValueFrom(
+      const blob = await fetchWithAuthRetry(this.auth, () =>
         this.http.get(`/factures/${factureId}/pdf/`, { responseType: 'blob' }),
       );
       const url = URL.createObjectURL(blob);
