@@ -7,6 +7,16 @@ default_stages: [pre-commit]
 exclude: '^(dist/|\.angular/|coverage/|playwright-report/|test-results/|package-lock\.json)'
 
 repos:
+  # Garde-fou secrets : refuse tout fichier .env au commit (seul .env.example est suivi).
+  - repo: local
+    hooks:
+      - id: forbid-dotenv
+        name: "Interdiction de committer un .env (secrets)"
+        language: fail
+        entry: "Refus : un fichier .env contient des secrets et ne doit jamais etre commite. Utilisez .env.example. Deja suivi ? git rm --cached <fichier>."
+        files: '(^|/)\.env(\.[^/]*)?$'
+        exclude: '\.example$'
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
