@@ -176,7 +176,15 @@ export class FactureDetailComponent implements OnInit {
     const a = this.abonne();
     // Repli sur le nom enrichi porté par la facture quand l'abonné n'est pas
     // résolu (query `abonne` refusée au COMPTABLE).
-    return a ? `${a.prenom} ${a.nom}`.trim() : (this.facture()?.abonneNom ?? '');
+    return a ? `${a.nom} ${a.prenom}`.trim() : (this.facture()?.abonneNom ?? '');
+  });
+
+  /** Sous-titre mobile du header navy (MB-05) : « Koné Mariam · AB-0002 ». */
+  readonly topbarSubtitle = computed(() => {
+    const nom = this.abonneLabel();
+    const numero = this.abonne()?.numeroAbonne ?? this.facture()?.abonneNumero;
+    if (!nom && !numero) return '';
+    return [nom, numero].filter(Boolean).join(' · ');
   });
 
   readonly compteurLabel = computed(() => {
@@ -377,9 +385,36 @@ export class FactureDetailComponent implements OnInit {
   }
 
   envoiClass(envoi: Envoi): string {
+    if (envoi.erreur) return 'journal-entry--error';
     const t = envoi.typeEnvoi?.toUpperCase() ?? '';
     if (t.includes('RAPPEL') || t.includes('ETAPE_2')) return 'journal-entry--warn';
     if (t.includes('AVERT') || t.includes('ETAPE_3')) return 'journal-entry--error';
     return '';
+  }
+
+  /** Libellé du type d'envoi (ENVOIS.TYPE.*), repli sur la valeur brute. */
+  envoiTypeLabel(envoi: Envoi): string {
+    const type = envoi.typeEnvoi ?? 'FACTURE';
+    const key = `ENVOIS.TYPE.${type.toUpperCase()}`;
+    const label = this.translate.instant(key) as string;
+    return label === key ? type : label;
+  }
+
+  /** Libellé du statut d'envoi (ENVOIS.STATUT.*), déduit de l'erreur à défaut. */
+  envoiStatutLabel(envoi: Envoi): string {
+    const statut = envoi.statut || (envoi.erreur ? 'ECHEC' : 'ENVOYE');
+    const key = `ENVOIS.STATUT.${statut.toUpperCase()}`;
+    const label = this.translate.instant(key) as string;
+    return label === key ? statut : label;
+  }
+
+  /**
+   * Nettoie un message d'erreur technique pour l'affichage : retire les URLs
+   * (traces de la librairie WhatsApp) et tronque — le message complet reste
+   * disponible au survol (`title`).
+   */
+  cleanErreur(erreur: string): string {
+    const sansUrl = erreur.replace(/\s*\(?https?:\/\/\S*\)?/g, '').replace(/\s{2,}/g, ' ').trim();
+    return sansUrl.length > 120 ? `${sansUrl.slice(0, 119)}…` : sansUrl;
   }
 }

@@ -16,6 +16,17 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
+}
+
+// ── Filtres : dropdowns + WhatsApp groupé (desktop) ↔ chips seuls (mobile MB-04)
+.factures-statut-chips { display: none; }
+
+@media (max-width: 640px) {
+  .factures-statut-chips { display: block; }
+  .factures-statut-select,
+  .factures-campagne-select { display: none; }
 }
 
 // ── Generate banner ───────────────────────────────────────────────────────────
@@ -103,6 +114,18 @@
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   overflow: hidden;
+
+  // Mobile : wrapper transparent, cartes séparées (gap 9px — MB-04)
+  @media (max-width: 720px) {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 720px) {
+  .fcard { margin-bottom: 9px; }
 }
 
 // ── Cartes mobiles (MB-04) — rendues par app-data-table via appCardRow ─────────
@@ -259,3 +282,9 @@
   }
 }
 
+
+// Mobile (MB-04) : l'envoi WhatsApp groupé reste une action desktop.
+// Placé en fin de fichier pour l'emporter sur le `display` de la règle de base.
+@media (max-width: 640px) {
+  .btn-whatsapp-tous { display: none; }
+}

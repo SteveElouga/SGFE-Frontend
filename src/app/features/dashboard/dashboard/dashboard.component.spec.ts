@@ -32,14 +32,24 @@ describe('DashboardComponent', () => {
 
   it('computes the recovery rate from global stats', () => {
     const { component } = setup();
-    expect(component.tauxRecouvrement()).toBe(0); // stats null au départ
+    expect(component.tauxRecouvrement()).toBe('0'); // stats null au départ
 
     component.stats.set({
       consommationTotaleGlobale: 0,
       montantTotalFactureGlobal: 200000,
       montantTotalEncaisseGlobal: 150000,
     });
-    expect(component.tauxRecouvrement()).toBe(75);
+    expect(component.tauxRecouvrement()).toBe('75');
+  });
+
+  it('localizes the recovery rate to 1 decimal (maquette « 65,8 % »)', () => {
+    const { component } = setup();
+    component.stats.set({
+      consommationTotaleGlobale: 0,
+      montantTotalFactureGlobal: 200000,
+      montantTotalEncaisseGlobal: 131600,
+    });
+    expect(component.tauxRecouvrement()).toBe('65,8');
   });
 
   it('returns 0 when nothing has been invoiced', () => {
@@ -49,6 +59,6 @@ describe('DashboardComponent', () => {
       montantTotalFactureGlobal: 0,
       montantTotalEncaisseGlobal: 0,
     });
-    expect(component.tauxRecouvrement()).toBe(0);
+    expect(component.tauxRecouvrement()).toBe('0');
   });
 });

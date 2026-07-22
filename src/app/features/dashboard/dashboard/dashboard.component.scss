@@ -1,5 +1,64 @@
 :host { display: block; }
 
+// Variantes de libellés courts (mobile M-04) / longs (desktop 01)
+.u-mobile { display: none; }
+@media (max-width: 768px) {
+  .u-mobile { display: inline; }
+  .u-desktop { display: none; }
+}
+
+// ── Héro mobile : progression projetée dans le header navy (M-04) ───────────
+.mhero__card {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 10px 12px;
+
+  &--empty {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    opacity: 0.92;
+  }
+}
+
+.mhero__row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.mhero__label {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mhero__pct {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.mhero__bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.mhero__bar-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.mhero__sub {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 5px;
+}
+
 .dash {
   padding: 18px 22px;
   background: #f1f5f9;
@@ -7,6 +66,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @media (max-width: 768px) { padding: 12px 14px; gap: 12px; }
 }
 
 .dash__loading {
@@ -88,14 +149,20 @@
   &__empty { font-size: 15px; font-weight: 600; opacity: 0.92; }
 }
 
+// Mobile : la progression vit dans le header navy (M-04), pas en carte séparée
+@media (max-width: 768px) {
+  .dash-hero { display: none; }
+}
+
 // ── KPI ─────────────────────────────────────────────────────────────────────
+// 2 colonnes en mobile (grille 2×2 — maquette M-04)
 .dash-kpi {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 
   @media (max-width: 960px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 400px) { grid-template-columns: 1fr; }
+  @media (max-width: 768px) { gap: 10px; }
 }
 
 .kpi {
@@ -108,9 +175,14 @@
   gap: 6px;
   min-height: 96px;
 
-  &--green { border-top: 3px solid #0e9f6e; }
-  &--red { border-top: 3px solid #ef4444; }
-  &--amber { border-top: 3px solid #f59e0b; }
+  // Carte Impayés teintée rouge en mobile uniquement (M-04) ;
+  // desktop : cartes blanches uniformes (maquette 01).
+  @media (max-width: 768px) {
+    &--red {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+  }
 
   &__label {
     font-size: 11px;
@@ -127,9 +199,9 @@
     line-height: 1.1;
 
     small { font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 3px; }
-    &--green { color: #15803d; }
+    &--green { color: #0e9f6e; }
     &--red { color: #dc2626; }
-    &--amber { color: #b45309; }
+    &--slate { color: #475569; }
     &--muted { color: #cbd5e1; }
   }
 
@@ -141,6 +213,17 @@
 
     &--green { color: #0e9f6e; }
     &--red { color: #dc2626; }
+  }
+
+  // Cartes compactes en mobile (M-04)
+  @media (max-width: 768px) {
+    padding: 14px;
+    min-height: 0;
+    gap: 0;
+
+    &__label { font-size: 10px; letter-spacing: 0.4px; margin-bottom: 6px; }
+    &__value { font-size: 22px; line-height: 1; }
+    &__hint { margin-top: 3px; }
   }
 }
 
@@ -178,6 +261,45 @@
   &__body { min-width: 0; }
   &__text { font-size: 13px; font-weight: 600; color: #0f172a; }
   &__meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+}
+
+// Mobile (M-04) : rangées en cartes accolées (1px), coins arrondis en tête et
+// pied de groupe, icônes rondes compactes.
+@media (max-width: 768px) {
+  .dash-activite {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .act-row {
+    background: #fff;
+    border-bottom: none;
+    border-radius: 2px;
+    padding: 10px 12px;
+    align-items: flex-start;
+
+    &:first-child { border-radius: 10px 10px 2px 2px; }
+    &:last-child { border-radius: 2px 2px 10px 10px; }
+    &:only-child { border-radius: 10px; }
+
+    &__icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      font-size: 11px;
+
+      &--paiement { background: #f0fdf4; }
+      &--impaye { background: #fef2f2; }
+    }
+
+    &__text { font-size: 12px; font-weight: 500; }
+    &__meta { font-size: 10px; margin-top: 1px; }
+  }
 }
 
 .dash-empty {

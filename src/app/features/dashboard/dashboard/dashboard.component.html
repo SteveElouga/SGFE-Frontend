@@ -1,4 +1,25 @@
-<app-page-topbar [title]="'DASHBOARD.TITLE' | translate" [subtitle]="campagneEnCours()?.nom ?? ''" />
+<app-page-topbar
+  [title]="'DASHBOARD.TITLE' | translate"
+  [overline]="campagneEnCours() ? ('DASHBOARD.CAMPAGNE_OVERLINE' | translate:{ periode: campagneEnCours()!.nom }) : ''"
+>
+  <!-- Progression campagne dans le header navy (mobile — maquette M-04) -->
+  <div topbar-hero class="mhero">
+    @if (campagneEnCours(); as c) {
+      <div class="mhero__card">
+        <div class="mhero__row">
+          <span class="mhero__label">{{ 'DASHBOARD.RELEVES_EN_COURS' | translate }}</span>
+          <span class="mhero__pct">{{ c.pourcentage }}%</span>
+        </div>
+        <div class="mhero__bar">
+          <div class="mhero__bar-fill" [style.width.%]="c.pourcentage"></div>
+        </div>
+        <div class="mhero__sub">{{ c.nbReleves }} / {{ c.totalAbonnes }} {{ 'DASHBOARD.ABONNES_RELEVES' | translate }}</div>
+      </div>
+    } @else if (!loading()) {
+      <div class="mhero__card mhero__card--empty">{{ 'DASHBOARD.NO_CAMPAGNE' | translate }}</div>
+    }
+  </div>
+</app-page-topbar>
 
 <div class="dash">
 
@@ -14,7 +35,7 @@
       </div>
     }
 
-    <!-- Hero : progression de la campagne en cours -->
+    <!-- Hero : progression de la campagne en cours (desktop uniquement) -->
     <section class="dash-hero">
       <div class="dash-hero__label">{{ 'DASHBOARD.RELEVES_EN_COURS' | translate }}</div>
       @if (campagneEnCours(); as c) {
@@ -32,10 +53,20 @@
     <section class="dash-kpi">
       <!-- Facturé -->
       <div class="kpi">
-        <div class="kpi__label">{{ 'DASHBOARD.KPI_FACTURE' | translate }}</div>
+        <div class="kpi__label">
+          <span class="u-desktop">{{ 'DASHBOARD.KPI_FACTURE' | translate }}</span>
+          <span class="u-mobile">{{ 'DASHBOARD.KPI_FACTURE_SHORT' | translate }}</span>
+        </div>
         @if (stats(); as s) {
-          <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }} <small>FCFA</small></div>
-          <div class="kpi__hint">{{ 'DASHBOARD.CONSO_TOTALE' | translate }} : {{ formatM3(s.consommationTotaleGlobale) }}</div>
+          <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }}</div>
+          @if (nbFactures() !== null) {
+            <div class="kpi__hint">
+              <span class="u-desktop">{{ 'DASHBOARD.KPI_FACTURE_HINT' | translate:{ count: nbFactures() } }}</span>
+              <span class="u-mobile">{{ 'DASHBOARD.KPI_FACTURE_HINT_SHORT' | translate:{ count: nbFactures() } }}</span>
+            </div>
+          } @else {
+            <div class="kpi__hint">FCFA</div>
+          }
         } @else {
           <div class="kpi__value kpi__value--muted">—</div>
           <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
@@ -43,23 +74,26 @@
       </div>
 
       <!-- Encaissé -->
-      <div class="kpi kpi--green">
+      <div class="kpi">
         <div class="kpi__label">{{ 'DASHBOARD.KPI_ENCAISSE' | translate }}</div>
         @if (stats(); as s) {
-          <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }} <small>FCFA</small></div>
-          <div class="kpi__hint kpi__hint--green">{{ tauxRecouvrement() }}% {{ 'DASHBOARD.RECOUVRE' | translate }}</div>
+          <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }}</div>
+          <div class="kpi__hint kpi__hint--green">{{ tauxRecouvrement() }} %<span class="u-desktop"> {{ 'DASHBOARD.RECOUVRE' | translate }}</span></div>
         } @else {
           <div class="kpi__value kpi__value--muted">—</div>
           <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
         }
       </div>
 
-      <!-- Impayés actifs (source indépendante) -->
+      <!-- Impayés actifs (source indépendante) : nombre en grand, montant en dessous -->
       <div class="kpi kpi--red">
-        <div class="kpi__label">{{ 'DASHBOARD.KPI_IMPAYES' | translate }}</div>
+        <div class="kpi__label">
+          <span class="u-desktop">{{ 'DASHBOARD.KPI_IMPAYES' | translate }}</span>
+          <span class="u-mobile">{{ 'DASHBOARD.KPI_IMPAYES_SHORT' | translate }}</span>
+        </div>
         @if (impayes(); as im) {
-          <div class="kpi__value kpi__value--red">{{ formatFCFA(im.total) }} <small>FCFA</small></div>
-          <div class="kpi__hint kpi__hint--red">{{ im.count }} {{ 'DASHBOARD.FACTURES_IMPAYEES' | translate }}</div>
+          <div class="kpi__value kpi__value--red">{{ im.count }}</div>
+          <div class="kpi__hint kpi__hint--red">{{ formatFCFA(im.total) }} FCFA</div>
         } @else {
           <div class="kpi__value kpi__value--muted">—</div>
           <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
@@ -67,10 +101,10 @@
       </div>
 
       <!-- Non relevés (source indépendante : campagne en cours) -->
-      <div class="kpi kpi--amber">
+      <div class="kpi">
         <div class="kpi__label">{{ 'DASHBOARD.KPI_NON_RELEVES' | translate }}</div>
         @if (campagneEnCours(); as c) {
-          <div class="kpi__value kpi__value--amber">{{ c.nonReleves }}</div>
+          <div class="kpi__value kpi__value--slate">{{ c.nonReleves }}</div>
           <div class="kpi__hint">{{ 'DASHBOARD.ABONNES_RESTANTS' | translate }}</div>
         } @else {
           <div class="kpi__value kpi__value--muted">—</div>
@@ -79,7 +113,7 @@
       </div>
     </section>
 
-    <!-- Activité récente : derniers paiements -->
+    <!-- Activité récente : derniers paiements + impayés -->
     <h2 class="dash__section-title">{{ 'DASHBOARD.ACTIVITE_TITLE' | translate }}</h2>
     @if (activite(); as acts) {
       @if (acts.length > 0) {
@@ -89,13 +123,25 @@
               @if (a.type === 'paiement') {
                 <span class="act-row__icon act-row__icon--paiement"><i class="pi pi-credit-card"></i></span>
                 <div class="act-row__body">
-                  <div class="act-row__text">{{ 'DASHBOARD.ACT_PAIEMENT' | translate:{ montant: formatFCFA(a.montant) } }}</div>
+                  <div class="act-row__text">
+                    @if (a.numero) {
+                      {{ 'DASHBOARD.ACT_PAIEMENT' | translate:{ montant: formatFCFA(a.montant), numero: a.numero } }}
+                    } @else {
+                      {{ 'DASHBOARD.ACT_PAIEMENT_SANS_NUM' | translate:{ montant: formatFCFA(a.montant) } }}
+                    }
+                  </div>
                   <div class="act-row__meta">{{ ('FACTURATION.MODE.' + a.mode) | translate }} · {{ relativeTime(a.date ?? '') }}</div>
                 </div>
               } @else {
                 <span class="act-row__icon act-row__icon--impaye"><i class="pi pi-exclamation-circle"></i></span>
                 <div class="act-row__body">
-                  <div class="act-row__text">{{ 'DASHBOARD.ACT_IMPAYE' | translate:{ montant: formatFCFA(a.montant) } }}</div>
+                  <div class="act-row__text">
+                    @if (a.numero && a.jours !== undefined) {
+                      {{ 'DASHBOARD.ACT_IMPAYE' | translate:{ jours: a.jours, numero: a.numero } }}
+                    } @else {
+                      {{ 'DASHBOARD.ACT_IMPAYE_SANS_NUM' | translate:{ montant: formatFCFA(a.montant) } }}
+                    }
+                  </div>
                   <div class="act-row__meta">{{ 'DASHBOARD.ACT_IMPAYE_META' | translate }}</div>
                 </div>
               }

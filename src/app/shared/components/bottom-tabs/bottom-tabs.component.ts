@@ -2,11 +2,11 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NavService } from '../../services/nav.service';
-import { LayoutService } from '../../services/layout.service';
 
 /**
- * Barre d'onglets du bas (mobile only). Affiche les 4 sections les plus
- * visitées du rôle courant + un onglet « Plus » qui ouvre le tiroir complet.
+ * Barre d'onglets du bas (mobile only). Affiche les onglets métier du rôle
+ * courant (maquettes M-04/M-05, max 5) ; le tiroir complet s'ouvre via
+ * l'avatar de la topbar.
  */
 @Component({
   selector: 'app-bottom-tabs',
@@ -18,5 +18,4 @@ import { LayoutService } from '../../services/layout.service';
 })
 export class BottomTabsComponent {
   protected readonly nav = inject(NavService);
-  protected readonly layout = inject(LayoutService);
 }

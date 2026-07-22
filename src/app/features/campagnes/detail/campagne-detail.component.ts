@@ -32,6 +32,7 @@ import {
 } from '../../../shared/models/campagne.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
+import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
@@ -49,6 +50,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     FormsModule,
     SelectModule,
     ErrorBannerComponent,
+    FilterChipsComponent,
     AgentsSheetComponent,
     ZonesSheetComponent,
     AbonnesSheetComponent,
@@ -278,6 +280,28 @@ export class CampagneDetailComponent implements OnInit {
     { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.NON_RELEVE'), value: 'NON_RELEVE' },
     { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.A_RELEVER'), value: 'A_RELEVER' },
   ]);
+
+  /** Chips de statut des relevés (mobile, pattern M-05) : pluriels + compteurs. */
+  readonly releveChips = computed((): FilterChip[] => {
+    const lang = this.translate.currentLang() ?? undefined;
+    const h = this.relevesByStatut();
+    return [
+      { label: this.translate.instant('CAMPAGNES.KPI_RELEVES', {}, lang), value: 'RELEVE', count: h.releve },
+      { label: this.translate.instant('CAMPAGNES.KPI_ESTIMES', {}, lang), value: 'ESTIME', count: h.estime },
+      { label: this.translate.instant('CAMPAGNES.KPI_NON_RELEVES', {}, lang), value: 'NON_RELEVE', count: h.nonReleve },
+      { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.A_RELEVER', {}, lang), value: 'A_RELEVER', count: h.aRelever },
+    ];
+  });
+
+  /** Valeur des chips : `null` = « Tous » (le signal utilise 'TOUS'). */
+  readonly releveChipValue = computed(() => {
+    const statut = this.filtreReleveStatut();
+    return statut === 'TOUS' ? null : statut;
+  });
+
+  onReleveChip(value: string | null): void {
+    this.filtreReleveStatut.set(value ?? 'TOUS');
+  }
 
   readonly quartiersDisponibles = computed(() => {
     const map = this.abonnesMap();

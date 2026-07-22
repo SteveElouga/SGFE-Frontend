@@ -20,6 +20,7 @@ import { BadgeComponent } from '../../../shared/components/badge/badge.component
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { PaiementPanelComponent } from './paiement-panel/paiement-panel.component';
@@ -44,6 +45,7 @@ interface CampagneOption {
     ErrorBannerComponent,
     PageTopbarComponent,
     FilterBarComponent,
+    FilterChipsComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -107,6 +109,32 @@ export class FacturesListComponent implements OnInit {
       { label: this.translate.instant('FACTURATION.STATUT.PAYEE', {}, lang), value: 'PAYEE' },
     ] as Array<{ label: string; value: StatutFacture | 'TOUS' }>;
   });
+
+  /** Chips de statut (mobile, pattern MB-04) : libellés pluriels + compteurs. */
+  readonly statutChips = computed((): FilterChip[] => {
+    const lang = this.translate.currentLang() ?? undefined;
+    const all = this.factures();
+    const chips: Array<{ key: string; value: StatutFacture }> = [
+      { key: 'FACTURATION.CHIP_IMPAYEES', value: 'IMPAYEE' },
+      { key: 'FACTURATION.CHIP_PARTIELLES', value: 'PARTIELLE' },
+      { key: 'FACTURATION.CHIP_PAYEES', value: 'PAYEE' },
+    ];
+    return chips.map((c) => ({
+      label: this.translate.instant(c.key, {}, lang),
+      value: c.value,
+      count: all.filter((f) => f.statut === c.value).length,
+    }));
+  });
+
+  /** Valeur des chips : `null` = « Toutes » (le signal utilise 'TOUS'). */
+  readonly statutChipValue = computed(() => {
+    const statut = this.filtreStatut();
+    return statut === 'TOUS' ? null : statut;
+  });
+
+  onStatutChip(value: string | null): void {
+    this.onStatutChange((value as StatutFacture | null) ?? 'TOUS');
+  }
 
   readonly facturesFiltrees = computed(() => {
     let list = this.factures();

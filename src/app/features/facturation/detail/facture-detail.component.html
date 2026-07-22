@@ -1,6 +1,8 @@
 
 <app-page-topbar
+  class="topbar--subtitle-mobile"
   [title]="facture()?.numeroFacture ?? ('FACTURATION.TITLE' | translate)"
+  [subtitle]="topbarSubtitle()"
   [backLink]="backLink()"
   [backLabel]="'FACTURATION.DETAIL.BACK' | translate"
 />
@@ -17,8 +19,17 @@
     </div>
   } @else if (facture(); as f) {
 
-    <!-- Header card -->
-    <div class="detail-card">
+    <!-- Héro solde (mobile — MB-05) -->
+    <div class="msolde" [class.msolde--paid]="soldeRestant() === 0">
+      <div class="msolde__label">{{ 'FACTURATION.DETAIL.SOLDE_LABEL' | translate }}</div>
+      <div class="msolde__value">
+        {{ soldeRestant().toLocaleString('fr-FR') }} <span class="msolde__devise">FCFA</span>
+      </div>
+      <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
+    </div>
+
+    <!-- Header card (desktop) -->
+    <div class="detail-card detail-card--header">
       <div class="detail-card__header-row">
         <div>
           <div class="detail-card__numero">{{ f.numeroFacture }}</div>
@@ -98,6 +109,26 @@
           <span class="calc-table__total-value">{{ f.montant | fcfa }}</span>
         </div>
       </div>
+
+      <!-- Détail du calcul en lignes clé/valeur (mobile — MB-05) -->
+      <div class="mrows">
+        <div class="mrows__row">
+          <span class="mrows__k">{{ 'FACTURATION.DETAIL.ANCIEN_INDEX' | translate }}</span>
+          <span class="mrows__v">{{ f.ancienIndex | number }} m³</span>
+        </div>
+        <div class="mrows__row">
+          <span class="mrows__k">{{ 'FACTURATION.DETAIL.NOUVEL_INDEX' | translate }}</span>
+          <span class="mrows__v">{{ f.nouveauIndex | number }} m³</span>
+        </div>
+        <div class="mrows__row">
+          <span class="mrows__k">{{ 'FACTURATION.DETAIL.CONSO_TARIF' | translate }}</span>
+          <span class="mrows__v">{{ f.consommation | number }} × {{ f.prixM3 | number:'1.0-0' }} F</span>
+        </div>
+        <div class="mrows__row mrows__row--total">
+          <span class="mrows__k">{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
+          <span class="mrows__v">{{ f.montant.toLocaleString('fr-FR') }} F</span>
+        </div>
+      </div>
     </div>
 
     <!-- Payment history card -->
@@ -125,6 +156,28 @@
                 </div>
               </div>
               <span class="paiement-badge">{{ 'FACTURATION.DETAIL.ACOMPTE' | translate }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Paiements en lignes MB-05 (mobile) : check vert + mode + montant vert -->
+        <div class="mpaiements">
+          @for (p of paiements(); track p.paiementId) {
+            <div class="mpaiements__row">
+              <span class="mpaiements__check" aria-hidden="true"><i class="pi pi-check"></i></span>
+              <span class="mpaiements__body">
+                <span class="mpaiements__mode">{{ 'FACTURATION.MODE.' + p.modePaiement | translate }}</span>
+                <span class="mpaiements__meta">
+                  {{ formatDate(p.datePaiement) }}@if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
+                </span>
+              </span>
+              <span class="mpaiements__montant">{{ p.montant.toLocaleString('fr-FR') }} F</span>
+            </div>
+          }
+          @if (soldeRestant() > 0) {
+            <div class="mpaiements__reste">
+              <span>{{ 'FACTURATION.DETAIL.RESTE_LABEL' | translate }}</span>
+              <span class="mpaiements__reste-montant">{{ soldeRestant().toLocaleString('fr-FR') }} F</span>
             </div>
           }
         </div>
@@ -222,6 +275,32 @@
       }
     </div>
 
+    <!-- Actions (mobile — MB-05) : + Paiement / PDF / renvoyer WhatsApp -->
+    <div class="mactions">
+      @if (f.statut !== 'PAYEE' && canAddPaiement()) {
+        <button type="button" class="mactions__pay" (click)="showForm.set(true)">
+          {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
+        </button>
+      }
+      <button
+        type="button"
+        class="mactions__icon"
+        (click)="openPdf()"
+        [disabled]="pdfLoading()"
+        [attr.aria-label]="'FACTURATION.DETAIL.BTN_PDF' | translate"
+      >
+        @if (pdfLoading()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-file-pdf"></i> }
+      </button>
+      <button
+        type="button"
+        class="mactions__icon mactions__icon--wa"
+        (click)="envoyerWhatsapp()"
+        [attr.aria-label]="waButtonLabel()"
+      >
+        <i class="pi pi-whatsapp"></i>
+      </button>
+    </div>
+
     <!-- Correction manuelle du statut -->
     <div class="detail-card detail-card--correction">
       <div class="correction-head">
@@ -266,18 +345,22 @@
         <div class="journal-list">
           @for (e of envois(); track e.envoiId) {
             <div class="journal-entry" [class]="envoiClass(e)">
-              <span class="journal-entry__text">
-                {{ e.typeEnvoi ?? 'Envoi' }}
-                @if (e.erreur) { · <span class="journal-entry__err">{{ e.erreur }}</span> }
-              </span>
-              <span class="journal-entry__meta">
-                <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
-                @if (e.erreur) {
-                  <button type="button" class="journal-entry__retry" (click)="rejouerEnvoi(e.envoiId)">
-                    <i class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
-                  </button>
-                }
-              </span>
+              <div class="journal-entry__head">
+                <span class="journal-entry__text">{{ envoiTypeLabel(e) }} · {{ envoiStatutLabel(e) }}</span>
+                <span class="journal-entry__meta">
+                  @if (e.dateEnvoi) {
+                    <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
+                  }
+                  @if (e.erreur) {
+                    <button type="button" class="journal-entry__retry" (click)="rejouerEnvoi(e.envoiId)">
+                      <i class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
+                    </button>
+                  }
+                </span>
+              </div>
+              @if (e.erreur) {
+                <div class="journal-entry__err" [attr.title]="e.erreur">{{ cleanErreur(e.erreur) }}</div>
+              }
             </div>
           }
         </div>

@@ -2,17 +2,29 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  height: 54px;
   background: #fff;
   border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+// Ligne principale : titre à gauche, actions/cloche/avatar à droite
+.page-topbar__row {
+  height: 54px;
   padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-shrink: 0;
 }
 
 .page-topbar__left {
+  display: flex;
+  align-items: baseline;
+  min-width: 0;
+}
+
+// Bloc titres (surtitre + titre + sous-titre) : inline sur desktop,
+// colonne sous le chevron retour sur mobile.
+.page-topbar__titles {
   display: flex;
   align-items: baseline;
   min-width: 0;
@@ -41,6 +53,17 @@
   white-space: nowrap;
 }
 
+// Surtitre (ex. campagne en cours) : à la suite du titre sur desktop
+// (ordre inversé par flex), au-dessus du titre sur mobile.
+.page-topbar__overline {
+  order: 2;
+  font-size: 13px;
+  font-weight: 400;
+  color: #94a3b8;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
 .page-topbar__back {
   font-size: 13px;
   font-weight: 400;
@@ -50,11 +73,34 @@
   &:hover { color: #64748b; }
 }
 
+// Sous-titre opt-in « mobile seulement » (classe posée sur l'hôte) :
+// masqué sur desktop, réaffiché dans le bloc mobile ci-dessous.
+.topbar--subtitle-mobile .page-topbar__subtitle { display: none; }
+
 .page-topbar__sep {
   font-size: 13px;
   color: #e2e8f0;
   margin: 0 8px;
 }
+
+// Bouton hamburger : mobile uniquement, ouvre le tiroir de navigation
+.page-topbar__menu {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 17px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+// Bloc héro projeté ([topbar-hero]) : réservé au header mobile navy
+[topbar-hero] { display: none; }
 
 // Classe utilitaire pour le bouton/lien d'action projeté (button ou <a>)
 .page-topbar-action {
@@ -82,42 +128,89 @@
 // ── Responsive ───────────────────────────────────────────────────────────────
 // Placé APRÈS les règles de base pour que les surcharges mobiles (margin-left,
 // flex-basis…) gagnent bien à spécificité égale.
-@media (max-width: 768px) {
-  .page-topbar { padding: 0 14px; }
-  .page-topbar__left { align-items: center; }
-}
 
-// Mobile : le sous-titre passe JUSTE SOUS le titre (empilé), tout en gardant le
-// header à 54px (les 2 lignes compactes tiennent dedans, centrées). Les boutons
-// d'ajout se réduisent à leur icône « + » (libellé masqué).
-@media (max-width: 640px) {
+// Mobile (M-04/M-05) : header navy, textes blancs, avatar visible, cloche
+// masquée (les notifications restent accessibles via le tiroir).
+@media (max-width: 768px) {
+  .page-topbar {
+    background: #0f1c3d;
+    border-bottom: none;
+  }
+  .page-topbar__row {
+    height: auto;
+    min-height: 54px;
+    padding: 12px 18px;
+    align-items: center;
+  }
+  // Rangée : chevron retour (optionnel) + colonne de titres (MB-02/MB-05)
   .page-topbar__left {
     min-width: 0;
     flex: 1 1 auto;
-    flex-wrap: wrap;          // le sous-titre peut passer à la ligne
-    align-items: baseline;
-    row-gap: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
   }
-  .page-topbar__title {
+  .page-topbar__titles {
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .page-topbar__back {
+    font-size: 18px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.65);
     flex-shrink: 0;
-    line-height: 1.15;
   }
-  // Sous-titre sur sa propre ligne, aligné SOUS le titre (pas de retrait gauche).
-  .page-topbar__subtitle {
-    flex-basis: 100%;
-    margin-left: 0;
+  .page-topbar__back-label { display: none; }
+  .page-topbar__title {
+    order: 1;
+    font-size: 20px;
     line-height: 1.15;
-    font-size: 11.5px;
-    white-space: nowrap;
+    color: #fff;
+  }
+  .page-topbar__overline {
+    order: 0;
+    margin-left: 0;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  .page-topbar__subtitle {
+    order: 2;
+    margin-left: 0;
+    font-size: 11px;
+    line-height: 1.15;
+    color: rgba(255, 255, 255, 0.45);
+    max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .page-topbar__right { flex-shrink: 0; gap: 8px; }
+  .page-topbar__sep { display: none; }
 
-  // Bouton d'ajout : icône « + » seule (libellé masqué → carré compact).
+  // Sous-titre réservé au mobile (ex. détail facture MB-05 : l'info est déjà
+  // dans la carte d'en-tête desktop) — opt-in via la classe sur l'hôte.
+  .topbar--subtitle-mobile .page-topbar__subtitle { display: block; }
+  .page-topbar__right { flex-shrink: 0; gap: 10px; }
+  // Cloche masquée en mobile SAUF s'il y a des notifications non lues.
+  // Sélecteur composé : doit battre le `:host { display: … }` du composant cloche.
+  .page-topbar .page-topbar__bell:not(.page-topbar__bell--has-unread) { display: none; }
+  .page-topbar__menu { display: flex; }
+
+  // Bloc héro (progression dashboard) dans le header navy
+  [topbar-hero] { display: block; padding: 0 18px 16px; }
+
+  // Bouton d'ajout : icône « + » seule, carré arrondi (M-05)
   .page-topbar-action {
     gap: 0;
-    padding: 9px 11px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(26, 86, 219, 0.4);
   }
   .page-topbar-action__label { display: none; }
 }

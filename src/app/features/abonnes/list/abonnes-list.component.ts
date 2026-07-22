@@ -144,18 +144,35 @@ export class AbonnesListComponent implements OnInit {
     ];
   });
 
-  /** Chips de statut (mobile) avec compteurs, dérivés des mêmes options. */
+  /** Chips de statut (mobile M-05) : libellés pluriels + compteurs. */
   readonly statutChips = computed((): FilterChip[] => {
+    const lang = this.translate.currentLang() ?? undefined;
     const all = this.abonnes();
-    return this.statutOptions().map((o) => ({
-      label: o.label,
-      value: o.value,
-      count: all.filter((a) => a.statut === o.value).length,
+    const chips: Array<{ key: string; value: StatutAbonne }> = [
+      { key: 'ABONNES.CHIP_ACTIFS', value: 'ACTIF' },
+      { key: 'ABONNES.CHIP_SUSPENDUS', value: 'SUSPENDU' },
+      { key: 'ABONNES.CHIP_RESILIES', value: 'RESILIE' },
+    ];
+    return chips.map((c) => ({
+      label: this.translate.instant(c.key, {}, lang),
+      value: c.value,
+      count: all.filter((a) => a.statut === c.value).length,
     }));
   });
 
   onStatutChip(value: string | null): void {
     this.statutFilter.set(value as StatutAbonne | null);
+  }
+
+  /**
+   * Variante de dégradé de l'avatar (M-05) : ambre pour un suspendu, gris pour
+   * un résilié, sinon un dégradé stable dérivé du n° d'abonné.
+   */
+  avatarVariant(abonne: Abonne): string {
+    if (abonne.statut === 'SUSPENDU') return 'suspendu';
+    if (abonne.statut === 'RESILIE') return 'resilie';
+    const seed = [...(abonne.numeroAbonne ?? abonne.nom)].reduce((sum, ch) => sum + (ch.codePointAt(0) ?? 0), 0);
+    return `g${seed % 4}`;
   }
 
   ngOnInit(): void {
