@@ -59,3 +59,7 @@ e2e/.auth/
 # Documentation (design assets — jamais commités)
 /docs/
 AquaBill*.html
+
+# Outillage local (Claude Code, coverage)
+.claude/
+.coverage
