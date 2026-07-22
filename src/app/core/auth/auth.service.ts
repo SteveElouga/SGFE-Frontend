@@ -84,6 +84,7 @@ export class AuthService {
   isAdmin = computed(() => this.role() === 'ADMIN');
   isAgent = computed(() => this.role() === 'AGENT');
   isComptable = computed(() => this.role() === 'COMPTABLE');
+  isSuperviseur = computed(() => this.role() === 'SUPERVISEUR');
 
   private readonly apolloClient = inject(Apollo);
 

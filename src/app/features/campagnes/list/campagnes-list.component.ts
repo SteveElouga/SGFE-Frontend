@@ -176,7 +176,7 @@ export class CampagnesListComponent implements OnInit {
   }
 
   readonly canCreate = computed(
-    () => this.auth.isAdmin() || this.auth.role() === 'SUPERVISEUR',
+    () => this.auth.isAdmin() || this.auth.isSuperviseur(),
   );
 
   // ── Clôture ────────────────────────────────────────────────────────────────
