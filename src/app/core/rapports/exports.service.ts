@@ -1,6 +1,8 @@
 import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+
+import { AuthService } from '../auth/auth.service';
+import { fetchWithAuthRetry } from '../auth/rest-auth-retry';
 
 /**
  * Exports back-office de l'écran Rapports (écran 13).
@@ -17,6 +19,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class ExportsService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
 
   /** CSV des factures d'une campagne. */
   facturesCsv(campagneId: string): Promise<void> {
@@ -41,7 +44,7 @@ export class ExportsService {
   private async download(url: string, params: Record<string, string>, fallbackName: string): Promise<void> {
     let resp: HttpResponse<Blob>;
     try {
-      resp = await firstValueFrom(
+      resp = await fetchWithAuthRetry(this.auth, () =>
         this.http.get(url, { params, responseType: 'blob', observe: 'response' }),
       );
     } catch (err) {
