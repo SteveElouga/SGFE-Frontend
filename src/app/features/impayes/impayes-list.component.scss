@@ -59,7 +59,7 @@
   border-radius: 12px;
   padding: 14px 16px;
 
-  &--accent-red { border-top: 3px solid #ef4444; }
+  &--accent-red { box-shadow: inset 0 3px 0 #ef4444; }
 
   &__value {
     font-size: 24px;

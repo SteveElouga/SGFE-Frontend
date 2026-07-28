@@ -5,6 +5,9 @@
 // Montserrat comme police par défaut sur toute l'app
 :root {
   --p-font-family: 'Montserrat', sans-serif;
+  // Courbes d'easing fortes (design engineering — cf. Emil Kowalski)
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 html,
@@ -54,6 +57,30 @@ textarea {
 @keyframes aq-tooltip-in {
   from { opacity: 0; transform: translateY(3px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Feedback de press universel sur les boutons (l'UI « répond » au doigt) ────
+// Les .btn sont redéfinis par composant ; le scale au :active s'applique partout
+// (au pire il claque instantanément, au mieux il s'anime — net gain à chaque clic).
+.btn {
+  transition: transform 160ms var(--ease-out);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+
+// ── Accessibilité : respect de prefers-reduced-motion ─────────────────────────
+// Le mouvement est quasi supprimé (transitions/animations) ; les changements
+// d'état restent instantanés — pas de glissement pour les personnes sensibles.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 .container {
