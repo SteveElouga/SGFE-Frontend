@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ViewEncapsulation, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ViewEncapsulation, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -31,11 +31,49 @@ import { TranslatePipe } from '@ngx-translate/core';
   encapsulation: ViewEncapsulation.None,
 })
 export class FilterBarComponent {
-  /** Valeur du champ de recherche. */
+  /** Valeur du champ de recherche (synchro parent → composant). */
   readonly search = input('');
   readonly searchChange = output<string>();
   /** Clé i18n du placeholder de recherche. */
   readonly searchPlaceholder = input('COMMON.SEARCH');
   /** Afficher le champ de recherche (false pour les listes sans recherche). */
   readonly showSearch = input(true);
+  /**
+   * Debounce en ms sur `searchChange` : 0 = émission immédiate à chaque frappe
+   * (défaut, non-régressif). >0 = attend le silence de N ms avant d'émettre —
+   * évite de refiltrer une grande liste à chaque touche.
+   */
+  readonly debounceMs = input(0);
+
+  private readonly destroyRef = inject(DestroyRef);
+  /** Buffer local qui suit chaque frappe ; l'émission est différée si debounceMs > 0. */
+  readonly localSearch = signal('');
+  private pendingTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    // Synchro externe → interne (le parent peut piloter la valeur via `[search]`).
+    effect(() => {
+      const ext = this.search();
+      untracked(() => {
+        if (ext !== this.localSearch()) this.localSearch.set(ext);
+      });
+    });
+    this.destroyRef.onDestroy(() => {
+      if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    });
+  }
+
+  onInput(value: string): void {
+    this.localSearch.set(value);
+    const delay = this.debounceMs();
+    if (delay <= 0) {
+      this.searchChange.emit(value);
+      return;
+    }
+    if (this.pendingTimer) clearTimeout(this.pendingTimer);
+    this.pendingTimer = setTimeout(() => {
+      this.pendingTimer = null;
+      this.searchChange.emit(value);
+    }, delay);
+  }
 }

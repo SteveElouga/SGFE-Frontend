@@ -49,15 +49,17 @@
   .fchips__chip--active & { opacity: 0.8; }
 }
 
-// Mobile (M-05) : pilules compactes
+// Mobile : pilules resserrées mais cible tactile préservée (WCAG 2.5.5 :
+// 44px cible AAA ; 36px reste bien au-dessus des 24px AA, tout en gardant
+// la compacité visuelle de la barre de filtres mobile).
 @media (max-width: 640px) {
   .fchips { gap: 6px; }
 
   .fchips__chip {
-    height: 28px;
-    padding: 0 12px;
-    gap: 4px;
-    font-size: 11px;
+    height: 36px;
+    padding: 0 14px;
+    gap: 5px;
+    font-size: 12px;
   }
 
   .fchips__count { font-size: 11px; }

@@ -1,0 +1,125 @@
+<div class="fp">
+
+  <!-- ── Héro compteur (Chiffre Fort SGFE) ─────────────────────────────────── -->
+  @if (resultCount() !== null) {
+    <div class="fp__hero" role="status" aria-live="polite">
+      <span class="fp__hero-count">{{ resultCount() }}</span>
+      <span class="fp__hero-noun">{{ heroNounKey() | translate: { count: resultCount() } }}</span>
+      <span class="fp__hero-accent" aria-hidden="true"></span>
+      @if (heroSubtitle()) {
+        <span class="fp__hero-sub">{{ heroSubtitle() }}</span>
+      }
+    </div>
+    <div class="fp__divider" aria-hidden="true"></div>
+  }
+
+  <!-- ── Controls : recherche + selects (context switchers) ─────────────── -->
+  <div class="fp__controls">
+    @if (showSearch()) {
+      <p-iconfield class="fp__search">
+        <p-inputicon
+          [styleClass]="isDebouncing() ? 'pi pi-spin pi-spinner fp__search-icon--busy' : 'pi pi-search'"
+          [attr.aria-hidden]="'true'"
+        />
+        <input
+          pInputText
+          type="text"
+          [placeholder]="searchPlaceholder() | translate"
+          [attr.aria-label]="searchPlaceholder() | translate"
+          [ngModel]="localSearch()"
+          (ngModelChange)="onSearchInput($event)"
+        />
+      </p-iconfield>
+    }
+
+    @for (f of selectFilters(); track f.key) {
+      <div class="fp__filter" [class]="visibilityClass(f)">
+        <p-select
+          class="fp__select fp__select--{{ renderMode(f) }}"
+          [class.fp__select--active]="valueOf(f.key) !== null"
+          [options]="asMutableOptions(f.options)"
+          [ngModel]="valueOf(f.key)"
+          (ngModelChange)="setFilterValue(f.key, $event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="f.label | translate"
+          [showClear]="f.clearable !== false"
+          [attr.aria-label]="f.label | translate"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- ── Chipsets : filtres à chips (mode chips ou auto ≤5 options) ─────── -->
+  @if (chipFilters().length > 0) {
+    <div class="fp__chipsets">
+      @for (f of chipFilters(); track f.key) {
+        <div class="fp__chipset" [class]="visibilityClass(f)"
+             role="radiogroup" [attr.aria-label]="f.label | translate">
+          @if (f.clearable !== false) {
+            <button
+              type="button"
+              class="fp__chip"
+              [class.fp__chip--active]="valueOf(f.key) === null"
+              role="radio"
+              [attr.aria-checked]="valueOf(f.key) === null"
+              [attr.tabindex]="valueOf(f.key) === null ? 0 : -1"
+              (click)="setFilterValue(f.key, null)"
+              (keydown)="onChipKeydown($event, f, null)"
+            >{{ 'COMMON.ALL' | translate }}</button>
+          }
+          @for (opt of f.options; track opt.value) {
+            <button
+              type="button"
+              class="fp__chip"
+              [class.fp__chip--active]="valueOf(f.key) === opt.value"
+              [class.fp__chip--empty]="opt.count === 0"
+              role="radio"
+              [attr.aria-checked]="valueOf(f.key) === opt.value"
+              [attr.tabindex]="valueOf(f.key) === opt.value ? 0 : -1"
+              (click)="setFilterValue(f.key, opt.value)"
+              (keydown)="onChipKeydown($event, f, opt.value)"
+            >
+              {{ f.translateLabels ? (opt.label | translate) : opt.label }}
+              @if (opt.count !== undefined) {
+                <span class="fp__chip-count">({{ opt.count }})</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Meta : tags dismissables + effacer ─────────────────────────────── -->
+  @if (activeCount() > 0) {
+    <div class="fp__meta">
+      <div class="fp__tags" role="list" [attr.aria-label]="'COMMON.ACTIVE_FILTERS' | translate">
+        @for (tag of activeTags(); track tag.key) {
+          <button
+            type="button"
+            class="fp__tag"
+            role="listitem"
+            (click)="removeTag(tag.key)"
+            [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + ' — ' + ('COMMON.REMOVE' | translate)"
+          >
+            <span class="fp__tag-key">{{ tag.filterLabel }}</span>
+            <span class="fp__tag-sep">:</span>
+            <span class="fp__tag-val">{{ tag.valueLabel }}</span>
+            <i class="pi pi-times fp__tag-close" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="fp__clear-all"
+        (click)="clearAll()"
+      >
+        <i class="pi pi-eraser" aria-hidden="true"></i>
+        <span>{{ clearAllLabel() | translate }}</span>
+      </button>
+    </div>
+  }
+
+</div>

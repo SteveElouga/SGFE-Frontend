@@ -15,7 +15,7 @@
 .dt__empty {
   text-align: center;
   padding: 48px;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 14px;
 }
 
@@ -47,6 +47,31 @@
   tbody > tr:last-child > td { border-bottom: none; }
 
   &--striped tbody > tr:nth-child(even) > td { background: #fafbfc; }
+}
+
+// Bouton d'en-tête pour tri : hérite du look du th mais devient cliquable.
+// Un span visuel discret indique la direction (asc/desc/off).
+.dt__sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.12s;
+
+  &:hover { color: $color-primary; }
+  &:focus-visible { outline: 2px solid rgba($color-primary, 0.4); outline-offset: 2px; border-radius: 2px; }
+
+  &--active { color: $color-primary; }
+
+  &__ghost { opacity: 0.35; }
+
+  i { font-size: 10px; }
 }
 
 .dt__row {
@@ -102,7 +127,7 @@
 
 .dt__page-info {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .dt__pages {

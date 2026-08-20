@@ -7,8 +7,8 @@
         type="text"
         [placeholder]="searchPlaceholder() | translate"
         [attr.aria-label]="searchPlaceholder() | translate"
-        [ngModel]="search()"
-        (ngModelChange)="searchChange.emit($event)"
+        [ngModel]="localSearch()"
+        (ngModelChange)="onInput($event)"
       />
     </p-iconfield>
   }

@@ -1,0 +1,371 @@
+@use '../../../../styles/variables' as *;
+
+// Point de bascule mobile↔desktop pour les filtres `render: 'auto'`.
+$fp-mobile-max: 640px;
+
+// Hauteurs DESIGN.md-alignées (batch 11) :
+// - input-field height computed = 40px (padding 13/14 + line-height 14)
+// - chip-filter / chip-filter-active / chip-filter-empty height = 34px
+$fp-input-h: 40px;
+$fp-chip-h: 34px;
+
+// ────────────────────────────────────────────────────────────────────────
+// Composition Direction A (batch 12) : hero compteur + divider + controls
+// compacts + chipsets bas + meta. Le compteur PRIME visuellement — c'est
+// le sujet SGFE (l'app est un compteur : m³, FCFA, factures, abonnés).
+// Les contrôles se rangent au service du chiffre, pas l'inverse.
+// ────────────────────────────────────────────────────────────────────────
+
+.fp {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e2e8f0;                // Ardoise Trait DESIGN.md
+  border-radius: 12px;                       // md rounded DESIGN.md
+  padding: 20px 24px;
+
+  @media (max-width: $fp-mobile-max) {
+    padding: 16px 18px;
+    gap: 12px;
+  }
+}
+
+// ── Héro compteur ────────────────────────────────────────────────────────
+// Chiffre Fort SGFE : Montserrat 800, échelle grande, tabular-nums pour
+// stabilité rythmique quand le count change. Le nom du sujet ("factures")
+// juste après en poids moyen. Accent line = filet Bleu Rivière court sous
+// le count, marqueur "chiffre officiel du registre". Sous-titre en Ardoise
+// Encre : total + filtre actif éventuel.
+.fp__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 4px 0 2px;
+}
+
+// Chiffre Fort SGFE — token `metric-lg` DESIGN.md desktop, `kpi-value` mobile.
+// Montserrat hérite du body global (styles/global.scss L15) — pas de redéclaration.
+.fp__hero-count {
+  font-size: 32px;                           // metric-lg DESIGN.md
+  font-weight: 800;
+  color: #0f172a;                            // Ardoise Nuit
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+
+  @media (max-width: $fp-mobile-max) {
+    font-size: 24px;                         // kpi-value DESIGN.md
+  }
+}
+
+.fp__hero-noun {
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;                            // Ardoise Encre
+  margin-top: 2px;
+}
+
+// Accent line — filet Bleu Rivière court, marqueur "chiffre officiel"
+.fp__hero-accent {
+  display: block;
+  width: 42px;
+  height: 2px;
+  background: $color-primary;                // Bleu Rivière
+  border-radius: 2px;
+  margin: 8px 0 4px;
+}
+
+.fp__hero-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;                            // Ardoise Brume
+  line-height: 1.4;
+}
+
+// Divider entre héro et controls — trait fin Ardoise Trait
+.fp__divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0 6px;
+}
+
+// ── Controls (search + selects) ──────────────────────────────────────────
+.fp__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+
+  @media (max-width: $fp-mobile-max) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+// p-iconfield PrimeNG : block natif (position relative pour icône absolue)
+.fp__search {
+  flex: 1 1 220px;
+  min-width: 180px;
+  position: relative;
+  display: block;
+
+  @media (max-width: $fp-mobile-max) {
+    flex: 0 0 auto;
+  }
+
+  input {
+    width: 100%;
+    height: $fp-input-h;
+    background: #f8fafc;                     // Ardoise Brise DESIGN.md
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 12px 0 36px;
+    font-size: 14px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:hover:not(:focus) { border-color: #cbd5e1; }
+    &:focus, &:focus-visible {
+      outline: none;
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+    }
+  }
+
+  .p-inputicon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .fp__search-icon--busy {
+    opacity: 0.6;
+    color: $color-primary;
+  }
+}
+
+.fp__filter {
+  display: flex;
+  align-items: center;
+
+  &--desktop-only {
+    @media (max-width: $fp-mobile-max) { display: none; }
+  }
+  &--mobile-only {
+    @media (min-width: #{$fp-mobile-max + 1px}) { display: none; }
+  }
+}
+
+// P-select — même palette que search input (unité visuelle)
+.fp__select {
+  min-width: 180px;
+  display: flex;
+
+  .p-select {
+    width: 100%;
+    height: $fp-input-h;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    display: flex;
+    align-items: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:hover:not(:focus-within) { border-color: #cbd5e1; }
+    &:focus-within {
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+    }
+  }
+
+  .p-select:focus-visible { outline: none; }
+
+  .p-select-label {
+    padding: 0 12px;
+    font-size: 14px;
+    line-height: $fp-input-h;
+    color: #0f172a;
+  }
+
+  &--active .p-select {
+    border-color: $color-primary;
+    .p-select-label { color: $color-primary; font-weight: 600; }
+  }
+}
+
+// ── Chipsets : bande basse dédiée aux filtres à chips ────────────────────
+// Chaque chipset = un filtre (statut, étape, tri…). Multi-chipsets stackés
+// verticalement, séparés par un gap subtil. Pas de wrapping horizontal si
+// possible pour préserver le rythme.
+.fp__chipsets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp__chipset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  &--desktop-only {
+    @media (max-width: $fp-mobile-max) { display: none; }
+  }
+  &--mobile-only {
+    @media (min-width: #{$fp-mobile-max + 1px}) { display: none; }
+  }
+}
+
+// Chip DESIGN.md-conforme (batch 11) : bg Ardoise Brise + trait fin →
+// Navy Nuit plein + texte blanc actif (Règle Navy Ancrant).
+.fp__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: $fp-chip-h;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  &:hover:not(.fp__chip--active) {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+  &:focus-visible {
+    outline: 2px solid rgba($color-primary, 0.45);
+    outline-offset: 2px;
+  }
+
+  // Empty state (batch 11) : AA-safe fade — l'option existe mais 0 résultat
+  &--empty:not(.fp__chip--active) {
+    color: #64748b;
+    font-weight: 500;
+    .fp__chip-count { opacity: 0.85; }
+  }
+
+  &--active {
+    background: #0f1c3d;                     // Navy Nuit
+    border-color: #0f1c3d;
+    color: #fff;
+    font-weight: 600;
+
+    &:hover { background: #1a2a52; border-color: #1a2a52; }
+  }
+}
+
+.fp__chip-count {
+  font-weight: 500;
+  opacity: 0.6;
+
+  .fp__chip--active & { opacity: 0.75; }
+}
+
+// ── Meta : tags dismissables + effacer ──────────────────────────────────
+// N'apparaît QUE si activeCount > 0. Reste discret : le vrai "state view"
+// est déjà porté par le héro subtitle + chips actifs. Les tags ici sont
+// des raccourcis pour retirer sans re-cliquer le chip.
+.fp__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px dashed #e2e8f0;             // sépare légèrement du chipset au-dessus
+}
+
+.fp__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  margin-right: auto;                         // pousse "Effacer" à droite
+}
+
+// Tag Neutre + key Navy (batch 11) — retire "state = action" fatigue
+.fp__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  max-width: 240px;
+  padding: 0 8px 0 12px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 120ms var(--ease-out, ease-out);
+
+  &:hover {
+    background: #e2e8f0;
+    border-color: #cbd5e1;
+  }
+  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid rgba($color-primary, 0.45);
+    outline-offset: 2px;
+  }
+}
+
+.fp__tag-key { font-weight: 600; color: #0f1c3d; }
+.fp__tag-sep { opacity: 0.4; margin: 0 -2px; }
+.fp__tag-val {
+  font-weight: 500;
+  color: #475569;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.fp__tag-close {
+  font-size: 10px;
+  margin-left: 2px;
+  opacity: 0.55;
+  color: #64748b;
+  transition: opacity 0.12s, color 0.12s;
+}
+.fp__tag:hover .fp__tag-close { opacity: 1; color: #475569; }
+
+.fp__clear-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 120ms var(--ease-out, ease-out);
+
+  &:hover {
+    color: $color-primary;
+    border-color: $color-primary;
+    background: #eff6ff;
+  }
+  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid rgba($color-primary, 0.45);
+    outline-offset: 2px;
+  }
+
+  i { font-size: 12px; }
+}

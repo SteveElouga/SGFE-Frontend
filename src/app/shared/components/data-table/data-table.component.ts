@@ -29,7 +29,21 @@ export interface DataTableColumn {
   headerClass?: string;
   /** Classe(s) CSS additionnelle(s) sur le `<td>`. */
   cellClass?: string;
+  /**
+   * Colonne triable : ajoute un bouton d'en-tête cliquable qui cycle
+   * `asc → desc → non trié`. Le tri s'applique sur `sortValue(row)` ou, à
+   * défaut, sur `row[key]`. Non compatible avec `actions` (colonne d'actions).
+   */
+  sortable?: boolean;
+  /**
+   * Extracteur de valeur triable, pour les colonnes dérivées (ex : nom+prénom
+   * concaténés, date à parser). Retourner `null` = valeur en fin de tri.
+   */
+  sortValue?: (row: unknown) => string | number | Date | null | undefined;
 }
+
+export type SortDirection = 'asc' | 'desc';
+export interface SortState { key: string; direction: SortDirection; }
 
 /**
  * Tableau partagé du projet (rendu `<table>` maison, striping, états
@@ -70,6 +84,8 @@ export class DataTableComponent<T = unknown> {
   readonly rowClass = input<((row: T) => string | string[] | null) | null>(null);
 
   readonly rowClick = output<T>();
+  /** Émis quand l'utilisateur change le tri via un en-tête cliquable. */
+  readonly sortChange = output<SortState | null>();
 
   // ── Templates projetés ──────────────────────────────────────────────────
   private readonly cellDirectives = contentChildren(DataTableCellDirective);
@@ -82,21 +98,50 @@ export class DataTableComponent<T = unknown> {
   });
   readonly cardTemplate = computed(() => this.cardDirective()?.template ?? null);
 
+  // ── Tri (interne, client) ──────────────────────────────────────────────
+  readonly sortState = signal<SortState | null>(null);
+  /**
+   * Lignes triées d'après `sortState` (si actif). Le tri est stable, tri
+   * numérique quand la valeur est un nombre, sinon `localeCompare` pour les
+   * chaînes. Les `null`/`undefined` finissent toujours en queue quel que soit
+   * la direction.
+   */
+  readonly sortedRows = computed<readonly T[]>(() => {
+    const state = this.sortState();
+    const rows = this.rows();
+    if (!state) return rows;
+    const col = this.columns().find((c) => c.key === state.key);
+    if (!col?.sortable) return rows;
+    const extract = col.sortValue ?? ((row: unknown) => (row as Record<string, unknown>)?.[state.key]);
+    const dir = state.direction === 'asc' ? 1 : -1;
+    return [...rows].sort((a, b) => {
+      const va = extract(a) as string | number | Date | null | undefined;
+      const vb = extract(b) as string | number | Date | null | undefined;
+      // null/undefined toujours en queue
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (typeof va === 'number' && typeof vb === 'number') return (va - vb) * dir;
+      if (va instanceof Date && vb instanceof Date) return (va.getTime() - vb.getTime()) * dir;
+      return String(va).localeCompare(String(vb), 'fr', { numeric: true, sensitivity: 'base' }) * dir;
+    });
+  });
+
   // ── Pagination (interne, cliente) ───────────────────────────────────────
   private readonly page = signal(0);
   readonly pageCount = computed(() => {
     const size = this.pageSize();
-    return size > 0 ? Math.max(1, Math.ceil(this.rows().length / size)) : 1;
+    return size > 0 ? Math.max(1, Math.ceil(this.sortedRows().length / size)) : 1;
   });
   /** Page bornée : protège d'un débordement après filtrage. */
   readonly safePage = computed(() => Math.min(this.page(), this.pageCount() - 1));
   readonly pagedRows = computed(() => {
     const size = this.pageSize();
-    if (size <= 0) return this.rows();
+    if (size <= 0) return this.sortedRows();
     const start = this.safePage() * size;
-    return this.rows().slice(start, start + size);
+    return this.sortedRows().slice(start, start + size);
   });
-  readonly total = computed(() => this.rows().length);
+  readonly total = computed(() => this.sortedRows().length);
   readonly rangeStart = computed(() =>
     this.total() === 0 ? 0 : this.safePage() * this.pageSize() + 1,
   );
@@ -150,5 +195,32 @@ export class DataTableComponent<T = unknown> {
 
   onRowClick(row: T): void {
     if (this.isRowClickable(row)) this.rowClick.emit(row);
+  }
+
+  /**
+   * Cycle de tri sur clic d'en-tête : `off → asc → desc → off`. Passer d'une
+   * colonne à une autre repart en `asc`. Émet `sortChange` pour les parents
+   * qui veulent contrôler ou logger.
+   */
+  toggleSort(key: string): void {
+    const col = this.columns().find((c) => c.key === key);
+    if (!col?.sortable) return;
+    const current = this.sortState();
+    let next: SortState | null;
+    if (!current || current.key !== key) {
+      next = { key, direction: 'asc' };
+    } else if (current.direction === 'asc') {
+      next = { key, direction: 'desc' };
+    } else {
+      next = null;
+    }
+    this.sortState.set(next);
+    this.sortChange.emit(next);
+  }
+
+  /** Retourne la direction courante d'une colonne (`null` si non triée). */
+  sortDirectionOf(key: string): SortDirection | null {
+    const s = this.sortState();
+    return s && s.key === key ? s.direction : null;
   }
 }

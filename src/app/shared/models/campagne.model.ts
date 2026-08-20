@@ -79,6 +79,8 @@ export interface Campagne {
   datePlanifiee: string;
   dateCreation: string;
   dateCloture: string;
+  /** userId de l'auteur — permet au dashboard Superviseur de filtrer "mes campagnes". */
+  createdBy: string;
   numeroMobileMoney?: string;
   genererFacturesAuto?: boolean;
   envoyerWhatsappAuto?: boolean;

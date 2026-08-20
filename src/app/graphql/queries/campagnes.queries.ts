@@ -11,6 +11,7 @@ export const GET_CAMPAGNES = gql`
       datePlanifiee
       dateCreation
       dateCloture
+      createdBy
     }
   }
 `;
@@ -26,6 +27,7 @@ export const GET_CAMPAGNE = gql`
       datePlanifiee
       dateCreation
       dateCloture
+      createdBy
     }
   }
 `;

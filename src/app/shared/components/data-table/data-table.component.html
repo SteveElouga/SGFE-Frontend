@@ -16,8 +16,28 @@
               [class]="col.headerClass"
               [style.text-align]="col.align ?? 'left'"
               [style.width]="col.width"
+              [attr.aria-sort]="col.sortable ? (sortDirectionOf(col.key) === 'asc' ? 'ascending' : sortDirectionOf(col.key) === 'desc' ? 'descending' : 'none') : null"
             >
-              {{ col.header | translate }}
+              @if (col.sortable) {
+                <button
+                  type="button"
+                  class="dt__sort-btn"
+                  [class.dt__sort-btn--active]="sortDirectionOf(col.key) !== null"
+                  (click)="toggleSort(col.key)"
+                >
+                  <span>{{ col.header | translate }}</span>
+                  @let dir = sortDirectionOf(col.key);
+                  @if (dir === 'asc') {
+                    <i class="pi pi-sort-up" aria-hidden="true"></i>
+                  } @else if (dir === 'desc') {
+                    <i class="pi pi-sort-down" aria-hidden="true"></i>
+                  } @else {
+                    <i class="pi pi-sort dt__sort-btn__ghost" aria-hidden="true"></i>
+                  }
+                </button>
+              } @else {
+                {{ col.header | translate }}
+              }
             </th>
           }
         </tr>

@@ -167,7 +167,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  color: #94a3b8;
+  color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,7 +260,7 @@
     &--error    { --toast-icon-bg: rgba(220, 38, 38, 0.2);  --toast-icon-color: #f87171; }
     &--warning  { --toast-icon-bg: rgba(245, 158, 11, 0.2); --toast-icon-color: #fbbf24; }
     &--info     { --toast-icon-bg: rgba(26, 86, 219, 0.2);  --toast-icon-color: #60a5fa; }
-    &--progress { --toast-icon-bg: rgba(71, 85, 105, 0.2);  --toast-icon-color: #94a3b8; }
+    &--progress { --toast-icon-bg: rgba(71, 85, 105, 0.2);  --toast-icon-color: #64748b; }
   }
 
   .toast__body {
