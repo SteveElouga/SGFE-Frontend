@@ -39,6 +39,16 @@ repos:
         files: \.(ts|js|mjs|cjs|html|scss|css|json|md)$
         exclude: '^(dist/|\.angular/|coverage/|package-lock\.json)'
 
+      # Refuse tout <app-bottom-sheet ...> sans labelledBy ou ariaLabel.
+      # Prévient la régression WCAG 4.1.2 (dialog sans nom accessible)
+      # documentée dans .impeccable/critique/2026-07-28T21-28-28Z*.md.
+      - id: bottom-sheet-a11y
+        name: <app-bottom-sheet> doit porter labelledBy ou ariaLabel
+        entry: node scripts/check-bottom-sheet-a11y.mjs
+        language: system
+        files: '\.html$'
+        exclude: '^(dist/|\.angular/)'
+
   # --- Message de commit : Conventional Commits (même outil que le backend) ---
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.16.4
