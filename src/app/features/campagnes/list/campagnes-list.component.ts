@@ -10,8 +10,6 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
@@ -26,8 +24,7 @@ import {
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
-import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCellDirective, DataTableCardDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -42,12 +39,9 @@ interface MiniProgression {
   imports: [
     RouterLink,
     DatePipe,
-    FormsModule,
-    SelectModule,
     ErrorBannerComponent,
     PageTopbarComponent,
-    FilterBarComponent,
-    FilterChipsComponent,
+    FiltersPanelComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -80,11 +74,11 @@ export class CampagnesListComponent implements OnInit {
   readonly searchTerm = signal('');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'campagne', header: 'CAMPAGNES.COL_CAMPAGNE' },
-    { key: 'planifiee', header: 'CAMPAGNES.COL_PLANIFIEE' },
+    { key: 'campagne', header: 'CAMPAGNES.COL_CAMPAGNE', sortable: true, sortValue: (r) => (r as Campagne).nom },
+    { key: 'planifiee', header: 'CAMPAGNES.COL_PLANIFIEE', sortable: true, sortValue: (r) => (r as Campagne).datePlanifiee ? new Date((r as Campagne).datePlanifiee!) : null },
     { key: 'agents', header: 'CAMPAGNES.COL_AGENTS' },
-    { key: 'avancement', header: 'CAMPAGNES.COL_AVANCEMENT' },
-    { key: 'statut', header: 'CAMPAGNES.COL_STATUT' },
+    { key: 'avancement', header: 'CAMPAGNES.COL_AVANCEMENT', sortable: true, sortValue: (r) => { const p = this.progressions().get((r as Campagne).campagneId); return p ? this.progressionPct(p) : null; } },
+    { key: 'statut', header: 'CAMPAGNES.COL_STATUT', sortable: true, sortValue: (r) => (r as Campagne).statut },
     { key: 'actions', header: 'COMMON.ACTIONS' },
   ];
   /** Surligne discrètement les campagnes en cours. */
@@ -140,35 +134,37 @@ export class CampagnesListComponent implements OnInit {
     return parts.join(' · ');
   });
 
-  readonly filtreOptions = computed(() => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('CAMPAGNES.FILTRE.TOUTES', {}, lang), value: 'TOUTES' },
-      { label: this.translate.instant('CAMPAGNES.STATUT.PLANIFIEE', {}, lang), value: 'PLANIFIEE' },
-      { label: this.translate.instant('CAMPAGNES.STATUT.EN_COURS', {}, lang), value: 'EN_COURS' },
-      { label: this.translate.instant('CAMPAGNES.STATUT.CLOTUREE', {}, lang), value: 'CLOTUREE' },
-    ] as Array<{ label: string; value: StatutCampagne | 'TOUTES' }>;
-  });
-
-  /** Chips de statut (mobile, pattern M-05) : libellés pluriels + compteurs. */
-  readonly statutChips = computed((): FilterChip[] => {
+  /** Filtres unifiés (batch 10) : statut auto-chips + agent select. */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     const { planifiees, enCours, cloturees } = this.stats();
     return [
-      { label: this.translate.instant('CAMPAGNES.CHIP_PLANIFIEES', {}, lang), value: 'PLANIFIEE', count: planifiees },
-      { label: this.translate.instant('CAMPAGNES.CHIP_EN_COURS', {}, lang), value: 'EN_COURS', count: enCours },
-      { label: this.translate.instant('CAMPAGNES.CHIP_CLOTUREES', {}, lang), value: 'CLOTUREE', count: cloturees },
+      {
+        key: 'statut',
+        label: 'CAMPAGNES.FILTRE.TOUTES',
+        options: [
+          { label: this.translate.instant('CAMPAGNES.CHIP_PLANIFIEES', {}, lang), value: 'PLANIFIEE', count: planifiees },
+          { label: this.translate.instant('CAMPAGNES.CHIP_EN_COURS', {}, lang), value: 'EN_COURS', count: enCours },
+          { label: this.translate.instant('CAMPAGNES.CHIP_CLOTUREES', {}, lang), value: 'CLOTUREE', count: cloturees },
+        ],
+      },
+      {
+        key: 'agent',
+        label: 'CAMPAGNES.FILTRE_AGENT',
+        options: this.agentsDisponibles().map((a) => ({ label: a.label, value: a.value })),
+        render: 'select',
+      },
     ];
   });
 
-  /** Valeur des chips : `null` = « Toutes » (le signal utilise 'TOUTES'). */
-  readonly statutChipValue = computed(() => {
-    const statut = this.filtreStatut();
-    return statut === 'TOUTES' ? null : statut;
-  });
+  readonly filterValues = computed<FilterValues>(() => ({
+    statut: this.filtreStatut() === 'TOUTES' ? null : this.filtreStatut(),
+    agent: this.filtreAgent(),
+  }));
 
-  onStatutChip(value: string | null): void {
-    this.filtreStatut.set((value as StatutCampagne | null) ?? 'TOUTES');
+  onFiltersChange(v: FilterValues): void {
+    this.filtreStatut.set((v['statut'] as StatutCampagne | null) ?? 'TOUTES');
+    this.filtreAgent.set(v['agent']);
   }
 
   voirCampagne(campagneId: string): void {

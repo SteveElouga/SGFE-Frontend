@@ -17,12 +17,11 @@
   margin: 0 auto;
 }
 
-// ── Header mobile navy (MB-02) ────────────────────────────────────────────────
-
-.detail-mheader { display: none; }
+// Header (fil d'ariane desktop + bande navy mobile) délégué à
+// <app-page-topbar> — voir topbarTitle()/topbarSubtitle() dans le TS.
 
 @media (max-width: 720px) {
-  // Ordre MB-02 : header → progression → stats → relevés → actions,
+  // Ordre MB-02 : progression → stats → relevés → actions,
   // les sections agents/zones passent après.
   .detail-page {
     display: flex;
@@ -33,71 +32,6 @@
   .mactions { order: 4; }
   .agents-section { order: 5; margin-top: $spacing-md; }
   .zone-section { order: 6; }
-
-  .detail-mheader {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: #0f1c3d;
-    margin: 0 -14px 14px;
-    padding: 12px 18px 14px;
-
-    &__back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.65);
-      font-size: 16px;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
-
-    &__text { flex: 1; min-width: 0; }
-
-    &__nom {
-      font-size: 16px;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    &__sub {
-      font-size: 10px;
-      color: rgba(255, 255, 255, 0.45);
-      margin-top: 1px;
-    }
-  }
-}
-
-// ── Fil d'ariane ─────────────────────────────────────────────────────────────
-
-.detail-topbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: $spacing-md 0;
-  font-size: 13px;
-  color: #64748b;
-}
-
-.detail-topbar__back {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: $color-primary;
-  text-decoration: none;
-  font-weight: 500;
-  &:hover { text-decoration: underline; }
-}
-
-.detail-topbar__sep { color: #cbd5e1; }
-
-.detail-topbar__name {
-  font-weight: 600;
-  color: #1e293b;
-  &--loading { color: #94a3b8; }
 }
 
 // ── En-tête ───────────────────────────────────────────────────────────────────
@@ -179,29 +113,16 @@
   }
 }
 
-// ── Modal de clôture (écran 18) ───────────────────────────────────────────────
+// ── Contenu du bottom-sheet de clôture (écran 18) ─────────────────────────────
+// Le wrapping (overlay + modal + focus trap) est délégué à <app-bottom-sheet>.
 
-.cloture-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 120;
-  background: rgba(15, 23, 42, 0.55);
+.cloture-body {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
+  flex-direction: column;
+  gap: 14px;
+  // Padding fourni par app-bottom-sheet (.bs-sheet__body).
 
-.cloture-modal {
-  width: 520px;
-  max-width: 100%;
-  max-height: 92vh;
-  overflow-y: auto;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-
-  &__head { padding: 22px 24px 0; display: flex; gap: 14px; align-items: flex-start; }
+  &__head { display: flex; gap: 14px; align-items: flex-start; }
   &__icon {
     width: 44px;
     height: 44px;
@@ -214,10 +135,9 @@
     font-size: 18px;
     flex-shrink: 0;
   }
-  &__title { font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
-  &__desc { font-size: 12px; color: #64748b; line-height: 1.55; }
-  &__irr { color: #dc2626; }
-  &__body { padding: 18px 24px 24px; }
+  &__title { font-size: 17px; font-weight: 700; color: #0f172a; margin: 0 0 4px; }
+  &__desc { font-size: 12px; color: #64748b; line-height: 1.55; margin: 0; }
+  &__irr { color: #dc2626; font-weight: 700; }
 }
 
 .cloture-stats {
@@ -441,13 +361,13 @@
   // MB-02 : piste claire + remplissage dégradé bleu
   @media (max-width: 720px) {
     background: #f1f5f9;
-    border-radius: 5px;
+    border-radius: 6px;                                 // sm token DESIGN.md
 
     &__fill {
       background: linear-gradient(90deg, #1a56db, #60a5fa);
-      border-radius: 5px;
+      border-radius: 6px;
 
-      &--complete { background: linear-gradient(90deg, #0e9f6e, #34d399); }
+      &--complete { background: linear-gradient(90deg, #0e9f6e, #166534); }  // Vert Nappe → Vert Profond DESIGN.md
     }
   }
 }
@@ -1006,9 +926,7 @@
   }
 }
 
-// ── Mobile (MB-02) : le header navy remplace le fil d'ariane et l'en-tête ─────
-// Placé en fin de fichier pour l'emporter sur les `display` des règles de base.
+// ── Mobile (MB-02) : le header desktop est masqué (topbar navy fournie par app-page-topbar) ──
 @media (max-width: 720px) {
-  .detail-topbar,
   .detail-header { display: none; }
 }
