@@ -1,5 +1,5 @@
 <!-- ══ Réactivation — bottom sheet mobile / dialog desktop ══ -->
-<app-bottom-sheet [open]="open()" (close)="close.emit()">
+<app-bottom-sheet [open]="open()" labelledBy="reactiver-sheet-title" (close)="close.emit()">
   <div class="reactiv-body">
 
     <!-- En-tête -->
@@ -10,7 +10,7 @@
         </svg>
       </div>
       <div>
-        <h3 class="reactiv-header__title">{{ title() }}</h3>
+        <h3 class="reactiv-header__title" id="reactiver-sheet-title">{{ title() }}</h3>
         <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
       </div>
     </div>

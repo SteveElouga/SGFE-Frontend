@@ -1,0 +1,133 @@
+@use '../../../../../styles/buttons' as *;
+
+.susp-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  // Padding fourni par app-bottom-sheet (.bs-sheet__body).
+}
+
+.susp-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #fffbeb;                // Ambre Lueur
+    border: 1px solid #fde68a;          // Ambre Trait
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+    line-height: 1.3;
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Récapitulatif ambre (triplet lueur + trait + attention).
+.susp-summary {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fffbeb;                  // Ambre Lueur
+  border: 1px solid #fde68a;            // Ambre Trait
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__row {
+    border-bottom: 1px solid #fef3c7;   // Ambre Tapis (subtle divider)
+    &:last-child { border-bottom: none; }
+  }
+
+  &__key {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    padding: 10px 14px;
+    text-align: left;
+    width: 50%;
+  }
+
+  &__val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #b45309;                     // Ambre Attente
+    padding: 10px 14px;
+
+    &--muted { color: #0f172a; font-weight: 500; }
+    &--danger { color: #b91c1c; font-weight: 700; }  // "Accès eau COUPÉ" — signal fort
+  }
+}
+
+// Note informative réversibilité (rappelle que la suspension n'est pas définitive).
+.susp-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+
+  svg { flex-shrink: 0; margin-top: 2px; }
+}
+
+.susp-footer {
+  display: flex;
+  flex-direction: column-reverse;       // « Suspendre » au-dessus, Annuler dessous
+  gap: 10px;
+  padding-top: 2px;
+
+  .dialog-btn { width: 100%; justify-content: center; }
+}
+
+// ── Boutons de dialogue ───────────────────────────────────────────────────────
+
+.dialog-btn {
+  height: 44px;                         // WCAG 2.5.5
+  padding: 0 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 160ms var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:active:not(:disabled) { transform: scale(0.97); }
+
+  &--ghost {
+    @include btn-variant(none, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc);
+  }
+
+  // Variante warning (ambre plein) — signale une action réversible mais qui
+  // coupe un service (accès eau). Distinct du --success mint (réactivation)
+  // et du --danger rouge (résiliation irréversible).
+  &--warning {
+    @include btn-variant(
+      linear-gradient(135deg, #b45309, #92400e), #fff,
+      $shadow: 0 2px 8px rgba(180, 83, 9, 0.28), $hover-opacity: 0.9
+    );
+    &:focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+  }
+}

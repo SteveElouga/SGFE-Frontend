@@ -1,5 +1,5 @@
 <!-- ══ Remplacer compteur — bottom sheet mobile / dialog desktop (19) ══ -->
-<app-bottom-sheet [open]="open()" (close)="close.emit()">
+<app-bottom-sheet [open]="open()" labelledBy="remplacer-compteur-title" (close)="close.emit()">
   <div class="meter-body">
 
     <!-- En-tête -->
@@ -10,7 +10,7 @@
         </svg>
       </div>
       <div>
-        <h3 class="meter-header__title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
+        <h3 class="meter-header__title" id="remplacer-compteur-title">{{ 'ABONNES.REMPLACER_COMPTEUR' | translate }}</h3>
         @if (abonne(); as a) {
           <p class="meter-header__sub">
             {{ a.prenom }} {{ a.nom }} · {{ a.numeroAbonne }}@if (a.compteur) { · {{ a.compteur.quartier }}, Camp {{ a.compteur.camp }} }

@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -24,12 +24,13 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { RemplacerCompteurSheetComponent } from './remplacer-compteur-sheet/remplacer-compteur-sheet.component';
 import { ReactiverSheetComponent } from './reactiver-sheet/reactiver-sheet.component';
 import { ResilierSheetComponent } from './resilier-sheet/resilier-sheet.component';
+import { SuspendreSheetComponent } from './suspendre-sheet/suspendre-sheet.component';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
-    RouterLink,
     DatePipe,
     TranslatePipe,
     CompteurPipe,
@@ -39,6 +40,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     RemplacerCompteurSheetComponent,
     ReactiverSheetComponent,
     ResilierSheetComponent,
+    SuspendreSheetComponent,
+    PageTopbarComponent,
   ],
   templateUrl: './abonne-detail.component.html',
   styleUrl: './abonne-detail.component.scss',
@@ -50,7 +53,11 @@ export class AbonneDetailComponent {
   private readonly facturePdf = inject(FacturePdfService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+
+  /** Deep-link keys pour les 5 onglets (mêmes indices que activeTab()). */
+  private readonly TAB_KEYS = ['info', 'factures', 'conso', 'impayes', 'compteurs'] as const;
 
   private readonly abonneId: string;
   private readonly abonneQuery: QueryRef<{ abonne: Abonne }>;
@@ -110,6 +117,7 @@ export class AbonneDetailComponent {
   // que leur visibilité et applique le résultat.
   readonly reactiverDialogVisible = signal(false);
   readonly resilierDialogVisible = signal(false);
+  readonly suspendreDialogVisible = signal(false);
 
   // Modal remplacer compteur (formulaire délégué à RemplacerCompteurSheetComponent).
   readonly remplacerVisible = signal(false);
@@ -168,6 +176,13 @@ export class AbonneDetailComponent {
     return formatFcfa(s);
   });
 
+  /** Titre du topbar : nom+prénom quand chargé, "…" en chargement. */
+  readonly topbarTitle = computed(() => {
+    const a = this.abonne();
+    if (a) return `${a.nom} ${a.prenom}`;
+    return this.translate.instant('COMMON.LOADING');
+  });
+
   readonly soldeSub = computed(() => {
     const s = this.abonne()?.soldeImpayes;
     if (s === undefined || s === null) return '';
@@ -176,9 +191,17 @@ export class AbonneDetailComponent {
     return this.translate.instant(key, {}, lang);
   });
 
-  constructor(route: ActivatedRoute) {
-    this.abonneId = route.snapshot.paramMap.get('id')!;
+  constructor() {
+    this.abonneId = this.route.snapshot.paramMap.get('id')!;
     this.abonneQuery = this.abonnesService.watchAbonne(this.abonneId);
+
+    // Deep-link : hydrater activeTab depuis ?tab=info|factures|conso|impayes|compteurs.
+    const tabParam = this.route.snapshot.queryParamMap.get('tab');
+    const idx = this.TAB_KEYS.indexOf(tabParam as (typeof this.TAB_KEYS)[number]);
+    if (idx >= 0) {
+      this.activeTab.set(idx);
+      if (idx === 4) void this.loadHistorique();
+    }
 
     this.abonneQuery.valueChanges
       .pipe(takeUntilDestroyed())
@@ -267,13 +290,44 @@ export class AbonneDetailComponent {
   }
 
 
-  // ── Onglets ──────────────────────────────────────────────────────────────────
+  // ── Onglets (WAI-ARIA Tabs pattern + deep-link) ──────────────────────────────
 
   setActiveTab(index: number): void {
     this.activeTab.set(index);
     if (index === 4 && !this.historiqueLoaded()) {
       this.loadHistorique();
     }
+    // Sync URL ?tab=... sans re-navigation (URL replace).
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: this.TAB_KEYS[index] },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  /**
+   * Keyboard navigation entre onglets (WAI-ARIA Tabs pattern) :
+   * flèches gauche/droite pour cycler, Home/End pour extrêmes.
+   * Le focus suit la sélection (automatic activation).
+   */
+  onTabKeydown(ev: KeyboardEvent, index: number): void {
+    const n = this.TAB_KEYS.length;
+    let next = index;
+    switch (ev.key) {
+      case 'ArrowRight': next = (index + 1) % n; break;
+      case 'ArrowLeft':  next = (index - 1 + n) % n; break;
+      case 'Home':       next = 0; break;
+      case 'End':        next = n - 1; break;
+      default: return;
+    }
+    ev.preventDefault();
+    this.setActiveTab(next);
+    // Focus le tab cible pour que le lecteur d'écran suive.
+    queueMicrotask(() => {
+      const btn = document.getElementById(`abonneTab-${next}`);
+      btn?.focus();
+    });
   }
 
   private async loadHistorique(): Promise<void> {
@@ -300,18 +354,16 @@ export class AbonneDetailComponent {
 
   // ── Actions statut ──────────────────────────────────────────────────────────
 
-  async suspendre(): Promise<void> {
-    this.statutLoading.set(true);
-    try {
-      const updated = await this.abonnesService.suspendreAbonne(this.abonneId);
-      this.abonne.update((a) => (a ? { ...a, statut: updated.statut } : a));
-      this.toast.warning(this.translate.instant('ABONNES.DETAIL.TOAST_SUSPENDED'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.statutLoading.set(false);
-    }
+  /** Ouvre la bottom-sheet de confirmation (v3 : parité avec Résilier/Réactiver). */
+  suspendre(): void {
+    this.suspendreDialogVisible.set(true);
+  }
+
+  /** Applique le statut émis par la sheet de suspension. */
+  onSuspended(statut: StatutAbonne): void {
+    this.abonne.update((a) => (a ? { ...a, statut } : a));
+    this.suspendreDialogVisible.set(false);
+    this.toast.warning(this.translate.instant('ABONNES.DETAIL.TOAST_SUSPENDED'));
   }
 
   reactiver(): void {

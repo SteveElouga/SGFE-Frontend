@@ -2,67 +2,8 @@
 
 :host { display: block; }
 
-// ── Topbar fil d'ariane ───────────────────────────────────────────────────────
-
-.af-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  height: 54px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.af-topbar__back {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #94a3b8;
-  text-decoration: none;
-  transition: color 0.12s;
-
-  &:hover { color: $color-primary; }
-}
-
-.af-topbar__sep {
-  color: #e2e8f0;
-  font-size: 14px;
-}
-
-.af-topbar__title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.af-topbar__badge {
-  margin-left: 8px;
-  border-radius: 6px;
-  padding: 3px 10px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-
-  &--create {
-    background: #eff6ff;
-    border-color: #bfdbfe;
-    color: #1d4ed8;
-  }
-
-  &--edit {
-    background: #fffbeb;
-    border-color: #fde68a;
-    color: #b45309;
-  }
-}
+// Topbar déléguée à <app-page-topbar> ; le badge CRÉATION/MODIFICATION est
+// porté par `overline` (surtitre au-dessus du titre en mobile).
 
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
@@ -123,7 +64,7 @@
 
 .af-card__subtitle {
   font-size: 11px;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 // ── Sections ──────────────────────────────────────────────────────────────────
@@ -182,12 +123,12 @@
 .af-label__sub {
   font-size: 10px;
   font-weight: 400;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 .af-field__hint {
   font-size: 10px;
-  color: #94a3b8;
+  color: #64748b;
   margin-top: 1px;
 }
 
@@ -273,7 +214,7 @@
   &--muted {
     font-size: 12px;
     font-weight: 400;
-    color: #94a3b8;
+    color: #64748b;
   }
 }
 

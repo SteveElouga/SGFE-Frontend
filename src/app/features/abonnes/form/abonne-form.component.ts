@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -22,6 +22,7 @@ import {
 import { Abonne } from '../../../shared/models/abonne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
   isValidCameroonPhone,
@@ -32,7 +33,7 @@ import {
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, RouterLink, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent, SkeletonComponent],
+  imports: [FormsModule, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent, SkeletonComponent, PageTopbarComponent],
   providers: [DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
@@ -178,6 +179,19 @@ export class AbonneFormComponent implements OnInit {
 
   // ── Computed d'affichage ──────────────────────────────────────────────────
   readonly numeroAbonneDisplay = computed(() => this.abonne()?.numeroAbonne ?? '');
+
+  /** Titre du topbar : dépend du mode + affiche N° abonné en édition. */
+  readonly topbarTitle = computed(() => {
+    if (this.mode === 'create') return this.translate.instant('ABONNES.FORM.CREATE_TITLE');
+    const num = this.numeroAbonneDisplay();
+    const base = this.translate.instant('ABONNES.FORM.EDIT_TITLE');
+    return num ? `${base} ${num}` : base;
+  });
+
+  /** Surtitre = badge d'action (CRÉATION / MODIFICATION), lu au-dessus du titre. */
+  readonly topbarOverline = computed(() =>
+    this.translate.instant(this.mode === 'create' ? 'ABONNES.FORM.BADGE_CREATE' : 'ABONNES.FORM.BADGE_EDIT'),
+  );
   readonly isResilie = computed(() => this.abonne()?.statut === 'RESILIE');
 
   readonly compteurDisplay = computed(() => {

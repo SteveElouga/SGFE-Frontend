@@ -1,19 +1,10 @@
 
-<!-- ── Topbar fil d'ariane ── -->
-<header class="abonne-topbar">
-  <a routerLink="/abonnes" class="abonne-topbar__back">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    {{ 'ABONNES.TITLE' | translate }}
-  </a>
-  <span class="abonne-topbar__sep">/</span>
-  @if (abonne()) {
-    <span class="abonne-topbar__name">{{ abonne()!.nom }} {{ abonne()!.prenom }}</span>
-  } @else {
-    <span class="abonne-topbar__name abonne-topbar__name--loading">{{ 'COMMON.LOADING' | translate }}</span>
-  }
-</header>
+<!-- ── Topbar : bande navy standard (M-04/M-05) ── -->
+<app-page-topbar
+  [title]="topbarTitle()"
+  backLink="/abonnes"
+  [backLabel]="'ABONNES.TITLE' | translate"
+/>
 
 <!-- ── Contenu scrollable ── -->
 <div class="abonne-content">
@@ -63,7 +54,7 @@
             class="abonne-action-btn abonne-action-btn--danger"
             [appTooltip]="'ABONNES.DETAIL.TOOLTIP_SUSPENDRE' | translate"
             (click)="suspendre()"
-            [disabled]="statutLoading()"
+            [disabled]="statutLoading() || suspendreDialogVisible()"
           >{{ 'ABONNES.SUSPENDRE' | translate }}</button>
         }
         @if (a.statut === 'SUSPENDU') {
@@ -121,39 +112,69 @@
       </div>
     </div>
 
-    <!-- ── Onglets ── -->
+    <!-- ── Onglets (WAI-ARIA Tabs pattern) ── -->
     <div class="abonne-tabs-card">
-      <!-- Nav onglets -->
-      <div class="abonne-tabs__nav">
+      <div class="abonne-tabs__nav" role="tablist" [attr.aria-label]="'ABONNES.DETAIL.TABS_LABEL' | translate">
         <button
+          role="tab"
+          id="abonneTab-0"
+          aria-controls="abonneTabPanel-0"
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 0"
+          [attr.aria-selected]="activeTab() === 0"
+          [attr.tabindex]="activeTab() === 0 ? 0 : -1"
           (click)="setActiveTab(0)"
+          (keydown)="onTabKeydown($event, 0)"
         >{{ 'ABONNES.DETAIL.TAB_INFO' | translate }}</button>
         <button
+          role="tab"
+          id="abonneTab-1"
+          aria-controls="abonneTabPanel-1"
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 1"
+          [attr.aria-selected]="activeTab() === 1"
+          [attr.tabindex]="activeTab() === 1 ? 0 : -1"
           (click)="setActiveTab(1)"
+          (keydown)="onTabKeydown($event, 1)"
         >{{ 'ABONNES.DETAIL.TAB_FACTURES' | translate }}</button>
         <button
+          role="tab"
+          id="abonneTab-2"
+          aria-controls="abonneTabPanel-2"
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 2"
+          [attr.aria-selected]="activeTab() === 2"
+          [attr.tabindex]="activeTab() === 2 ? 0 : -1"
           (click)="setActiveTab(2)"
+          (keydown)="onTabKeydown($event, 2)"
         >{{ 'ABONNES.DETAIL.TAB_CONSO' | translate }}</button>
         <button
+          role="tab"
+          id="abonneTab-3"
+          aria-controls="abonneTabPanel-3"
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 3"
+          [attr.aria-selected]="activeTab() === 3"
+          [attr.tabindex]="activeTab() === 3 ? 0 : -1"
           (click)="setActiveTab(3)"
+          (keydown)="onTabKeydown($event, 3)"
         >{{ 'ABONNES.DETAIL.TAB_IMPAYES' | translate }}</button>
         <button
+          role="tab"
+          id="abonneTab-4"
+          aria-controls="abonneTabPanel-4"
           class="abonne-tabs__tab"
           [class.abonne-tabs__tab--active]="activeTab() === 4"
+          [attr.aria-selected]="activeTab() === 4"
+          [attr.tabindex]="activeTab() === 4 ? 0 : -1"
           (click)="setActiveTab(4)"
+          (keydown)="onTabKeydown($event, 4)"
         >{{ 'ABONNES.DETAIL.TAB_COMPTEURS' | translate }}</button>
       </div>
 
       <!-- ── Onglet Informations ── -->
       @if (activeTab() === 0) {
+        <div role="tabpanel" id="abonneTabPanel-0" aria-labelledby="abonneTab-0" tabindex="0" class="abonne-tab-content">
         <div class="abonne-info-grid">
 
           <!-- Contact -->
@@ -244,7 +265,7 @@
               @for (f of facturesRecentes(); track f.factureId) {
                 <tr>
                   <td>{{ periodeFacture(f) }}</td>
-                  <td class="text-right">{{ f.consommation ?? 0 }} m³</td>
+                  <td class="text-right">{{ f.consommation }} m³</td>
                   <td class="text-right">{{ formatFCFA(f.montant) }}</td>
                   <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
                   <td class="text-right">
@@ -264,11 +285,12 @@
             <button type="button" class="abonne-invoices__see-all" (click)="voirFactures()">{{ 'ABONNES.DETAIL.SEE_ALL_INVOICES' | translate }} →</button>
           }
         </div>
+        </div>
       }
 
       <!-- ── Onglet Factures ── -->
       @if (activeTab() === 1) {
-        <div class="abonne-tab-pane">
+        <div role="tabpanel" id="abonneTabPanel-1" aria-labelledby="abonneTab-1" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
             <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
           } @else {
@@ -286,7 +308,7 @@
                 @for (f of facturesTriees(); track f.factureId) {
                   <tr>
                     <td>{{ periodeFacture(f) }}</td>
-                    <td class="text-right">{{ f.consommation ?? 0 }} m³</td>
+                    <td class="text-right">{{ f.consommation }} m³</td>
                     <td class="text-right">{{ formatFCFA(f.montant) }}</td>
                     <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
                     <td class="text-right">
@@ -304,7 +326,7 @@
 
       <!-- ── Onglet Historique conso ── -->
       @if (activeTab() === 2) {
-        <div class="abonne-tab-pane">
+        <div role="tabpanel" id="abonneTabPanel-2" aria-labelledby="abonneTab-2" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
             <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
           } @else if (consoBars().length === 0) {
@@ -325,7 +347,7 @@
 
       <!-- ── Onglet Impayés ── -->
       @if (activeTab() === 3) {
-        <div class="abonne-tab-pane">
+        <div role="tabpanel" id="abonneTabPanel-3" aria-labelledby="abonneTab-3" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
             <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
           } @else if (facturesImpayees().length === 0) {
@@ -365,7 +387,7 @@
 
       <!-- ── Onglet Compteurs ── -->
       @if (activeTab() === 4) {
-        <div class="hist-tab">
+        <div role="tabpanel" id="abonneTabPanel-4" aria-labelledby="abonneTab-4" tabindex="0" class="hist-tab">
 
           <!-- Skeleton chargement -->
           @if (historiqueLoading()) {
@@ -443,7 +465,7 @@
                         <!-- Flèche -->
                         <div class="hist-arrow" aria-hidden="true">
                           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M4 10h12M12 6l4 4-4 4" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 10h12M12 6l4 4-4 4" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
                         </div>
                         <!-- Nouveau compteur -->
@@ -466,7 +488,14 @@
   }
 </div>
 
-<!-- ══ Réactivation / Résiliation — bottom sheets extraites ══ -->
+<!-- ══ Suspension / Réactivation / Résiliation — bottom sheets extraites ══ -->
+<app-suspendre-sheet
+  [open]="suspendreDialogVisible()"
+  [abonne]="abonne()"
+  (close)="suspendreDialogVisible.set(false)"
+  (saved)="onSuspended($event)"
+/>
+
 <app-reactiver-sheet
   [open]="reactiverDialogVisible()"
   [abonne]="abonne()"

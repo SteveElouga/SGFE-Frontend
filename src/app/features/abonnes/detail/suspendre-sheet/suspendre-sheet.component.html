@@ -1,0 +1,70 @@
+<!-- ══ Suspension — bottom sheet mobile / dialog desktop ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="suspendre-sheet-title" (close)="close.emit()">
+  <div class="susp-body">
+
+    <!-- En-tête -->
+    <div class="susp-header">
+      <div class="susp-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M11 4v8M11 15v.5" stroke="#b45309" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="9" stroke="#b45309" stroke-width="1.8"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="susp-header__title" id="suspendre-sheet-title">{{ title() }}</h3>
+        <p class="susp-header__desc">{{ 'ABONNES.DETAIL.SUSPENDRE_INFO' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Tableau récapitulatif -->
+    <table class="susp-summary">
+      <tbody>
+        <tr class="susp-summary__row">
+          <th scope="row" class="susp-summary__key">{{ 'ABONNES.DETAIL.SUSPENDRE_STATUT_LABEL' | translate }}</th>
+          <td class="susp-summary__val">{{ 'ABONNES.DETAIL.SUSPENDRE_STATUT_CHANGE' | translate }}</td>
+        </tr>
+        <tr class="susp-summary__row">
+          <th scope="row" class="susp-summary__key">{{ 'ABONNES.DETAIL.SUSPENDRE_ACCES_LABEL' | translate }}</th>
+          <td class="susp-summary__val susp-summary__val--danger">{{ 'ABONNES.DETAIL.SUSPENDRE_ACCES_VALUE' | translate }}</td>
+        </tr>
+        <tr class="susp-summary__row">
+          <th scope="row" class="susp-summary__key">{{ 'ABONNES.DETAIL.SUSPENDRE_HISTORIQUE_LABEL' | translate }}</th>
+          <td class="susp-summary__val susp-summary__val--muted">{{ 'ABONNES.DETAIL.SUSPENDRE_HISTORIQUE_VALUE' | translate }}</td>
+        </tr>
+        <tr class="susp-summary__row">
+          <th scope="row" class="susp-summary__key">{{ 'ABONNES.DETAIL.SUSPENDRE_CAMPAGNES_LABEL' | translate }}</th>
+          <td class="susp-summary__val susp-summary__val--muted">{{ 'ABONNES.DETAIL.SUSPENDRE_CAMPAGNES_VALUE' | translate }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Note : action réversible -->
+    <div class="susp-info" role="note">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="5.8" stroke="#64748b" stroke-width="1.2"/>
+        <path d="M6.5 5.5v3.5M6.5 4h.01" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+      {{ 'ABONNES.DETAIL.SUSPENDRE_REVERSIBLE_INFO' | translate }}
+    </div>
+
+    <!-- Actions -->
+    <div class="susp-footer">
+      <button class="dialog-btn dialog-btn--ghost" type="button" (click)="close.emit()" [disabled]="loading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        class="dialog-btn dialog-btn--warning"
+        type="button"
+        (click)="confirm()"
+        [disabled]="loading()"
+        [attr.aria-busy]="loading()"
+      >
+        @if (loading()) {
+          {{ 'ABONNES.DETAIL.SUSPENDRE_LOADING' | translate }}
+        } @else {
+          {{ 'ABONNES.DETAIL.SUSPENDRE_BTN' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

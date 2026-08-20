@@ -3,46 +3,7 @@
 
 :host { display: block; }
 
-// ── Topbar fil d'ariane ───────────────────────────────────────────────────────
-
-.abonne-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  height: 54px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.abonne-topbar__back {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #94a3b8;
-  text-decoration: none;
-  transition: color 0.12s;
-
-  &:hover { color: $color-primary; }
-}
-
-.abonne-topbar__sep {
-  color: #e2e8f0;
-  font-size: 14px;
-}
-
-.abonne-topbar__name {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
-
-  &--loading { color: #94a3b8; font-weight: 400; }
-}
+// Topbar déléguée à <app-page-topbar> (bande navy standard M-04/M-05).
 
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
@@ -52,7 +13,7 @@
   flex-direction: column;
   gap: 14px;
   background: #f1f5f9;
-  min-height: calc(100% - 54px);
+  min-height: 100%;
 }
 
 // ── Squelette chargement ──────────────────────────────────────────────────────
@@ -142,7 +103,7 @@
 
 .abonne-header-card__sub {
   font-size: 12px;
-  color: #94a3b8;
+  color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -274,13 +235,13 @@
   &--blue   { border-top-color: $color-primary; }
   &--green  { border-top-color: $color-accent; }
   &--red    { border-top-color: #ef4444; }
-  &--slate  { border-top-color: #94a3b8; }
+  &--slate  { border-top-color: #64748b; }
 }
 
 .abonne-kpi__label {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #64748b;
   letter-spacing: 0.4px;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -295,7 +256,7 @@
 
 .abonne-kpi__sub {
   font-size: 11px;
-  color: #94a3b8;
+  color: #64748b;
   margin-top: 4px;
   min-height: 14px;
 }
@@ -322,7 +283,7 @@
   padding: 13px 16px;
   font-size: 13px;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748b;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -370,7 +331,7 @@
   align-items: center;
   gap: 10px;
   padding: 20px 0;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 13px;
 }
 
@@ -388,7 +349,7 @@
 
   &__label {
     font-size: 12px;
-    color: #94a3b8;
+    color: #64748b;
     flex-shrink: 0;
   }
 
@@ -435,7 +396,7 @@
     text-align: left;
     font-size: 11px;
     font-weight: 600;
-    color: #94a3b8;
+    color: #64748b;
     letter-spacing: 0.4px;
     text-transform: uppercase;
 
@@ -452,7 +413,7 @@
 }
 
 .abonne-invoices__empty {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 12px;
   text-align: center !important;
   padding: 20px 12px !important;
@@ -490,7 +451,7 @@
 .facture-badge {
   display: inline-block;
   padding: 2px 8px;
-  border-radius: 5px;
+  border-radius: 6px;                                   // sm token DESIGN.md
   font-size: 11px;
   font-weight: 600;
   border: 1px solid;
@@ -523,10 +484,10 @@
   &__fill {
     width: 100%;
     min-height: 4px;
-    background: linear-gradient(180deg, #4f8ef7, #1a56db);
+    background: linear-gradient(180deg, #60a5fa, #1a56db);  // Bleu Rivière Clair → Rivière
     border-radius: 4px 4px 0 0;
   }
-  &__label { font-size: 10px; color: #94a3b8; margin-top: 6px; text-transform: capitalize; }
+  &__label { font-size: 10px; color: #64748b; margin-top: 6px; text-transform: capitalize; }
 }
 
 // ── Placeholder onglets ───────────────────────────────────────────────────────
@@ -538,7 +499,7 @@
   justify-content: center;
   gap: 12px;
   padding: 48px 0;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 13px;
 }
 
@@ -637,7 +598,7 @@
 }
 
 .hist-current__key {
-  color: #94a3b8;
+  color: #64748b;
   min-width: 90px;
 }
 
@@ -653,7 +614,7 @@
   align-items: center;
   gap: 10px;
   padding: 36px 20px;
-  color: #94a3b8;
+  color: #64748b;
   font-size: 13px;
 }
 
@@ -724,7 +685,7 @@
 
 .hist-entry__idx-label {
   font-weight: 400;
-  color: #94a3b8;
+  color: #64748b;
   margin-left: 4px;
 }
 
@@ -761,12 +722,12 @@
 }
 
 .hist-meter__tag {
-  font-size: 9px;
+  font-size: 10px;                                      // micro token DESIGN.md
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
-  .hist-meter--old & { color: #94a3b8; }
+  .hist-meter--old & { color: #64748b; }
   .hist-meter--new & { color: $color-accent; }
 }
 
@@ -786,7 +747,7 @@
 
 .hist-meter__sub {
   font-size: 10px;
-  color: #94a3b8;
+  color: #64748b;
   font-variant-numeric: tabular-nums;
 }
 
@@ -794,7 +755,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  color: #94a3b8;
+  color: #64748b;
 }
 
 // ── Responsive fiche abonné (mobile · MB-01) ──────────────────────────────────
