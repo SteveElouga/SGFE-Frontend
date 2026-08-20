@@ -3,7 +3,9 @@
 <div class="terrain">
 
   @if (loading()) {
-    <div class="t-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    <div class="t-loading" role="status" [attr.aria-label]="'TERRAIN.LOADING' | translate">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    </div>
   } @else {
     @switch (view()) {
 
@@ -18,12 +20,21 @@
             <span>{{ 'TERRAIN.PROGRESS' | translate: { faits: nbFaits(), total: countTous() } }}</span>
             <span>{{ progressPct() }}%</span>
           </div>
-          <div class="t-progress"><div class="t-progress__fill" [style.width.%]="progressPct()"></div></div>
+          <div
+            class="t-progress"
+            role="progressbar"
+            [attr.aria-valuenow]="progressPct()"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="'TERRAIN.PROGRESS_ARIA' | translate: { faits: nbFaits(), total: countTous() }"
+          >
+            <div class="t-progress__fill" [style.--pct]="progressPct() / 100"></div>
+          </div>
         </header>
 
         @if (!offline.online()) {
-          <div class="t-offline">
-            <i class="pi pi-wifi t-offline__icon"></i>
+          <div class="t-offline" role="status">
+            <i class="pi pi-wifi t-offline__icon" aria-hidden="true"></i>
             <div>
               <div class="t-offline__title">{{ 'TERRAIN.OFFLINE_TITLE' | translate }}</div>
               <div class="t-offline__sub">{{ 'TERRAIN.OFFLINE_SUB' | translate }}</div>
@@ -35,29 +46,34 @@
           @if (error()) { <app-error-banner [message]="error()!" (retry)="load()" /> }
 
           @if (offline.pendingCount() > 0) {
-            <div class="sync-card">
-              <div class="sync-card__icon"><i class="pi pi-sync" [class.pi-spin]="offline.syncing()"></i></div>
+            <div class="sync-card" role="status">
+              <div class="sync-card__icon"><i class="pi pi-cloud-upload" [class.pi-spin]="offline.syncing()" aria-hidden="true"></i></div>
               <div class="sync-card__body">
                 <div class="sync-card__title">{{ 'TERRAIN.SYNC_PENDING' | translate: { count: offline.pendingCount() } }}</div>
-                <div class="sync-card__sub">{{ 'TERRAIN.SYNC_AUTO' | translate }}</div>
+                <div class="sync-card__sub">{{ 'TERRAIN.SYNC_MSG' | translate }}</div>
               </div>
-              <button class="sync-card__retry" [disabled]="offline.syncing() || !offline.online()" (click)="offline.retry()">
+              <button
+                class="sync-card__retry"
+                type="button"
+                [disabled]="offline.syncing() || !offline.online()"
+                (click)="offline.retry()"
+                [attr.aria-label]="'TERRAIN.RETRY_ARIA' | translate"
+              >
                 {{ 'TERRAIN.RETRY' | translate }}
               </button>
             </div>
           }
 
-          <!-- Chips de filtre -->
-          <div class="chips">
-            <button class="chip" [class.chip--active]="filtre() === 'TOUS'" (click)="setFiltre('TOUS')">
-              {{ 'TERRAIN.FILTER_ALL' | translate }} ({{ countTous() }})
-            </button>
-            <button class="chip" [class.chip--active]="filtre() === 'A_RELEVER'" (click)="setFiltre('A_RELEVER')">
-              {{ 'TERRAIN.FILTER_A_RELEVER' | translate }} ({{ countARelever() }})
-            </button>
-            <button class="chip" [class.chip--active]="filtre() === 'RELEVE'" (click)="setFiltre('RELEVE')">
-              {{ 'TERRAIN.FILTER_RELEVE' | translate }} ({{ countReleve() }})
-            </button>
+          <!-- Chips de filtre : composant partagé (a11y tablist + aria-selected). -->
+          <div class="chips-wrap">
+            <app-filter-chips
+              [options]="filterOptions()"
+              [value]="filtre() === 'TOUS' ? null : filtre()"
+              [total]="countTous()"
+              allLabel="TERRAIN.FILTER_ALL"
+              [translateLabels]="true"
+              (valueChange)="onFilterChange($event)"
+            />
           </div>
 
           <!-- Liste -->
@@ -68,10 +84,15 @@
                 type="button"
                 class="row"
                 [class.row--done]="e.status === 'RELEVE' || e.status === 'ESTIME'"
+                [class.row--pending]="e.status === 'PENDING'"
                 [class.row--action]="clickable"
                 [disabled]="!clickable"
+                [attr.aria-label]="e.nom + ' — ' + ('TERRAIN.STATUT.' + e.status | translate)"
                 (click)="openSaisie(e)"
               >
+                @if (e.status === 'PENDING') {
+                  <i class="pi pi-cloud-upload row__sync" [class.pi-spin]="offline.syncing()" aria-hidden="true"></i>
+                }
                 <span class="row__info">
                   <span class="row__name" [class.row__name--muted]="!clickable">{{ e.nom }}</span>
                   <span class="row__sub">{{ e.sub }}</span>
@@ -81,12 +102,12 @@
                   <span class="row-badge row-badge--{{ e.status | lowercase }}">
                     {{ 'TERRAIN.STATUT.' + e.status | translate }}
                   </span>
-                  @if (clickable) { <i class="pi pi-chevron-right row__chevron"></i> }
+                  @if (clickable) { <i class="pi pi-chevron-right row__chevron" aria-hidden="true"></i> }
                 </span>
               </button>
             } @empty {
-              <div class="t-empty">
-                <i class="pi pi-inbox"></i>
+              <div class="t-empty" role="status">
+                <i class="pi pi-inbox" aria-hidden="true"></i>
                 <span>{{ (campagne() ? 'TERRAIN.EMPTY' : 'TERRAIN.NO_CAMPAGNE') | translate }}</span>
               </div>
             }
@@ -99,14 +120,17 @@
         @if (saisieEntry(); as e) {
           <header class="t-head t-head--row">
             <button class="t-back" (click)="backToList()" [attr.aria-label]="'TERRAIN.BACK' | translate">
-              <i class="pi pi-chevron-left"></i>
+              <i class="pi pi-chevron-left" aria-hidden="true"></i>
             </button>
             <div>
               <div class="t-head__title">{{ 'TERRAIN.SAISIR_TITLE' | translate }}</div>
               <div class="t-head__sub">{{ e.nom }} · {{ e.numeroAbonne }}</div>
             </div>
           </header>
-          <div class="info-bar">{{ e.compteurLine }}</div>
+          <div class="info-bar">
+            <i class="pi pi-hashtag info-bar__icon" aria-hidden="true"></i>
+            {{ e.compteurLine }}
+          </div>
 
           <div class="saisie-body">
             <!-- Ancien index -->
@@ -121,12 +145,19 @@
 
             <!-- Nouvel index -->
             <div class="field">
-              <div class="field__label field__label--strong">{{ 'TERRAIN.NOUVEL_INDEX' | translate }} *</div>
+              <label class="field__label field__label--strong" for="idx-new">
+                {{ 'TERRAIN.NOUVEL_INDEX' | translate }} <span aria-hidden="true">*</span>
+              </label>
               <div class="idx-box idx-box--new" [class.idx-box--error]="indexInvalide()">
                 <input
+                  id="idx-new"
                   class="idx-box__input"
                   inputmode="numeric"
+                  pattern="[0-9]*"
+                  autocomplete="off"
                   [attr.aria-label]="'TERRAIN.NOUVEL_INDEX' | translate"
+                  [attr.aria-invalid]="indexInvalide()"
+                  [attr.aria-describedby]="'idx-hint'"
                   placeholder="—"
                   [ngModel]="nouvelIndex()"
                   (ngModelChange)="nouvelIndex.set($event)"
@@ -134,26 +165,37 @@
                 />
                 <span class="idx-box__unit idx-box__unit--new">m³</span>
               </div>
-              <div class="field__hint" [class.field__hint--error]="indexInvalide()">
+              <div id="idx-hint" class="field__hint" [class.field__hint--error]="indexInvalide()">
+                @if (indexInvalide()) {
+                  <i class="pi pi-exclamation-triangle field__hint-icon" aria-hidden="true"></i>
+                }
                 {{ 'TERRAIN.DOIT_ETRE' | translate: { ancien: (e.ancienIndex | number:'1.0-0') } }}
               </div>
             </div>
 
             <!-- Consommation calculée -->
             @if (consoLive() !== null && !indexInvalide()) {
-              <div class="conso-card">
+              <div class="conso-card" role="status">
                 <div class="conso-card__label">{{ 'TERRAIN.CONSO_CALC' | translate }}</div>
                 <div class="conso-card__value">{{ consoLive() }} m³</div>
+                @if (consoWarn()) {
+                  <div class="conso-card__warn">
+                    <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+                    {{ 'TERRAIN.CONSO_INHABITUELLE' | translate }}
+                  </div>
+                }
               </div>
             }
 
             <!-- Observation optionnelle -->
             <div class="field">
-              <div class="field__label">{{ 'TERRAIN.OBSERVATION_OPT' | translate }}</div>
+              <label class="field__label" for="obs-input">{{ 'TERRAIN.OBSERVATION_OPT' | translate }}</label>
               <textarea
+                id="obs-input"
                 class="obs-input"
                 rows="2"
                 maxlength="200"
+                autocomplete="off"
                 [attr.aria-label]="'TERRAIN.OBSERVATION_OPT' | translate"
                 [placeholder]="'TERRAIN.OBSERVATION_PH' | translate"
                 [ngModel]="observation()"
@@ -162,14 +204,20 @@
             </div>
 
             <div class="saisie-actions">
-              <button class="btn-primary" [disabled]="!saisieValide()" (click)="confirmSaisie()">
-                ✓ {{ 'TERRAIN.ENREGISTRER' | translate }}
-                @if (saisieValide()) { ({{ consoLive() }} m³) }
-              </button>
-              <button class="btn-danger-outline" (click)="openM07()">
-                {{ 'TERRAIN.MARQUER_NR_EST' | translate }}
+              <button class="btn-primary" type="button" [disabled]="!saisieValide()" (click)="confirmSaisie()">
+                <i class="pi pi-check btn-primary__icon" aria-hidden="true"></i>
+                <span>
+                  {{ 'TERRAIN.ENREGISTRER' | translate }}
+                  @if (saisieValide()) { <span class="btn-primary__conso">({{ consoLive() }} m³)</span> }
+                </span>
               </button>
             </div>
+
+            <!-- Action d'exception : sortie du stack principal pour éviter les mauvais taps. -->
+            <button type="button" class="btn-exception" (click)="openM07()">
+              <i class="pi pi-ellipsis-h" aria-hidden="true"></i>
+              {{ 'TERRAIN.IMPOSSIBLE_RELEVER' | translate }}
+            </button>
           </div>
         }
       }
@@ -177,14 +225,19 @@
       <!-- ═══════════ 09 — Confirmation succès ═══════════ -->
       @case ('success') {
         @if (success(); as s) {
-          <div class="succ-head">
-            <div class="succ-head__check">
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-                <path d="M5 14l6.5 6.5L23 8" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <div class="succ-head" role="status">
+            <div class="succ-head__check" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+                <path d="M5 14l6.5 6.5L23 8" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <div class="succ-head__title">{{ 'TERRAIN.SUCCESS_TITLE' | translate }}</div>
-            <div class="succ-head__sub">{{ s.nom }} · {{ s.numeroAbonne }}</div>
+            <div class="succ-head__body">
+              <div class="succ-head__title">{{ 'TERRAIN.SUCCESS_TITLE' | translate }}</div>
+              <div class="succ-head__sub">{{ s.nom }} · {{ s.numeroAbonne }}</div>
+            </div>
+            <div class="succ-head__counter" [attr.aria-label]="'TERRAIN.PROGRESS_ARIA' | translate: { faits: nbFaits(), total: countTous() }">
+              {{ nbFaits() }}<span class="succ-head__counter-sep">/</span>{{ countTous() }}
+            </div>
           </div>
 
           <div class="succ-body">
@@ -215,9 +268,12 @@
 
             <div class="saisie-actions">
               @if (prochain()) {
-                <button class="btn-success" (click)="releverSuivant()">{{ 'TERRAIN.RELEVER_SUIVANT' | translate }} →</button>
+                <button class="btn-success" type="button" (click)="releverSuivant()">
+                  {{ 'TERRAIN.RELEVER_SUIVANT' | translate }}
+                  <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                </button>
               }
-              <button class="btn-ghost" (click)="backToList()">{{ 'TERRAIN.RETOUR_LISTE' | translate }}</button>
+              <button class="btn-ghost" type="button" (click)="backToList()">{{ 'TERRAIN.RETOUR_LISTE' | translate }}</button>
             </div>
           </div>
         }
@@ -226,7 +282,6 @@
   }
 
   <!-- ── Feuille M-07 : non relevé / estimé ── -->
-  <!-- Feuille M-07 extraite -->
   <app-m07-sheet
     [open]="m07Visible()"
     (cancel)="cancelM07()"

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
+import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 
 export type M07Statut = 'NON_RELEVE' | 'ESTIME';
 
@@ -25,7 +26,7 @@ export interface M07Result {
  */
 @Component({
   selector: 'app-m07-sheet',
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, TranslatePipe, BottomSheetComponent],
   templateUrl: './m07-sheet.component.html',
   styleUrl: './m07-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

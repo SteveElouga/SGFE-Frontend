@@ -18,8 +18,27 @@ import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
 import { Campagne, Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
 import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
+
+/**
+ * Plafond au-delà duquel une consommation devient suspecte (garde-fou soft :
+ * on n'empêche pas la saisie, on affiche un avertissement pour que l'agent
+ * revérifie qu'il a bien lu son compteur avant validation).
+ */
+const CONSO_WARN_THRESHOLD_M3 = 500;
+/** Plafond dur : au-delà, l'index est refusé. Évite le débordement UI et les
+ *  erreurs de frappe massives (999999999) qui polluent la file offline. */
+const NOUVEL_INDEX_MAX = 99_999_999;
+
+/** Parseur strict : rejette "12abc", "12.5", "-5", accepte uniquement des entiers positifs. */
+function parseIndex(raw: string): number | null {
+  const s = raw.trim();
+  if (s === '' || !/^\d+$/.test(s)) return null;
+  const n = Number.parseInt(s, 10);
+  return Number.isFinite(n) ? n : null;
+}
 
 interface AbonneInfo {
   numeroAbonne: string;
@@ -57,7 +76,7 @@ interface SuccessInfo {
 }
 
 @Component({
-  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent, M07SheetComponent],
+  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent, FilterChipsComponent, M07SheetComponent],
   providers: [MessageService],
   templateUrl: './terrain.component.html',
   styleUrl: './terrain.component.scss',
@@ -201,6 +220,12 @@ export class TerrainComponent implements OnInit {
     return list;
   });
 
+  /** Options du composant partagé <app-filter-chips> (la pilule « Tous » est ajoutée automatiquement). */
+  readonly filterOptions = computed((): FilterChip[] => [
+    { label: 'TERRAIN.FILTER_A_RELEVER', value: 'A_RELEVER', count: this.countARelever() },
+    { label: 'TERRAIN.FILTER_RELEVE',    value: 'RELEVE',    count: this.countReleve() },
+  ]);
+
   readonly progressPct = computed(() => {
     const total = this.countTous();
     if (total === 0) return 0;
@@ -209,24 +234,37 @@ export class TerrainComponent implements OnInit {
   readonly nbFaits = computed(() => this.countTous() - this.countARelever());
 
   // ── Saisie : consommation live + validation (RV-001) ────────────────────────
+  //
+  // parseIndex() rejette les entrées mal formées (« 12abc », « 12.5 », « -5 »)
+  // pour éviter les silences de Number.parseInt : mieux vaut un CTA désactivé
+  // qu'un « 12.5 » silencieusement transformé en « 12 » dans la file offline.
   readonly consoLive = computed((): number | null => {
     const e = this.saisieEntry();
-    const idx = Number.parseInt(this.nouvelIndex(), 10);
-    if (!e || Number.isNaN(idx)) return null;
+    const idx = parseIndex(this.nouvelIndex());
+    if (!e || idx === null) return null;
     return idx - e.ancienIndex;
   });
 
   readonly indexInvalide = computed(() => {
     const e = this.saisieEntry();
-    const idx = Number.parseInt(this.nouvelIndex(), 10);
-    if (!e || this.nouvelIndex().trim() === '' || Number.isNaN(idx)) return false;
-    return idx < e.ancienIndex;
+    const raw = this.nouvelIndex();
+    if (!e || raw.trim() === '') return false;
+    const idx = parseIndex(raw);
+    if (idx === null) return true;
+    return idx < e.ancienIndex || idx > NOUVEL_INDEX_MAX;
   });
 
   readonly saisieValide = computed(() => {
     const e = this.saisieEntry();
-    const idx = Number.parseInt(this.nouvelIndex(), 10);
-    return !!e && !Number.isNaN(idx) && idx >= e.ancienIndex;
+    const idx = parseIndex(this.nouvelIndex());
+    return !!e && idx !== null && idx >= e.ancienIndex && idx <= NOUVEL_INDEX_MAX;
+  });
+
+  /** Consommation supérieure au seuil habituel → avertissement soft (agent doit
+   *  revérifier son relevé, on ne bloque pas la validation). */
+  readonly consoWarn = computed(() => {
+    const c = this.consoLive();
+    return c !== null && c > CONSO_WARN_THRESHOLD_M3;
   });
 
   /** Prochain abonné à relever (hors abonné courant), pour l'écran de succès. */
@@ -303,6 +341,11 @@ export class TerrainComponent implements OnInit {
     this.filtre.set(f);
   }
 
+  /** Le composant <app-filter-chips> émet `null` pour « Tous » ; on remappe vers 'TOUS'. */
+  onFilterChange(v: string | null): void {
+    this.filtre.set(v === null ? 'TOUS' : (v as Filtre));
+  }
+
   openSaisie(entry: Entry): void {
     if (entry.status !== 'A_RELEVER') return;
     this.saisieEntry.set(entry);
@@ -324,7 +367,8 @@ export class TerrainComponent implements OnInit {
     const e = this.saisieEntry();
     const campagne = this.campagne();
     if (!e || !campagne || !this.saisieValide()) return;
-    const nouveauIndex = Number.parseInt(this.nouvelIndex(), 10);
+    const nouveauIndex = parseIndex(this.nouvelIndex());
+    if (nouveauIndex === null) return;
     const conso = nouveauIndex - e.ancienIndex;
     this.offline.enqueue({
       kind: 'INDEX',
@@ -399,8 +443,10 @@ export class TerrainComponent implements OnInit {
   }
 
   formatTime(ts: number): string {
-    return new Date(ts)
-      .toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
-      .replace(':', 'h');
+    const lang = this.translate.currentLang() ?? 'fr';
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-US';
+    const t = new Date(ts).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+    // En français, la convention est « 09h05 » ; en anglais on garde « 09:05 ».
+    return lang === 'fr' ? t.replace(':', 'h') : t;
   }
 }

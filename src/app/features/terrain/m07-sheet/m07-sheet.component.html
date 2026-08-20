@@ -1,52 +1,64 @@
 <!-- ══ Bottom sheet M-07 — marquer non relevé / estimé ══ -->
-@if (open()) {
-  <div class="sheet-overlay" (click)="cancel.emit()">
-    <div class="sheet" (click)="$event.stopPropagation()">
-      <div class="sheet__grip"></div>
-      <div class="sheet__title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
-      <div class="sheet__sub sheet__sub--mb">{{ 'TERRAIN.M07_SUB' | translate }}</div>
+<app-bottom-sheet [open]="open()" labelledBy="m07-title" (close)="cancel.emit()">
+  <div class="m07-title" id="m07-title">{{ 'TERRAIN.M07_TITLE' | translate }}</div>
+  <div class="m07-sub">{{ 'TERRAIN.M07_SUB' | translate }}</div>
 
-      <div class="m07-options">
-        <button type="button" class="m07-opt m07-opt--danger" [class.m07-opt--selected]="statut() === 'NON_RELEVE'" (click)="setStatut('NON_RELEVE')">
-          <span class="m07-opt__radio"></span>
-          <span class="m07-opt__body">
-            <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
-            <span class="m07-opt__hint">{{ 'TERRAIN.NON_RELEVE_HINT' | translate }}</span>
-          </span>
-          <span class="m07-opt__emoji">🚪</span>
-        </button>
-        <button type="button" class="m07-opt" [class.m07-opt--selected]="statut() === 'ESTIME'" (click)="setStatut('ESTIME')">
-          <span class="m07-opt__radio"></span>
-          <span class="m07-opt__body">
-            <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
-            <span class="m07-opt__hint">{{ 'TERRAIN.ESTIME_HINT' | translate }}</span>
-          </span>
-          <span class="m07-opt__emoji">📈</span>
-        </button>
-      </div>
-
-      <div class="obs-head">
-        <span>{{ 'TERRAIN.OBSERVATION' | translate }} <span class="req">*</span></span>
-        <span class="obs-count">{{ observation().length }} / 200</span>
-      </div>
-      <textarea
-        class="obs-input"
-        [class.obs-input--error]="!valide()"
-        rows="2"
-        maxlength="200"
-        [attr.aria-label]="'TERRAIN.OBSERVATION' | translate"
-        [ngModel]="observation()"
-        (ngModelChange)="observation.set($event)"
-      ></textarea>
-      <div class="obs-warn">
-        <i class="pi pi-exclamation-circle"></i>
-        {{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}
-      </div>
-
-      <button class="btn-danger" [disabled]="!valide()" (click)="onConfirm()">
-        {{ (statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
-      </button>
-      <button class="btn-ghost" (click)="cancel.emit()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>
-    </div>
+  <div class="m07-options" role="radiogroup" [attr.aria-label]="'TERRAIN.M07_TITLE' | translate">
+    <button
+      type="button"
+      class="m07-opt m07-opt--danger"
+      role="radio"
+      [attr.aria-checked]="statut() === 'NON_RELEVE'"
+      [class.m07-opt--selected]="statut() === 'NON_RELEVE'"
+      (click)="setStatut('NON_RELEVE')"
+    >
+      <span class="m07-opt__radio" aria-hidden="true"></span>
+      <span class="m07-opt__body">
+        <span class="m07-opt__label">{{ 'TERRAIN.NON_RELEVE' | translate }}</span>
+        <span class="m07-opt__hint">{{ 'TERRAIN.NON_RELEVE_HINT' | translate }}</span>
+      </span>
+      <i class="pi pi-times-circle m07-opt__icon" aria-hidden="true"></i>
+    </button>
+    <button
+      type="button"
+      class="m07-opt"
+      role="radio"
+      [attr.aria-checked]="statut() === 'ESTIME'"
+      [class.m07-opt--selected]="statut() === 'ESTIME'"
+      (click)="setStatut('ESTIME')"
+    >
+      <span class="m07-opt__radio" aria-hidden="true"></span>
+      <span class="m07-opt__body">
+        <span class="m07-opt__label">{{ 'TERRAIN.ESTIME' | translate }}</span>
+        <span class="m07-opt__hint">{{ 'TERRAIN.ESTIME_HINT' | translate }}</span>
+      </span>
+      <i class="pi pi-chart-line m07-opt__icon" aria-hidden="true"></i>
+    </button>
   </div>
-}
+
+  <div class="obs-head">
+    <label for="m07-obs">{{ 'TERRAIN.OBSERVATION' | translate }} <span class="req" aria-hidden="true">*</span></label>
+    <span class="obs-count" aria-live="polite">{{ observation().length }} / 200</span>
+  </div>
+  <textarea
+    id="m07-obs"
+    class="obs-input"
+    [class.obs-input--error]="!valide()"
+    rows="2"
+    maxlength="200"
+    required
+    [attr.aria-label]="'TERRAIN.OBSERVATION' | translate"
+    [attr.aria-invalid]="!valide()"
+    [ngModel]="observation()"
+    (ngModelChange)="observation.set($event)"
+  ></textarea>
+  <div class="obs-warn" role="note">
+    <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+    <span>{{ 'TERRAIN.OBS_OBLIGATOIRE' | translate }}</span>
+  </div>
+
+  <button class="btn-danger" [disabled]="!valide()" (click)="onConfirm()">
+    {{ (statut() === 'ESTIME' ? 'TERRAIN.MARQUER_ESTIME' : 'TERRAIN.MARQUER_NON_RELEVE') | translate }}
+  </button>
+  <button class="btn-ghost" (click)="cancel.emit()">{{ 'TERRAIN.ANNULER_SAISIE' | translate }}</button>
+</app-bottom-sheet>
