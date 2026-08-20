@@ -18,31 +18,18 @@
     <app-error-banner [message]="error()!" (retry)="loadUsers()" />
   }
 
-  <app-filter-bar
+  <app-filters-panel
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
+    [debounceMs]="250"
     searchPlaceholder="UTILISATEURS.SEARCH_PLACEHOLDER"
-  >
-    <p-select
-      class="users-filters__select"
-      [options]="roleOptions()"
-      [ngModel]="filtreRole()"
-      (ngModelChange)="filtreRole.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'UTILISATEURS.FILTRE_ROLE' | translate"
-      [showClear]="true"
-    />
-
-    <p-select
-      class="users-filters__select"
-      [options]="statutOptions()"
-      [ngModel]="filtreStatut()"
-      (ngModelChange)="filtreStatut.set($event)"
-      optionLabel="label"
-      optionValue="value"
-    />
-  </app-filter-bar>
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="filteredUsers().length"
+    [totalCount]="users().length"
+    heroNounKey="UTILISATEURS.RESULTS_HERO"
+  />
 
   <div class="users-card">
     <app-data-table
