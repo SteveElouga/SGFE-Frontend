@@ -11,51 +11,33 @@
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
 
-  <!-- Filters -->
-  <app-filter-bar
-    [search]="searchTerm()"
-    (searchChange)="onSearchChange($event)"
-    searchPlaceholder="PAIEMENTS.SEARCH_PLACEHOLDER"
-  >
-    <p-select
-      [options]="campagneOptions()"
-      [ngModel]="selectedCampagneId()"
-      (ngModelChange)="onCampagneChange($event)"
-      optionLabel="label"
-      optionValue="value"
-      styleClass="filter-chip"
-      [class.filter-chip--active]="selectedCampagneId() !== null"
-    >
-      <ng-template pTemplate="selectedItem" let-option>
-        <span class="chip-label">
-          {{ 'PAIEMENTS.FILTER_CAMPAGNE' | translate }}
-          @if (option?.value !== null) {
-            <span class="chip-active-dot"></span>
-          }
-        </span>
-      </ng-template>
-    </p-select>
+  <!-- KPI Total encaissé — Règle du Vert Rare : LA vue de l'argent acté mérite
+       enfin son pixel Vert Nappe (Montserrat 800 metric-md, accent gauche 3px). -->
+  <div class="total-kpi" role="status" [attr.aria-label]="'PAIEMENTS.TOTAL_KPI_ARIA' | translate">
+    <div class="total-kpi__label">{{ 'PAIEMENTS.TOTAL_ENCAISSE' | translate }}</div>
+    <div class="total-kpi__value">{{ totalMontant() | fcfa }}<small class="total-kpi__unit"> FCFA</small></div>
+    <div class="total-kpi__hint">
+      {{ 'PAIEMENTS.TOTAL_KPI_HINT' | translate: { count: rows().length } }}
+    </div>
+  </div>
 
-    <p-select
-      [options]="modeOptions()"
-      [ngModel]="filtreMode()"
-      (ngModelChange)="onModeChange($event)"
-      optionLabel="label"
-      optionValue="value"
-      styleClass="filter-chip"
-      [class.filter-chip--active]="filtreMode() !== 'TOUS'"
-    >
-      <ng-template pTemplate="selectedItem">
-        <span class="chip-label">
-          {{ 'PAIEMENTS.FILTER_MODE' | translate }}
-          @if (filtreMode() !== 'TOUS') {
-            <span class="chip-active-dot"></span>
-          }
-        </span>
-      </ng-template>
-    </p-select>
+  <!-- Filtres unifiés (batch 10) + date range spécialisée conservée séparément -->
+  <div class="paiements-filters-row">
+    <app-filters-panel
+      [search]="searchTerm()"
+      (searchChange)="onSearchChange($event)"
+      [debounceMs]="250"
+      searchPlaceholder="PAIEMENTS.SEARCH_PLACEHOLDER"
+      [filters]="filtersConfig()"
+      [values]="filterValues()"
+      (valuesChange)="onFiltersChange($event)"
+      [resultCount]="rows().length"
+      [totalCount]="paiements().length"
+      heroNounKey="PAIEMENTS.RESULTS_HERO"
+    />
 
     <p-datepicker
+      class="paiements-date-range"
       [ngModel]="dateRange()"
       (ngModelChange)="onDateRangeChange($event)"
       selectionMode="range"
@@ -65,7 +47,7 @@
       [showIcon]="true"
       icon="pi pi-chevron-down"
     />
-  </app-filter-bar>
+  </div>
 
   <!-- Table -->
   <div class="table-wrap">
@@ -73,7 +55,7 @@
       [columns]="columns"
       [rows]="rows()"
       [loading]="loading()"
-      [pageSize]="5"
+      [pageSize]="15"
       [rowClickable]="true"
       (rowClick)="voirFacture($event.factureId)"
       trackKey="paiementId"
@@ -98,7 +80,17 @@
         </span>
       </ng-template>
 
-      <ng-template appCol="operateur" let-r><span class="col-operateur">—</span></ng-template>
+      <ng-template appCol="reference" let-r>
+        @if (r.referenceTransaction) {
+          <span class="col-reference">{{ r.referenceTransaction }}</span>
+        } @else if (r.modePaiement === 'ESPECES') {
+          <span class="col-reference col-reference--none" aria-hidden="true">—</span>
+        } @else {
+          <span class="col-reference col-reference--missing" [attr.aria-label]="'PAIEMENTS.REF_MANQUANTE' | translate">
+            {{ 'PAIEMENTS.REF_MANQUANTE_SHORT' | translate }}
+          </span>
+        }
+      </ng-template>
 
       <ng-template appCol="statut" let-r>
         <app-badge [tone]="statutTone(r)" [label]="statutLabel(r)" />
@@ -115,6 +107,11 @@
           </div>
           <div class="pcard__bottom">
             <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">{{ 'FACTURATION.MODE.' + r.modePaiement | translate }}</span>
+            @if (r.modePaiement !== 'ESPECES' && r.referenceTransaction) {
+              <span class="pcard__reference">{{ r.referenceTransaction }}</span>
+            } @else if (r.modePaiement !== 'ESPECES') {
+              <span class="pcard__reference pcard__reference--missing">{{ 'PAIEMENTS.REF_MANQUANTE_SHORT' | translate }}</span>
+            }
             <app-badge [tone]="statutTone(r)" [label]="statutLabel(r)" />
           </div>
         </button>

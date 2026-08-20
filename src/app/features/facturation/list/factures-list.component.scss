@@ -20,13 +20,17 @@
   @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
 }
 
-// ── Filtres : dropdowns + WhatsApp groupé (desktop) ↔ chips seuls (mobile MB-04)
-.factures-statut-chips { display: none; }
+// ── Ligne filtres + action WhatsApp bulk (batch 10 : filters-panel shared) ─
+// Le panel gère le responsive chips↔select en interne ; ici on aligne juste
+// le panel (flex 1) avec le bouton d'action (flex-shrink 0).
+.factures-filters-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
 
-@media (max-width: 640px) {
-  .factures-statut-chips { display: block; }
-  .factures-statut-select,
-  .factures-campagne-select { display: none; }
+  app-filters-panel { flex: 1 1 auto; min-width: 0; }
+
+  @media (max-width: 640px) { flex-direction: column; }
 }
 
 // ── Generate banner ───────────────────────────────────────────────────────────
@@ -67,13 +71,15 @@
   }
 }
 
+// Normalisé sur le vocabulaire button-primary de DESIGN.md (Bleu Rivière) —
+// ex-marron `#92400e` isolé hors palette a été retiré (5e style ad-hoc).
 .btn-generer {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   height: 38px;
   padding: 0 18px;
-  background: #92400e;
+  background: $color-primary;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -81,29 +87,38 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s, opacity 0.15s, transform 160ms var(--ease-out);
 
-  &:hover:not(:disabled) { background: #7c2d12; }
+  &:hover:not(:disabled) { background: #1d4ed8; }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
+// Aligné sur le vert canonique WhatsApp de DESIGN.md : même dégradé Vert Profond
+// → Vert Nappe que le CTA de confirmation (.wa-bulk-btn--confirm), au lieu de
+// l'aplat #15803d (green-700 hors-palette, ex-5e vert ad-hoc). + focus-visible
+// et press-scale comme le reste des boutons (btn-generer, wa-bulk-btn).
 .btn-whatsapp-tous {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 38px;
-  padding: 0 16px;
-  background: #15803d;
+  height: 44px;                                   // aligne avec la hauteur des contrôles du filters-panel
+  padding: 0 18px;
+  background: linear-gradient(135deg, #166534, #0e9f6e);  // Vert Profond → Vert Nappe
   color: #fff;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, opacity 0.15s;
+  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.18); // profondeur discrète (plus légère que le CTA du sheet)
+  transition: opacity 0.15s, box-shadow 0.15s, transform 160ms var(--ease-out, ease-out);
 
-  &:hover:not(:disabled) { background: #166534; }
+  &:hover:not(:disabled) { opacity: 0.92; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.24); }
+  &:focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+  &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
@@ -166,7 +181,7 @@
 
   &__sub {
     font-size: 10px;
-    color: #94a3b8;
+    color: #64748b;
   }
 
   &__right {
@@ -203,7 +218,7 @@
 .col-numero {
   font-size: 11px;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748b;
   white-space: nowrap;
 
   &--link { color: $color-primary; cursor: pointer; }
@@ -235,12 +250,27 @@
 .col-solde {
   font-weight: 600;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .solde-zero { color: #15803d; }
 .solde-red  { color: #dc2626; font-weight: 700; font-size: 14px; }
 .solde-blue { color: $color-primary; font-weight: 700; font-size: 14px; }
-.solde-loading { color: #94a3b8; }
+.solde-loading { color: #64748b; }
+
+// Indicateur "solde estimé" (P1 batch 8 list) : honnêteté visuelle sur les
+// IMPAYEE dont le solde n'a pas été vérifié backend. Discret pour ne pas
+// perturber la lecture des chiffres réels.
+.solde-estimated {
+  font-size: 12px;
+  color: #94a3b8;                                       // slate 400 (icon, non-texte)
+  cursor: help;
+  transition: color 0.12s;
+
+  &:hover, &:focus-visible { color: #64748b; outline: none; }
+}
 
 // ── Row actions ───────────────────────────────────────────────────────────────
 
@@ -287,4 +317,123 @@
 // Placé en fin de fichier pour l'emporter sur le `display` de la règle de base.
 @media (max-width: 640px) {
   .btn-whatsapp-tous { display: none; }
+}
+
+// ── Confirmation WhatsApp bulk (P0 batch 8 : prévention destructive) ─────────
+// Contenu du bottom-sheet ; le wrapping (overlay + focus trap) est délégué à
+// <app-bottom-sheet>. Palette WhatsApp mint pour signaler l'action réseau.
+.wa-bulk-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &__head { display: flex; gap: 14px; align-items: flex-start; }
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #f0fdf4;                                // Vert Lueur DESIGN.md
+    border: 1px solid #bbf7d0;                          // Vert Trait
+    color: #166534;                                     // Vert Profond
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 4px;
+  }
+
+  &__desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.55;
+    margin: 0;
+  }
+}
+
+.wa-bulk-summary {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 14px;
+    font-size: 12px;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+
+    &:last-child { border-bottom: none; }
+  }
+
+  &__v {
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+  }
+}
+
+.wa-bulk-warn {
+  display: flex;
+  gap: 9px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.5;
+
+  &__icon { font-size: 13px; line-height: 1.4; flex-shrink: 0; color: #64748b; }
+}
+
+.wa-bulk-actions {
+  display: flex;
+  flex-direction: column-reverse;                       // « Envoyer » au-dessus, Annuler dessous
+  gap: 10px;
+  padding-top: 2px;
+
+  .wa-bulk-btn { width: 100%; justify-content: center; }
+}
+
+.wa-bulk-btn {
+  height: 44px;                                         // WCAG 2.5.5
+  padding: 0 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:active:not(:disabled) { transform: scale(0.97); }
+
+  &--ghost {
+    background: none;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    &:hover:not(:disabled) { background: #f8fafc; }
+  }
+
+  &--confirm {
+    background: linear-gradient(135deg, #166534, #0e9f6e);  // Vert Profond → Vert Nappe
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28);
+    &:hover:not(:disabled) { opacity: 0.92; }
+    &:focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+  }
 }

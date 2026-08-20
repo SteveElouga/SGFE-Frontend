@@ -7,18 +7,16 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { SoldeFacture, StatutFacture, SuiviImpaye } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { ToastService } from '../../shared/services/toast.service';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
-import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../shared/components/filters-panel/filters-panel.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import {
   DataTableCardDirective,
@@ -58,13 +56,10 @@ interface ImpayeRow {
 
 @Component({
   imports: [
-    FormsModule,
-    SelectModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
-    FilterBarComponent,
-    FilterChipsComponent,
+    FiltersPanelComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -78,6 +73,7 @@ export class ImpayesListComponent implements OnInit {
   private readonly apollo = inject(Apollo);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -88,54 +84,54 @@ export class ImpayesListComponent implements OnInit {
   readonly tri = signal<'ANCIENNETE' | 'SOLDE'>('ANCIENNETE');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'abonne', header: 'IMPAYES.COL_ABONNE' },
-    { key: 'montant', header: 'IMPAYES.COL_MONTANT' },
-    { key: 'paye', header: 'IMPAYES.COL_PAYE' },
-    { key: 'solde', header: 'IMPAYES.COL_SOLDE' },
-    { key: 'retard', header: 'IMPAYES.COL_RETARD' },
-    { key: 'etape', header: 'IMPAYES.COL_ETAPE' },
+    { key: 'abonne', header: 'IMPAYES.COL_ABONNE', sortable: true, sortValue: (r) => (r as ImpayeRow).abonneNom },
+    { key: 'montant', header: 'IMPAYES.COL_MONTANT', sortable: true, sortValue: (r) => (r as ImpayeRow).montantTotal },
+    { key: 'paye', header: 'IMPAYES.COL_PAYE', sortable: true, sortValue: (r) => (r as ImpayeRow).montantPaye },
+    { key: 'solde', header: 'IMPAYES.COL_SOLDE', sortable: true, sortValue: (r) => (r as ImpayeRow).soldeRestant },
+    { key: 'retard', header: 'IMPAYES.COL_RETARD', sortable: true, sortValue: (r) => (r as ImpayeRow).retardJours ?? 0 },
+    { key: 'etape', header: 'IMPAYES.COL_ETAPE', sortable: true, sortValue: (r) => (r as ImpayeRow).etapeActuelle ?? 0 },
     { key: 'actions', header: 'IMPAYES.COL_ACTIONS' },
   ];
 
-  readonly etapeOptions = computed((): Array<{ label: string; value: number | 'TOUS' }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('IMPAYES.ETAPE_TOUS', {}, lang), value: 'TOUS' },
-      { label: this.translate.instant('IMPAYES.ETAPE.1', {}, lang), value: 1 },
-      { label: this.translate.instant('IMPAYES.ETAPE.2', {}, lang), value: 2 },
-      { label: this.translate.instant('IMPAYES.ETAPE.3', {}, lang), value: 3 },
-      { label: this.translate.instant('IMPAYES.ETAPE.4', {}, lang), value: 4 },
-    ];
-  });
-
-  /** Chips d'étape (mobile, pattern M-05) : « Étape N » + compteurs. */
-  readonly etapeChips = computed((): FilterChip[] => {
+  /** Filtres unifiés (batch 10). Étape en auto (4 options → chips mobile, select
+   *  desktop). Tri : select séparé car sémantique différente (ordre != filtre). */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     const all = this.impayes();
-    return [1, 2, 3, 4].map((n) => ({
-      label: this.translate.instant('IMPAYES.CHIP_ETAPE', { n }, lang),
-      value: String(n),
-      count: all.filter((i) => i.etapeActuelle === n).length,
-    }));
-  });
-
-  /** Valeur des chips : `null` = « Tous » (le signal utilise 'TOUS'). */
-  readonly etapeChipValue = computed(() => {
-    const etape = this.filtreEtape();
-    return etape === 'TOUS' ? null : String(etape);
-  });
-
-  onEtapeChip(value: string | null): void {
-    this.filtreEtape.set(value === null ? 'TOUS' : Number(value));
-  }
-
-  readonly triOptions = computed((): Array<{ label: string; value: 'ANCIENNETE' | 'SOLDE' }> => {
-    const lang = this.translate.currentLang() ?? undefined;
     return [
-      { label: this.translate.instant('IMPAYES.TRI_ANCIENNETE', {}, lang), value: 'ANCIENNETE' },
-      { label: this.translate.instant('IMPAYES.TRI_SOLDE', {}, lang), value: 'SOLDE' },
+      {
+        key: 'etape',
+        label: 'IMPAYES.COL_ETAPE',
+        options: [1, 2, 3, 4].map((n) => ({
+          label: this.translate.instant('IMPAYES.CHIP_ETAPE', { n }, lang),
+          value: String(n),
+          count: all.filter((i) => i.etapeActuelle === n).length,
+        })),
+      },
+      {
+        key: 'tri',
+        label: 'IMPAYES.TRI_LABEL',
+        options: [
+          { label: this.translate.instant('IMPAYES.TRI_ANCIENNETE', {}, lang), value: 'ANCIENNETE' },
+          { label: this.translate.instant('IMPAYES.TRI_SOLDE', {}, lang), value: 'SOLDE' },
+        ],
+        render: 'select',
+        clearable: false,   // tri doit toujours avoir une valeur
+      },
     ];
   });
+
+  readonly filterValues = computed<FilterValues>(() => ({
+    etape: this.filtreEtape() === 'TOUS' ? null : String(this.filtreEtape()),
+    tri: this.tri(),
+  }));
+
+  onFiltersChange(v: FilterValues): void {
+    const etape = v['etape'] === null ? 'TOUS' : (Number(v['etape']) as number);
+    if (etape !== this.filtreEtape()) this.filtreEtape.set(etape);
+    const tri = (v['tri'] as 'ANCIENNETE' | 'SOLDE' | null) ?? 'ANCIENNETE';
+    if (tri !== this.tri()) this.tri.set(tri);
+  }
 
   readonly impayesFiltres = computed(() => {
     const etape = this.filtreEtape();
@@ -299,6 +295,10 @@ export class ImpayesListComponent implements OnInit {
 
   exportBilan(): void {
     const rows = this.impayesFiltres();
+    if (rows.length === 0) {
+      this.toast.info(this.translate.instant('IMPAYES.BILAN_EMPTY'));
+      return;
+    }
     const headers = ['Abonné', 'N° abonné', 'Facture', 'Montant', 'Payé', 'Solde', 'Retard (j)', 'Étape'];
     const lines = rows.map((r) =>
       [
@@ -310,16 +310,21 @@ export class ImpayesListComponent implements OnInit {
         r.soldeRestant,
         r.retardJours ?? '',
         r.etapeActuelle ?? '',
-      ].join(';'),
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)   // guillemets défensifs pour tout champ
+        .join(';'),
     );
-    const csv = [headers.join(';'), ...lines].join('\n');
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const csv = '﻿' + [headers.map((h) => `"${h}"`).join(';'), ...lines].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
+    // Nom composite avec date : évite l'écrasement silencieux si ré-export dans la journée.
+    const filename = `bilan-impayes_${new Date().toISOString().slice(0, 10)}.csv`;
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'bilan-impayes.csv';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+    this.toast.success(this.translate.instant('IMPAYES.BILAN_SUCCESS', { filename }));
   }
 
   // ── Helpers de présentation ───────────────────────────────────────────────

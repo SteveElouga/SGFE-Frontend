@@ -45,12 +45,14 @@
 
 // ── KPI strip ─────────────────────────────────────────────────────────────────
 
+// Fusion 4 → 2 tuiles : total à recouvrer + urgence J+7. Chaque tuile porte
+// désormais valeur + label + hint (au lieu de valeur + label seuls).
 .kpi-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 
-  @media (max-width: 720px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 720px) { grid-template-columns: 1fr; }
 }
 
 .kpi {
@@ -59,7 +61,7 @@
   border-radius: 12px;
   padding: 14px 16px;
 
-  &--accent-red { background: #fef2f2; }
+  &--accent-red { background: #fef2f2; border-color: #fecaca; }
 
   &__value {
     font-size: 24px;
@@ -72,11 +74,34 @@
     &--dark { color: #7f1d1d; }
   }
 
+  &__unit {
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    margin-left: 3px;
+  }
+
   &__label {
     margin-top: 3px;
     font-size: 11px;
     font-weight: 500;
-    color: #94a3b8;
+    color: #64748b;
+  }
+
+  &__hint {
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    &--danger {
+      color: #b91c1c;
+      font-weight: 600;
+      i { font-size: 12px; }
+    }
   }
 }
 
@@ -108,7 +133,7 @@
   &__ref {
     margin-top: 1px;
     font-size: 11px;
-    color: #94a3b8;
+    color: #64748b;
   }
 }
 
@@ -116,7 +141,7 @@
 
 .col-paye {
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748b;
   &--green { color: #15803d; font-weight: 600; }
 }
 
@@ -148,7 +173,7 @@
   &--etape3 { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
   &--suspendue { background: #7f1d1d; border-color: #7f1d1d; color: #fff; font-weight: 700; }
   &--pause { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--unknown { background: #f8fafc; border-color: #e2e8f0; color: #94a3b8; }
+  &--unknown { background: #f8fafc; border-color: #e2e8f0; color: #64748b; }
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -195,7 +220,7 @@
   font-size: 11px;
   color: #64748b;
 
-  i { color: #94a3b8; font-size: 14px; flex-shrink: 0; }
+  i { color: #64748b; font-size: 14px; flex-shrink: 0; }
 
   &__text { line-height: 1.5; }
 
@@ -230,7 +255,7 @@
   }
   &__id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   &__nom { font-size: 13px; font-weight: 700; color: #0f172a; }
-  &__ref { margin-top: 1px; font-size: 10px; color: #94a3b8; }
+  &__ref { margin-top: 1px; font-size: 10px; color: #64748b; }
   &__solde { font-size: 16px; font-weight: 800; color: #dc2626; flex-shrink: 0; }
 
   // Pied : badge d'étape + bouton « + Paiement » outline bleu
@@ -242,7 +267,7 @@
   }
   &__pay {
     border: 1px solid #1a56db;
-    border-radius: 7px;
+    border-radius: 8px;                 // rounded.md — était 7px hors ramp
     padding: 5px 12px;
     background: none;
     font-size: 11px;

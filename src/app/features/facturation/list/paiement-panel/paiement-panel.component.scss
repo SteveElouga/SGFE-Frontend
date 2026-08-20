@@ -46,7 +46,7 @@
     margin-left: auto;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: #64748b;
     cursor: pointer;
     font-size: 14px;
     padding: 4px;
@@ -56,86 +56,12 @@
     &:hover { color: #0f172a; }
   }
 
+  // Le formulaire lui-même vit dans <app-paiement-form> (shared) : styles pf-*
+  // + submit portés là. Ce wrapper ne fait plus que délimiter la zone.
   &__form {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 12px;
-
-    @media (max-width: 720px) {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  &__submit {
-    width: 100%;
-    height: 44px;
-    background: $color-primary;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba($color-primary, 0.3);
-    transition: background 0.15s, opacity 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
-    &:disabled { opacity: 0.45; cursor: not-allowed; }
+    display: block;
   }
 }
-
-.pf-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  &--ref { grid-column: span 1; }
-}
-
-.pf-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
-}
-
-.pf-required {
-  color: #b91c1c;
-  margin-left: 2px;
-}
-
-.pf-input {
-  height: 40px;
-
-  &--focus {
-    border-color: $color-primary !important;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.1) !important;
-    font-weight: 700;
-    font-size: 16px;
-  }
-
-  &--error {
-    border-color: $color-error !important;
-    box-shadow: 0 0 0 3px rgba($color-error, 0.1) !important;
-  }
-}
-
-.pf-hint {
-  display: block;
-  margin-top: 5px;
-  font-size: 11px;
-  line-height: 1.4;
-
-  &--error { color: $color-error; }
-}
-
-.pf-select {
-  width: 100%;
-}
+// Ex-styles .pf-field/.pf-label/.pf-required/.pf-input/.pf-hint/.pf-select +
+// .payment-panel__submit retirés : portés par <app-paiement-form> shared
+// (batch 7 facturation, extract). ~85 lignes SCSS supprimées.

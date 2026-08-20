@@ -39,7 +39,7 @@
   }
   &__meta {
     font-size: 12px;
-    color: #94a3b8;
+    color: #64748b;
   }
 }
 
@@ -74,6 +74,9 @@
 .timeline {
   display: flex;
   flex-direction: column;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .tl-step {
@@ -106,12 +109,12 @@
   &.tone--2 { background: #fff7ed; border-color: #f97316; color: #c2410c; }
   &.tone--3 { background: #fef2f2; border-color: #ef4444; color: #dc2626; }
   &.tone--4 { background: #7f1d1d; border-color: #7f1d1d; color: #fff; }
-  &.tone--upcoming { background: #f8fafc; border-color: #cbd5e1; border-style: dashed; color: #94a3b8; }
+  &.tone--upcoming { background: #f8fafc; border-color: #cbd5e1; border-style: dashed; color: #64748b; }
 
   &--future {
     background: #f8fafc;
     border: 2px dashed #cbd5e1;
-    color: #94a3b8;
+    color: #64748b;
   }
   &--resolu {
     background: #f0fdf4;
@@ -148,18 +151,18 @@
   color: #0f172a;
 
   &--suspension { font-weight: 700; color: #7f1d1d; }
-  &--future { color: #94a3b8; margin-bottom: 4px; }
+  &--future { color: #64748b; margin-bottom: 4px; }
 }
 
 .tl-when {
   font-size: 11px;
   font-weight: 500;
-  color: #94a3b8;
+  color: #64748b;
   white-space: nowrap;
 }
 
 .tl-delivered { color: #0e9f6e; }
-.tl-scheduled { color: #94a3b8; }
+.tl-scheduled { color: #64748b; }
 
 .tl-msg {
   background: #f8fafc;
@@ -178,13 +181,13 @@
   }
   &--muted {
     font-style: normal;
-    color: #94a3b8;
+    color: #64748b;
   }
   &--future {
     background: #f8fafc;
     border: 1px dashed #e2e8f0;
     font-style: normal;
-    color: #94a3b8;
+    color: #64748b;
   }
 }
 
@@ -243,8 +246,130 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s;
+  transition: background 0.12s, transform 160ms var(--ease-out);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 
   &:hover:not(:disabled) { background: #f8fafc; }
+  &:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+  &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
+}
+
+// ── Sheet confirmation renvoi WhatsApp ────────────────────────────────────────
+// Communication client irréversible : preview + envoi explicite + cooldown 60s
+// géré côté TS. Le shell chrome (overlay, sheet, poignée, focus trap, escape)
+// est fourni par <app-bottom-sheet>.
+
+.renvoi-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #15803d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+  }
+
+  &__sub {
+    font-size: 12px;
+    color: #64748b;
+    margin: 2px 0 0;
+    line-height: 1.4;
+  }
+
+  &__preview {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  &__preview-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 6px;
+  }
+
+  &__preview-body {
+    margin: 0;
+    padding: 10px 12px;
+    background: #f0fdf4;                 // mint-lueur = bulle "message WhatsApp"
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #0f172a;
+    white-space: pre-line;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__btn {
+    height: 48px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 160ms var(--ease-out), background 0.15s ease, opacity 0.15s ease;
+
+    &--send {
+      background: #15803d;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.35);
+
+      &:hover:not(:disabled) { background: #166534; }
+      &:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+      &:active:not(:disabled) { transform: scale(0.97); }
+      &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+    }
+
+    &--cancel {
+      height: 44px;
+      background: #fff;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+      font-weight: 500;
+      font-size: 13px;
+
+      &:hover:not(:disabled) { background: #f8fafc; }
+      &:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+      &:active:not(:disabled) { transform: scale(0.97); }
+      &:disabled { opacity: 0.6; cursor: not-allowed; }
+    }
+  }
 }
