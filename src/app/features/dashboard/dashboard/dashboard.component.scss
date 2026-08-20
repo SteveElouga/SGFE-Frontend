@@ -1,313 +1,904 @@
+@use '../../../../styles/variables' as *;
+
 :host { display: block; }
 
-// Variantes de libellés courts (mobile M-04) / longs (desktop 01)
-.u-mobile { display: none; }
-@media (max-width: 768px) {
-  .u-mobile { display: inline; }
-  .u-desktop { display: none; }
-}
+// ────────────────────────────────────────────────────────────────────────────
+// Dashboard SGFE — 3 vues rôle-conditionnelles (batch 13 post-shape v3)
+// Comptable : héros FCFA + 3 KPI variés chromatiquement + top 5 impayés
+// Admin : ribbon 4-KPI cycle + m³ (spécificité eau) + campagnes actives
+// Superviseur : mes campagnes filtrées + actions requises
+// Monde SGFE fixe : Bleu Rivière · Vert Nappe · Navy Nuit · Ardoise · Montserrat.
+// ────────────────────────────────────────────────────────────────────────────
 
-// ── Héro mobile : progression projetée dans le header navy (M-04) ───────────
-.mhero__card {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 10px 12px;
-
-  &--empty {
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    opacity: 0.92;
-  }
-}
-
-.mhero__row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.mhero__label {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.mhero__pct {
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.mhero__bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.mhero__bar-fill {
-  height: 100%;
-  background: #fff;
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-.mhero__sub {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.45);
-  margin-top: 5px;
-}
-
-.dash {
-  padding: 18px 22px;
-  background: #f1f5f9;
+.dash-content {
+  padding: 24px 28px;
+  background: #f1f5f9;                             // Ardoise Nappe (fond app)
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 
-  @media (max-width: 768px) { padding: 12px 14px; gap: 12px; }
-}
-
-.dash__loading {
-  display: flex;
-  justify-content: center;
-  padding: 60px;
-  color: #1a56db;
-  font-size: 24px;
-}
-
-.dash__section-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 4px 0 0;
-}
-
-// ── Bandeau : une source indisponible (dégradation gracieuse) ────────────────
-.dash-warn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 12.5px;
-  color: #92400e;
-
-  i { color: #f59e0b; flex-shrink: 0; }
-
-  &__retry {
-    margin-left: auto;
-    border: 1px solid #fcd34d;
-    background: #fff;
-    color: #92400e;
-    font-size: 12px;
-    font-weight: 600;
-    border-radius: 8px;
-    padding: 5px 12px;
-    cursor: pointer;
-
-    &:hover { background: #fffbeb; }
+  @media (max-width: 768px) {
+    padding: 14px;
+    gap: 12px;
   }
 }
 
-// ── Hero : progression campagne ─────────────────────────────────────────────
-.dash-hero {
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
-  border-radius: 14px;
-  padding: 20px 22px;
-  color: #fff;
+// ── Sélecteur période — Phase 3 v4 (H7 Flexibilité, WAI-ARIA radiogroup) ────
+// Chips segmentés au-dessus des KPI. Chip actif = Navy Nuit (Règle Navy
+// Ancrant : structurel persistant). Persist localStorage `dashboard.periode`.
+.dash-periode {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: #f1f5f9;                             // Ardoise Nappe
+  border-radius: 999px;
+  align-self: flex-start;
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+
+    &:hover:not(&--active) {
+      color: #0f172a;
+      background: #ffffff;
+    }
+    &:focus-visible {
+      outline: 2px solid #1a56db;
+      outline-offset: 2px;
+    }
+
+    &--active {
+      background: #0f1c3d;                          // Navy Nuit (structurel)
+      color: #ffffff;
+    }
+  }
+}
+
+// ── Skeleton chargement initial ─────────────────────────────────────────────
+.dash-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  box-shadow: 0 8px 24px rgba(26, 86, 219, 0.22);
-
-  &__label {
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.85;
-  }
-  &__pct { font-size: 42px; font-weight: 800; line-height: 1; }
-  &__bar {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  &__bar-fill {
-    height: 100%;
-    background: #fff;
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-  &__sub { font-size: 13px; font-weight: 500; opacity: 0.92; }
-  &__empty { font-size: 15px; font-weight: 600; opacity: 0.92; }
+  gap: 14px;
 }
 
-// Mobile : la progression vit dans le header navy (M-04), pas en carte séparée
-@media (max-width: 768px) {
-  .dash-hero { display: none; }
-}
-
-// ── KPI ─────────────────────────────────────────────────────────────────────
-// 2 colonnes en mobile (grille 2×2 — maquette M-04)
-.dash-kpi {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-
-  @media (max-width: 960px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 768px) { gap: 10px; }
-}
-
-.kpi {
+// ── Empty global (nouveau tenant, aucune facture) ──────────────────────────
+.dash-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 96px;
+  gap: 12px;
 
-  // Carte Impayés teintée rouge en mobile uniquement (M-04) ;
-  // desktop : cartes blanches uniformes (maquette 01).
-  @media (max-width: 768px) {
-    &--red {
-      background: #fef2f2;
-      border-color: #fecaca;
+  i {
+    font-size: 42px;                               // display token DESIGN.md (icône illustrative empty-state)
+    color: #cbd5e1;                                // Ardoise Crayon
+  }
+
+  &__title {
+    font-size: 20px;                               // title DESIGN.md
+    font-weight: 700;
+    color: #0f172a;                                // Ardoise Nuit
+    margin: 0;
+  }
+
+  &__msg {
+    font-size: 14px;
+    color: #64748b;                                // Ardoise Brume
+    max-width: 420px;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__cta {
+    margin-top: 8px;
+    padding: 10px 20px;
+    background: $color-primary;                    // Bleu Rivière
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
+
+    &:hover { opacity: 0.92; }
+    &:active { transform: scale(0.97); }
+    &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// VUE COMPTABLE — "Où est l'argent ?"
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Héros FCFA — Chiffre Fort SGFE (peak visuel de l'écran) ────────────────
+.dash-hero {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 32px 36px;
+
+  @media (max-width: 640px) { padding: 22px 20px; }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    color: inherit;
+    gap: 6px;
+
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 4px;
+      border-radius: 8px;
     }
   }
 
   &__label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;                                // Ardoise Encre
+    letter-spacing: 0.01em;
   }
 
-  &__value {
-    font-size: 24px;
+  &__count {
+    font-size: 42px;                               // display token DESIGN.md
     font-weight: 800;
-    color: #0f172a;
-    line-height: 1.1;
+    color: #0f172a;                                // Ardoise Nuit
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
 
-    small { font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 3px; }
-    &--green { color: #0e9f6e; }
-    &--red { color: #dc2626; }
-    &--slate { color: #475569; }
-    &--muted { color: #cbd5e1; }
+    @media (max-width: 640px) { font-size: 34px; } // metric-xl DESIGN.md
+  }
+
+  &__devise {
+    font-size: 20px;                               // title DESIGN.md
+    font-weight: 700;
+    color: #475569;
+    margin-left: 4px;
+    letter-spacing: 0;
+  }
+
+  &__accent {
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: $color-primary;                    // Bleu Rivière (signature "chiffre officiel")
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__delta-hint {
+    font-weight: 500;
+    color: #64748b;
+    font-size: 12px;
+  }
+}
+
+// Delta chromatique — Vert positif / Rouge négatif / Ardoise neutre
+.dash-delta--up { color: #15803d; }                // Vert Profond
+.dash-delta--down { color: #dc2626; }              // Rouge Errance
+.dash-delta--neutre { color: #64748b; }            // Ardoise Brume
+
+// ── Source error (fallback quand stats indisponibles) ──────────────────────
+.dash-source-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #b91c1c;
+  font-size: 13px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #fff;
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+    color: #b91c1c;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+
+    &:hover { background: #fef2f2; }
+    &:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
+  }
+}
+
+// ── 3 KPI secondaires chromatiquement variés ───────────────────────────────
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
+.dash-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 160ms var(--ease-out, ease-out), border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  &:active { transform: translateY(0); }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__value {
+    font-size: 30px;                               // metric-md DESIGN.md
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  &__unit {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    margin-top: 4px;
   }
 
   &__hint {
+    font-size: 12px;
+    color: #64748b;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+  }
+
+  // Icône d'aide contextuelle par KPI — Phase 2 v4 (tooltips systématiques H10).
+  // Même pattern que .dash-m3__help : couleur au repos AA-safe, hover teint
+  // sur la couleur sémantique du KPI parent.
+  &__help {
     font-size: 11px;
-    font-weight: 500;
-    color: #94a3b8;
-    margin-top: auto;
+    color: currentColor;
+    opacity: 0.55;
+    margin-left: 4px;
+    cursor: help;
+    transition: opacity 0.12s;
+    vertical-align: middle;
 
-    &--green { color: #0e9f6e; }
-    &--red { color: #dc2626; }
+    &:hover, &:focus-visible {
+      opacity: 1;
+      outline: none;
+    }
   }
 
-  // Cartes compactes en mobile (M-04)
-  @media (max-width: 768px) {
-    padding: 14px;
-    min-height: 0;
-    gap: 0;
-
-    &__label { font-size: 10px; letter-spacing: 0.4px; margin-bottom: 6px; }
-    &__value { font-size: 22px; line-height: 1; }
-    &__hint { margin-top: 3px; }
+  // Danger : impayés (rouge — priorité action)
+  &--danger {
+    border-color: #fecaca;
+    background: #fef2f2;
+    .dash-kpi__value { color: #b91c1c; }
+    .dash-kpi__unit { color: #7f1d1d; }
+    .dash-kpi__hint { color: #b91c1c; font-weight: 600; }
   }
-}
 
-// ── Activité récente ────────────────────────────────────────────────────────
-.dash-activite {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-}
+  // Warning : partielles (ambre — en cours à finaliser)
+  &--warning {
+    border-color: #fde68a;
+    background: #fffbeb;
+    .dash-kpi__value { color: #b45309; }
+    .dash-kpi__unit { color: #92400e; }
+    .dash-kpi__hint { color: #b45309; font-weight: 600; }
+  }
 
-.act-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  // Success : paiements aujourd'hui (Vert Nappe — positif)
+  &--success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    .dash-kpi__value { color: #15803d; }
+    .dash-kpi__unit { color: #14532d; }
+    .dash-kpi__hint { color: #15803d; font-weight: 600; }
+  }
 
-  &:last-child { border-bottom: none; }
-
-  &__icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    flex-shrink: 0;
-    display: flex;
+  // Unavailable : source en panne (retry ciblé)
+  &--unavailable {
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    text-align: center;
+    background: #f8fafc;
+    border-style: dashed;
+    color: #64748b;
+    font-size: 13px;
 
-    &--paiement { background: #f0fdf4; color: #0e9f6e; }
-    &--impaye { background: #fef2f2; color: #dc2626; }
-  }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #475569;
+      margin-top: 6px;
 
-  &__body { min-width: 0; }
-  &__text { font-size: 13px; font-weight: 600; color: #0f172a; }
-  &__meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
-}
-
-// Mobile (M-04) : rangées en cartes accolées (1px), coins arrondis en tête et
-// pied de groupe, icônes rondes compactes.
-@media (max-width: 768px) {
-  .dash-activite {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    overflow: visible;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .act-row {
-    background: #fff;
-    border-bottom: none;
-    border-radius: 2px;
-    padding: 10px 12px;
-    align-items: flex-start;
-
-    &:first-child { border-radius: 10px 10px 2px 2px; }
-    &:last-child { border-radius: 2px 2px 10px 10px; }
-    &:only-child { border-radius: 10px; }
-
-    &__icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      font-size: 11px;
-
-      &--paiement { background: #f0fdf4; }
-      &--impaye { background: #fef2f2; }
+      &:hover { color: $color-primary; border-color: $color-primary; }
+      &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
     }
-
-    &__text { font-size: 12px; font-weight: 500; }
-    &__meta { font-size: 10px; margin-top: 1px; }
   }
+
+  &__unavail { font-size: 12px; }
 }
 
-.dash-empty {
+// ── Top 5 impayés les plus anciens ─────────────────────────────────────────
+.dash-list {
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  color: #94a3b8;
-  font-size: 13px;
+  padding: 20px 24px;
+
+  @media (max-width: 640px) { padding: 16px; }
+
+  &__title {
+    font-size: 15px;                               // subtitle DESIGN.md
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 14px;
+    letter-spacing: -0.005em;
+  }
+
+  &__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__item {
+    border-bottom: 1px solid #f1f5f9;
+    &:last-child { border-bottom: none; }
+  }
+
+  &__link {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 4px;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 8px;
+    transition: background 0.12s;
+
+    &:hover {
+      background: #f8fafc;
+      .dash-list__chev { transform: translateX(2px); color: $color-primary; }
+    }
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: -2px;
+    }
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr auto;
+      row-gap: 4px;
+    }
+  }
+
+  &__nom {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: #64748b;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__solde {
+    font-size: 14px;
+    font-weight: 700;
+    color: #b91c1c;                                // rouge (dette)
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.005em;
+  }
+
+  &__chev {
+    font-size: 12px;
+    color: #cbd5e1;
+    transition: transform 0.15s, color 0.15s;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// VUE ADMIN — Ribbon cycle + m³ + campagnes
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Ribbon 4-KPI cycle (relevés → factures → envois → paiements) ───────────
+.dash-ribbon {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 26px;
+
+  @media (max-width: 640px) { padding: 18px 16px; }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 16px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    position: relative;
+
+    @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+  }
+}
+
+// Chaque étape du ribbon — dégradé subtil de couleur pour signaler l'avancement
+.dash-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 10px;
+  background: #f8fafc;                             // Ardoise Brise
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
+
+  &:hover {
+    background: #fff;
+    border-color: #e2e8f0;
+    transform: translateY(-1px);
+  }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__value {
+    font-size: 24px;                               // kpi-value DESIGN.md
+    font-weight: 800;
+    line-height: 1;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+  }
+
+  // Dégradé sémantique 4 étapes du cycle SGFE — palette DESIGN.md strict.
+  // L'œil lit gauche→droite : Bleu Clair → Rivière (production factures) →
+  // Vert Nappe → Vert Profond (paiement encaissé). L'argent transite du bleu
+  // vers le vert, la métaphore eau/monnaie.
+  &--releves .dash-step__value { color: #60a5fa; }   // Bleu Rivière Clair (démarrage cycle)
+  &--factures .dash-step__value { color: #1a56db; }  // Bleu Rivière (facturation lancée)
+  &--envois .dash-step__value { color: #0e9f6e; }    // Vert Nappe (envoyé au client)
+  &--paiements .dash-step__value { color: #166534; } // Vert Profond (encaissé)
+
+  // Envois : backend v3.3 n'expose pas les stats (statuts limités +
+  // pas de campagne_id). État "Indisponible" honnête, non-cliquable.
+  &--unavailable {
+    background: #f8fafc;
+    border-style: dashed;
+    border-color: #cbd5e1;
+    align-items: flex-start;
+    cursor: default;
+
+    .dash-step__label { color: #64748b; }
+    // Fix v4 P1 : italique "Indisponible" passe #94a3b8 (2.45:1 FAIL) →
+    // #475569 Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
+    // devient enfin lisible.
+    .dash-step__unavail {
+      font-size: 11px;
+      color: #475569;
+      font-style: italic;
+      margin-top: 4px;
+    }
+  }
+}
+
+// ── Chiffre Fort m³ — spécificité SGFE eau ─────────────────────────────────
+.dash-m3 {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 28px 32px;
+
+  @media (max-width: 640px) { padding: 22px 20px; }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    color: inherit;
+    gap: 6px;
+
+    &:focus-visible {
+      outline: 2px solid #0e9f6e;
+      outline-offset: 4px;
+      border-radius: 8px;
+    }
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  // Icône d'aide contextuelle m³ — tabbable + aria-label (pattern facturation
+  // tooltips batch 7). Fix v4 P1 : contraste au repos passe #94a3b8 (2.56:1
+  // FAIL AA) → #64748b (5.24:1 PASS AA). Sam peut la localiser sans tab actif.
+  &__help {
+    font-size: 12px;
+    color: #64748b;
+    cursor: help;
+    transition: color 0.12s;
+
+    &:hover, &:focus-visible {
+      color: #0e9f6e;
+      outline: none;
+    }
+  }
+
+  &__count {
+    font-size: 42px;                               // display DESIGN.md
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+
+    @media (max-width: 640px) { font-size: 30px; } // metric-md
+  }
+
+  &__unit {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0e9f6e;                                // Vert Nappe (eau)
+    margin-left: 4px;
+  }
+
+  &__accent {
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #0e9f6e;                           // Vert Nappe (signature eau)
+    border-radius: 2px;
+    margin-top: 10px;
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__delta-hint {
+    font-weight: 500;
+    color: #64748b;
+    font-size: 12px;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ADMIN + SUPERVISEUR — Cards campagnes
+// ════════════════════════════════════════════════════════════════════════════
+
+.dash-campaigns {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 22px 26px;
+
+  @media (max-width: 640px) { padding: 18px 16px; }
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 16px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+}
+
+.dash-camp {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
+
+  &:hover {
+    background: #fff;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+  }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__nom {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__statut {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+
+    &--en_cours { background: #eff6ff; color: $color-primary; border: 1px solid #bfdbfe; }
+    &--planifiee { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
+    &--cloturee { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+  }
+
+  &__progress {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__bar {
+    height: 100%;
+    background: $color-primary;
+    border-radius: 4px;
+    // transform scaleX au lieu de width — évite layout-thrash (pattern facturation)
+    transform-origin: left center;
+    transform: scaleX(var(--pct, 0));
+    transition: transform 300ms var(--ease-out, ease-out);
+    will-change: transform;
+    width: 100%;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: #64748b;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SUPERVISEUR — Actions requises
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Variant Héros Superviseur (accent Navy Nuit — structurel "mes tournées") ─
+.dash-hero--sup {
+  .dash-hero__accent--sup {
+    background: #0f1c3d;                           // Navy Nuit (rôle structurel Superviseur)
+  }
+}
+
+// ── Card Superviseur enrichie : agents affectés visibles ───────────────────
+.dash-camp--sup {
+  .dash-camp__agents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+
+    &--empty {
+      color: #94a3b8;
+      font-size: 12px;
+      font-style: italic;
+    }
+  }
+}
+
+.dash-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px 3px 6px;
+  background: #eff6ff;                             // Bleu Rivière Lueur (actif)
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1a56db;                                  // Bleu Rivière
+  white-space: nowrap;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #15803d;                           // Vert Profond (agent actif)
+    flex-shrink: 0;
+  }
+
+  &--inactif {
+    background: #fef2f2;                           // Rouge Lueur (inactif)
+    border-color: #fecaca;
+    color: #b91c1c;                                // Rouge
+
+    .dash-agent__dot {
+      background: #dc2626;                         // Rouge Errance
+    }
+  }
+}
+
+// ── Actions Superviseur : conteneur sobre + items typés par sévérité ───────
+// Le conteneur est neutre (fond blanc, pas d'ambre-plein contamining) ; la
+// sévérité est portée par chaque item via un pastille latérale colorée.
+// État "Tout est à jour" — Fix v4 P2 : boucle reconnaissance Superviseur.
+// Règle Vert Rare respectée : le Vert Nappe n'apparaît qu'à ce moment "tout va bien".
+.dash-tout-a-jour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  align-self: flex-start;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0e9f6e;
+    box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.15);
+  }
+
+  &__text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #15803d;
+  }
+}
+
+// Variant empty state Comptable — Fix v4 P3 : tenant avec factures mais 0 paiement
+.dash-empty--comptable {
+  i { color: #cbd5e1; }
+}
+
+.dash-actions {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 22px;
+
+  &__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;                                // Ardoise Nuit (neutre)
+    margin: 0 0 12px;
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+
+    i {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    // Sévérité info — Bleu Rivière tint (juste une signalisation)
+    &--info {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1e3a8a;
+      i { color: #1a56db; }
+    }
+
+    // Sévérité warning — Ambre triplet (à traiter)
+    &--warning {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #78350f;
+      i { color: #b45309; }
+    }
+
+    // Sévérité danger — Rouge triplet (urgent)
+    &--danger {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #991b1b;
+      i { color: #dc2626; }
+    }
+  }
 }
