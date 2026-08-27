@@ -37,7 +37,7 @@
       <div class="abonne-avatar">{{ initial() }}</div>
       <div class="abonne-header-card__info">
         <div class="abonne-header-card__name-row">
-          <span class="abonne-header-card__name">{{ a.nom }} {{ a.prenom }}</span>
+          <span class="abonne-header-card__name">{{ a.prenom | nomAbonne: a.nom }}</span>
           <span class="abonne-badge abonne-badge--{{ a.statut.toLowerCase() }}">{{ a.statut }}</span>
         </div>
         <div class="abonne-header-card__sub">{{ localisationLine() }}</div>

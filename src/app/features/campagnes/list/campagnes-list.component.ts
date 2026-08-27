@@ -53,6 +53,9 @@ interface MiniProgression {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampagnesListComponent implements OnInit {
+  /** Destination d'une ligne : le détail de la campagne. */
+  protected readonly lienCampagne = (c: { campagneId: string }) => ['/campagnes', c.campagneId];
+
   /** Exposé au template pour la teinte de la puce de statut. */
   protected readonly campagneStatutTone = campagneStatutTone;
 

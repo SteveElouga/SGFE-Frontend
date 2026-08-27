@@ -11,6 +11,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableCardDirective, DataTableCellDirective } from './data-table.directives';
@@ -58,7 +59,7 @@ export interface SortState { key: string; direction: SortDirection; }
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [NgTemplateOutlet, TranslatePipe],
+  imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,6 +81,13 @@ export class DataTableComponent<T = unknown> {
   readonly pageInfoKey = input('COMMON.PAGINATION_INFO');
   /** Lignes cliquables : booléen global ou prédicat par ligne (émet `rowClick`). */
   readonly rowClickable = input<boolean | ((row: T) => boolean)>(false);
+
+  /**
+   * URL de destination d'une ligne. Fournie, elle transforme la première
+   * cellule en `<a routerLink>` : la ligne redevient adressable (clic-milieu,
+   * nouvel onglet, copie du lien), ce qu'un gestionnaire de clic seul empêche.
+   */
+  readonly rowLink = input<((row: T) => string | unknown[] | null) | null>(null);
   /** Classe(s) CSS conditionnelle(s) par ligne (ex : `dt__row--selected`). */
   readonly rowClass = input<((row: T) => string | string[] | null) | null>(null);
 
@@ -182,6 +190,12 @@ export class DataTableComponent<T = unknown> {
 
   rowKey(row: T): unknown {
     return (row as Record<string, unknown>)?.[this.trackKey()];
+  }
+
+  /** URL de la ligne, ou `null` si l'écran n'en fournit pas. */
+  linkOf(row: T): string | unknown[] | null {
+    const fn = this.rowLink();
+    return fn ? fn(row) : null;
   }
 
   isRowClickable(row: T): boolean {

@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonneOuReference } from '../../../shared/utils/abonne.utils';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -15,7 +16,6 @@ import { Facture, Paiement, SoldeFacture } from '../../../shared/models/facture.
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
-import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
 
 /**
  * Ligne "impayé le plus ancien" pour la liste top-5 Comptable.
@@ -269,8 +269,14 @@ export class DashboardComponent implements OnInit {
         const jours = this.joursDeRetard(f.dateLimitePaiement) ?? 0;
         return {
           factureId: s.factureId,
-          numeroAbonne: f.abonneNumero ?? '—',
-          nom: f.abonneNom ?? '—',
+          // Chaîne de replis : nom d'abonné → numéro d'abonné → numéro de
+          // facture. `?? '—'` laissait passer la chaîne vide et la ligne
+          // s'affichait sans identité du tout.
+          numeroAbonne: f.abonneNumero || '',
+          nom:
+            nomAbonneOuReference(f.abonneNom, f.abonneNumero) === '—'
+              ? f.numeroFacture
+              : nomAbonneOuReference(f.abonneNom, f.abonneNumero),
           jours,
           solde: s.soldeRestant,
         };
@@ -526,7 +532,11 @@ export class DashboardComponent implements OnInit {
     return jours >= 0 ? jours : undefined;
   }
 
-  formatFCFA(n: number): string { return formatFcfa(n); }
+  /**
+   * Montant SANS suffixe : le gabarit pose lui-même « FCFA » en petit à côté
+   * du chiffre. Renvoyer l'unité ici produisait « 138 000 FCFA FCFA ».
+   */
+  formatFCFA(n: number): string { return (n ?? 0).toLocaleString('fr-FR'); }
 
   /**
    * Formate un nombre sans suffixe monétaire — usage sur les KPI dont

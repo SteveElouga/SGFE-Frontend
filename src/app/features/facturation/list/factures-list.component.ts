@@ -55,6 +55,9 @@ interface CampagneOption {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacturesListComponent implements OnInit {
+  /** Destination d'une ligne : le détail de la facture. */
+  protected readonly lienFacture = (f: { factureId: string }) => ['/factures', f.factureId];
+
   /** Exposé au template pour la teinte des puces de statut. */
   protected readonly factureStatutTone = factureStatutTone;
 

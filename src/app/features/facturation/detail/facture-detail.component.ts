@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -130,7 +131,7 @@ export class FactureDetailComponent implements OnInit {
     const a = this.abonne();
     // Repli sur le nom enrichi porté par la facture quand l'abonné n'est pas
     // résolu (query `abonne` refusée au COMPTABLE).
-    return a ? `${a.nom} ${a.prenom}`.trim() : (this.facture()?.abonneNom ?? '');
+    return a ? nomAbonne(a.prenom, a.nom) : (this.facture()?.abonneNom ?? '');
   });
 
   /** Sous-titre mobile du header navy (MB-05) : « Koné Mariam · AB-0002 ». */
@@ -284,12 +285,27 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
+  /** Premier clic : on demande confirmation. Deuxième : on applique. */
+  readonly confirmationCorrection = signal(false);
+
+  annulerCorrection(): void {
+    this.confirmationCorrection.set(false);
+  }
+
   async corrigerStatut(): Promise<void> {
     const f = this.facture();
     const statut = this.newStatut();
     if (!f || !statut || statut === f.statut || this.changingStatut()) return;
     // Refuser une correction qui contredirait le solde backend (autoritaire).
     if (this.statutCorrectionIncoherent()) return;
+
+    // Forcer un statut n'enregistre aucun paiement : on ne le fait pas d'un
+    // seul clic sur un document comptable.
+    if (!this.confirmationCorrection()) {
+      this.confirmationCorrection.set(true);
+      return;
+    }
+    this.confirmationCorrection.set(false);
     this.changingStatut.set(true);
     try {
       const updated = await this.facturesService.updateStatutFacture(f.factureId, statut);

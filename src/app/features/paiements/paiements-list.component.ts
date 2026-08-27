@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonneOuReference } from '../../shared/utils/abonne.utils';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -36,6 +37,7 @@ interface FactureRef {
   numeroFacture: string;
   abonneId: string;
   abonneNom: string;
+  abonneNumero: string;
   campagneId: string;
   statut: StatutFacture;
 }
@@ -50,6 +52,8 @@ interface PaiementRow {
   modePaiement: ModePaiement;
   referenceTransaction: string;
   statutFacture: StatutFacture | null;
+  annule: boolean;
+  motifAnnulation: string | null;
 }
 
 @Component({
@@ -174,17 +178,33 @@ export class PaiementsListComponent implements OnInit {
         paiementId: p.paiementId,
         factureId: p.factureId,
         numeroFacture: f?.numeroFacture ?? '—',
-        abonneNom: f?.abonneNom || '—',
+        abonneNom: nomAbonneOuReference(f?.abonneNom, f?.abonneNumero),
         montant: p.montant,
         datePaiement: p.datePaiement,
         modePaiement: p.modePaiement,
         referenceTransaction: p.referenceTransaction,
         statutFacture: f?.statut ?? null,
+        annule: p.annule ?? false,
+        motifAnnulation: p.motifAnnulation ?? null,
       };
     });
   });
 
-  readonly totalMontant = computed(() => this.rows().reduce((acc, r) => acc + r.montant, 0));
+  /**
+   * Total encaissé : un paiement annulé n'a jamais été encaissé, il ne peut pas
+   * entrer dans ce total (PRODUCT.md § « Exactitude financière visible »).
+   */
+  readonly totalMontant = computed(() =>
+    this.rows().reduce((acc, r) => (r.annule ? acc : acc + r.montant), 0),
+  );
+
+  /** Nombre de lignes annulées affichées — sert à expliquer l'écart au comptable. */
+  readonly nbAnnules = computed(() => this.rows().filter((r) => r.annule).length);
+
+  /** Montant total des annulations affichées, pour la mention sous le KPI. */
+  readonly montantAnnule = computed(() =>
+    this.rows().reduce((acc, r) => (r.annule ? acc + r.montant : acc), 0),
+  );
 
   readonly subtitle = computed(() => {
     const campagneId = this.selectedCampagneId();
@@ -228,6 +248,7 @@ export class PaiementsListComponent implements OnInit {
           numeroFacture: f.numeroFacture,
           abonneId: f.abonneId,
           abonneNom: f.abonneNom ?? '',
+          abonneNumero: f.abonneNumero ?? '',
           campagneId: f.campagneId,
           statut: f.statut,
         });
@@ -302,7 +323,7 @@ export class PaiementsListComponent implements OnInit {
       return;
     }
     // BOM UTF-8 pour Excel Windows + colonne Référence remplace Opérateur vide.
-    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Référence', 'Statut'];
+    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Référence', 'Statut', 'Annulé', "Motif d'annulation"];
     const lines = rows.map((r) =>
       [
         this.formatDate(r.datePaiement),
@@ -312,6 +333,8 @@ export class PaiementsListComponent implements OnInit {
         r.modePaiement,
         r.referenceTransaction || '—',
         r.statutFacture ?? '—',
+        r.annule ? 'OUI' : 'NON',
+        r.motifAnnulation ?? '',
       ]
         .map((v) => `"${String(v).replace(/"/g, '""')}"`)   // guillemets pour tout champ (sécurité séparateur)
         .join(';'),

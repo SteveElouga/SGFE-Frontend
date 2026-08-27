@@ -52,13 +52,23 @@
             (click)="onRowClick(row)"
             (keydown.enter)="onRowClick(row)"
           >
-            @for (col of columns(); track col.key) {
+            @for (col of columns(); track col.key; let first = $first) {
               <td [class]="col.cellClass" [style.text-align]="col.align ?? 'left'">
-                @if (cellTemplate(col.key); as tpl) {
-                  <ng-container
-                    [ngTemplateOutlet]="tpl"
-                    [ngTemplateOutletContext]="{ $implicit: row }"
-                  />
+                <!-- La première colonne porte l'identifiant de la ligne : quand
+                     l'écran fournit une URL, elle devient un vrai lien. Le clic
+                     sur la ligne reste un raccourci, mais le clic-milieu,
+                     l'ouverture dans un onglet et la copie du lien redeviennent
+                     possibles — ce qu'un `<button>` ne permet pas. -->
+                @if (first && linkOf(row); as href) {
+                  <a class="dt__lien" [routerLink]="href">
+                    @if (cellTemplate(col.key); as tpl) {
+                      <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: row }" />
+                    } @else {
+                      {{ cellValue(row, col.key) }}
+                    }
+                  </a>
+                } @else if (cellTemplate(col.key); as tpl) {
+                  <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: row }" />
                 } @else {
                   {{ cellValue(row, col.key) }}
                 }

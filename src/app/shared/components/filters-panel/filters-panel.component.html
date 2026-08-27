@@ -1,16 +1,18 @@
 <div class="fp">
 
-  <!-- ── Héro compteur (Chiffre Fort SGFE) ─────────────────────────────────── -->
-  @if (resultCount() !== null) {
-    <div class="fp__hero" role="status" aria-live="polite">
-      <span class="fp__hero-count">{{ resultCount() }}</span>
-      <span class="fp__hero-noun">{{ heroNounKey() | translate: { count: resultCount() } }}</span>
-      <span class="fp__hero-accent" aria-hidden="true"></span>
+  <!-- ── Résultat ─────────────────────────────────────────────────────────
+       Le total non filtré est déjà dans la barre de titre : le répéter en
+       chiffre de 32 px coûtait 110 px de hauteur pour zéro information. Cette
+       ligne n'apparaît que lorsqu'un filtre restreint la liste — c'est-à-dire
+       quand le nombre affiché diffère de ce que dit la barre de titre. -->
+  @if (afficheResultat()) {
+    <p class="fp__resultat" role="status" aria-live="polite">
+      <b>{{ resultCount() }}</b>
+      {{ heroNounKey() | translate: { count: resultCount() } }}
       @if (heroSubtitle()) {
-        <span class="fp__hero-sub">{{ heroSubtitle() }}</span>
+        <span class="fp__resultat-sub">{{ heroSubtitle() }}</span>
       }
-    </div>
-    <div class="fp__divider" aria-hidden="true"></div>
+    </p>
   }
 
   <!-- ── Controls : recherche + selects (context switchers) ─────────────── -->
@@ -31,6 +33,10 @@
         />
       </p-iconfield>
     }
+
+    <!-- Contrôle de filtre spécialisé projeté par l'écran (plage de dates…) :
+         il appartient à la carte de filtres, pas au fond de page. -->
+    <ng-content select="[fp-extra]" />
 
     @for (f of selectFilters(); track f.key) {
       <div class="fp__filter" [class]="visibilityClass(f)">
@@ -74,9 +80,10 @@
               class="fp__chip"
               [class.fp__chip--active]="valueOf(f.key) === opt.value"
               [class.fp__chip--empty]="opt.count === 0"
+              [attr.aria-disabled]="opt.count === 0 ? 'true' : null"
+              [attr.tabindex]="opt.count === 0 ? -1 : (valueOf(f.key) === opt.value ? 0 : -1)"
               role="radio"
               [attr.aria-checked]="valueOf(f.key) === opt.value"
-              [attr.tabindex]="valueOf(f.key) === opt.value ? 0 : -1"
               (click)="setFilterValue(f.key, opt.value)"
               (keydown)="onChipKeydown($event, f, opt.value)"
             >

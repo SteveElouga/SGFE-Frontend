@@ -109,7 +109,7 @@
           <tbody>
             @for (h of s.historiqueCampagnes; track h.campagneId) {
               <tr>
-                <td class="rap-camp">{{ h.nomCampagne }}</td>
+                <td class="rap-camp">{{ libelleCampagne(h) }}</td>
                 <td class="col-num">{{ h.nbReleves }} / {{ h.totalAbonnes }}</td>
                 <td class="col-num">{{ formatM3(h.consommationTotale) }}</td>
                 <td class="col-num">{{ h.pourcentageProgression | number:'1.0-0' }}%</td>

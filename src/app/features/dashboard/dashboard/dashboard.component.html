@@ -152,7 +152,7 @@
 
     <!-- Top 5 impayés les plus anciens -->
     @if (topImpayesAnciens().length > 0) {
-      <section class="dash-list" role="region" aria-labelledby="dash-list-label">
+      <section class="carte dash-list" role="region" aria-labelledby="dash-list-label">
         <h2 id="dash-list-label" class="dash-list__title">
           {{ 'DASHBOARD.LIST.IMPAYES_ANCIENS' | translate }}
         </h2>
@@ -161,7 +161,7 @@
             <li class="dash-list__item">
               <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
                 <span class="dash-list__nom">{{ item.nom }}</span>
-                <span class="dash-list__meta">{{ item.numeroAbonne }} · {{ item.jours }}j</span>
+                <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
                 <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
                 <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
               </a>
@@ -174,8 +174,96 @@
 
   <!-- ══ VUE ADMIN — Ribbon cycle + m³ + campagnes ─────────────────────── -->
   @else if (viewMode() === 'admin') {
+
+    <!-- ── 1. Ce qui attend une action ───────────────────────────────────
+         L'ADMIN a accès à tout : sa page d'accueil doit d'abord répondre à
+         « qu'est-ce qui est en retard ? », pas afficher un cycle sans verdict.
+         Ces trois compteurs étaient déjà calculés, mais réservés au COMPTABLE. -->
+    @if (kpiImpayes() || kpiPartielles() || kpiAujourdhui()) {
+      <section class="dash-attention" role="region" aria-labelledby="dash-attention-label">
+        <h2 id="dash-attention-label" class="dash-section__titre">
+          {{ 'DASHBOARD.ATTENTION.TITRE' | translate }}
+        </h2>
+        <div class="dash-kpis" role="list">
+          @if (kpiImpayes(); as k) {
+            <a routerLink="/impayes" class="dash-kpi dash-kpi--danger" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.IMPAYES' | translate }}</span>
+              <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
+          @if (kpiPartielles(); as k) {
+            <a routerLink="/factures" [queryParams]="{ f_statut: 'PARTIELLE' }" class="dash-kpi dash-kpi--warning" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.PARTIELLES' | translate }}</span>
+              <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
+          @if (kpiAujourdhui(); as k) {
+            <a routerLink="/paiements" class="dash-kpi dash-kpi--success" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.AUJOURDHUI' | translate }}</span>
+              <span class="dash-kpi__hint">+{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- ── 2. Les chiffres du mois ───────────────────────────────────────
+         Le m³ est la spécificité SGFE ; l'encaissé et le facturé disaient déjà
+         quelque chose au COMPTABLE et manquaient ici. Trois mesures, une seule
+         grammaire visuelle — au lieu de quatre traitements différents. -->
+    @if (statsParMois() !== null) {
+      <section class="dash-mesures" role="region" aria-labelledby="dash-mesures-label">
+        <h2 id="dash-mesures-label" class="dash-section__titre">
+          {{ 'DASHBOARD.MESURE.TITRE' | translate: { mois: moisCourantLabel() } }}
+        </h2>
+        <div class="dash-mesures__grid">
+          @let dc = deltaConso();
+          <a routerLink="/rapports" class="dash-mesure dash-mesure--conso">
+            <span class="dash-mesure__valeur">{{ formatNumber(dc.value) }}<small>m³</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.CONSO' | translate }}</span>
+            @if (dc.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(dc.deltaPct)">
+                {{ formatDelta(dc.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+
+          @let df = deltaFacture();
+          <a routerLink="/factures" class="dash-mesure">
+            <span class="dash-mesure__valeur">{{ formatFCFA(df.value) }}<small>FCFA</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.FACTURE' | translate }}</span>
+            @if (df.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(df.deltaPct)">
+                {{ formatDelta(df.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+
+          @let de = deltaEncaisse();
+          <a routerLink="/paiements" class="dash-mesure dash-mesure--encaisse">
+            <span class="dash-mesure__valeur">{{ formatFCFA(de.value) }}<small>FCFA</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.ENCAISSE' | translate }}</span>
+            @if (de.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(de.deltaPct)">
+                {{ formatDelta(de.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+        </div>
+      </section>
+    }
+
+    <!-- ── 3. Le cycle en cours ──────────────────────────────────────────
+         Conservé tel quel : il raconte bien l'enchaînement relevé → facture →
+         envoi → paiement. Il passe après ce qui appelle une décision. -->
     <section class="dash-ribbon" role="region" aria-labelledby="dash-ribbon-label">
-      <h2 id="dash-ribbon-label" class="dash-ribbon__title">
+      <h2 id="dash-ribbon-label" class="dash-section__titre">
         {{ 'DASHBOARD.RIBBON.TITLE' | translate: { mois: moisCourantLabel() } }}
       </h2>
       <div class="dash-ribbon__grid">
@@ -211,42 +299,15 @@
       </div>
     </section>
 
-    <!-- Chiffre Fort m³ — spécificité SGFE eau (bug produit v2 fermé) -->
-    @if (statsParMois() !== null) {
-      @let dc = deltaConso();
-      <section class="dash-m3" role="region" aria-labelledby="dash-m3-label">
-        <a routerLink="/rapports" class="dash-m3__link">
-          <span id="dash-m3-label" class="dash-m3__label">
-            {{ 'DASHBOARD.M3.LABEL' | translate: { mois: moisCourantLabel() } }}
-            <i
-              class="pi pi-info-circle dash-m3__help"
-              [appTooltip]="'DASHBOARD.M3.TOOLTIP' | translate"
-              tabindex="0"
-              [attr.aria-label]="'DASHBOARD.M3.TOOLTIP' | translate"
-            ></i>
-          </span>
-          <span class="dash-m3__count">
-            {{ formatNumber(dc.value) }} <span class="dash-m3__unit">m³</span>
-          </span>
-          <span class="dash-m3__accent" aria-hidden="true"></span>
-          @if (dc.deltaPct !== null) {
-            <span class="dash-m3__delta" [class]="deltaClass(dc.deltaPct)">
-              {{ formatDelta(dc.deltaPct) }}
-              <span class="dash-m3__delta-hint">
-                {{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}
-              </span>
-            </span>
-          }
-        </a>
-      </section>
-    }
-
-    <!-- Campagnes actives -->
-    @if (campagnesCards().length > 0) {
-      <section class="dash-campaigns" role="region" aria-labelledby="dash-camp-label">
-        <h2 id="dash-camp-label" class="dash-campaigns__title">
-          {{ 'DASHBOARD.CAMPAIGNS.ACTIVES' | translate: { count: campagnesCards().length } }}
-        </h2>
+    <!-- ── 4. Campagnes ──────────────────────────────────────────────────
+         Quand aucune campagne n'est active, la section disparaissait sans rien
+         dire. Une absence de campagne est pourtant une information : c'est
+         souvent qu'il faut en ouvrir une. -->
+    <section class="dash-campaigns" role="region" aria-labelledby="dash-camp-label">
+      <h2 id="dash-camp-label" class="dash-section__titre">
+        {{ 'DASHBOARD.CAMPAIGNS.ACTIVES' | translate: { count: campagnesCards().length } }}
+      </h2>
+      @if (campagnesCards().length > 0) {
         <div class="dash-campaigns__grid">
           @for (c of campagnesCards(); track c.campagneId) {
             <a [routerLink]="['/campagnes', c.campagneId]" class="dash-camp">
@@ -265,6 +326,35 @@
             </a>
           }
         </div>
+      } @else {
+        <div class="dash-vide">
+          <p class="dash-vide__msg">{{ 'DASHBOARD.CAMPAIGNS.AUCUNE' | translate }}</p>
+          <a routerLink="/campagnes/nouvelle" class="dash-vide__cta">
+            {{ 'DASHBOARD.CAMPAIGNS.OUVRIR' | translate }}
+          </a>
+        </div>
+      }
+    </section>
+
+    <!-- ── 5. Les impayés les plus anciens ───────────────────────────────
+         Déjà calculés, jamais montrés à l'ADMIN. C'est la file de travail. -->
+    @if (topImpayesAnciens().length > 0) {
+      <section class="carte dash-list" role="region" aria-labelledby="dash-list-admin-label">
+        <h2 id="dash-list-admin-label" class="dash-section__titre">
+          {{ 'DASHBOARD.LIST.IMPAYES_ANCIENS' | translate }}
+        </h2>
+        <ul class="dash-list__items">
+          @for (item of topImpayesAnciens(); track item.factureId) {
+            <li class="dash-list__item">
+              <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
+                <span class="dash-list__nom">{{ item.nom }}</span>
+                <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
+                <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
+                <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+              </a>
+            </li>
+          }
+        </ul>
       </section>
     }
   }

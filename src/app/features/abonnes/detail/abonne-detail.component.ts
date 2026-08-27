@@ -26,11 +26,13 @@ import { ReactiverSheetComponent } from './reactiver-sheet/reactiver-sheet.compo
 import { ResilierSheetComponent } from './resilier-sheet/resilier-sheet.component';
 import { SuspendreSheetComponent } from './suspendre-sheet/suspendre-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
+    NomAbonnePipe,
     DatePipe,
     TranslatePipe,
     CompteurPipe,
@@ -259,7 +261,8 @@ export class AbonneDetailComponent {
   }
 
   formatFCFA(n: number | null | undefined): string {
-    return `${(n ?? 0).toLocaleString('fr-FR')} F`;
+    // Une seule unité dans toute l'application : « FCFA », jamais « F ».
+    return formatFcfa(n);
   }
 
   async openPdf(factureId: string, event: Event): Promise<void> {

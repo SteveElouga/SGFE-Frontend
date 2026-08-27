@@ -192,6 +192,17 @@ export class FiltersPanelComponent {
    * 0 tag → seulement le total (si différent du count). 1 tag → sa valueLabel.
    * 2+ tags → "N filtres actifs". Retourne "" si rien à dire.
    */
+  /**
+   * La ligne de résultat n'a de sens que si elle contredit la barre de titre :
+   * liste restreinte par un filtre, ou résultat vide. Sinon elle répète.
+   */
+  readonly afficheResultat = computed(() => {
+    const count = this.resultCount();
+    if (count === null) return false;
+    const total = this.totalCount();
+    return count === 0 || this.activeCount() > 0 || (total !== null && total !== count);
+  });
+
   readonly heroSubtitle = computed(() => {
     const lang = this.translate.currentLang() ?? undefined;
     const count = this.resultCount();

@@ -69,6 +69,9 @@ interface ImpayeRow {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ImpayesListComponent implements OnInit {
+  /** Destination d'une ligne : la facture impayée. */
+  protected readonly lienFacture = (r: { factureId: string }) => ['/factures', r.factureId];
+
   private readonly service = inject(FacturesService);
   private readonly apollo = inject(Apollo);
   private readonly router = inject(Router);

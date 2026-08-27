@@ -53,6 +53,7 @@
     <app-data-table
       [columns]="columns"
       [rows]="impayesFiltres()"
+      [rowLink]="lienFacture"
       [loading]="loading()"
       [pageSize]="15"
       [rowClass]="rowDanger"
@@ -114,7 +115,7 @@
                 {{ row.numeroAbonne }}@if (row.retardJours !== null) { · J+{{ row.retardJours }} }@if (row.montantPaye > 0) { · {{ 'IMPAYES.ACOMPTE_RECU' | translate }} }
               </span>
             </span>
-            <span class="fcard__solde">{{ formatNombre(row.soldeRestant) }} F</span>
+            <span class="fcard__solde">{{ formatNombre(row.soldeRestant) }} FCFA</span>
           </button>
           <div class="fcard__foot">
             <span class="etape-badge etape-badge--{{ badgeState(row) }}">{{ badgeLabel(row) }}</span>

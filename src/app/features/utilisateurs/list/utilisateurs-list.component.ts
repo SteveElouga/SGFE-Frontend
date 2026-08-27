@@ -43,6 +43,9 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtilisateursListComponent implements OnInit {
+  /** Destination d'une ligne : la fiche utilisateur. */
+  protected readonly lienUtilisateur = (u: { id: string }) => ['/utilisateurs', u.id];
+
   private readonly usersService = inject(UsersService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly toast = inject(ToastService);

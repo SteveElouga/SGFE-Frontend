@@ -15,16 +15,20 @@
        enfin son pixel Vert Nappe (Montserrat 800 metric-md, accent gauche 3px). -->
   <div class="total-kpi" role="status" [attr.aria-label]="'PAIEMENTS.TOTAL_KPI_ARIA' | translate">
     <div class="total-kpi__label">{{ 'PAIEMENTS.TOTAL_ENCAISSE' | translate }}</div>
-    <div class="total-kpi__value">{{ totalMontant() | fcfa }}<small class="total-kpi__unit"> FCFA</small></div>
+    <div class="total-kpi__value">{{ totalMontant() | fcfa }}</div>
     <div class="total-kpi__hint">
       {{ 'PAIEMENTS.TOTAL_KPI_HINT' | translate: { count: rows().length } }}
     </div>
+    @if (nbAnnules() > 0) {
+      <div class="total-kpi__annule">
+        {{ 'PAIEMENTS.TOTAL_HORS_ANNULES' | translate: { count: nbAnnules(), montant: montantAnnule() | fcfa } }}
+      </div>
+    }
   </div>
 
-  <!-- Filtres unifiés (batch 10) + date range spécialisée conservée séparément -->
-  <div class="paiements-filters-row">
-    <app-filters-panel
-      [search]="searchTerm()"
+  <!-- Filtres unifiés — la plage de dates est projetée dans la carte -->
+  <app-filters-panel
+    [search]="searchTerm()"
       (searchChange)="onSearchChange($event)"
       [debounceMs]="250"
       searchPlaceholder="PAIEMENTS.SEARCH_PLACEHOLDER"
@@ -34,20 +38,21 @@
       [resultCount]="rows().length"
       [totalCount]="paiements().length"
       heroNounKey="PAIEMENTS.RESULTS_HERO"
-    />
-
+    >
     <p-datepicker
-      class="paiements-date-range"
-      [ngModel]="dateRange()"
-      (ngModelChange)="onDateRangeChange($event)"
-      selectionMode="range"
-      placeholder="Date"
-      dateFormat="dd/mm/yy"
-      styleClass="filter-chip filter-chip--date"
-      [showIcon]="true"
-      icon="pi pi-chevron-down"
-    />
-  </div>
+        fp-extra
+        class="paiements-date-range"
+        [ngModel]="dateRange()"
+        (ngModelChange)="onDateRangeChange($event)"
+        selectionMode="range"
+        placeholder="Date"
+        dateFormat="dd/mm/yy"
+        styleClass="filter-chip filter-chip--date"
+        [showIcon]="true"
+        icon="pi pi-chevron-down"
+      />
+    </app-filters-panel>
+
 
   <!-- Table -->
   <div class="table-wrap">
@@ -71,7 +76,16 @@
       <ng-template appCol="numeroFacture" let-r><span class="col-facture">{{ r.numeroFacture }}</span></ng-template>
 
       <ng-template appCol="montant" let-r>
-        <span class="col-montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ r.montant | fcfa }}</span>
+        <span
+          class="col-montant"
+          [class.montant--partiel]="r.statutFacture === 'PARTIELLE' && !r.annule"
+          [class.montant--annule]="r.annule"
+        >{{ r.montant | fcfa }}</span>
+        @if (r.annule) {
+          <span class="annule-tag" [attr.title]="r.motifAnnulation || null">
+            {{ 'PAIEMENTS.ANNULE' | translate }}
+          </span>
+        }
       </ng-template>
 
       <ng-template appCol="mode" let-r>
@@ -103,7 +117,11 @@
               <span class="pcard__abonne">{{ r.abonneNom }}</span>
               <span class="pcard__ref">{{ r.numeroFacture }} · {{ formatDate(r.datePaiement) }}</span>
             </div>
-            <span class="pcard__montant" [class.montant--partiel]="r.statutFacture === 'PARTIELLE'">{{ r.montant | fcfa }}</span>
+            <span
+              class="pcard__montant"
+              [class.montant--partiel]="r.statutFacture === 'PARTIELLE' && !r.annule"
+              [class.montant--annule]="r.annule"
+            >{{ r.montant | fcfa }}</span>
           </div>
           <div class="pcard__bottom">
             <span class="mode-badge mode-badge--{{ r.modePaiement.toLowerCase() }}">{{ 'FACTURATION.MODE.' + r.modePaiement | translate }}</span>
@@ -113,6 +131,9 @@
               <span class="pcard__reference pcard__reference--missing">{{ 'PAIEMENTS.REF_MANQUANTE_SHORT' | translate }}</span>
             }
             <app-badge [tone]="statutTone(r)" [label]="statutLabel(r)" />
+            @if (r.annule) {
+              <span class="annule-tag">{{ 'PAIEMENTS.ANNULE' | translate }}</span>
+            }
           </div>
         </button>
       </ng-template>

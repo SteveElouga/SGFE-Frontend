@@ -18,6 +18,7 @@ import { ABONNE_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -37,6 +38,7 @@ import { ReactiverSheetComponent } from '../detail/reactiver-sheet/reactiver-she
     DataTableCellDirective,
     DataTableCardDirective,
     CompteurPipe,
+    NomAbonnePipe,
     TranslatePipe,
     ReactiverSheetComponent,
   ],
@@ -45,6 +47,9 @@ import { ReactiverSheetComponent } from '../detail/reactiver-sheet/reactiver-she
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonnesListComponent implements OnInit {
+  /** Destination d'une ligne : la fiche de l'abonné. */
+  protected readonly lienAbonne = (a: { id: string }) => ['/abonnes', a.id];
+
   private readonly abonnesService = inject(AbonnesService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -217,10 +222,6 @@ export class AbonnesListComponent implements OnInit {
       const { message } = extractGqlError(error);
       this.error.set(message || 'Impossible de charger la liste des abonnés.');
     }
-  }
-
-  voirAbonne(id: string): void {
-    this.router.navigateByUrl(`/abonnes/${id}`);
   }
 
   modifierAbonne(id: string): void {

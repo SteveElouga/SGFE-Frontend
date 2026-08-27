@@ -45,6 +45,23 @@ interface StatsGlobales {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RapportsListComponent implements OnInit {
+  /**
+   * Le service reporting tient sa propre copie des campagnes et renvoie des
+   * lignes distinctes sous un même nom — deux « Août 2026 », deux
+   * « Facturation Juillet 2026 ». Le frontend ne peut pas les renommer ; il
+   * peut au moins cesser de les rendre indiscernables, en suffixant les seuls
+   * noms ambigus des premiers caractères de leur identifiant.
+   *
+   * La divergence elle-même est un écart de données entre services : deux des
+   * campagnes listées ici n'existent pas dans le service campagne.
+   */
+  protected libelleCampagne(h: { campagneId: string; nomCampagne: string }): string {
+    const homonymes = (this.stats()?.historiqueCampagnes ?? []).filter(
+      (x) => x.nomCampagne === h.nomCampagne,
+    ).length;
+    return homonymes > 1 ? `${h.nomCampagne} · ${h.campagneId.slice(0, 6)}` : h.nomCampagne;
+  }
+
   private readonly apollo = inject(Apollo);
   private readonly exports = inject(ExportsService);
   private readonly toast = inject(ToastService);
@@ -65,7 +82,10 @@ export class RapportsListComponent implements OnInit {
   });
 
   readonly campagneOptions = computed(() =>
-    (this.stats()?.historiqueCampagnes ?? []).map((h) => ({ label: h.nomCampagne, value: h.campagneId })),
+    (this.stats()?.historiqueCampagnes ?? []).map((h) => ({
+      label: this.libelleCampagne(h),
+      value: h.campagneId,
+    })),
   );
 
   ngOnInit(): void {

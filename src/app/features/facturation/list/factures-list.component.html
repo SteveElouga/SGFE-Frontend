@@ -1,5 +1,20 @@
 
-<app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()" />
+<app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()">
+  @if (facturesAEnvoyer().length > 0) {
+    <button
+      class="btn-whatsapp-tous"
+      [disabled]="sendingWhatsapp()"
+      (click)="ouvrirConfirmationWhatsapp()"
+    >
+      @if (sendingWhatsapp()) {
+        <i class="pi pi-spin pi-spinner"></i>
+      } @else {
+        <i class="pi pi-whatsapp"></i>
+      }
+      {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
+    </button>
+  }
+</app-page-topbar>
 
 <div class="factures-content">
 
@@ -29,41 +44,25 @@
   }
 
   <!-- Filtres unifiés (batch 10) : chips auto-responsive + Effacer tout + tags actifs -->
-  <div class="factures-filters-row">
-    <app-filters-panel
-      [search]="searchTerm()"
-      (searchChange)="searchTerm.set($event)"
-      [debounceMs]="250"
-      searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
-      [filters]="filtersConfig()"
-      [values]="filterValues()"
-      (valuesChange)="onFiltersChange($event)"
-      [resultCount]="facturesFiltrees().length"
-      [totalCount]="factures().length"
-      heroNounKey="FACTURATION.RESULTS_HERO"
-    />
-
-    @if (facturesAEnvoyer().length > 0) {
-      <button
-        class="btn-whatsapp-tous"
-        [disabled]="sendingWhatsapp()"
-        (click)="ouvrirConfirmationWhatsapp()"
-      >
-        @if (sendingWhatsapp()) {
-          <i class="pi pi-spin pi-spinner"></i>
-        } @else {
-          <i class="pi pi-whatsapp"></i>
-        }
-        {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
-      </button>
-    }
-  </div>
+  <app-filters-panel
+    [search]="searchTerm()"
+    (searchChange)="searchTerm.set($event)"
+    [debounceMs]="250"
+    searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="facturesFiltrees().length"
+    [totalCount]="factures().length"
+    heroNounKey="FACTURATION.RESULTS_HERO"
+  />
 
   <!-- Table -->
   <div class="factures-table-wrap">
     <app-data-table
       [columns]="columns"
       [rows]="facturesFiltrees()"
+      [rowLink]="lienFacture"
       [loading]="loading()"
       [pageSize]="10"
       [rowClickable]="rowActivable"
@@ -84,11 +83,13 @@
       <ng-template appCol="abonne" let-f>
         @let abonne = abonneFor(f.abonneId);
         <div class="col-abonne">
-          @if (abonne) {
+          @if (abonne && abonne.nom) {
             <span class="abonne-nom">{{ abonne.nom }}</span>
             <span class="abonne-sub">{{ abonne.numeroAbonne }}</span>
           } @else {
-            <span class="abonne-nom">—</span>
+            <!-- Nom absent (facture dont l'abonné n'est plus résolvable) :
+                 le numéro reste une identité utile, un blanc ne l'est pas. -->
+            <span class="abonne-nom abonne-nom--absent">{{ abonne?.numeroAbonne || '—' }}</span>
           }
         </div>
       </ng-template>
@@ -163,7 +164,7 @@
             <span class="fcard__sub">{{ f.numeroFacture }} · {{ formatNumber(f.consommation) }} m³</span>
           </div>
           <div class="fcard__right">
-            <span class="fcard__montant">{{ formatNumber(f.montant) }} F</span>
+            <span class="fcard__montant">{{ formatNumber(f.montant) }} FCFA</span>
             <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
           </div>
         </button>

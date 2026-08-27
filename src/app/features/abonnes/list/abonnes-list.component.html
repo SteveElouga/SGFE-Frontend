@@ -46,6 +46,7 @@
     <app-data-table
       [columns]="columns"
       [rows]="filteredAbonnes()"
+      [rowLink]="lienAbonne"
       [loading]="loading()"
       [pageSize]="15"
       [striped]="true"
@@ -57,7 +58,7 @@
       </ng-template>
 
       <ng-template appCol="nom" let-abonne>
-        <div class="abonnes-table__nom">{{ abonne.nom }} {{ abonne.prenom }}</div>
+        <div class="abonnes-table__nom">{{ abonne.prenom | nomAbonne: abonne.nom }}</div>
       </ng-template>
 
       <ng-template appCol="localisation" let-abonne>
@@ -84,18 +85,15 @@
 
       <ng-template appCol="actions" let-abonne>
         <div class="abonnes-table__actions">
-          <button
-            type="button"
-            class="abonnes-table__action-btn"
-            (click)="voirAbonne(abonne.id)"
-          >{{ 'ABONNES.VOIR' | translate }}</button>
-
+          <!-- « Voir » a disparu : le n° d'abonné est désormais un lien vers la
+               fiche, et la ligne entière y mène. Répéter la destination en
+               bouton fantôme sur chaque ligne n'ajoutait qu'du bruit. -->
           @if (abonne.statut === 'ACTIF') {
-            <button
-              type="button"
+            <a
               class="abonnes-table__action-btn"
-              (click)="modifierAbonne(abonne.id)"
-            >{{ 'ABONNES.MODIFIER' | translate }}</button>
+              [routerLink]="['/abonnes', abonne.id, 'modifier']"
+              [attr.aria-label]="('ABONNES.MODIFIER' | translate) + ' ' + abonne.numeroAbonne"
+            >{{ 'ABONNES.MODIFIER' | translate }}</a>
           }
 
           @if (abonne.statut === 'SUSPENDU') {
@@ -109,10 +107,10 @@
       </ng-template>
 
       <ng-template appCardRow let-abonne>
-        <button type="button" class="acard" (click)="voirAbonne(abonne.id)">
+        <a class="acard" [routerLink]="['/abonnes', abonne.id]">
           <span class="acard__avatar acard__avatar--{{ avatarVariant(abonne) }}">{{ abonne.nom.charAt(0).toUpperCase() }}</span>
           <span class="acard__info">
-            <span class="acard__nom" [class.acard__nom--muted]="abonne.statut !== 'ACTIF'">{{ abonne.nom }} {{ abonne.prenom }}</span>
+            <span class="acard__nom" [class.acard__nom--muted]="abonne.statut !== 'ACTIF'">{{ abonne.prenom | nomAbonne: abonne.nom }}</span>
             <span class="acard__sub">
               {{ abonne.numeroAbonne }}@if (abonne.compteur) { · {{ abonne.compteur.numeroCompteur | compteur }} · {{ abonne.compteur.quartier }}, Camp {{ abonne.compteur.camp }} }
             </span>
@@ -121,7 +119,7 @@
             <app-status-badge [status]="abonne.statut" />
             <i class="pi pi-chevron-right acard__chevron"></i>
           </span>
-        </button>
+        </a>
       </ng-template>
     </app-data-table>
   </div>
