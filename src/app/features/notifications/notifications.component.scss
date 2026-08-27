@@ -9,6 +9,8 @@
 
 // Bouton d'action projeté dans la topbar
 .mark-all {
+  min-width: 44px;
+  min-height: 44px;                 // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
@@ -25,7 +27,9 @@
   transition: background 0.12s;
 
   i { color: var(--succes-encre); font-size: 13px; }
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 }
 
 // Mobile : bouton icône seule (✓) pour ne pas encombrer la topbar.
@@ -60,7 +64,9 @@
   transition: background 0.12s, color 0.12s;
 
   &--active { background: var(--navy-nuit); color: var(--surface); font-weight: 600; }
-  &:hover:not(&--active) { background: var(--filet); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(&--active) { background: var(--filet); }
+  }
 
   &__count {
     margin-left: var(--pas-2);
@@ -111,7 +117,9 @@
   transition: background 0.1s;
 
   &:last-child { border-bottom: none; }
-  &:hover { background: var(--surface); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface); }
+  }
 
   &--unread.notif-item--danger { border-left-color: var(--danger); background: var(--danger-fond); }
   &--unread.notif-item--success { border-left-color: var(--succes); background: var(--succes-fond); }
@@ -204,7 +212,9 @@
     border-color: var(--filet);
     color: var(--encre-2);
     font-weight: 500;
-    &:hover { background: var(--surface-douce); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--surface-douce); }
+    }
   }
 }
 

@@ -99,7 +99,9 @@
   gap: var(--pas-2);
   transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
 
-  &:hover:not(:disabled) { opacity: 0.92; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { opacity: 0.92; }
+  }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }

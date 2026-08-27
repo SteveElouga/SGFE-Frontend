@@ -32,11 +32,13 @@
   @if $shadow { box-shadow: $shadow; }
 
   @if $hover-bg or $hover-color or $hover-opacity or $hover-border {
-    &:hover:not(:disabled) {
-      @if $hover-bg { background: $hover-bg; }
-      @if $hover-color { color: $hover-color; }
-      @if $hover-opacity { opacity: $hover-opacity; }
-      @if $hover-border { border-color: $hover-border; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        @if $hover-bg { background: $hover-bg; }
+        @if $hover-color { color: $hover-color; }
+        @if $hover-opacity { opacity: $hover-opacity; }
+        @if $hover-border { border-color: $hover-border; }
+      }
     }
   }
 }

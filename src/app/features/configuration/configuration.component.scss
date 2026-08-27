@@ -46,6 +46,14 @@
   display: flex;
   gap: var(--pas-1);
   flex: 1;
+  // En mobile, « Utilisateurs » et « WhatsApp & Tokens » sortaient du cadre
+  // sans possibilité d'y accéder : la rangée était figée, pas défilante.
+  min-width: 0;
+  overflow-x: auto;
+  @include hide-scrollbar;
+
+  // Un onglet ne doit pas se comprimer pour tenir : il défile.
+  > * { flex: 0 0 auto; }
   min-width: 0;
   overflow-x: auto;
   @include hide-scrollbar;
@@ -63,7 +71,9 @@
   white-space: nowrap;
   transition: color 0.15s, border-color 0.15s;
 
-  &:hover { color: var(--encre); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--encre); }
+  }
 
   &--active {
     color: var(--action);

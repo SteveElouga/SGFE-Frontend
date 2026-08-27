@@ -54,7 +54,9 @@
   border-radius: var(--rayon-sm);
   cursor: pointer;
 
-  &:hover { background: var(--danger-fond); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--danger-fond); }
+  }
 }
 
 // ── Carte en-tête abonné ──────────────────────────────────────────────────────
@@ -164,10 +166,12 @@
   white-space: nowrap;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
 
-  &:hover:not(:disabled) {
-    border-color: $color-primary;
-    color: var(--action);
-    background: var(--action-lueur);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      border-color: $color-primary;
+      color: var(--action);
+      background: var(--action-lueur);
+    }
   }
 
   &:disabled {
@@ -180,10 +184,12 @@
     border-color: var(--danger-trait);
     color: var(--danger-encre);
 
-    &:hover:not(:disabled) {
-      background: var(--danger-trait);
-      border-color: var(--danger-trait);
-      color: var(--danger-encre);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background: var(--danger-trait);
+        border-color: var(--danger-trait);
+        color: var(--danger-encre);
+      }
     }
   }
 
@@ -191,8 +197,10 @@
     color: var(--danger-encre);
     border-color: var(--danger-trait);
 
-    &:hover:not(:disabled) {
-      background: var(--danger-fond);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background: var(--danger-fond);
+      }
     }
   }
 
@@ -201,18 +209,22 @@
     border-color: var(--succes-trait);
     color: var(--succes-encre);
 
-    &:hover:not(:disabled) {
-      background: var(--mint-tapis);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        background: var(--mint-tapis);
+      }
     }
   }
 
   &--ghost {
     color: var(--encre-3);
 
-    &:hover:not(:disabled) {
-      border-color: var(--filet-pale);
-      color: var(--encre-2);
-      background: var(--surface-douce);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        border-color: var(--filet-pale);
+        color: var(--encre-2);
+        background: var(--surface-douce);
+      }
     }
   }
 }
@@ -291,7 +303,9 @@
   white-space: nowrap;
   transition: color 0.12s, border-color 0.12s;
 
-  &:hover:not(&--active) { color: var(--encre-2); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(&--active) { color: var(--encre-2); }
+  }
 
   &--active {
     font-weight: 600;
@@ -366,7 +380,9 @@
 
   a.abonne-info-row__value {
     color: var(--action);
-    &:hover { text-decoration: underline; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { text-decoration: underline; }
+    }
   }
 }
 
@@ -429,7 +445,9 @@
   color: var(--action);
   cursor: pointer;
 
-  &:hover { text-decoration: underline; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { text-decoration: underline; }
+  }
 }
 
 .abonne-invoices__pdf {
@@ -443,7 +461,9 @@
   font-weight: 500;
   text-decoration: none;
 
-  &:hover { text-decoration: underline; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { text-decoration: underline; }
+  }
 }
 
 // ── Badge statut facture ──────────────────────────────────────────────────────

@@ -172,8 +172,10 @@
   align-items: center;
   justify-content: center;
 
-  &:hover {
-    color: var(--encre-2);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--encre-2);
+    }
   }
 }
 
@@ -296,7 +298,9 @@
   .toast__close {
     color: var(--encre-inverse-3);
 
-    &:hover { color: var(--surface); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--surface); }
+    }
   }
 
   .toast__timer-track,

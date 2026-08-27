@@ -54,7 +54,9 @@
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
 
-  &:hover { background: var(--fond); color: var(--action); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--fond); color: var(--action); }
+  }
 }
 
 .uedit-status-pill {
@@ -432,7 +434,9 @@
     color: var(--surface);
     box-shadow: 0 3px 10px rgba(26, 86, 219, 0.3);
 
-    &:hover:not(:disabled) { opacity: 0.9; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { opacity: 0.9; }
+    }
     &:disabled { opacity: 0.5; box-shadow: none; }
   }
 
@@ -441,7 +445,9 @@
     border: 1px solid var(--filet);
     color: var(--encre-3);
 
-    &:hover:not(:disabled) { background: var(--surface-douce); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--surface-douce); }
+    }
   }
 
   &--outline {
@@ -449,7 +455,9 @@
     border: 1px solid var(--filet);
     color: var(--encre-3);
 
-    &:hover:not(:disabled) { background: var(--surface-douce); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--surface-douce); }
+    }
   }
 
   &--outline-primary {
@@ -457,7 +465,9 @@
     border: 1px solid var(--filet);
     color: var(--action);
 
-    &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--action-trait); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--action-trait); }
+    }
   }
 
   &--success {
@@ -466,7 +476,9 @@
     color: var(--surface);
     box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
 
-    &:hover:not(:disabled) { opacity: 0.9; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { opacity: 0.9; }
+    }
   }
 
   &--danger {
@@ -474,7 +486,9 @@
     border: none;
     color: var(--surface);
 
-    &:hover:not(:disabled) { opacity: 0.9; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { opacity: 0.9; }
+    }
   }
 
   &--danger-soft {
@@ -482,7 +496,9 @@
     border: 1px solid var(--danger-trait);
     color: var(--danger-encre);
 
-    &:hover:not(:disabled) { background: var(--danger-trait); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--danger-trait); }
+    }
   }
 }
 

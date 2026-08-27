@@ -139,7 +139,9 @@
   cursor: pointer;
   transition: background 0.12s;
 
-  &:hover:not(:disabled) { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { background: var(--surface-douce); }
+  }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 

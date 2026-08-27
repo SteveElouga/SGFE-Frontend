@@ -27,7 +27,9 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   text-align: left;
   transition: background 0.12s;
 
-  &:hover { background: $sidebar-hover-bg; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: $sidebar-hover-bg; }
+  }
 }
 
 .um-trigger__avatar {
@@ -161,9 +163,11 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   transition: background 0.1s, color 0.1s;
   border-left: 3px solid transparent;
 
-  &:hover {
-    background: rgba($color-primary, 0.06);
-    color: var(--action);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: rgba($color-primary, 0.06);
+      color: var(--action);
+    }
   }
 
   &--active {
@@ -178,9 +182,11 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
     margin: var(--pas-2) 0;
     color: var(--danger-encre);
 
-    &:hover {
-      background: rgba($color-error, 0.06);
-      color: color.adjust($color-error, $lightness: -8%);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: rgba($color-error, 0.06);
+        color: color.adjust($color-error, $lightness: -8%);
+      }
     }
   }
 }
@@ -233,9 +239,11 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
     letter-spacing: 0.5px;
     transition: background 0.12s, color 0.12s;
 
-    &:hover:not(&--active) {
-      background: var(--filet);
-      color: var(--encre-2);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(&--active) {
+        background: var(--filet);
+        color: var(--encre-2);
+      }
     }
 
     &--active {

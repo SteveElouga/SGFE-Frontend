@@ -178,7 +178,9 @@
   padding: 0;
   transition: color 0.1s;
 
-  &:hover { color: var(--surface); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--surface); }
+  }
 }
 
 // ── Affectation d'un agent à ses zones (dès la création) ─────────────────────
@@ -204,7 +206,9 @@
 
 .agent-assign .agent-chip__remove {
   color: var(--encre-3);
-  &:hover { color: var(--danger-encre); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--danger-encre); }
+  }
 }
 
 .agent-assign__label {
@@ -234,7 +238,9 @@
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, color 0.12s;
 
-  &:hover { background: var(--fond); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--fond); }
+  }
 
   &--on {
     border-color: $color-primary;
@@ -277,9 +283,11 @@
   cursor: pointer;
   transition: background 0.1s, border-color 0.1s;
 
-  &:hover {
-    background: var(--fond);
-    border-color: var(--encre-faible);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--fond);
+      border-color: var(--encre-faible);
+    }
   }
 }
 
@@ -316,7 +324,9 @@
     cursor: not-allowed;
     opacity: 0.55;
 
-    &:hover { border-color: var(--filet); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { border-color: var(--filet); }
+    }
   }
 }
 
@@ -431,10 +441,12 @@
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
 
-  &:hover {
-    border-color: $color-primary;
-    color: var(--action);
-    background: rgba($color-primary, 0.05);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: $color-primary;
+      color: var(--action);
+      background: rgba($color-primary, 0.05);
+    }
   }
 
   &--selected {
@@ -447,11 +459,13 @@
       color: var(--surface);
     }
 
-    &:hover {
-      background: color.adjust($color-primary, $lightness: -8%);
-      border-color: color.adjust($color-primary, $lightness: -8%);
-      box-shadow: 0 2px 8px rgba($color-primary, 0.35);
-      color: var(--surface);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color.adjust($color-primary, $lightness: -8%);
+        border-color: color.adjust($color-primary, $lightness: -8%);
+        box-shadow: 0 2px 8px rgba($color-primary, 0.35);
+        color: var(--surface);
+      }
     }
   }
 }

@@ -95,7 +95,9 @@
   cursor: pointer;
   transition: border-color 0.12s, background 0.12s;
 
-  &:hover:not(:disabled) { border-color: var(--filet-pale); background: var(--surface); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { border-color: var(--filet-pale); background: var(--surface); }
+  }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 
   &__icon {

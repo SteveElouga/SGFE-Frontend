@@ -6,6 +6,8 @@
 
 // ── Cloche ──────────────────────────────────────────────────────────────────
 .nb__bell {
+  min-width: 44px;
+  min-height: 44px;                 // WCAG 2.5.5
   position: relative;
   width: 38px;
   height: 38px;
@@ -20,7 +22,9 @@
 
   i { font-size: 17px; color: var(--action); }
 
-  &:hover, &--active { background: var(--action-lueur); border-color: var(--action-trait); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover, &--active { background: var(--action-lueur); border-color: var(--action-trait); }
+  }
 }
 
 .nb__count {
@@ -113,6 +117,8 @@
 }
 
 .nb__close {
+  min-width: 44px;
+  min-height: 44px;                 // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -125,12 +131,16 @@
   font-size: 13px;
   cursor: pointer;
 
-  &:hover { background: var(--fond); color: var(--encre-2); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--fond); color: var(--encre-2); }
+  }
 }
 
 .nb__title { font-size: 15px; font-weight: 700; color: var(--encre); }
 .nb__subtitle { margin-top: var(--pas-1); font-size: 10.5px; font-weight: 500; color: var(--encre-3); }
 .nb__mark {
+  min-height: 44px;
+  padding-inline: var(--pas-2);                 // WCAG 2.5.5
   border: none;
   background: none;
   font-size: 11px;
@@ -138,11 +148,14 @@
   color: var(--action);
   cursor: pointer;
   padding: 0;
-  &:hover { text-decoration: underline; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { text-decoration: underline; }
+  }
 }
 
 .nb__tabs { display: flex; gap: var(--pas-2); padding: var(--pas-2) var(--pas-3) var(--pas-2); }
 .nb__tab {
+  min-height: 44px;                 // WCAG 2.5.5
   border: none;
   background: var(--fond);
   color: var(--encre-2);
@@ -170,7 +183,9 @@
   cursor: pointer;
   transition: background 0.1s;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 
   &--unread.nb__item--danger { border-left-color: var(--danger); background: var(--danger-fond); }
   &--unread.nb__item--success { border-left-color: var(--succes); background: var(--succes-fond); }
@@ -222,6 +237,7 @@
 }
 
 .nb__footer {
+  min-height: 44px;                 // WCAG 2.5.5
   display: block;
   border-top: 1px solid var(--fond);
   padding: var(--pas-3);
@@ -232,5 +248,7 @@
   text-decoration: none;
   cursor: pointer;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 }

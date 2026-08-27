@@ -24,8 +24,10 @@
   text-decoration: none;
   transition: color 0.12s;
 
-  &:hover {
-    color: var(--action);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--action);
+    }
   }
 }
 
@@ -153,8 +155,10 @@
   text-decoration: none;
   transition: background 0.12s;
 
-  &:hover {
-    background: var(--surface-douce);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--surface-douce);
+    }
   }
 }
 
@@ -173,8 +177,10 @@
   cursor: pointer;
   transition: background 0.15s;
 
-  &:hover:not(:disabled) {
-    background: color.adjust($color-primary, $lightness: -8%);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: color.adjust($color-primary, $lightness: -8%);
+    }
   }
 
   &:disabled {

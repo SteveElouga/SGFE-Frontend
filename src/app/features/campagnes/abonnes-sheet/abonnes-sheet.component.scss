@@ -52,7 +52,9 @@
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 
   &--on {
     border: 1.5px solid $color-primary;
@@ -86,7 +88,9 @@
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 
   &--on {
     border: 1.5px solid $color-primary;
@@ -119,7 +123,9 @@
   margin-bottom: var(--pas-2);
   transition: opacity 0.15s;
 
-  &:hover:not(:disabled) { opacity: 0.92; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { opacity: 0.92; }
+  }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
@@ -135,5 +141,7 @@
   cursor: pointer;
   transition: background 0.12s;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
 }

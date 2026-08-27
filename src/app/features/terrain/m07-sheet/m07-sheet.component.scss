@@ -36,7 +36,9 @@
   &__hint { display: block; font-size: 11px; color: var(--encre-3); margin-top: var(--pas-1); line-height: 1.35; }
   &__icon { font-size: 18px; color: var(--encre-3); flex-shrink: 0; }
 
-  &:hover:not(&--selected) { border-color: var(--filet-pale); background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(&--selected) { border-color: var(--filet-pale); background: var(--surface-douce); }
+  }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 
   &--selected {
@@ -118,7 +120,9 @@
   box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
   margin-bottom: var(--pas-2);
 
-  &:hover:not(:disabled) { background: var(--danger-encre); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { background: var(--danger-encre); }
+  }
   &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
@@ -132,7 +136,9 @@
   font-size: 13px;
   font-weight: 500;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }

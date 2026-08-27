@@ -6,8 +6,10 @@ $fp-mobile-max: 640px;
 // Hauteurs DESIGN.md-alignées (batch 11) :
 // - input-field height computed = 40px (padding 13/14 + line-height 14)
 // - chip-filter / chip-filter-active / chip-filter-empty height = 34px
-$fp-input-h: 40px;
-$fp-chip-h: 34px;
+// WCAG 2.5.5 : 44 px minimum au pouce. Les valeurs d'origine (40 et 34 px)
+// passaient à la souris, pas au doigt.
+$fp-input-h: 44px;
+$fp-chip-h: 44px;
 
 // ────────────────────────────────────────────────────────────────────────
 // Composition Direction A (batch 12) : hero compteur + divider + controls
@@ -207,9 +209,11 @@ $fp-chip-h: 34px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
-  &:hover:not(.fp__chip--active) {
-    background: var(--fond);
-    border-color: var(--filet-pale);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(.fp__chip--active) {
+      background: var(--fond);
+      border-color: var(--filet-pale);
+    }
   }
   &:focus-visible {
     outline: 2px solid rgba($color-primary, 0.45);
@@ -229,7 +233,9 @@ $fp-chip-h: 34px;
     color: var(--surface);
     font-weight: 600;
 
-    &:hover { background: var(--navy-clair); border-color: var(--navy-clair); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--navy-clair); border-color: var(--navy-clair); }
+    }
   }
 }
 
@@ -264,6 +270,7 @@ $fp-chip-h: 34px;
 
 // Tag Neutre + key Navy (batch 11) — retire "state = action" fatigue
 .fp__tag {
+  min-height: 44px;                 // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
@@ -279,9 +286,11 @@ $fp-chip-h: 34px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 120ms var(--ease-out, ease-out);
 
-  &:hover {
-    background: var(--filet);
-    border-color: var(--filet-pale);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--filet);
+      border-color: var(--filet-pale);
+    }
   }
   &:active { transform: scale(0.97); }
   &:focus-visible {
@@ -307,9 +316,12 @@ $fp-chip-h: 34px;
   color: var(--encre-3);
   transition: opacity 0.12s, color 0.12s;
 }
-.fp__tag:hover .fp__tag-close { opacity: 1; color: var(--encre-2); }
+@media (hover: hover) and (pointer: fine) {
+  .fp__tag:hover .fp__tag-close { opacity: 1; color: var(--encre-2); }
+}
 
 .fp__clear-all {
+  min-height: 44px;                 // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
@@ -324,10 +336,12 @@ $fp-chip-h: 34px;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s, transform 120ms var(--ease-out, ease-out);
 
-  &:hover {
-    color: var(--action);
-    border-color: $color-primary;
-    background: var(--action-lueur);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--action);
+      border-color: $color-primary;
+      background: var(--action-lueur);
+    }
   }
   &:active { transform: scale(0.97); }
   &:focus-visible {

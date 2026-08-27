@@ -7,7 +7,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  height: 36px;
+  height: 44px;                     // WCAG 2.5.5 — était 36px
   padding: 0 var(--pas-3);
   border: 1.5px solid var(--danger);
   border-radius: var(--rayon-md);
@@ -20,7 +20,9 @@
   transition: background 0.12s;
 
   i { font-size: 12px; }
-  &:hover { background: var(--danger-trait); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--danger-trait); }
+  }
 }
 
 .impayes-content {
@@ -196,14 +198,18 @@
   &--primary {
     background: linear-gradient(135deg, var(--action), var(--action-survol));
     color: var(--surface);
-    &:hover { opacity: 0.9; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { opacity: 0.9; }
+    }
   }
   &--ghost {
     background: var(--surface);
     border-color: var(--filet);
     color: var(--encre-3);
     font-weight: 500;
-    &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
+    }
   }
 }
 
@@ -289,7 +295,7 @@
   .config-reminder { display: none; }
 
   .bilan-btn {
-    width: 36px;
+    width: 44px;                    // WCAG 2.5.5 — variante icône seule
     padding: 0;
     justify-content: center;
     gap: 0;

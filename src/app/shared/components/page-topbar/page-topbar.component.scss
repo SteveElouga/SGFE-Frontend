@@ -73,7 +73,9 @@
   color: var(--encre-3);
   text-decoration: none;
   white-space: nowrap;
-  &:hover { color: var(--encre-3); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--encre-3); }
+  }
 }
 
 // Sous-titre opt-in « mobile seulement » (classe posée sur l'hôte) :
@@ -89,8 +91,8 @@
 // Bouton hamburger : mobile uniquement, ouvre le tiroir de navigation
 .page-topbar__menu {
   display: none;
-  width: 36px;
-  height: 36px;
+  width: 44px;                      // WCAG 2.5.5 — était 36px
+  height: 44px;
   border-radius: var(--rayon-md);
   border: none;
   flex-shrink: 0;
@@ -107,6 +109,7 @@
 
 // Classe utilitaire pour le bouton/lien d'action projeté (button ou <a>)
 .page-topbar-action {
+  min-height: 44px;               // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
@@ -124,7 +127,9 @@
   white-space: nowrap;
   flex-shrink: 0;
 
-  &:hover { opacity: 0.88; }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { opacity: 0.88; }
+  }
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
@@ -208,7 +213,7 @@
   // Bouton d'ajout : icône « + » seule, carré arrondi (M-05)
   .page-topbar-action {
     gap: 0;
-    width: 36px;
+    width: 44px;                    // WCAG 2.5.5 — était 36px
     height: 36px;
     padding: 0;
     justify-content: center;
