@@ -36,13 +36,6 @@
 // En mobile il court d'un bord à l'autre, sous l'encoche. En desktop il devient
 // l'en-tête de la page : pleine largeur, et son contenu s'aligne sur la même
 // colonne de lecture que le corps.
-.t-head {
-  @media (min-width: 640px) {
-    padding-block: var(--pas-5);
-  }
-}
-
-.t-head__inner,
 .t-body {
   @media (min-width: 640px) {
     width: 100%;
@@ -102,16 +95,42 @@
   &:active { transform: scale(0.97); }
 }
 
-.t-progress-row { display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; color: rgba(255, 255, 255, 0.70); margin-bottom: var(--pas-2); }  // 0.5 → 0.70
+// Projeté dans le slot héro du topbar partagé. Ce slot est masqué par défaut
+// (il ne sert qu'au bandeau navy mobile) ; ici la progression compte autant en
+// desktop, donc on le rouvre — et on repeint pour le fond clair, le navy ne
+// s'appliquant qu'en dessous de 1024 px.
+.t-progress-bloc {
+  display: block;
+
+  @media (min-width: 1024px) {
+    padding: 0 var(--pas-5) var(--pas-4);
+    max-width: 420px;
+  }
+}
+
+.t-progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.70);   // 0.5 → 0.70
+  margin-bottom: var(--pas-2);
+
+  @media (min-width: 1024px) { color: var(--encre-3); font-size: 12px; }
+}
 
 .t-progress {
   background: rgba(255, 255, 255, 0.15);
+
+  @media (min-width: 1024px) { background: var(--filet); }
   height: 6px;                        // 5 → 6 (léger épaississement pour lisibilité)
   border-radius: 999px;
   overflow: hidden;
 }
 .t-progress__fill {
   background: var(--surface);
+
+  @media (min-width: 1024px) { background: var(--action); }
   height: 100%;
   transform: scaleX(var(--pct, 0));   // scaleX (non layout) pour éviter le thrash sur Android bas de gamme
   transform-origin: left center;
@@ -196,7 +215,22 @@
 
 // ── Lignes de relevé ──────────────────────────────────────────────────────────
 
-.rows { display: flex; flex-direction: column; }
+// En mobile, une liste : une ligne pleine largeur, un pouce, un abonné.
+// En desktop, la même ligne s'étirait à 1 050 px pour 300 px de contenu, badge
+// et chevron rejetés à l'autre bout — une carte mobile allongée. Au-delà du
+// mobile, les entrées deviennent une grille : l'agent en voit huit d'un coup
+// au lieu d'une par bande de 60 px.
+.rows {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: 640px) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--pas-3);
+    padding-block: var(--pas-4);
+  }
+}
 
 .row {
   width: 100%;
@@ -211,6 +245,18 @@
   gap: var(--pas-2);
   min-height: 60px;
   cursor: default;
+
+  @media (min-width: 640px) {
+    // Dans la grille, la ligne redevient une carte : elle borde, elle arrondit,
+    // et son contenu s'empile au lieu de s'écarteler.
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--pas-3);
+    border: 1px solid var(--filet);
+    border-radius: var(--rayon-md);
+    padding: var(--pas-4);
+    min-height: 118px;
+  }
   transition: background 0.15s ease;
 
   &--done { background: var(--succes-fond); }
@@ -226,7 +272,16 @@
     margin-right: var(--pas-1);
   }
 
-  &__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: var(--pas-1); }
+  &__info {
+    min-width: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-1);
+
+    // En carte, l'info ne se partage plus la ligne : elle la prend toute.
+    @media (min-width: 640px) { flex: none; width: 100%; }
+  }
   &__name {
     font-size: 14px;
     font-weight: 600;
@@ -245,7 +300,25 @@
     &--non_releve { color: var(--danger-encre); font-weight: 500; }
     &--pending { color: var(--attente-encre); font-weight: 500; }
   }
-  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-2); flex-shrink: 0; }
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--pas-2);
+    flex-shrink: 0;
+
+    // En carte, statut et chevron forment un pied de carte : le badge à
+    // gauche sous le texte qu'il qualifie, le chevron à droite. `margin-top:
+    // auto` aligne ce pied d'une carte à l'autre même quand un nom passe à
+    // la ligne.
+    @media (min-width: 640px) {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: auto;
+    }
+  }
   &__chevron { color: var(--encre-3); font-size: 12px; }  // var(--filet) → var(--encre-faible) (au moins visible)
 }
 

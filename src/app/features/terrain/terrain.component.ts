@@ -18,6 +18,7 @@ import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
 import { Campagne, Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
 import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
@@ -76,7 +77,8 @@ interface SuccessInfo {
 }
 
 @Component({
-  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent, FilterChipsComponent, M07SheetComponent],
+  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent,
+    PageTopbarComponent, FilterChipsComponent, M07SheetComponent],
   providers: [MessageService],
   templateUrl: './terrain.component.html',
   styleUrl: './terrain.component.scss',
