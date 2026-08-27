@@ -3,7 +3,10 @@ $sidebar-item-active-bg: rgba(26, 86, 219, 0.28);
 $sidebar-item-hover-bg:  rgba(255, 255, 255, 0.06);
 $sidebar-border:         rgba(255, 255, 255, 0.07);
 $sidebar-text:           var(--surface);
-$sidebar-text-muted:     var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.45 → 4,36)
+// Une entrée de nav est du texte *interactif*, pas de la méta : elle prend le
+// rôle « secondaire » (8,9:1) et non le rôle « étiquette » (6,3:1). À 0,58 les
+// dix entrées inactives faisaient lire la navigation entière comme désactivée.
+$sidebar-text-muted:     var(--encre-inverse-2);   // 8,9:1 sur navy (0,58 → 0,72)
 $sidebar-width:          220px;
 
 :host {
@@ -148,6 +151,7 @@ $sidebar-width:          220px;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
   user-select: none;
+  position: relative;   // ancre le rail de l'état actif
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(&--active):not(&--disabled) {
@@ -160,6 +164,25 @@ $sidebar-width:          220px;
     background: $sidebar-item-active-bg;
     color: $sidebar-text;
     font-weight: 600;
+
+    // Le fond prescrit par le DESIGN.md (bleu à 28 % sur navy) ne détache la
+    // pastille du fond qu'à 1,5:1 — le « vous êtes ici » se devinait plus
+    // qu'il ne se voyait. Le rail en Bleu Rivière le pose franchement, sans
+    // toucher au fond que le système prescrit.
+    &::before {
+      content: '';
+      position: absolute;
+      // Sur le bord du panneau, pas sur celui de la pastille : posé à left: 0
+      // l'angle arrondi de la pastille le rognait, et il se lisait comme un
+      // fragment. Le décalage vaut le padding de .sidebar__nav.
+      left: calc(-1 * var(--pas-2));
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 24px;
+      border-radius: 0 999px 999px 0;
+      background: var(--bleu-riviere-clair, #60a5fa);
+    }
   }
 
   &--disabled {
