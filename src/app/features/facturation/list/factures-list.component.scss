@@ -4,55 +4,45 @@
 :host {
   display: block;
 
-  --p-select-border-radius: 8px;
-  --p-select-border-color: #e2e8f0;
+  --p-select-border-radius: var(--rayon-md);
+  --p-select-border-color: var(--filet);
   --p-select-padding-x: 12px;
 }
 
 .factures-content {
-  padding: 18px 22px;
-  background: #f1f5f9;
+  padding: var(--pas-4) var(--pas-5);
+  background: var(--fond);
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 
-  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
+  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
 }
 
 // ── Ligne filtres + action WhatsApp bulk (batch 10 : filters-panel shared) ─
 // Le panel gère le responsive chips↔select en interne ; ici on aligne juste
 // le panel (flex 1) avec le bouton d'action (flex-shrink 0).
-.factures-filters-row {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-
-  app-filters-panel { flex: 1 1 auto; min-width: 0; }
-
-  @media (max-width: 640px) { flex-direction: column; }
-}
-
 // ── Generate banner ───────────────────────────────────────────────────────────
 
 .generate-banner {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 14px 18px;
+  background: var(--attente-fond);
+  border: 1px solid var(--attente-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--pas-4);
 
   &__left {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--pas-3);
   }
 
   &__icon {
-    color: #d97706;
+    color: var(--ambre-attente);
     font-size: 18px;
     flex-shrink: 0;
     margin-top: 1px;
@@ -61,35 +51,35 @@
   &__title {
     font-size: 13px;
     font-weight: 700;
-    color: #92400e;
-    margin-bottom: 2px;
+    color: var(--attente-encre);
+    margin-bottom: var(--pas-1);
   }
 
   &__sub {
     font-size: 11px;
-    color: #b45309;
+    color: var(--ambre-attente);
   }
 }
 
 // Normalisé sur le vocabulaire button-primary de DESIGN.md (Bleu Rivière) —
-// ex-marron `#92400e` isolé hors palette a été retiré (5e style ad-hoc).
+// ex-marron `var(--attente-encre)` isolé hors palette a été retiré (5e style ad-hoc).
 .btn-generer {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--pas-2);
   height: 38px;
-  padding: 0 18px;
+  padding: 0 var(--pas-4);
   background: $color-primary;
-  color: #fff;
+  color: var(--surface);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--rayon-md);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s, opacity 0.15s, transform 160ms var(--ease-out);
 
-  &:hover:not(:disabled) { background: #1d4ed8; }
+  &:hover:not(:disabled) { background: var(--action-survol); }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -97,18 +87,18 @@
 
 // Aligné sur le vert canonique WhatsApp de DESIGN.md : même dégradé Vert Profond
 // → Vert Nappe que le CTA de confirmation (.wa-bulk-btn--confirm), au lieu de
-// l'aplat #15803d (green-700 hors-palette, ex-5e vert ad-hoc). + focus-visible
+// l'aplat var(--succes-encre) (green-700 hors-palette, ex-5e vert ad-hoc). + focus-visible
 // et press-scale comme le reste des boutons (btn-generer, wa-bulk-btn).
 .btn-whatsapp-tous {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--pas-2);
   height: 44px;                                   // aligne avec la hauteur des contrôles du filters-panel
-  padding: 0 18px;
-  background: linear-gradient(135deg, #166534, #0e9f6e);  // Vert Profond → Vert Nappe
-  color: #fff;
+  padding: 0 var(--pas-4);
+  background: linear-gradient(135deg, var(--vert-profond), var(--succes));  // Vert Profond → Vert Nappe
+  color: var(--surface);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--rayon-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -117,7 +107,7 @@
   transition: opacity 0.15s, box-shadow 0.15s, transform 160ms var(--ease-out, ease-out);
 
   &:hover:not(:disabled) { opacity: 0.92; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.24); }
-  &:focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
@@ -125,13 +115,13 @@
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 .factures-table-wrap {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 
   // Mobile : wrapper transparent, cartes séparées (gap 9px — MB-04)
-  @media (max-width: 720px) {
+  @media (max-width: 1023px) {
     background: transparent;
     border: none;
     border-radius: 0;
@@ -139,8 +129,8 @@
   }
 }
 
-@media (max-width: 720px) {
-  .fcard { margin-bottom: 9px; }
+@media (max-width: 1023px) {
+  .fcard { margin-bottom: var(--pas-2); }
 }
 
 // ── Cartes mobiles (MB-04) — rendues par app-data-table via appCardRow ─────────
@@ -148,32 +138,32 @@
 .fcard {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--pas-3);
   width: 100%;
   text-align: left;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-3) var(--pas-3);
   cursor: pointer;
   transition: background 0.1s, border-color 0.1s;
 
-  &--impayee { border-color: #fecaca; }
+  &--impayee { border-color: var(--danger-trait); }
 
-  &:active { background: #f8fbff; }
+  &:active { background: var(--surface-douce); }
 
   &__info {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--pas-1);
   }
 
   &__nom {
     font-size: 13px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -181,30 +171,30 @@
 
   &__sub {
     font-size: 10px;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   &__right {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 4px;
+    gap: var(--pas-1);
     flex-shrink: 0;
   }
 
   &__montant {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
   }
 }
 
 .chip-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   font-size: 13px;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .chip-active-dot {
@@ -218,28 +208,28 @@
 .col-numero {
   font-size: 11px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--encre-3);
   white-space: nowrap;
 
-  &--link { color: $color-primary; cursor: pointer; }
-  &--selected { color: $color-primary; font-weight: 600; }
+  &--link { color: var(--action); cursor: pointer; }
+  &--selected { color: var(--action); font-weight: 600; }
 }
 
 .col-abonne {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--pas-1);
 }
 
 .abonne-nom {
   font-weight: 600;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--encre);
 }
 
 .abonne-sub {
   font-size: 11px;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 .col-montant {
@@ -252,51 +242,51 @@
   font-size: 13px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
 }
 
-.solde-zero { color: #15803d; }
-.solde-red  { color: #dc2626; font-weight: 700; font-size: 14px; }
-.solde-blue { color: $color-primary; font-weight: 700; font-size: 14px; }
-.solde-loading { color: #64748b; }
+.solde-zero { color: var(--succes-encre); }
+.solde-red  { color: var(--danger-encre); font-weight: 700; font-size: 14px; }
+.solde-blue { color: var(--action); font-weight: 700; font-size: 14px; }
+.solde-loading { color: var(--encre-3); }
 
 // Indicateur "solde estimé" (P1 batch 8 list) : honnêteté visuelle sur les
 // IMPAYEE dont le solde n'a pas été vérifié backend. Discret pour ne pas
 // perturber la lecture des chiffres réels.
 .solde-estimated {
   font-size: 12px;
-  color: #94a3b8;                                       // slate 400 (icon, non-texte)
+  color: var(--encre-3);                                       // slate 400 (icon, non-texte)
   cursor: help;
   transition: color 0.12s;
 
-  &:hover, &:focus-visible { color: #64748b; outline: none; }
+  &:hover, &:focus-visible { color: var(--encre-3); outline: none; }
 }
 
 // ── Row actions ───────────────────────────────────────────────────────────────
 
 .row-actions {
   display: flex;
-  gap: 5px;
+  gap: var(--pas-1);
   align-items: center;
 }
 
 .btn-action {
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 4px 10px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
   font-size: 11px;
   font-weight: 500;
-  color: #64748b;
-  background: #fff;
+  color: var(--encre-3);
+  background: var(--surface);
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s;
   white-space: nowrap;
 
-  &:hover { background: #f8fafc; border-color: #cbd5e1; }
+  &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
 
   &--primary {
     background: $color-primary;
-    color: #fff;
+    color: var(--surface);
     border-color: $color-primary;
     font-weight: 600;
 
@@ -307,7 +297,7 @@
   }
 
   &--icon {
-    padding: 4px 8px;
+    padding: var(--pas-1) var(--pas-2);
     i { font-size: 13px; }
   }
 }
@@ -315,7 +305,7 @@
 
 // Mobile (MB-04) : l'envoi WhatsApp groupé reste une action desktop.
 // Placé en fin de fichier pour l'emporter sur le `display` de la règle de base.
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .btn-whatsapp-tous { display: none; }
 }
 
@@ -325,17 +315,17 @@
 .wa-bulk-body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 
-  &__head { display: flex; gap: 14px; align-items: flex-start; }
+  &__head { display: flex; gap: var(--pas-3); align-items: flex-start; }
 
   &__icon {
     width: 44px;
     height: 44px;
-    border-radius: 12px;
-    background: #f0fdf4;                                // Vert Lueur DESIGN.md
-    border: 1px solid #bbf7d0;                          // Vert Trait
-    color: #166534;                                     // Vert Profond
+    border-radius: var(--rayon-lg);
+    background: var(--succes-fond);                                // Vert Lueur DESIGN.md
+    border: 1px solid var(--succes-trait);                          // Vert Trait
+    color: var(--vert-profond);                                     // Vert Profond
     display: flex;
     align-items: center;
     justify-content: center;
@@ -346,69 +336,69 @@
   &__title {
     font-size: 17px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 4px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-1);
   }
 
   &__desc {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     line-height: 1.55;
     margin: 0;
   }
 }
 
 .wa-bulk-summary {
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
   overflow: hidden;
 
   &__row {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    padding: 9px 14px;
+    gap: var(--pas-3);
+    padding: var(--pas-2) var(--pas-3);
     font-size: 12px;
-    color: #64748b;
-    border-bottom: 1px solid #f1f5f9;
+    color: var(--encre-3);
+    border-bottom: 1px solid var(--fond);
 
     &:last-child { border-bottom: none; }
   }
 
   &__v {
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
     white-space: nowrap;
   }
 }
 
 .wa-bulk-warn {
   display: flex;
-  gap: 9px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 10px 12px;
+  gap: var(--pas-2);
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
   font-size: 12px;
-  color: #475569;
+  color: var(--encre-2);
   line-height: 1.5;
 
-  &__icon { font-size: 13px; line-height: 1.4; flex-shrink: 0; color: #64748b; }
+  &__icon { font-size: 13px; line-height: 1.4; flex-shrink: 0; color: var(--encre-3); }
 }
 
 .wa-bulk-actions {
   display: flex;
   flex-direction: column-reverse;                       // « Envoyer » au-dessus, Annuler dessous
-  gap: 10px;
-  padding-top: 2px;
+  gap: var(--pas-2);
+  padding-top: var(--pas-1);
 
   .wa-bulk-btn { width: 100%; justify-content: center; }
 }
 
 .wa-bulk-btn {
   height: 44px;                                         // WCAG 2.5.5
-  padding: 0 18px;
-  border-radius: 8px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -416,24 +406,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--pas-2);
 
   &:disabled { opacity: 0.5; cursor: not-allowed; }
   &:active:not(:disabled) { transform: scale(0.97); }
 
   &--ghost {
     background: none;
-    color: #475569;
-    border: 1px solid #e2e8f0;
-    &:hover:not(:disabled) { background: #f8fafc; }
+    color: var(--encre-2);
+    border: 1px solid var(--filet);
+    &:hover:not(:disabled) { background: var(--surface-douce); }
   }
 
   &--confirm {
-    background: linear-gradient(135deg, #166534, #0e9f6e);  // Vert Profond → Vert Nappe
-    color: #fff;
+    background: linear-gradient(135deg, var(--vert-profond), var(--succes));  // Vert Profond → Vert Nappe
+    color: var(--surface);
     border: none;
     box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28);
     &:hover:not(:disabled) { opacity: 0.92; }
-    &:focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   }
+}
+
+// Repli quand le nom d'abonné est absent : on montre le numéro, en retrait.
+.abonne-nom--absent {
+  color: var(--encre-3);
+  font-weight: 500;
 }

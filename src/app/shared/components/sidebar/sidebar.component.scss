@@ -1,9 +1,9 @@
-$sidebar-bg:             #0f1c3d;
+$sidebar-bg:             var(--navy-nuit);
 $sidebar-item-active-bg: rgba(26, 86, 219, 0.28);
 $sidebar-item-hover-bg:  rgba(255, 255, 255, 0.06);
 $sidebar-border:         rgba(255, 255, 255, 0.07);
-$sidebar-text:           #fff;
-$sidebar-text-muted:     rgba(255, 255, 255, 0.45);
+$sidebar-text:           var(--surface);
+$sidebar-text-muted:     var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.45 → 4,36)
 $sidebar-width:          220px;
 
 :host {
@@ -24,8 +24,8 @@ $sidebar-width:          220px;
 .sidebar__logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 18px 16px;
+  gap: var(--pas-2);
+  padding: var(--pas-5) var(--pas-4) var(--pas-4);
   border-bottom: 1px solid $sidebar-border;
 }
 
@@ -41,10 +41,10 @@ $sidebar-width:          220px;
   display: block;
   font-size: 10px;
   font-weight: 400;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--encre-inverse-3);
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  margin-top: 3px;
+  margin-top: var(--pas-1);
 }
 
 .sidebar__logo-text {
@@ -60,17 +60,17 @@ $sidebar-width:          220px;
   width: 34px;
   height: 34px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--rayon-md);
   background: rgba(255, 255, 255, 0.08);
   color: rgba(255, 255, 255, 0.7);
   font-size: 15px;
   cursor: pointer;
   flex-shrink: 0;
 
-  &:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+  &:hover { background: rgba(255, 255, 255, 0.14); color: var(--surface); }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .sidebar { width: 280px; }
   .sidebar__close { display: inline-flex; }
 }
@@ -78,48 +78,48 @@ $sidebar-width:          220px;
 // ── Campaign card ─────────────────────────────────────────────────────────────
 
 .sidebar__campaign {
-  margin: 12px 12px 4px;
+  margin: var(--pas-3) var(--pas-3) var(--pas-1);
   background: rgba(26, 86, 219, 0.18);
   border: 1px solid rgba(79, 142, 247, 0.25);
-  border-radius: 10px;
-  padding: 10px 12px;
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
 }
 
 .sidebar__campaign-label {
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--encre-inverse-3);
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  margin: 0 0 3px;
+  margin: 0 0 var(--pas-1);
 }
 
 .sidebar__campaign-period {
   font-size: 13px;
   font-weight: 600;
   color: $sidebar-text;
-  margin: 0 0 6px;
+  margin: 0 0 var(--pas-2);
 }
 
 .sidebar__campaign-bar {
   height: 4px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  border-radius: var(--rayon-xs);
   overflow: hidden;
 }
 
 .sidebar__campaign-bar-fill {
   height: 100%;
-  background: #4f8ef7;
-  border-radius: 2px;
+  background: var(--action);
+  border-radius: var(--rayon-xs);
   transition: width 0.4s ease;
 }
 
 .sidebar__campaign-stats {
   font-size: 10px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
-  margin: 4px 0 0;
+  color: var(--encre-inverse-3);
+  margin: var(--pas-1) 0 0;
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -128,16 +128,16 @@ $sidebar-width:          220px;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 10px 8px;
+  gap: var(--pas-1);
+  padding: var(--pas-2) var(--pas-2) var(--pas-2);
 }
 
 .sidebar__nav-item {
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 10px;
-  border-radius: 8px;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-2);
+  border-radius: var(--rayon-md);
   text-decoration: none;
   font-size: 12px;
   font-weight: 500;
@@ -180,18 +180,18 @@ $sidebar-width:          220px;
   min-width: 20px;
   height: 18px;
   background: rgba(239, 68, 68, 0.25);
-  color: #fca5a5;
+  color: var(--danger-trait);
   font-size: 10px;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: var(--rayon-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+  padding: 0 var(--pas-2);
 
   &--alert {
-    background: #dc2626;
-    color: #fff;
+    background: var(--danger);
+    color: var(--surface);
   }
 }
 
@@ -200,8 +200,8 @@ $sidebar-width:          220px;
 .sidebar__user {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-3);
   border-top: 1px solid $sidebar-border;
 }
 
@@ -209,13 +209,13 @@ $sidebar-width:          220px;
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+  background: linear-gradient(135deg, var(--action), var(--succes));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
+  color: var(--surface);
   flex-shrink: 0;
   text-transform: uppercase;
 }
@@ -239,6 +239,6 @@ $sidebar-width:          220px;
   display: block;
   font-size: 10px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.35);
-  margin-top: 2px;
+  color: var(--encre-inverse-3);
+  margin-top: var(--pas-1);
 }

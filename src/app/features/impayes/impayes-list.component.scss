@@ -6,13 +6,13 @@
 .bilan-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--pas-2);
   height: 36px;
-  padding: 0 14px;
-  border: 1.5px solid #dc2626;
-  border-radius: 8px;
-  background: #fef2f2;
-  color: #dc2626;
+  padding: 0 var(--pas-3);
+  border: 1.5px solid var(--danger);
+  border-radius: var(--rayon-md);
+  background: var(--danger-fond);
+  color: var(--danger-encre);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -20,24 +20,24 @@
   transition: background 0.12s;
 
   i { font-size: 12px; }
-  &:hover { background: #fee2e2; }
+  &:hover { background: var(--danger-trait); }
 }
 
 .impayes-content {
-  padding: 18px 22px;
-  background: #f1f5f9;
+  padding: var(--pas-4) var(--pas-5);
+  background: var(--fond);
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 
-  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
+  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
 }
 
 // ── Filtres : dropdowns (desktop) ↔ chips d'étape (mobile M-05) ───────────────
 .impayes-etape-chips { display: none; }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .impayes-etape-chips { display: block; }
   .impayes-etape-select,
   .impayes-tri-select { display: none; }
@@ -50,55 +50,55 @@
 .kpi-strip {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: var(--pas-3);
 
-  @media (max-width: 720px) { grid-template-columns: 1fr; }
+  @media (max-width: 1023px) { grid-template-columns: 1fr; }
 }
 
 .kpi {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-3) var(--pas-4);
 
-  &--accent-red { background: #fef2f2; border-color: #fecaca; }
+  &--accent-red { background: var(--danger-fond); border-color: var(--danger-trait); }
 
   &__value {
     font-size: 24px;
     font-weight: 800;
     line-height: 1.1;
-    color: #0f172a;
+    color: var(--encre);
 
-    &--red { font-size: 22px; color: #dc2626; }
-    &--warn { color: #b45309; }
-    &--dark { color: #7f1d1d; }
+    &--red { font-size: 22px; color: var(--danger-encre); }
+    &--warn { color: var(--ambre-attente); }
+    &--dark { color: var(--rouge-braise); }
   }
 
   &__unit {
     font-size: 12px;
     font-weight: 500;
-    color: #64748b;
-    margin-left: 3px;
+    color: var(--encre-3);
+    margin-left: var(--pas-1);
   }
 
   &__label {
-    margin-top: 3px;
+    margin-top: var(--pas-1);
     font-size: 11px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   &__hint {
-    margin-top: 6px;
+    margin-top: var(--pas-2);
     font-size: 11px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--encre-3);
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: var(--pas-1);
 
     &--danger {
-      color: #b91c1c;
+      color: var(--danger-encre);
       font-weight: 600;
       i { font-size: 12px; }
     }
@@ -108,13 +108,13 @@
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 .table-wrap {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 
   // Mobile : wrapper transparent, cartes séparées (MB-07)
-  @media (max-width: 720px) {
+  @media (max-width: 1023px) {
     background: transparent;
     border: none;
     border-radius: 0;
@@ -126,41 +126,41 @@
   &__nom {
     font-size: 13px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--encre);
 
     &--strong { font-weight: 700; }
   }
   &__ref {
     margin-top: 1px;
     font-size: 11px;
-    color: #64748b;
+    color: var(--encre-3);
   }
 }
 
-.col-montant { font-weight: 600; color: #0f172a; }
+.col-montant { font-weight: 600; color: var(--encre); }
 
 .col-paye {
   font-weight: 500;
-  color: #64748b;
-  &--green { color: #15803d; font-weight: 600; }
+  color: var(--encre-3);
+  &--green { color: var(--succes-encre); font-weight: 600; }
 }
 
-.col-solde { font-weight: 700; font-size: 14px; color: #dc2626; }
+.col-solde { font-weight: 700; font-size: 14px; color: var(--danger-encre); }
 
 .col-retard {
   font-weight: 700;
   white-space: nowrap;
 }
-.retard--danger { color: #dc2626; }
-.retard--warn { color: #b45309; }
-.retard--muted { color: #475569; }
+.retard--danger { color: var(--danger-encre); }
+.retard--warn { color: var(--ambre-attente); }
+.retard--muted { color: var(--encre-2); }
 
 // ── Étape badges ──────────────────────────────────────────────────────────────
 
 .etape-badge {
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -168,24 +168,24 @@
   white-space: nowrap;
   border: 1px solid transparent;
 
-  &--etape1 { background: #fffbeb; border-color: #fde68a; color: #b45309; }
-  &--etape2 { background: #fff7ed; border-color: #fed7aa; color: #c2410c; }
-  &--etape3 { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
-  &--suspendue { background: #7f1d1d; border-color: #7f1d1d; color: #fff; font-weight: 700; }
-  &--pause { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--unknown { background: #f8fafc; border-color: #e2e8f0; color: #64748b; }
+  &--etape1 { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--ambre-attente); }
+  &--etape2 { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--ambre-attente); }
+  &--etape3 { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
+  &--suspendue { background: var(--rouge-braise); border-color: var(--rouge-braise); color: var(--surface); font-weight: 700; }
+  &--pause { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
+  &--unknown { background: var(--surface-douce); border-color: var(--filet); color: var(--encre-3); }
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
 
 .row-actions {
   display: flex;
-  gap: 5px;
+  gap: var(--pas-1);
 }
 
 .act {
-  padding: 4px 12px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
   font-size: 11px;
   font-weight: 600;
   cursor: pointer;
@@ -194,16 +194,16 @@
   transition: opacity 0.12s, background 0.12s;
 
   &--primary {
-    background: linear-gradient(135deg, #1a56db, #1d4ed8);
-    color: #fff;
+    background: linear-gradient(135deg, var(--action), var(--action-survol));
+    color: var(--surface);
     &:hover { opacity: 0.9; }
   }
   &--ghost {
-    background: #fff;
-    border-color: #e2e8f0;
-    color: #64748b;
+    background: var(--surface);
+    border-color: var(--filet);
+    color: var(--encre-3);
     font-weight: 500;
-    &:hover { background: #f8fafc; border-color: #cbd5e1; }
+    &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
   }
 }
 
@@ -212,40 +212,40 @@
 .config-reminder {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 10px;
-  padding: 12px 16px;
+  gap: var(--pas-2);
+  background: var(--surface-douce);
+  border: 1px dashed var(--filet-pale);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
   font-size: 11px;
-  color: #64748b;
+  color: var(--encre-3);
 
-  i { color: #64748b; font-size: 14px; flex-shrink: 0; }
+  i { color: var(--encre-3); font-size: 14px; flex-shrink: 0; }
 
   &__text { line-height: 1.5; }
 
-  b { color: #475569; font-weight: 600; }
-  b.ok { color: #0e9f6e; font-weight: 600; }
+  b { color: var(--encre-2); font-weight: 600; }
+  b.ok { color: var(--succes-encre); font-weight: 600; }
 }
 
 // ── Cartes mobiles (MB-07) ────────────────────────────────────────────────────
 
 .fcard {
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 13px 14px;
-  margin-bottom: 9px;
-  background: #fff;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-3) var(--pas-3);
+  margin-bottom: var(--pas-2);
+  background: var(--surface);
 
-  &--danger { background: #fef9f9; border-color: #fecaca; }
+  &--danger { background: var(--danger-fond); border-color: var(--danger-trait); }
 
   // En-tête tappable (→ relances) : nom + réf à gauche, solde rouge à droite
   &__top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 9px;
+    gap: var(--pas-2);
+    margin-bottom: var(--pas-2);
     width: 100%;
     padding: 0;
     border: none;
@@ -254,37 +254,37 @@
     cursor: pointer;
   }
   &__id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  &__nom { font-size: 13px; font-weight: 700; color: #0f172a; }
-  &__ref { margin-top: 1px; font-size: 10px; color: #64748b; }
-  &__solde { font-size: 16px; font-weight: 800; color: #dc2626; flex-shrink: 0; }
+  &__nom { font-size: 13px; font-weight: 700; color: var(--encre); }
+  &__ref { margin-top: 1px; font-size: 10px; color: var(--encre-3); }
+  &__solde { font-size: 16px; font-weight: 800; color: var(--danger-encre); flex-shrink: 0; }
 
   // Pied : badge d'étape + bouton « + Paiement » outline bleu
   &__foot {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: var(--pas-2);
   }
   &__pay {
-    border: 1px solid #1a56db;
-    border-radius: 8px;                 // rounded.md — était 7px hors ramp
-    padding: 5px 12px;
+    border: 1px solid var(--action);
+    border-radius: var(--rayon-md);                 // rounded.md — était 7px hors ramp
+    padding: var(--pas-1) var(--pas-3);
     background: none;
     font-size: 11px;
     font-weight: 600;
-    color: #1a56db;
+    color: var(--action);
     cursor: pointer;
     white-space: nowrap;
     flex-shrink: 0;
 
-    &:active { background: #eff6ff; }
+    &:active { background: var(--action-lueur); }
   }
 }
 
 // ── Mobile (MB-07) : le sous-titre porte le résumé, les KPI et le rappel de
 // configuration sont desktop-only ; bouton bilan réduit à son icône.
 // Placé en fin de fichier pour l'emporter sur les `display` des règles de base.
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .kpi-strip,
   .config-reminder { display: none; }
 

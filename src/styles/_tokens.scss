@@ -1,0 +1,174 @@
+// ═══════════════════════════════════════════════════════════════════════════
+//  Jetons de design SGFE — source unique des couleurs, espacements et formes
+// ═══════════════════════════════════════════════════════════════════════════
+//
+//  Avant ce fichier : 2 132 couleurs écrites en dur dans les composants, pour
+//  91 valeurs distinctes — dont 14 blancs différents et 4 navies. Le DESIGN.md
+//  décrivait un système que rien n'appliquait.
+//
+//  Règle : un composant ne pose plus jamais un `#hex`. Il consomme un jeton.
+//  Une couleur qui manque s'ajoute ICI, avec un nom qui dit son rôle.
+//
+//  Deux couches :
+//    1. PRIMITIVES — la palette, nommée d'après le DESIGN.md (vocabulaire d'eau)
+//    2. RÔLES      — ce à quoi une couleur sert (surface, encre, filet, statut)
+//  Les composants consomment les RÔLES. Les primitives ne servent qu'ici.
+// ═══════════════════════════════════════════════════════════════════════════
+
+:root {
+  // ── 1. Primitives ─────────────────────────────────────────────────────────
+
+  // Bleu Rivière — le geste actif : bouton primaire, lien, focus, sélection.
+  --bleu-riviere:        #1a56db;
+  --bleu-riviere-fonce:  #1d4ed8;
+  --bleu-riviere-clair:  #60a5fa;
+  --ciel-lueur:          #eff6ff;
+  --ciel-trait:          #bfdbfe;
+
+  // Vert Nappe — ce que l'application confirme : paiement acté, relevé pris.
+  --vert-nappe:          #0e9f6e;
+  --vert-profond:        #166534;
+  --vert-abysse:         #14532d;
+  --mint-lueur:          #f0fdf4;
+  --mint-trait:          #bbf7d0;
+  --mint-tapis:          #dcfce7;
+
+  // Navy Nuit — la structure : sidebar, bande de tête, chip actif.
+  --navy-nuit:           #0f1c3d;
+  --navy-clair:          #1a2e5a;
+
+  // Rouge Alerte — l'impayé, l'échec, l'action destructrice.
+  --rouge-alerte:        #dc2626;
+  --rouge-brulure:       #b91c1c;
+  --rouge-braise:        #7f1d1d;
+  --rose-lueur:          #fef2f2;
+  --rose-trait:          #fecaca;
+
+  // Ambre Attente — l'échéance qui approche, le partiel, l'avertissement.
+  --ambre-attente:       #b45309;
+  --ambre-jaune:         #f59e0b;
+  --ambre-lueur:         #fffbeb;
+  --ambre-trait:         #fde68a;
+  --ambre-tapis:         #fef3c7;
+
+  // Échelle d'ardoise — le silence entre les accents.
+  --ardoise-nuit:        #0f172a;
+  --ardoise-encre:       #475569;
+  --ardoise-brume:       #5f6e85;   // 4,73:1 sur le fond de page (était #64748b : 4,34)
+  --ardoise-pale:        #94a3b8;
+  --ardoise-crayon:      #cbd5e1;
+  --ardoise-trait:       #e2e8f0;
+  --ardoise-nappe:       #f1f5f9;
+  --ardoise-brise:       #f8fafc;
+  --blanc:               #ffffff;
+
+  // Teintes de rôle utilisateur — hors vocabulaire d'eau, mais elles
+  // distinguent quatre rôles d'un coup d'œil et méritent d'exister.
+  --role-violet:         #6d28d9;   // Comptable  (était #7c3aed : 3,9:1 sur blanc)
+  --role-violet-lueur:   #f5f3ff;
+  --role-cyan:           #0e7490;   // Superviseur
+  --role-cyan-lueur:     #ecfeff;
+
+  // ── 2. Rôles ──────────────────────────────────────────────────────────────
+
+  // Surfaces, du plus haut au plus bas.
+  --surface:             var(--blanc);
+  --surface-douce:       var(--ardoise-brise);
+  --fond:                var(--ardoise-nappe);
+  --surface-inverse:     var(--navy-nuit);
+
+  // Filets et séparateurs.
+  --filet:               var(--ardoise-trait);
+  --filet-pale:          var(--ardoise-crayon);
+
+  // Encres, de la plus forte à la plus discrète.
+  --encre:               var(--ardoise-nuit);      // titres, chiffres, texte primaire
+  --encre-2:             var(--ardoise-encre);     // texte secondaire
+  --encre-3:             var(--ardoise-brume);     // étiquette, méta — plancher AA
+  --encre-faible:        var(--ardoise-pale);      // décor uniquement, jamais du texte
+  --encre-inverse:       var(--blanc);
+  // Sur la surface navy, le blanc translucide doit rester lisible : à 0,35 il
+  // tombe à 3,15:1, à 0,45 à 4,36. Le plancher AA est atteint à 0,55.
+  --encre-inverse-2:     rgba(255, 255, 255, 0.72);   //  8,9:1 — texte secondaire
+  --encre-inverse-3:     rgba(255, 255, 255, 0.58);   //  6,3:1 — étiquette, méta
+
+  // Action.
+  --action:              var(--bleu-riviere);
+  --action-survol:       var(--bleu-riviere-fonce);
+  --action-lueur:        var(--ciel-lueur);
+  --action-trait:        var(--ciel-trait);
+  --sur-action:          var(--blanc);
+
+  // Statuts — chacun un triplet fond / trait / encre, l'encre étant toujours
+  // lisible sur son propre fond (c'est là que les 12 échecs de contraste se
+  // jouaient : le vert et le rouge vifs ne passent pas sur leur teinte pâle).
+  --succes:              var(--vert-nappe);
+  --succes-fond:         var(--mint-lueur);
+  --succes-trait:        var(--mint-trait);
+  --succes-encre:        #047857;                  // 5,3:1 sur #f0fdf4 (était 3,2)
+
+  --danger:              var(--rouge-alerte);
+  --danger-fond:         var(--rose-lueur);
+  --danger-trait:        var(--rose-trait);
+  --danger-encre:        var(--rouge-brulure);     // 6,0:1 sur #fef2f2 (était 4,4)
+
+  --attente:             var(--ambre-jaune);
+  --attente-fond:        var(--ambre-lueur);
+  --attente-trait:       var(--ambre-trait);
+  --attente-encre:       #92400e;                  // 7,4:1 sur #fffbeb
+
+  --info-fond:           var(--ciel-lueur);
+  --info-trait:          var(--ciel-trait);
+  --info-encre:          var(--bleu-riviere-fonce);
+
+  // Focus clavier — une seule définition pour toute l'application.
+  --focus-anneau:        var(--bleu-riviere);
+  --focus-epaisseur:     2px;
+  --focus-decalage:      2px;
+
+  // ── 3. Espacement — grille de 4 px, six pas ───────────────────────────────
+  // Avant : 20 valeurs distinctes, dont 3, 5, 7, 9, 11, 13, 18 et 22 px.
+  --pas-1:   4px;
+  --pas-2:   8px;
+  --pas-3:  12px;
+  --pas-4:  16px;
+  --pas-5:  24px;
+  --pas-6:  32px;
+  --pas-7:  48px;
+
+  // ── 4. Formes — quatre rayons ─────────────────────────────────────────────
+  // Avant : 12 rayons, de 2 à 20 px.
+  --rayon-xs:   4px;    // pastille, petit badge
+  --rayon-sm:   6px;    // champ, bouton
+  --rayon-md:   8px;    // carte, panneau
+  --rayon-lg:  12px;    // feuille modale, grande carte
+  --rayon-rond: 999px;  // chip, avatar, point
+
+  // ── 5. Élévation ──────────────────────────────────────────────────────────
+  // L'ombre d'un CTA prend la teinte du CTA (règle du DESIGN.md).
+  --ombre-carte:   0 1px 2px rgba(15, 28, 61, 0.05);
+  --ombre-portee:  0 8px 24px rgba(15, 28, 61, 0.12);
+  --ombre-action:  0 2px 8px rgba(26, 86, 219, 0.24);
+
+  // ── 6. Mouvement ──────────────────────────────────────────────────────────
+  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);
+  --duree-courte:  160ms;
+  --duree-moyenne: 220ms;
+  --duree-longue:  300ms;
+}
+
+// ── 7. Points de rupture — trois, pas quinze ────────────────────────────────
+// Avant : 480, 520, 540, 560, 600, 640, 700, 720, 721, 767, 768, 900, 960,
+// 1023 et 1024 px — dont trois paires à un pixel d'écart.
+$rupture-mobile:  640px;   // en dessous : une seule colonne, tables en cartes
+$rupture-tablette: 1024px; // en dessous : navigation en tiroir
+$rupture-large:   1280px;  // au-delà : colonnes secondaires
+
+@mixin mobile   { @media (max-width: #{$rupture-mobile - 1px})   { @content; } }
+@mixin tablette { @media (max-width: #{$rupture-tablette - 1px}) { @content; } }
+@mixin desktop  { @media (min-width: #{$rupture-tablette})       { @content; } }
+@mixin large    { @media (min-width: #{$rupture-large})          { @content; } }
+
+// Survol réel uniquement : au doigt, `:hover` se déclenche au premier appui.
+@mixin survol   { @media (hover: hover) and (pointer: fine)      { @content; } }

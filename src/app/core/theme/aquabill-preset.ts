@@ -34,7 +34,7 @@ export const AquaBillPreset = definePreset(Aura, {
           borderColor: '#e2e8f0',
           hoverBorderColor: '#cbd5e1',
           invalidBorderColor: '#ef4444',
-          placeholderColor: '#cbd5e1',
+          placeholderColor: '#5f6e85',   // 4,7:1 — était #cbd5e1 (1,42:1), illisible
         },
       },
     },

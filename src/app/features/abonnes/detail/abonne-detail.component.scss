@@ -8,11 +8,11 @@
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
 .abonne-content {
-  padding: 20px 24px;
+  padding: var(--pas-5) var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: #f1f5f9;
+  gap: var(--pas-3);
+  background: var(--fond);
   min-height: 100%;
 }
 
@@ -21,13 +21,13 @@
 .abonne-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 }
 
 .abonne-skeleton__kpis {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 // ── Bannière d'erreur ─────────────────────────────────────────────────────────
@@ -35,26 +35,26 @@
 .abonne-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
   font-size: 14px;
-  color: #b91c1c;
+  color: var(--danger-encre);
 }
 
 .abonne-error__retry {
   margin-left: auto;
   background: none;
-  border: 1px solid #dc2626;
-  color: #b91c1c;
+  border: 1px solid var(--danger);
+  color: var(--danger-encre);
   font-size: 13px;
-  padding: 4px 12px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
   cursor: pointer;
 
-  &:hover { background: #fef2f2; }
+  &:hover { background: var(--danger-fond); }
 }
 
 // ── Carte en-tête abonné ──────────────────────────────────────────────────────
@@ -62,24 +62,24 @@
 .abonne-header-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px;
+  gap: var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-5);
 }
 
 .abonne-avatar {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+  background: linear-gradient(135deg, var(--action), var(--succes));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
   flex-shrink: 0;
 }
 
@@ -91,19 +91,19 @@
 .abonne-header-card__name-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 4px;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-1);
 }
 
 .abonne-header-card__name {
   font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
 }
 
 .abonne-header-card__sub {
   font-size: 12px;
-  color: #64748b;
+  color: var(--encre-3);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -111,7 +111,7 @@
 
 .abonne-header-card__actions {
   display: flex;
-  gap: 8px;
+  gap: var(--pas-2);
   flex-shrink: 0;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -122,8 +122,8 @@
 .abonne-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -132,42 +132,42 @@
   white-space: nowrap;
 
   &--actif {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #15803d;
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
   }
 
   &--suspendu {
-    background: #fffbeb;
-    border-color: #fde68a;
-    color: #b45309;
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--ambre-attente);
   }
 
   &--resilie {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
   }
 }
 
 // ── Boutons d'action ──────────────────────────────────────────────────────────
 
 .abonne-action-btn {
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 8px 14px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
   font-size: 12px;
   font-weight: 500;
-  color: #475569;
-  background: #fff;
+  color: var(--encre-2);
+  background: var(--surface);
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
 
   &:hover:not(:disabled) {
     border-color: $color-primary;
-    color: $color-primary;
-    background: #eff6ff;
+    color: var(--action);
+    background: var(--action-lueur);
   }
 
   &:disabled {
@@ -176,43 +176,43 @@
   }
 
   &--danger {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
 
     &:hover:not(:disabled) {
-      background: #fee2e2;
-      border-color: #fca5a5;
-      color: #b91c1c;
+      background: var(--danger-trait);
+      border-color: var(--danger-trait);
+      color: var(--danger-encre);
     }
   }
 
   &--danger-outline {
-    color: #dc2626;
-    border-color: #fecaca;
+    color: var(--danger-encre);
+    border-color: var(--danger-trait);
 
     &:hover:not(:disabled) {
-      background: #fef2f2;
+      background: var(--danger-fond);
     }
   }
 
   &--success {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #15803d;
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
 
     &:hover:not(:disabled) {
-      background: #dcfce7;
+      background: var(--mint-tapis);
     }
   }
 
   &--ghost {
-    color: #64748b;
+    color: var(--encre-3);
 
     &:hover:not(:disabled) {
-      border-color: #cbd5e1;
-      color: #334155;
-      background: #f8fafc;
+      border-color: var(--filet-pale);
+      color: var(--encre-2);
+      background: var(--surface-douce);
     }
   }
 }
@@ -222,68 +222,68 @@
 .abonne-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 .abonne-kpi {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
   border-top-width: 3px;
 
   &--blue   { border-top-color: $color-primary; }
   &--green  { border-top-color: $color-accent; }
-  &--red    { border-top-color: #ef4444; }
-  &--slate  { border-top-color: #64748b; }
+  &--red    { border-top-color: var(--danger); }
+  &--slate  { border-top-color: var(--encre-3); }
 }
 
 .abonne-kpi__label {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--encre-3);
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: var(--pas-2);
 }
 
 .abonne-kpi__value {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
   line-height: 1;
 }
 
 .abonne-kpi__sub {
   font-size: 11px;
-  color: #64748b;
-  margin-top: 4px;
+  color: var(--encre-3);
+  margin-top: var(--pas-1);
   min-height: 14px;
 }
 
-.abonne-kpi--green .abonne-kpi__value--solde { color: #16a34a; }
-.abonne-kpi--red   .abonne-kpi__value--solde { color: #dc2626; }
+.abonne-kpi--green .abonne-kpi__value--solde { color: var(--succes-encre); }
+.abonne-kpi--red   .abonne-kpi__value--solde { color: var(--danger-encre); }
 
 // ── Carte onglets ─────────────────────────────────────────────────────────────
 
 .abonne-tabs-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 }
 
 .abonne-tabs__nav {
   display: flex;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 20px;
+  border-bottom: 1px solid var(--filet);
+  padding: 0 var(--pas-5);
 }
 
 .abonne-tabs__tab {
-  padding: 13px 16px;
+  padding: var(--pas-3) var(--pas-4);
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--encre-3);
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -291,11 +291,11 @@
   white-space: nowrap;
   transition: color 0.12s, border-color 0.12s;
 
-  &:hover:not(&--active) { color: #475569; }
+  &:hover:not(&--active) { color: var(--encre-2); }
 
   &--active {
     font-weight: 600;
-    color: $color-primary;
+    color: var(--action);
     border-bottom-color: $color-primary;
   }
 }
@@ -305,67 +305,67 @@
 .abonne-info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  padding: 20px;
+  gap: var(--pas-4);
+  padding: var(--pas-5);
 }
 
 .abonne-info-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 16px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
 }
 
 .abonne-info-card__header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
   font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 12px;
+  color: var(--encre);
+  margin-bottom: var(--pas-3);
 }
 
 .abonne-info-card__empty {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 20px 0;
-  color: #64748b;
+  gap: var(--pas-2);
+  padding: var(--pas-5) 0;
+  color: var(--encre-3);
   font-size: 13px;
 }
 
 .abonne-info-rows {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--pas-2);
 }
 
 .abonne-info-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
 
   &__label {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     flex-shrink: 0;
   }
 
   &__value {
     font-size: 12px;
     font-weight: 500;
-    color: #0f172a;
+    color: var(--encre);
     text-align: right;
     text-decoration: none;
 
-    &--muted { color: #475569; }
+    &--muted { color: var(--encre-2); }
     &--mono  { font-weight: 600; font-variant-numeric: tabular-nums; }
   }
 
   a.abonne-info-row__value {
-    color: $color-primary;
+    color: var(--action);
     &:hover { text-decoration: underline; }
   }
 }
@@ -373,14 +373,14 @@
 // ── Section Dernières factures ────────────────────────────────────────────────
 
 .abonne-invoices {
-  padding: 0 20px 20px;
+  padding: 0 var(--pas-5) var(--pas-5);
 }
 
 .abonne-invoices__title {
   font-size: 13px;
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 10px;
+  color: var(--encre);
+  margin-bottom: var(--pas-2);
 }
 
 .abonne-invoices__table {
@@ -388,15 +388,15 @@
   border-collapse: collapse;
 
   thead tr {
-    background: #f8fafc;
+    background: var(--surface-douce);
   }
 
   th {
-    padding: 8px 12px;
+    padding: var(--pas-2) var(--pas-3);
     text-align: left;
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--encre-3);
     letter-spacing: 0.4px;
     text-transform: uppercase;
 
@@ -404,8 +404,8 @@
   }
 
   td {
-    padding: 9px 12px;
-    border-top: 1px solid #f1f5f9;
+    padding: var(--pas-2) var(--pas-3);
+    border-top: 1px solid var(--fond);
     font-size: 12px;
 
     &.text-right { text-align: left; }
@@ -413,10 +413,10 @@
 }
 
 .abonne-invoices__empty {
-  color: #64748b;
+  color: var(--encre-3);
   font-size: 12px;
   text-align: center !important;
-  padding: 20px 12px !important;
+  padding: var(--pas-5) var(--pas-3) !important;
 }
 
 .abonne-invoices__see-all {
@@ -426,7 +426,7 @@
   background: none;
   font-size: 11px;
   font-weight: 500;
-  color: $color-primary;
+  color: var(--action);
   cursor: pointer;
 
   &:hover { text-decoration: underline; }
@@ -438,7 +438,7 @@
   background: none;
   cursor: pointer;
   font-family: inherit;
-  color: $color-primary;
+  color: var(--action);
   font-size: 11px;
   font-weight: 500;
   text-decoration: none;
@@ -450,25 +450,25 @@
 
 .facture-badge {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 6px;                                   // sm token DESIGN.md
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);                                   // sm token DESIGN.md
   font-size: 11px;
   font-weight: 600;
   border: 1px solid;
 
-  &--payee     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
-  &--partielle { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--impayee   { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+  &--payee     { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
+  &--partielle { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
+  &--impayee   { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
 }
 
 // ── Onglets Factures / Impayés / Conso ────────────────────────────────────────
 
-.abonne-tab-pane { padding: 20px; }
+.abonne-tab-pane { padding: var(--pas-5); }
 
 .conso-chart {
   display: flex;
   align-items: flex-end;
-  gap: 12px;
+  gap: var(--pas-3);
   height: 200px;
 }
 
@@ -479,15 +479,15 @@
   align-items: center;
   height: 100%;
 
-  &__value { font-size: 11px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+  &__value { font-size: 11px; font-weight: 600; color: var(--encre-3); margin-bottom: var(--pas-1); }
   &__track { flex: 1; width: 100%; max-width: 46px; display: flex; align-items: flex-end; }
   &__fill {
     width: 100%;
     min-height: 4px;
-    background: linear-gradient(180deg, #60a5fa, #1a56db);  // Bleu Rivière Clair → Rivière
+    background: linear-gradient(180deg, var(--bleu-riviere-clair), var(--action));  // Bleu Rivière Clair → Rivière
     border-radius: 4px 4px 0 0;
   }
-  &__label { font-size: 10px; color: #64748b; margin-top: 6px; text-transform: capitalize; }
+  &__label { font-size: 10px; color: var(--encre-3); margin-top: var(--pas-2); text-transform: capitalize; }
 }
 
 // ── Placeholder onglets ───────────────────────────────────────────────────────
@@ -497,9 +497,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 48px 0;
-  color: #64748b;
+  gap: var(--pas-3);
+  padding: var(--pas-7) 0;
+  color: var(--encre-3);
   font-size: 13px;
 }
 
@@ -508,8 +508,8 @@
 .edit-form {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 4px 0;
+  gap: var(--pas-3);
+  padding: var(--pas-1) 0;
 }
 
 
@@ -517,45 +517,45 @@
 // ── Onglet Compteurs — Historique ─────────────────────────────────────────────
 
 .hist-tab {
-  padding: 20px;
+  padding: var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
 }
 
 // Skeleton
 .hist-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 // Erreur
 .hist-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-3);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
   font-size: 13px;
-  color: #b91c1c;
+  color: var(--danger-encre);
 }
 
 // Compteur actuel
 .hist-current {
   background: linear-gradient(135deg, rgba(26,86,219,0.05), rgba(14,159,110,0.04));
   border: 1px solid rgba($color-primary, 0.15);
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
 }
 
 .hist-current__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 4px;
+  margin-bottom: var(--pas-1);
 }
 
 .hist-current__label {
@@ -563,16 +563,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: $color-primary;
+  color: var(--action);
 }
 
 .hist-current__badge {
   font-size: 10px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-xs);
   background: rgba($color-accent, 0.1);
-  color: $color-accent;
+  color: var(--succes-encre);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -580,30 +580,30 @@
 .hist-current__number {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
   font-variant-numeric: tabular-nums;
-  margin-bottom: 10px;
+  margin-bottom: var(--pas-2);
 }
 
 .hist-current__rows {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--pas-1);
 }
 
 .hist-current__row {
   display: flex;
-  gap: 8px;
+  gap: var(--pas-2);
   font-size: 12px;
 }
 
 .hist-current__key {
-  color: #64748b;
+  color: var(--encre-3);
   min-width: 90px;
 }
 
 .hist-current__val {
-  color: #334155;
+  color: var(--encre-2);
   font-weight: 500;
 }
 
@@ -612,9 +612,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 36px 20px;
-  color: #64748b;
+  gap: var(--pas-2);
+  padding: 36px var(--pas-5);
+  color: var(--encre-3);
   font-size: 13px;
 }
 
@@ -622,21 +622,21 @@
 .hist-section-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .hist-section-count {
-  background: #e2e8f0;
-  color: #475569;
+  background: var(--filet);
+  color: var(--encre-2);
   font-size: 10px;
   font-weight: 600;
-  padding: 1px 7px;
-  border-radius: 10px;
+  padding: 1px var(--pas-2);
+  border-radius: var(--rayon-md);
 }
 
 // Timeline
@@ -647,13 +647,13 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  border-left: 2px solid #e2e8f0;
-  margin-left: 7px;
+  border-left: 2px solid var(--filet);
+  margin-left: var(--pas-2);
 }
 
 .hist-entry {
   position: relative;
-  padding: 0 0 20px 20px;
+  padding: 0 0 var(--pas-5) var(--pas-5);
 }
 
 .hist-entry__dot {
@@ -664,34 +664,34 @@
   height: 12px;
   border-radius: 50%;
   background: $color-primary;
-  border: 2px solid #fff;
+  border: 2px solid var(--surface);
   box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
 }
 
 .hist-entry__body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--pas-2);
 }
 
 .hist-entry__date {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--encre);
 }
 
 .hist-entry__idx-label {
   font-weight: 400;
-  color: #64748b;
-  margin-left: 4px;
+  color: var(--encre-3);
+  margin-left: var(--pas-1);
 }
 
 .hist-entry__idx-val {
   font-weight: 600;
-  color: #334155;
+  color: var(--encre-2);
   font-variant-numeric: tabular-nums;
 }
 
@@ -699,20 +699,20 @@
 .hist-entry__cards {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
 }
 
 .hist-meter {
   flex: 1;
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: var(--pas-1);
 
   &--old {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: var(--surface-douce);
+    border: 1px solid var(--filet);
   }
 
   &--new {
@@ -727,8 +727,8 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 
-  .hist-meter--old & { color: #64748b; }
-  .hist-meter--new & { color: $color-accent; }
+  .hist-meter--old & { color: var(--encre-3); }
+  .hist-meter--new & { color: var(--succes-encre); }
 }
 
 .hist-meter__num {
@@ -736,18 +736,18 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 
-  .hist-meter--old & { color: #64748b; }
-  .hist-meter--new & { color: #0f172a; }
+  .hist-meter--old & { color: var(--encre-3); }
+  .hist-meter--new & { color: var(--encre); }
 }
 
 .hist-meter__loc {
   font-size: 11px;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 .hist-meter__sub {
   font-size: 10px;
-  color: #64748b;
+  color: var(--encre-3);
   font-variant-numeric: tabular-nums;
 }
 
@@ -755,12 +755,12 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 // ── Responsive fiche abonné (mobile · MB-01) ──────────────────────────────────
-@media (max-width: 768px) {
-  .abonne-content { padding: 14px 12px; gap: 12px; }
+@media (max-width: 1023px) {
+  .abonne-content { padding: var(--pas-3) var(--pas-3); gap: var(--pas-3); }
   .abonne-kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .abonne-info-grid { grid-template-columns: 1fr; }
   .abonne-header-card { flex-wrap: wrap; }

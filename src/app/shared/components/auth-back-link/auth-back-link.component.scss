@@ -4,8 +4,8 @@
 .auth-back-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  color: #64748b;
+  gap: var(--pas-2);
+  color: var(--encre-3);
   text-decoration: none;
   font-size: 13px;
 }

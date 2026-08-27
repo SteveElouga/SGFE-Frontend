@@ -1,13 +1,13 @@
 :host {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--pas-2);
 
   h2 {
     font-size: 15px;
     font-weight: 600;
     margin: 0;
-    color: #0f172a;
+    color: var(--encre);
   }
 }
 
@@ -15,7 +15,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #f0fdf4;
+  background: var(--succes-fond);
   display: flex;
   align-items: center;
   justify-content: center;

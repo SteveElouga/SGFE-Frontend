@@ -13,15 +13,15 @@
 // ── Contenu ───────────────────────────────────────────────────────────────────
 
 .profil-content {
-  padding: 20px 24px;
-  background: #f1f5f9;
+  padding: var(--pas-5) var(--pas-5);
+  background: var(--fond);
   min-height: calc(100% - 54px);
 }
 
 .profil-inner {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
 }
 
 // ── Avatar card ───────────────────────────────────────────────────────────────
@@ -29,18 +29,18 @@
 .profil-avatar-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px 24px;
+  gap: var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-5) var(--pas-5);
 }
 
 .profil-avatar {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #1e293b;
+  background: var(--encre);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -50,37 +50,37 @@
 .profil-avatar__initials {
   font-size: 26px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
   line-height: 1;
 }
 
 .profil-identity {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--pas-2);
   min-width: 0;
 }
 
 .profil-identity__username {
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
 }
 
 .profil-identity__meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--pas-2);
   flex-wrap: wrap;
 }
 
 .profil-identity__role {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
-  background: #1e293b;
-  color: #fff;
-  border-radius: 4px;
+  padding: var(--pas-1) var(--pas-2);
+  background: var(--encre);
+  color: var(--surface);
+  border-radius: var(--rayon-xs);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -89,29 +89,26 @@
 
 .profil-identity__phone {
   font-size: 13px;
-  color: #475569;
+  color: var(--encre-2);
   font-variant-numeric: tabular-nums;
 }
 
 // ── Section card ──────────────────────────────────────────────────────────────
 
 .profil-section {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
   overflow: hidden;
 }
 
 .profil-section__header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  background: #f8fafc;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-5);
+  border-bottom: 1px solid var(--fond);
+  background: var(--surface-douce);
   font-size: 15px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--encre);
 }
 
 .profil-section__icon {
@@ -120,49 +117,49 @@
   justify-content: center;
   width: 30px;
   height: 30px;
-  background: #dbeafe;
-  border-radius: 8px;
-  color: #1d4ed8;
+  background: var(--action-lueur);
+  border-radius: var(--rayon-md);
+  color: var(--action-survol);
   font-size: 14px;
 
   &--danger {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--danger-trait);
+    color: var(--danger-encre);
   }
 }
 
 .profil-section__body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px 20px;
+  gap: var(--pas-3);
+  padding: var(--pas-4) var(--pas-5);
 }
 
 .profil-reset-desc {
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 .profil-reset-done {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
   font-size: 13px;
   font-weight: 500;
-  color: #0e9f6e;
+  color: var(--succes-encre);
 
   i { font-size: 15px; }
 }
 
 .profil-reset-hint {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--encre-3);
 }
 
 .profil-section__footer {
-  padding: 12px 20px 16px;
+  padding: var(--pas-3) var(--pas-5) var(--pas-4);
 }
 
 // ── Champs ────────────────────────────────────────────────────────────────────
@@ -170,29 +167,33 @@
 .profil-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--pas-1);
 }
 
 .profil-field__label {
   font-size: 12px;
   font-weight: 500;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .profil-field__input {
   height: 42px;
-  padding: 0 12px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
+  padding: 0 var(--pas-3);
+  border: 1.5px solid var(--filet);
+  border-radius: var(--rayon-sm);
   font-size: 14px;
-  color: #0f172a;
-  background: #fff;
+  color: var(--encre);
+  background: var(--surface);
   outline: none;
+  &:focus-visible {            // l'anneau clavier, retiré à tort
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
   transition: border-color 0.15s;
 
   &:focus { border-color: $color-primary; }
 
-  &--error { border-color: #ef4444; }
+  &--error { border-color: var(--danger); }
 }
 
 .profil-field__readonly {
@@ -200,32 +201,32 @@
   align-items: center;
   justify-content: space-between;
   height: 42px;
-  padding: 0 12px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 6px;
-  background: #f9fafb;
+  padding: 0 var(--pas-3);
+  border: 1.5px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--surface);
   font-size: 14px;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .profil-field__badge {
   font-size: 11px;
-  color: #475569;
-  background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 3px;
+  color: var(--encre-2);
+  background: var(--fond);
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-xs);
   white-space: nowrap;
 
-  &--muted { color: #475569; }
+  &--muted { color: var(--encre-2); }
 }
 
 .profil-field__hint {
   font-size: 12px;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--pas-1);
 
-  &--error { color: #dc2626; }
+  &--error { color: var(--danger-encre); }
 }
 
 // ── Role badge ────────────────────────────────────────────────────────────────
@@ -233,27 +234,27 @@
 .profil-role-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
-  border-radius: 4px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-xs);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 
-  &--admin     { background: #1e293b; color: #fff; }
-  &--agent     { background: #dcfce7; color: #166534; }
-  &--comptable { background: #f3e8ff; color: #6b21a8; }
-  &--superviseur { background: #fef9c3; color: #854d0e; }
+  &--admin     { background: var(--encre); color: var(--surface); }
+  &--agent     { background: var(--mint-tapis); color: var(--vert-profond); }
+  &--comptable { background: var(--role-violet-lueur); color: var(--role-violet); }
+  &--superviseur { background: var(--attente-fond); color: var(--attente-encre); }
 }
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
   @include btn-reset;
-  gap: 6px;
+  gap: var(--pas-2);
   height: 40px;
-  padding: 0 18px;
-  border-radius: 8px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
   font-size: 13px;
   font-weight: 600;
   transition: background 0.15s, opacity 0.15s;
@@ -261,32 +262,32 @@
   &:disabled { opacity: 0.45; }
 
   &--primary {
-    @include btn-variant($color-primary, #fff, $hover-bg: color.adjust($color-primary, $lightness: -8%));
+    @include btn-variant($color-primary, var(--surface), $hover-bg: color.adjust($color-primary, $lightness: -8%));
   }
 
   &--outline {
-    @include btn-variant(transparent, #1e293b, $border: 1.5px solid #1e293b, $hover-bg: #f8fafc);
+    @include btn-variant(transparent, var(--encre), $border: 1.5px solid var(--encre), $hover-bg: var(--surface-douce));
   }
 
   &--danger {
-    @include btn-variant(#fee2e2, #991b1b, $border: 1.5px solid #fca5a5, $hover-bg: #fecaca);
+    @include btn-variant(var(--danger-trait), var(--danger-encre), $border: 1.5px solid var(--danger-trait), $hover-bg: var(--danger-trait));
   }
 }
 
 // ── Mobile (carte étroite) ────────────────────────────────────────────────────
-@container profil (max-width: 600px) {
-  .profil-content { padding: 14px 12px; }
+@container profil (max-width: 639px) {
+  .profil-content { padding: var(--pas-3) var(--pas-3); }
 
   // Carte avatar plus compacte
-  .profil-avatar-card { padding: 16px; gap: 14px; }
+  .profil-avatar-card { padding: var(--pas-4); gap: var(--pas-3); }
   .profil-avatar { width: 56px; height: 56px; }
   .profil-avatar__initials { font-size: 22px; }
   .profil-identity__username { font-size: 18px; }
 
   // En-têtes / corps de section resserrés
-  .profil-section__header { padding: 12px 16px; }
-  .profil-section__body { padding: 16px; }
-  .profil-section__footer { padding: 12px 16px 16px; }
+  .profil-section__header { padding: var(--pas-3) var(--pas-4); }
+  .profil-section__body { padding: var(--pas-4); }
+  .profil-section__footer { padding: var(--pas-3) var(--pas-4) var(--pas-4); }
 
   // Boutons pleine largeur → cibles tactiles confortables
   .profil-section__footer .btn,
@@ -294,4 +295,52 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+// ── Données du compte ─────────────────────────────────────────────────────────
+// Ce qui n'est pas modifiable se lit, ne se remplit pas.
+.profil-donnees {
+  margin: 0;
+  display: grid;
+  gap: var(--pas-1);
+}
+
+.profil-donnee {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--pas-4);
+  padding: var(--pas-3) 0;
+  border-bottom: 1px solid var(--filet);
+
+  &:last-child { border-bottom: 0; }
+
+  dt {
+    font-size: 13px;
+    color: var(--encre-3);
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--encre);
+  }
+
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+    gap: var(--pas-1);
+  }
+}
+
+.profil-donnee__vide {
+  font-weight: 400;
+  color: var(--encre-3);
+  font-style: italic;
+}
+
+.profil-note {
+  margin: var(--pas-4) 0 0;
+  font-size: 12.5px;
+  color: var(--encre-3);
 }

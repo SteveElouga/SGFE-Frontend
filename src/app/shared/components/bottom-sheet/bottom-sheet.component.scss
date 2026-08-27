@@ -28,7 +28,7 @@
   max-height: 92vh;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--surface);
   border-radius: 24px 24px 0 0;
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
 
@@ -44,10 +44,10 @@
   }
 
   // Desktop : dialog centré (maquettes 30/31)
-  @media (min-width: 721px) {
+  @media (min-width: 1024px) {
     bottom: auto;
     top: 50%;
-    border-radius: 16px;
+    border-radius: var(--rayon-lg);
     opacity: 0;
     transform: translate(-50%, calc(-50% + 24px));
     transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease,
@@ -63,18 +63,18 @@
   &__grip {
     width: 40px;
     height: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
+    background: var(--filet);
+    border-radius: var(--rayon-xs);
     margin: 10px auto 0;
     flex-shrink: 0;
 
-    @media (min-width: 721px) { display: none; }
+    @media (min-width: 1024px) { display: none; }
   }
 
   &__body {
     overflow-y: auto;
-    padding: 6px 20px 22px;
+    padding: var(--pas-2) var(--pas-5) var(--pas-5);
 
-    @media (min-width: 721px) { padding: 22px 24px 24px; }
+    @media (min-width: 1024px) { padding: var(--pas-5) var(--pas-5) var(--pas-5); }
   }
 }

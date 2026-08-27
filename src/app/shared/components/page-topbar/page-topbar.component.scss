@@ -2,15 +2,15 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--filet);
   flex-shrink: 0;
 }
 
 // Ligne principale : titre à gauche, actions/cloche/avatar à droite
 .page-topbar__row {
   height: 54px;
-  padding: 0 24px;
+  padding: 0 var(--pas-5);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -34,22 +34,25 @@
 .page-topbar__right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--pas-3);
   flex-shrink: 0;
 }
 
 .page-topbar__title {
+  // <h1> : on neutralise les marges et la taille par défaut du navigateur,
+  // l'échelle typographique reste celle du DESIGN.md (page-title 17/700).
+  margin: 0;
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
   white-space: nowrap;
 }
 
 .page-topbar__subtitle {
   font-size: 13px;
   font-weight: 400;
-  color: #64748b;
-  margin-left: 10px;
+  color: var(--encre-3);
+  margin-left: var(--pas-2);
   white-space: nowrap;
 }
 
@@ -59,18 +62,18 @@
   order: 2;
   font-size: 13px;
   font-weight: 400;
-  color: #64748b;
-  margin-left: 10px;
+  color: var(--encre-3);
+  margin-left: var(--pas-2);
   white-space: nowrap;
 }
 
 .page-topbar__back {
   font-size: 13px;
   font-weight: 400;
-  color: #64748b;
+  color: var(--encre-3);
   text-decoration: none;
   white-space: nowrap;
-  &:hover { color: #64748b; }
+  &:hover { color: var(--encre-3); }
 }
 
 // Sous-titre opt-in « mobile seulement » (classe posée sur l'hôte) :
@@ -79,8 +82,8 @@
 
 .page-topbar__sep {
   font-size: 13px;
-  color: #e2e8f0;
-  margin: 0 8px;
+  color: var(--filet);
+  margin: 0 var(--pas-2);
 }
 
 // Bouton hamburger : mobile uniquement, ouvre le tiroir de navigation
@@ -88,11 +91,11 @@
   display: none;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  border-radius: var(--rayon-md);
   border: none;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  color: var(--surface);
   font-size: 17px;
   align-items: center;
   justify-content: center;
@@ -106,12 +109,12 @@
 .page-topbar-action {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 9px 18px;
-  background: linear-gradient(135deg, #1a56db, #1d4ed8);
-  color: #fff;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
+  background: linear-gradient(135deg, var(--action), var(--action-survol));
+  color: var(--surface);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--rayon-md);
   font-size: 12px;
   font-weight: 600;
   text-decoration: none;
@@ -131,15 +134,15 @@
 
 // Mobile (M-04/M-05) : header navy, textes blancs, avatar visible, cloche
 // masquée (les notifications restent accessibles via le tiroir).
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   .page-topbar {
-    background: #0f1c3d;
+    background: var(--navy-nuit);
     border-bottom: none;
   }
   .page-topbar__row {
     height: auto;
     min-height: 54px;
-    padding: 12px 18px;
+    padding: var(--pas-3) var(--pas-4);
     align-items: center;
   }
   // Rangée : chevron retour (optionnel) + colonne de titres (MB-02/MB-05)
@@ -148,14 +151,14 @@
     flex: 1 1 auto;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
+    gap: var(--pas-2);
   }
   .page-topbar__titles {
     min-width: 0;
     flex: 1 1 auto;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: var(--pas-1);
   }
   .page-topbar__back {
     font-size: 18px;
@@ -168,7 +171,7 @@
     order: 1;
     font-size: 20px;
     line-height: 1.15;
-    color: #fff;
+    color: var(--surface);
   }
   .page-topbar__overline {
     order: 0;
@@ -176,14 +179,14 @@
     font-size: 11px;
     font-weight: 500;
     letter-spacing: 0.3px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--encre-inverse-3);
   }
   .page-topbar__subtitle {
     order: 2;
     margin-left: 0;
     font-size: 11px;
     line-height: 1.15;
-    color: rgba(255, 255, 255, 0.45);
+    color: var(--encre-inverse-3);
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -193,14 +196,14 @@
   // Sous-titre réservé au mobile (ex. détail facture MB-05 : l'info est déjà
   // dans la carte d'en-tête desktop) — opt-in via la classe sur l'hôte.
   .topbar--subtitle-mobile .page-topbar__subtitle { display: block; }
-  .page-topbar__right { flex-shrink: 0; gap: 10px; }
+  .page-topbar__right { flex-shrink: 0; gap: var(--pas-2); }
   // Cloche masquée en mobile SAUF s'il y a des notifications non lues.
   // Sélecteur composé : doit battre le `:host { display: … }` du composant cloche.
   .page-topbar .page-topbar__bell:not(.page-topbar__bell--has-unread) { display: none; }
   .page-topbar__menu { display: flex; }
 
   // Bloc héro (progression dashboard) dans le header navy
-  [topbar-hero] { display: block; padding: 0 18px 16px; }
+  [topbar-hero] { display: block; padding: 0 var(--pas-4) var(--pas-4); }
 
   // Bouton d'ajout : icône « + » seule, carré arrondi (M-05)
   .page-topbar-action {
@@ -209,7 +212,7 @@
     height: 36px;
     padding: 0;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: var(--rayon-md);
     box-shadow: 0 4px 10px rgba(26, 86, 219, 0.4);
   }
   .page-topbar-action__label { display: none; }

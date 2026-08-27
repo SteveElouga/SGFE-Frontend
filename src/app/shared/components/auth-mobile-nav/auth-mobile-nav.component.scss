@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   gap: $spacing-md;
-  background: #0f1c3d;
+  background: var(--navy-nuit);
   padding: $spacing-md $spacing-lg;
 
   @include desktop {
@@ -20,5 +20,5 @@
 .auth-mobile-nav__title {
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
 }

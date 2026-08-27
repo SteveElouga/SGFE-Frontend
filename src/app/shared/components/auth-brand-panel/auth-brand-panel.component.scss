@@ -5,7 +5,7 @@
   display: none;
   flex-direction: column;
   padding: $spacing-xl;
-  background: linear-gradient(155deg, #0f2557 0%, $color-primary 55%, $color-accent 100%);
+  background: linear-gradient(155deg, var(--navy-clair) 0%, $color-primary 55%, $color-accent 100%);
   color: rgba(255, 255, 255, 0.9);
   position: relative;
   overflow: hidden;
@@ -58,7 +58,7 @@
 .auth-brand__logo-name {
   font-size: 26px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
   letter-spacing: -0.4px;
 }
 

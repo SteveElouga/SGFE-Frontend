@@ -2,11 +2,11 @@
 @use '../../../../styles/variables' as *;
 
 // Variables locales alignées sur le thème sidebar
-$sidebar-bg:       #0f1c3d;
+$sidebar-bg:       var(--navy-nuit);
 $sidebar-border:   rgba(255, 255, 255, 0.07);
 $sidebar-hover-bg: rgba(255, 255, 255, 0.06);
-$text-white:       #fff;
-$text-muted:       rgba(255, 255, 255, 0.35);
+$text-white:       var(--surface);
+$text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 3,17)
 
 // ── Bouton déclencheur ────────────────────────────────────────────────────────
 
@@ -18,12 +18,12 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 .um-trigger {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--pas-2);
   width: 100%;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 12px 14px;
+  padding: var(--pas-3) var(--pas-3);
   text-align: left;
   transition: background 0.12s;
 
@@ -65,7 +65,7 @@ $text-muted:       rgba(255, 255, 255, 0.35);
   font-size: 10px;
   font-weight: 500;
   color: $text-muted;
-  margin-top: 2px;
+  margin-top: var(--pas-1);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
@@ -84,8 +84,8 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 .um-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
   background: linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(14, 159, 110, 0.06));
   border-bottom: 1px solid rgba($color-primary, 0.12);
 }
@@ -100,7 +100,7 @@ $text-muted:       rgba(255, 255, 255, 0.35);
   justify-content: center;
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
   text-transform: uppercase;
   flex-shrink: 0;
 }
@@ -114,7 +114,7 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 .um-header__name {
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--encre);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -122,7 +122,7 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 
 .um-header__sub {
   font-size: 11px;
-  color: #64748b;
+  color: var(--encre-3);
   margin-top: 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -133,7 +133,7 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 
 .um-divider {
   height: 1px;
-  background: #f1f5f9;
+  background: var(--fond);
 }
 
 // ── Items navigation ──────────────────────────────────────────────────────────
@@ -141,17 +141,17 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 .um-nav {
   display: flex;
   flex-direction: column;
-  padding: 6px 0;
+  padding: var(--pas-2) 0;
 }
 
 .um-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
   font-size: 13px;
   font-weight: 500;
-  color: #334155;
+  color: var(--encre-2);
   text-decoration: none;
   background: none;
   border: none;
@@ -163,20 +163,20 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 
   &:hover {
     background: rgba($color-primary, 0.06);
-    color: $color-primary;
+    color: var(--action);
   }
 
   &--active {
     border-left-color: $color-primary;
-    color: $color-primary;
+    color: var(--action);
     font-weight: 600;
     background: rgba($color-primary, 0.06);
   }
 
   &--logout {
-    padding: 10px 16px;
-    margin: 6px 0;
-    color: $color-error;
+    padding: var(--pas-2) var(--pas-4);
+    margin: var(--pas-2) 0;
+    color: var(--danger-encre);
 
     &:hover {
       background: rgba($color-error, 0.06);
@@ -196,17 +196,17 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 .um-lang {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
   font-size: 13px;
   font-weight: 500;
-  color: #334155;
+  color: var(--encre-2);
 
   &__icon {
     font-size: 14px;
     width: 16px;
     flex-shrink: 0;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   &__label {
@@ -215,32 +215,32 @@ $text-muted:       rgba(255, 255, 255, 0.35);
 
   &__toggle {
     display: flex;
-    background: #f1f5f9;
-    border-radius: 6px;
-    padding: 2px;
-    gap: 2px;
+    background: var(--fond);
+    border-radius: var(--rayon-sm);
+    padding: var(--pas-1);
+    gap: var(--pas-1);
   }
 
   &__btn {
     background: none;
     border: none;
-    border-radius: 4px;
-    padding: 3px 8px;
+    border-radius: var(--rayon-xs);
+    padding: var(--pas-1) var(--pas-2);
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--encre-3);
     cursor: pointer;
     letter-spacing: 0.5px;
     transition: background 0.12s, color 0.12s;
 
     &:hover:not(&--active) {
-      background: #e2e8f0;
-      color: #334155;
+      background: var(--filet);
+      color: var(--encre-2);
     }
 
     &--active {
-      background: #fff;
-      color: $color-primary;
+      background: var(--surface);
+      color: var(--action);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
   }

@@ -11,7 +11,7 @@
 // est réservé au desktop (même approche que le Quartier des abonnés).
 .campagnes-statut-chips { display: none; }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .campagnes-statut-chips { display: block; }
   .campagnes-statut-select,
   .campagnes-agent-select { display: none; }
@@ -20,22 +20,22 @@
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
 .campagnes-content {
-  padding: 20px 24px;
+  padding: var(--pas-5) var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: #f1f5f9;
+  gap: var(--pas-3);
+  background: var(--fond);
   min-height: calc(100% - 54px);
 
-  @media (max-width: 768px) { padding: 10px 14px; gap: 8px; }
+  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
 }
 
 // ── Carte tableau ─────────────────────────────────────────────────────────────
 
 .campagnes-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 }
 
@@ -44,79 +44,79 @@
 .ccard {
   width: 100%;
   text-align: left;
-  background: #fff;
+  background: var(--surface);
   border: none;
-  border-radius: 2px;                                   // mini token (accolées M-05)
-  padding: 13px 14px;
+  border-radius: var(--rayon-xs);                                   // mini token (accolées M-05)
+  padding: var(--pas-3) var(--pas-3);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--pas-3);
   cursor: pointer;
 
-  &:active { background: #f8fbff; }
+  &:active { background: var(--surface-douce); }
 
   &__icon {
     width: 38px;
     height: 38px;
     border-radius: 50%;
     flex-shrink: 0;
-    color: #fff;
+    color: var(--surface);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 15px;
 
-    &--en_cours { background: linear-gradient(135deg, #1a56db, #0e9f6e); }
-    &--planifiee { background: linear-gradient(135deg, #0f1c3d, #1a56db); }
-    &--cloturee { background: linear-gradient(135deg, #64748b, #94a3b8); }
+    &--en_cours { background: linear-gradient(135deg, var(--action), var(--succes)); }
+    &--planifiee { background: linear-gradient(135deg, var(--navy-nuit), var(--action)); }
+    &--cloturee { background: linear-gradient(135deg, var(--encre-3), var(--encre-faible)); }
   }
 
-  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
 
   &__nom {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &--muted { color: #64748b; }
+    &--muted { color: var(--encre-3); }
   }
 
-  &__sub { font-size: 11px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__sub { font-size: 11px; color: var(--encre-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   &__bar {
     display: block;
     height: 4px;
-    margin-top: 4px;
-    background: #e2e8f0;
-    border-radius: 2px;
+    margin-top: var(--pas-1);
+    background: var(--filet);
+    border-radius: var(--rayon-xs);
     overflow: hidden;
   }
 
   &__bar-fill {
     display: block;
     height: 100%;
-    background: #1a56db;
-    border-radius: 2px;
+    background: var(--action);
+    border-radius: var(--rayon-xs);
     transition: width 0.3s ease;
   }
 
-  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-  &__chevron { color: #d1d5db; font-size: 12px; }
+  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-1); flex-shrink: 0; }
+  &__chevron { color: var(--filet); font-size: 12px; }
 }
 
 // Mobile : wrapper transparent, cartes accolées (1px) avec coins arrondis en
 // tête et pied de groupe (M-05)
-@media (max-width: 720px) {
+@media (max-width: 1023px) {
   .campagnes-card { border: none; background: transparent; border-radius: 0; overflow: visible; }
   .ccard {
     margin-bottom: 1px;
 
     &:first-of-type { border-radius: 12px 12px 2px 2px; }    // xl + mini (accolées M-05)
     &:last-of-type { border-radius: 2px 2px 12px 12px; }     // mini + xl
-    &:only-of-type { border-radius: 12px; }
+    &:only-of-type { border-radius: var(--rayon-lg); }
   }
 }
 
@@ -126,23 +126,23 @@
 .campagne-cell {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--pas-1);
 
   &__nom {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
 
     &--muted {
       font-weight: 600;
-      color: #64748b;
+      color: var(--encre-3);
     }
   }
 
   &__meta {
     font-size: 11px;
-    color: #94a3b8;
-    margin-top: 2px;
+    color: var(--encre-3);
+    margin-top: var(--pas-1);
   }
 }
 
@@ -150,17 +150,17 @@
 
 .campagnes-table__date {
   font-size: 12px;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .campagnes-table__agents {
   font-size: 12px;
-  color: #475569;
+  color: var(--encre-2);
   white-space: nowrap;
 }
 
 .campagnes-table__muted {
-  color: #94a3b8 !important;
+  color: var(--encre-3) !important;
 }
 
 .campagnes-table__avancement {
@@ -170,20 +170,20 @@
 .campagnes-table__actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   white-space: nowrap;
 }
 
 .campagnes-table__empty {
   text-align: center;
-  padding: 48px !important;
-  color: #94a3b8;
+  padding: var(--pas-7) !important;
+  color: var(--encre-3);
   font-size: 14px;
 
   .pi {
     display: block;
     font-size: 32px;
-    margin-bottom: 12px;
+    margin-bottom: var(--pas-3);
   }
 }
 
@@ -193,41 +193,41 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--pas-1);
   width: 80px;
 
   &__track {
     width: 100%;
     height: 6px;
-    background: #e2e8f0;
-    border-radius: 4px;                                 // xs token (pill 6px height)
+    background: var(--filet);
+    border-radius: var(--rayon-xs);                                 // xs token (pill 6px height)
     overflow: hidden;
   }
 
   &__fill {
     height: 100%;
-    background: #1a56db;
-    border-radius: 4px;
+    background: var(--action);
+    border-radius: var(--rayon-xs);
     transition: width 0.3s ease;
 
-    &--done { background: #0e9f6e; }
+    &--done { background: var(--succes); }
   }
 
   &__label {
     font-size: 10px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    color: #64748b;
+    color: var(--encre-3);
 
-    &--muted { color: #94a3b8; }
+    &--muted { color: var(--encre-3); }
   }
 
   &__skeleton {
     display: block;
     width: 100%;
     height: 6px;
-    background: #e2e8f0;
-    border-radius: 4px;                                 // xs token
+    background: var(--filet);
+    border-radius: var(--rayon-xs);                                 // xs token
     animation: shimmer 1.5s infinite ease-in-out;
   }
 }
@@ -243,9 +243,9 @@
 .btn-action {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 6px;
+  gap: var(--pas-1);
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
@@ -255,27 +255,27 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--voir {
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    color: #64748b;
+    border: 1px solid var(--filet);
+    background: var(--surface);
+    color: var(--encre-3);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { border-color: $color-primary; color: $color-primary; background: #eff6ff; }
+    &:hover:not(:disabled) { border-color: $color-primary; color: var(--action); background: var(--action-lueur); }
   }
 
   &--cloturer {
-    border: 1px solid #fecaca;
-    background: #fff;
-    color: #dc2626;
+    border: 1px solid var(--danger-trait);
+    background: var(--surface);
+    color: var(--danger-encre);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { background: #fef2f2; border-color: #fca5a5; }
+    &:hover:not(:disabled) { background: var(--danger-fond); border-color: var(--danger-trait); }
   }
 
   &--demarrer {
-    border: 1px solid #bfdbfe;
-    background: #fff;
-    color: $color-primary;
+    border: 1px solid var(--action-trait);
+    background: var(--surface);
+    color: var(--action);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { background: #eff6ff; border-color: #93c5fd; }
+    &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
   }
 }
 
@@ -283,10 +283,10 @@
 
 .btn {
   @include btn-reset;
-  gap: 6px;
+  gap: var(--pas-2);
   height: 40px;
-  padding: 0 16px;
-  border-radius: 8px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
   font-size: 14px;
   font-weight: 600;
   transition: background 0.15s, opacity 0.15s;
@@ -294,11 +294,11 @@
   &:disabled { opacity: 0.5; }
 
   &--primary {
-    @include btn-variant($color-primary, #fff, $hover-bg: color.adjust($color-primary, $lightness: -8%));
+    @include btn-variant($color-primary, var(--surface), $hover-bg: color.adjust($color-primary, $lightness: -8%));
   }
 
   &--ghost {
-    @include btn-variant(transparent, #64748b, $border: 1px solid #e2e8f0, $hover-bg: #f1f5f9);
+    @include btn-variant(transparent, var(--encre-3), $border: 1px solid var(--filet), $hover-bg: var(--fond));
   }
 }
 
@@ -308,7 +308,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding: 4px 0 8px;
+  padding: var(--pas-1) 0 var(--pas-2);
 }
 
 .form-row {
@@ -320,18 +320,18 @@
 .form-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--pas-2);
 
   &__label {
     font-size: 13px;
     font-weight: 500;
-    color: #374151;
+    color: var(--encre-2);
   }
 
   &__input { width: 100%; }
 
   &__hint {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--encre-3);
   }
 }

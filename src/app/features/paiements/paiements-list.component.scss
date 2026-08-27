@@ -1,47 +1,39 @@
 @use '../../../styles/variables' as *;
 
+// Projetée dans la carte de filtres via le slot [fp-extra].
+.paiements-date-range { flex: 0 0 auto; min-width: 168px; }
+
 :host {
   display: block;
 
   // PrimeNG filter chips — override via custom properties so no ::ng-deep needed
-  --p-select-border-radius: 8px;
-  --p-select-border-color: #e2e8f0;
+  --p-select-border-radius: var(--rayon-md);
+  --p-select-border-color: var(--filet);
   --p-select-padding-x: 12px;
-  --p-datepicker-border-radius: 8px;
-  --p-datepicker-border-color: #e2e8f0;
+  --p-datepicker-border-radius: var(--rayon-md);
+  --p-datepicker-border-color: var(--filet);
 }
 
 // Ligne filtres (batch 10) : filters-panel shared + date range externe.
-.paiements-filters-row {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-
-  app-filters-panel { flex: 1 1 auto; min-width: 0; }
-  .paiements-date-range { flex-shrink: 0; }
-
-  @media (max-width: 640px) { flex-direction: column; align-items: stretch; }
-}
-
 // Topbar action (projected into PageTopbar via ng-content).
 // Aligné sur button-ghost DESIGN.md : height 44px WCAG, focus-visible, press-scale.
 .btn-export {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   min-height: 44px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 10px 14px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
   font: 500 13px/1 inherit;
-  color: #475569;
-  background: #fff;
+  color: var(--encre-2);
+  background: var(--surface);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, transform 160ms var(--ease-out);
 
-  &:hover { background: #f8fafc; }
-  &:focus-visible { outline: 2px solid #1a56db; outline-offset: 2px; }
+  &:hover { background: var(--surface-douce); }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 
   i { font-size: 13px; }
@@ -50,68 +42,102 @@
 // ── Page layout ───────────────────────────────────────────────────────────────
 
 .paiements-content {
-  padding: 18px 22px;
-  background: #f1f5f9;
+  padding: var(--pas-4) var(--pas-5);
+  background: var(--fond);
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 }
 
 // KPI Total encaissé — Triplette Teintée mint (fond + border 1px de la même
 // famille) qui signale "argent encaissé confirmé" sans violer la doctrine
 // side-tab. Chiffre 30/800 Vert Profond porte le Chiffre Fort.
 .total-kpi {
-  background: #f0fdf4;               // Mint Lueur
-  border: 1px solid #bbf7d0;         // Mint Trait
-  border-radius: 12px;
-  padding: 14px 18px;
+  background: var(--succes-fond);               // Mint Lueur
+  border: 1px solid var(--succes-trait);         // Mint Trait
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-3) var(--pas-4);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--pas-1);
 
   &__label {
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   &__value {
     font-size: 30px;                  // metric-md
     font-weight: 800;                 // Chiffre Fort
     line-height: 1;
-    color: #166534;                   // Vert Profond
+    color: var(--vert-profond);                   // Vert Profond
     font-variant-numeric: tabular-nums;
   }
 
   &__unit {
     font-size: 14px;
     font-weight: 500;
-    color: #475569;
-    margin-left: 4px;
+    color: var(--encre-2);
+    margin-left: var(--pas-1);
   }
 
   &__hint {
     font-size: 12px;
     font-weight: 500;
-    color: #64748b;
-    margin-top: 2px;
+    color: var(--encre-3);
+    margin-top: var(--pas-1);
   }
 
-  @media (max-width: 720px) {
+  // Écart d'annulation : le comptable doit voir pourquoi le total n'est pas la
+  // somme brute des lignes affichées.
+  &__annule {
+    margin-top: var(--pas-2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ambre-attente);
+  }
+
+  @media (max-width: 1023px) {
     &__value { font-size: 24px; }     // metric compact mobile
   }
+}
+
+// ── Paiement annulé ───────────────────────────────────────────────────────────
+// Jamais encaissé : le montant est barré, et un libellé texte double le signal
+// (jamais la couleur seule).
+.montant--annule {
+  color: var(--encre-3) !important;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.annule-tag {
+  display: inline-block;
+  margin-left: var(--pas-2);
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
+  border: 1px solid var(--danger-trait);
+  background: var(--danger-fond);
+  color: var(--danger-encre);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+  white-space: nowrap;
 }
 
 // Chip label + active dot (inside ng-template selectedItem)
 .chip-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   font-size: 13px;
-  color: #475569;
+  color: var(--encre-2);
 }
 
 .chip-active-dot {
@@ -125,21 +151,21 @@
 // ── Table ─────────────────────────────────────────────────────────────────────
 
 .table-wrap {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 }
 
-.col-date { color: #64748b; white-space: nowrap; font-size: 12px; }
-.col-abonne .abonne-nom { font-weight: 600; font-size: 13px; color: #0f172a; }
-.col-facture { font-size: 11px; color: #64748b; }
-.col-montant { font-weight: 700; font-size: 14px; color: #0f172a; }
+.col-date { color: var(--encre-3); white-space: nowrap; font-size: 12px; }
+.col-abonne .abonne-nom { font-weight: 600; font-size: 13px; color: var(--encre); }
+.col-facture { font-size: 11px; color: var(--encre-3); }
+.col-montant { font-weight: 700; font-size: 14px; color: var(--encre); }
 
 // ── Référence transaction (Principe #2 : donnée obligatoire pour MM/virement) ──
 .col-reference {
   font-size: 12px;
-  color: #475569;
+  color: var(--encre-2);
   font-variant-numeric: tabular-nums;   // alignement des références numériques
   max-width: 180px;
   display: inline-block;
@@ -149,33 +175,33 @@
   vertical-align: bottom;
 
   // Espèces : pas de référence attendue → tiret décoratif silencieux
-  &--none { color: #cbd5e1; }
+  &--none { color: var(--encre-3); }
 
   // MM/virement sans référence : anomalie métier → signal ambre discret
   &--missing {
-    color: #b45309;
+    color: var(--ambre-attente);
     font-weight: 500;
     font-style: italic;
   }
 }
 
-.montant--partiel { color: #1a56db; }
+.montant--partiel { color: var(--action); }
 
 // ── Mode badges ───────────────────────────────────────────────────────────────
 
 .mode-badge {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;                 // rounded.sm — aligné sur <app-badge> partagé
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);                 // rounded.sm — aligné sur <app-badge> partagé
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
   border: 1px solid;
 
-  &--especes      { background: #f8fafc; border-color: #e2e8f0; color: #475569; }
-  &--mobile_money { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--virement     { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
+  &--especes      { background: var(--surface-douce); border-color: var(--filet); color: var(--encre-2); }
+  &--mobile_money { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
+  &--virement     { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
 }
 
 
@@ -190,35 +216,35 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--pas-2);
 
-  &__top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  &__id { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-  &__abonne { font-size: 13px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  &__ref { font-size: 10px; color: #64748b; }
-  &__montant { font-size: 15px; font-weight: 700; color: #0f172a; white-space: nowrap; flex-shrink: 0; &.montant--partiel { color: #1a56db; } }
-  &__bottom { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  &__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--pas-2); }
+  &__id { min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
+  &__abonne { font-size: 13px; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__ref { font-size: 10px; color: var(--encre-3); }
+  &__montant { font-size: 15px; font-weight: 700; color: var(--encre); white-space: nowrap; flex-shrink: 0; &.montant--partiel { color: var(--action); } }
+  &__bottom { display: flex; align-items: center; gap: var(--pas-2); flex-wrap: wrap; }
   &__reference {
     font-size: 11px;
-    color: #475569;
+    color: var(--encre-2);
     font-variant-numeric: tabular-nums;
     max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    &--missing { color: #b45309; font-style: italic; }
+    &--missing { color: var(--ambre-attente); font-style: italic; }
   }
 }
 
 // Mobile : wrapper transparent + chrome de carte (via appCardRow)
-@media (max-width: 720px) {
+@media (max-width: 1023px) {
   .table-wrap { border: none; background: transparent; border-radius: 0; overflow: visible; }
   .pcard {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 10px;
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    border-radius: var(--rayon-lg);
+    padding: var(--pas-3);
+    margin-bottom: var(--pas-2);
   }
 }

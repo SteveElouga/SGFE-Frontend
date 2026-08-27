@@ -3,13 +3,13 @@
 .error-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
   font-size: 13px;
-  color: #b91c1c;
+  color: var(--danger-encre);
 
   &__icon { flex-shrink: 0; }
 
@@ -18,15 +18,15 @@
   &__retry {
     flex-shrink: 0;
     background: none;
-    border: 1px solid #fca5a5;
-    border-radius: 6px;
-    padding: 3px 10px;
+    border: 1px solid var(--danger-trait);
+    border-radius: var(--rayon-sm);
+    padding: var(--pas-1) var(--pas-2);
     font-size: 12px;
     font-weight: 500;
-    color: #b91c1c;
+    color: var(--danger-encre);
     cursor: pointer;
     transition: background 0.15s;
 
-    &:hover { background: #fee2e2; }
+    &:hover { background: var(--danger-trait); }
   }
 }

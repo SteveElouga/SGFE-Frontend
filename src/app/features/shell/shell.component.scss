@@ -1,3 +1,32 @@
+// ── Lien d'évitement ──────────────────────────────────────────────────────────
+// Hors écran jusqu'au premier Tab : permet de sauter la navigation (11 entrées)
+// pour atteindre directement le contenu de la page.
+.shell__skip {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1000;
+  padding: var(--pas-2) var(--pas-4);
+  border-radius: var(--rayon-md);
+  background: var(--navy-nuit);
+  color: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+
+  &:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--bleu-riviere-clair);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell__skip { transition: none; }
+}
+
 :host {
   display: block;
   height: 100dvh;
@@ -12,7 +41,7 @@
 .shell__content {
   flex: 1;
   overflow-y: auto;
-  background: #eef2f7;
+  background: var(--filet);
   min-width: 0;
 }
 
@@ -22,7 +51,7 @@
 }
 
 // ── Mobile : sidebar en tiroir ────────────────────────────────────────────────
-@media (max-width: 768px) {
+@media (max-width: 1023px) {
   // Espace pour la barre d'onglets fixe du bas.
   .shell__content {
     padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));

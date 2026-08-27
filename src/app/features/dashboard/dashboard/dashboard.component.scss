@@ -11,16 +11,16 @@
 // ────────────────────────────────────────────────────────────────────────────
 
 .dash-content {
-  padding: 24px 28px;
-  background: #f1f5f9;                             // Ardoise Nappe (fond app)
+  padding: var(--pas-5) var(--pas-6);
+  background: var(--fond);                             // Ardoise Nappe (fond app)
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--pas-4);
 
-  @media (max-width: 768px) {
-    padding: 14px;
-    gap: 12px;
+  @media (max-width: 1023px) {
+    padding: var(--pas-3);
+    gap: var(--pas-3);
   }
 }
 
@@ -30,9 +30,9 @@
 .dash-periode {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  background: #f1f5f9;                             // Ardoise Nappe
+  gap: var(--pas-1);
+  padding: var(--pas-1);
+  background: var(--fond);                             // Ardoise Nappe
   border-radius: 999px;
   align-self: flex-start;
 
@@ -40,28 +40,28 @@
     display: inline-flex;
     align-items: center;
     height: 32px;
-    padding: 0 14px;
+    padding: 0 var(--pas-3);
     background: transparent;
     border: none;
     border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    color: #64748b;
+    color: var(--encre-3);
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
 
     &:hover:not(&--active) {
-      color: #0f172a;
-      background: #ffffff;
+      color: var(--encre);
+      background: var(--surface);
     }
     &:focus-visible {
-      outline: 2px solid #1a56db;
+      outline: 2px solid var(--action);
       outline-offset: 2px;
     }
 
     &--active {
-      background: #0f1c3d;                          // Navy Nuit (structurel)
-      color: #ffffff;
+      background: var(--navy-nuit);                          // Navy Nuit (structurel)
+      color: var(--surface);
     }
   }
 }
@@ -70,7 +70,7 @@
 .dash-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 }
 
 // ── Empty global (nouveau tenant, aucune facture) ──────────────────────────
@@ -79,38 +79,38 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 48px 24px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  gap: 12px;
+  padding: var(--pas-7) var(--pas-5);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  gap: var(--pas-3);
 
   i {
     font-size: 42px;                               // display token DESIGN.md (icône illustrative empty-state)
-    color: #cbd5e1;                                // Ardoise Crayon
+    color: var(--encre-3);                                // Ardoise Crayon
   }
 
   &__title {
     font-size: 20px;                               // title DESIGN.md
     font-weight: 700;
-    color: #0f172a;                                // Ardoise Nuit
+    color: var(--encre);                                // Ardoise Nuit
     margin: 0;
   }
 
   &__msg {
     font-size: 14px;
-    color: #64748b;                                // Ardoise Brume
+    color: var(--encre-3);                                // Ardoise Brume
     max-width: 420px;
     line-height: 1.5;
     margin: 0;
   }
 
   &__cta {
-    margin-top: 8px;
-    padding: 10px 20px;
+    margin-top: var(--pas-2);
+    padding: var(--pas-2) var(--pas-5);
     background: $color-primary;                    // Bleu Rivière
-    color: #fff;
-    border-radius: 8px;
+    color: var(--surface);
+    border-radius: var(--rayon-md);
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
@@ -128,12 +128,12 @@
 
 // ── Héros FCFA — Chiffre Fort SGFE (peak visuel de l'écran) ────────────────
 .dash-hero {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 32px 36px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-6) 36px;
 
-  @media (max-width: 640px) { padding: 22px 20px; }
+  @media (max-width: 639px) { padding: var(--pas-5) var(--pas-5); }
 
   &__link {
     display: flex;
@@ -141,39 +141,39 @@
     align-items: flex-start;
     text-decoration: none;
     color: inherit;
-    gap: 6px;
+    gap: var(--pas-2);
 
     &:focus-visible {
       outline: 2px solid $color-primary;
       outline-offset: 4px;
-      border-radius: 8px;
+      border-radius: var(--rayon-md);
     }
   }
 
   &__label {
     font-size: 13px;
     font-weight: 500;
-    color: #475569;                                // Ardoise Encre
+    color: var(--encre-2);                                // Ardoise Encre
     letter-spacing: 0.01em;
   }
 
   &__count {
     font-size: 42px;                               // display token DESIGN.md
     font-weight: 800;
-    color: #0f172a;                                // Ardoise Nuit
+    color: var(--encre);                                // Ardoise Nuit
     line-height: 1;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
-    margin-top: 2px;
+    margin-top: var(--pas-1);
 
-    @media (max-width: 640px) { font-size: 34px; } // metric-xl DESIGN.md
+    @media (max-width: 639px) { font-size: 34px; } // metric-xl DESIGN.md
   }
 
   &__devise {
     font-size: 20px;                               // title DESIGN.md
     font-weight: 700;
-    color: #475569;
-    margin-left: 4px;
+    color: var(--encre-2);
+    margin-left: var(--pas-1);
     letter-spacing: 0;
   }
 
@@ -182,15 +182,15 @@
     width: 60px;
     height: 3px;
     background: $color-primary;                    // Bleu Rivière (signature "chiffre officiel")
-    border-radius: 2px;
-    margin-top: 10px;
+    border-radius: var(--rayon-xs);
+    margin-top: var(--pas-2);
   }
 
   &__delta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 8px;
+    gap: var(--pas-2);
+    margin-top: var(--pas-2);
     font-size: 13px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -198,44 +198,44 @@
 
   &__delta-hint {
     font-weight: 500;
-    color: #64748b;
+    color: var(--encre-3);
     font-size: 12px;
   }
 }
 
 // Delta chromatique — Vert positif / Rouge négatif / Ardoise neutre
-.dash-delta--up { color: #15803d; }                // Vert Profond
-.dash-delta--down { color: #dc2626; }              // Rouge Errance
-.dash-delta--neutre { color: #64748b; }            // Ardoise Brume
+.dash-delta--up { color: var(--succes-encre); }                // Vert Profond
+.dash-delta--down { color: var(--danger-encre); }              // Rouge Errance
+.dash-delta--neutre { color: var(--encre-3); }            // Ardoise Brume
 
 // ── Source error (fallback quand stats indisponibles) ──────────────────────
 .dash-source-error {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 10px;
-  color: #b91c1c;
+  gap: var(--pas-3);
+  padding: var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  color: var(--danger-encre);
   font-size: 13px;
 
   button {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: #fff;
-    border: 1px solid #dc2626;
-    border-radius: 6px;
-    color: #b91c1c;
+    gap: var(--pas-2);
+    padding: var(--pas-2) var(--pas-3);
+    background: var(--surface);
+    border: 1px solid var(--danger);
+    border-radius: var(--rayon-sm);
+    color: var(--danger-encre);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     margin-left: auto;
 
-    &:hover { background: #fef2f2; }
-    &:focus-visible { outline: 2px solid #dc2626; outline-offset: 2px; }
+    &:hover { background: var(--danger-fond); }
+    &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
   }
 }
 
@@ -243,19 +243,19 @@
 .dash-kpis {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: var(--pas-3);
 
-  @media (max-width: 768px) { grid-template-columns: 1fr; }
+  @media (max-width: 1023px) { grid-template-columns: 1fr; }
 }
 
 .dash-kpi {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 18px 20px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  gap: var(--pas-1);
+  padding: var(--pas-4) var(--pas-5);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   text-decoration: none;
   color: inherit;
   transition: transform 160ms var(--ease-out, ease-out), border-color 0.15s, box-shadow 0.15s;
@@ -278,15 +278,15 @@
   &__unit {
     font-size: 13px;
     font-weight: 500;
-    color: #475569;
-    margin-top: 4px;
+    color: var(--encre-2);
+    margin-top: var(--pas-1);
   }
 
   &__hint {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     font-variant-numeric: tabular-nums;
-    margin-top: 2px;
+    margin-top: var(--pas-1);
   }
 
   // Icône d'aide contextuelle par KPI — Phase 2 v4 (tooltips systématiques H10).
@@ -296,7 +296,7 @@
     font-size: 11px;
     color: currentColor;
     opacity: 0.55;
-    margin-left: 4px;
+    margin-left: var(--pas-1);
     cursor: help;
     transition: opacity 0.12s;
     vertical-align: middle;
@@ -309,29 +309,29 @@
 
   // Danger : impayés (rouge — priorité action)
   &--danger {
-    border-color: #fecaca;
-    background: #fef2f2;
-    .dash-kpi__value { color: #b91c1c; }
-    .dash-kpi__unit { color: #7f1d1d; }
-    .dash-kpi__hint { color: #b91c1c; font-weight: 600; }
+    border-color: var(--danger-trait);
+    background: var(--danger-fond);
+    .dash-kpi__value { color: var(--danger-encre); }
+    .dash-kpi__unit { color: var(--rouge-braise); }
+    .dash-kpi__hint { color: var(--danger-encre); font-weight: 600; }
   }
 
   // Warning : partielles (ambre — en cours à finaliser)
   &--warning {
-    border-color: #fde68a;
-    background: #fffbeb;
-    .dash-kpi__value { color: #b45309; }
-    .dash-kpi__unit { color: #92400e; }
-    .dash-kpi__hint { color: #b45309; font-weight: 600; }
+    border-color: var(--attente-trait);
+    background: var(--attente-fond);
+    .dash-kpi__value { color: var(--ambre-attente); }
+    .dash-kpi__unit { color: var(--attente-encre); }
+    .dash-kpi__hint { color: var(--ambre-attente); font-weight: 600; }
   }
 
   // Success : paiements aujourd'hui (Vert Nappe — positif)
   &--success {
-    border-color: #bbf7d0;
-    background: #f0fdf4;
-    .dash-kpi__value { color: #15803d; }
-    .dash-kpi__unit { color: #14532d; }
-    .dash-kpi__hint { color: #15803d; font-weight: 600; }
+    border-color: var(--succes-trait);
+    background: var(--succes-fond);
+    .dash-kpi__value { color: var(--succes-encre); }
+    .dash-kpi__unit { color: var(--vert-abysse); }
+    .dash-kpi__hint { color: var(--succes-encre); font-weight: 600; }
   }
 
   // Unavailable : source en panne (retry ciblé)
@@ -339,9 +339,9 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: #f8fafc;
+    background: var(--surface-douce);
     border-style: dashed;
-    color: #64748b;
+    color: var(--encre-3);
     font-size: 13px;
 
     button {
@@ -350,14 +350,14 @@
       justify-content: center;
       width: 32px;
       height: 32px;
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--filet-pale);
+      border-radius: var(--rayon-md);
       cursor: pointer;
-      color: #475569;
-      margin-top: 6px;
+      color: var(--encre-2);
+      margin-top: var(--pas-2);
 
-      &:hover { color: $color-primary; border-color: $color-primary; }
+      &:hover { color: var(--action); border-color: $color-primary; }
       &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
     }
   }
@@ -367,18 +367,15 @@
 
 // ── Top 5 impayés les plus anciens ─────────────────────────────────────────
 .dash-list {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 20px 24px;
+  padding: var(--pas-5) var(--pas-5);
 
-  @media (max-width: 640px) { padding: 16px; }
+  @media (max-width: 639px) { padding: var(--pas-4); }
 
   &__title {
     font-size: 15px;                               // subtitle DESIGN.md
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 14px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-3);
     letter-spacing: -0.005em;
   }
 
@@ -388,44 +385,44 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--pas-1);
   }
 
   &__item {
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--fond);
     &:last-child { border-bottom: none; }
   }
 
   &__link {
     display: grid;
     grid-template-columns: 1fr auto auto auto;
-    gap: 12px;
+    gap: var(--pas-3);
     align-items: center;
-    padding: 12px 4px;
+    padding: var(--pas-3) var(--pas-1);
     text-decoration: none;
     color: inherit;
-    border-radius: 8px;
+    border-radius: var(--rayon-md);
     transition: background 0.12s;
 
     &:hover {
-      background: #f8fafc;
-      .dash-list__chev { transform: translateX(2px); color: $color-primary; }
+      background: var(--surface-douce);
+      .dash-list__chev { transform: translateX(2px); color: var(--action); }
     }
     &:focus-visible {
       outline: 2px solid $color-primary;
       outline-offset: -2px;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 639px) {
       grid-template-columns: 1fr auto;
-      row-gap: 4px;
+      row-gap: var(--pas-1);
     }
   }
 
   &__nom {
     font-size: 14px;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--encre);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -433,21 +430,21 @@
 
   &__meta {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     font-variant-numeric: tabular-nums;
   }
 
   &__solde {
     font-size: 14px;
     font-weight: 700;
-    color: #b91c1c;                                // rouge (dette)
+    color: var(--danger-encre);                                // rouge (dette)
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.005em;
   }
 
   &__chev {
     font-size: 12px;
-    color: #cbd5e1;
+    color: var(--encre-3);
     transition: transform 0.15s, color 0.15s;
   }
 }
@@ -457,28 +454,25 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 // ── Ribbon 4-KPI cycle (relevés → factures → envois → paiements) ───────────
+// Plus de carte enveloppante : les cinq sections du tableau de bord posent
+// leurs éléments sur le fond de page, avec le même titre. Deux d'entre elles
+// étaient encadrées, ce qui suggérait une hiérarchie qui n'existe pas.
 .dash-ribbon {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 22px 26px;
-
-  @media (max-width: 640px) { padding: 18px 16px; }
 
   &__title {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 16px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-4);
   }
 
   &__grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: var(--pas-2);
     position: relative;
 
-    @media (max-width: 768px) { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1023px) { grid-template-columns: repeat(2, 1fr); }
   }
 }
 
@@ -487,18 +481,18 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
-  padding: 14px 16px;
+  gap: var(--pas-1);
+  padding: var(--pas-3) var(--pas-4);
   text-decoration: none;
   color: inherit;
-  border-radius: 10px;
-  background: #f8fafc;                             // Ardoise Brise
+  border-radius: var(--rayon-md);
+  background: var(--surface-douce);                             // Ardoise Brise
   border: 1px solid transparent;
   transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
 
   &:hover {
-    background: #fff;
-    border-color: #e2e8f0;
+    background: var(--surface);
+    border-color: var(--filet);
     transform: translateY(-1px);
   }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
@@ -507,7 +501,7 @@
     font-size: 24px;                               // kpi-value DESIGN.md
     font-weight: 800;
     line-height: 1;
-    color: #0f172a;
+    color: var(--encre);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
   }
@@ -515,48 +509,48 @@
   &__label {
     font-size: 12px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   // Dégradé sémantique 4 étapes du cycle SGFE — palette DESIGN.md strict.
   // L'œil lit gauche→droite : Bleu Clair → Rivière (production factures) →
   // Vert Nappe → Vert Profond (paiement encaissé). L'argent transite du bleu
   // vers le vert, la métaphore eau/monnaie.
-  &--releves .dash-step__value { color: #60a5fa; }   // Bleu Rivière Clair (démarrage cycle)
-  &--factures .dash-step__value { color: #1a56db; }  // Bleu Rivière (facturation lancée)
-  &--envois .dash-step__value { color: #0e9f6e; }    // Vert Nappe (envoyé au client)
-  &--paiements .dash-step__value { color: #166534; } // Vert Profond (encaissé)
+  &--releves .dash-step__value { color: var(--action); }   // Bleu Rivière — le clair tombait à 2,43:1
+  &--factures .dash-step__value { color: var(--action); }  // Bleu Rivière (facturation lancée)
+  &--envois .dash-step__value { color: var(--succes-encre); }    // Vert Nappe (envoyé au client)
+  &--paiements .dash-step__value { color: var(--vert-profond); } // Vert Profond (encaissé)
 
   // Envois : backend v3.3 n'expose pas les stats (statuts limités +
   // pas de campagne_id). État "Indisponible" honnête, non-cliquable.
   &--unavailable {
-    background: #f8fafc;
+    background: var(--surface-douce);
     border-style: dashed;
-    border-color: #cbd5e1;
+    border-color: var(--filet-pale);
     align-items: flex-start;
     cursor: default;
 
-    .dash-step__label { color: #64748b; }
-    // Fix v4 P1 : italique "Indisponible" passe #94a3b8 (2.45:1 FAIL) →
-    // #475569 Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
+    .dash-step__label { color: var(--encre-3); }
+    // Fix v4 P1 : italique "Indisponible" passe var(--encre-faible) (2.45:1 FAIL) →
+    // var(--encre-2) Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
     // devient enfin lisible.
     .dash-step__unavail {
       font-size: 11px;
-      color: #475569;
+      color: var(--encre-2);
       font-style: italic;
-      margin-top: 4px;
+      margin-top: var(--pas-1);
     }
   }
 }
 
 // ── Chiffre Fort m³ — spécificité SGFE eau ─────────────────────────────────
 .dash-m3 {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 28px 32px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-6) var(--pas-6);
 
-  @media (max-width: 640px) { padding: 22px 20px; }
+  @media (max-width: 639px) { padding: var(--pas-5) var(--pas-5); }
 
   &__link {
     display: flex;
@@ -564,35 +558,35 @@
     align-items: flex-start;
     text-decoration: none;
     color: inherit;
-    gap: 6px;
+    gap: var(--pas-2);
 
     &:focus-visible {
-      outline: 2px solid #0e9f6e;
+      outline: 2px solid var(--succes);
       outline-offset: 4px;
-      border-radius: 8px;
+      border-radius: var(--rayon-md);
     }
   }
 
   &__label {
     font-size: 13px;
     font-weight: 500;
-    color: #475569;
+    color: var(--encre-2);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--pas-2);
   }
 
   // Icône d'aide contextuelle m³ — tabbable + aria-label (pattern facturation
-  // tooltips batch 7). Fix v4 P1 : contraste au repos passe #94a3b8 (2.56:1
-  // FAIL AA) → #64748b (5.24:1 PASS AA). Sam peut la localiser sans tab actif.
+  // tooltips batch 7). Fix v4 P1 : contraste au repos passe var(--encre-faible) (2.56:1
+  // FAIL AA) → var(--encre-3) (5.24:1 PASS AA). Sam peut la localiser sans tab actif.
   &__help {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     cursor: help;
     transition: color 0.12s;
 
     &:hover, &:focus-visible {
-      color: #0e9f6e;
+      color: var(--succes-encre);
       outline: none;
     }
   }
@@ -600,36 +594,36 @@
   &__count {
     font-size: 42px;                               // display DESIGN.md
     font-weight: 800;
-    color: #0f172a;
+    color: var(--encre);
     line-height: 1;
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
-    margin-top: 2px;
+    margin-top: var(--pas-1);
 
-    @media (max-width: 640px) { font-size: 30px; } // metric-md
+    @media (max-width: 639px) { font-size: 30px; } // metric-md
   }
 
   &__unit {
     font-size: 20px;
     font-weight: 700;
-    color: #0e9f6e;                                // Vert Nappe (eau)
-    margin-left: 4px;
+    color: var(--succes-encre);                                // Vert Nappe (eau)
+    margin-left: var(--pas-1);
   }
 
   &__accent {
     display: block;
     width: 60px;
     height: 3px;
-    background: #0e9f6e;                           // Vert Nappe (signature eau)
-    border-radius: 2px;
-    margin-top: 10px;
+    background: var(--succes);                           // Vert Nappe (signature eau)
+    border-radius: var(--rayon-xs);
+    margin-top: var(--pas-2);
   }
 
   &__delta {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    margin-top: 8px;
+    gap: var(--pas-2);
+    margin-top: var(--pas-2);
     font-size: 13px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -637,7 +631,7 @@
 
   &__delta-hint {
     font-weight: 500;
-    color: #64748b;
+    color: var(--encre-3);
     font-size: 12px;
   }
 }
@@ -646,43 +640,40 @@
 // ADMIN + SUPERVISEUR — Cards campagnes
 // ════════════════════════════════════════════════════════════════════════════
 
+// Plus de carte enveloppante : les cinq sections du tableau de bord posent
+// leurs éléments sur le fond de page, avec le même titre. Deux d'entre elles
+// étaient encadrées, ce qui suggérait une hiérarchie qui n'existe pas.
 .dash-campaigns {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 22px 26px;
-
-  @media (max-width: 640px) { padding: 18px 16px; }
 
   &__title {
     font-size: 15px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 16px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-4);
   }
 
   &__grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
+    gap: var(--pas-3);
   }
 }
 
 .dash-camp {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 16px 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  gap: var(--pas-2);
+  padding: var(--pas-4) var(--pas-4);
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
   text-decoration: none;
   color: inherit;
   transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
 
   &:hover {
-    background: #fff;
-    border-color: #cbd5e1;
+    background: var(--surface);
+    border-color: var(--filet-pale);
     transform: translateY(-1px);
   }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
@@ -691,13 +682,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
+    gap: var(--pas-2);
   }
 
   &__nom {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -706,30 +697,30 @@
 
   &__statut {
     display: inline-block;
-    padding: 2px 8px;
-    border-radius: 6px;
+    padding: var(--pas-1) var(--pas-2);
+    border-radius: var(--rayon-sm);
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
 
-    &--en_cours { background: #eff6ff; color: $color-primary; border: 1px solid #bfdbfe; }
-    &--planifiee { background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; }
-    &--cloturee { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    &--en_cours { background: var(--action-lueur); color: var(--action); border: 1px solid var(--action-trait); }
+    &--planifiee { background: var(--fond); color: var(--encre-2); border: 1px solid var(--filet); }
+    &--cloturee { background: var(--succes-fond); color: var(--succes-encre); border: 1px solid var(--succes-trait); }
   }
 
   &__progress {
     height: 6px;
-    background: #e2e8f0;
-    border-radius: 4px;
+    background: var(--filet);
+    border-radius: var(--rayon-xs);
     overflow: hidden;
   }
 
   &__bar {
     height: 100%;
     background: $color-primary;
-    border-radius: 4px;
+    border-radius: var(--rayon-xs);
     // transform scaleX au lieu de width — évite layout-thrash (pattern facturation)
     transform-origin: left center;
     transform: scaleX(var(--pct, 0));
@@ -740,7 +731,7 @@
 
   &__meta {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     font-variant-numeric: tabular-nums;
   }
 }
@@ -752,7 +743,7 @@
 // ── Variant Héros Superviseur (accent Navy Nuit — structurel "mes tournées") ─
 .dash-hero--sup {
   .dash-hero__accent--sup {
-    background: #0f1c3d;                           // Navy Nuit (rôle structurel Superviseur)
+    background: var(--navy-nuit);                           // Navy Nuit (rôle structurel Superviseur)
   }
 }
 
@@ -761,13 +752,13 @@
   .dash-camp__agents {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-    padding-top: 10px;
-    border-top: 1px solid #e2e8f0;
+    gap: var(--pas-1);
+    margin-top: var(--pas-1);
+    padding-top: var(--pas-2);
+    border-top: 1px solid var(--filet);
 
     &--empty {
-      color: #94a3b8;
+      color: var(--encre-3);
       font-size: 12px;
       font-style: italic;
     }
@@ -777,31 +768,31 @@
 .dash-agent {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 3px 8px 3px 6px;
-  background: #eff6ff;                             // Bleu Rivière Lueur (actif)
-  border: 1px solid #bfdbfe;
+  gap: var(--pas-1);
+  padding: var(--pas-1) var(--pas-2) var(--pas-1) var(--pas-2);
+  background: var(--action-lueur);                             // Bleu Rivière Lueur (actif)
+  border: 1px solid var(--action-trait);
   border-radius: 999px;
   font-size: 11px;
   font-weight: 500;
-  color: #1a56db;                                  // Bleu Rivière
+  color: var(--action);                                  // Bleu Rivière
   white-space: nowrap;
 
   &__dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #15803d;                           // Vert Profond (agent actif)
+    background: var(--succes-encre);                           // Vert Profond (agent actif)
     flex-shrink: 0;
   }
 
   &--inactif {
-    background: #fef2f2;                           // Rouge Lueur (inactif)
-    border-color: #fecaca;
-    color: #b91c1c;                                // Rouge
+    background: var(--danger-fond);                           // Rouge Lueur (inactif)
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);                                // Rouge
 
     .dash-agent__dot {
-      background: #dc2626;                         // Rouge Errance
+      background: var(--danger);                         // Rouge Errance
     }
   }
 }
@@ -814,10 +805,10 @@
 .dash-tout-a-jour {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
   border-radius: 999px;
   align-self: flex-start;
 
@@ -825,33 +816,33 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #0e9f6e;
+    background: var(--succes);
     box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.15);
   }
 
   &__text {
     font-size: 13px;
     font-weight: 600;
-    color: #15803d;
+    color: var(--succes-encre);
   }
 }
 
 // Variant empty state Comptable — Fix v4 P3 : tenant avec factures mais 0 paiement
 .dash-empty--comptable {
-  i { color: #cbd5e1; }
+  i { color: var(--encre-3); }
 }
 
 .dash-actions {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 18px 22px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4) var(--pas-5);
 
   &__title {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;                                // Ardoise Nuit (neutre)
-    margin: 0 0 12px;
+    color: var(--encre);                                // Ardoise Nuit (neutre)
+    margin: 0 0 var(--pas-3);
   }
 
   &__list {
@@ -860,16 +851,16 @@
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--pas-2);
   }
 
   &__item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
+    gap: var(--pas-2);
+    padding: var(--pas-2) var(--pas-3);
     font-size: 13px;
-    border-radius: 8px;
+    border-radius: var(--rayon-md);
     border: 1px solid transparent;
 
     i {
@@ -879,26 +870,143 @@
 
     // Sévérité info — Bleu Rivière tint (juste une signalisation)
     &--info {
-      background: #eff6ff;
-      border-color: #bfdbfe;
-      color: #1e3a8a;
-      i { color: #1a56db; }
+      background: var(--action-lueur);
+      border-color: var(--action-trait);
+      color: var(--action-survol);
+      i { color: var(--action); }
     }
 
     // Sévérité warning — Ambre triplet (à traiter)
     &--warning {
-      background: #fffbeb;
-      border-color: #fde68a;
-      color: #78350f;
-      i { color: #b45309; }
+      background: var(--attente-fond);
+      border-color: var(--attente-trait);
+      color: var(--attente-encre);
+      i { color: var(--ambre-attente); }
     }
 
     // Sévérité danger — Rouge triplet (urgent)
     &--danger {
-      background: #fef2f2;
-      border-color: #fecaca;
-      color: #991b1b;
-      i { color: #dc2626; }
+      background: var(--danger-fond);
+      border-color: var(--danger-trait);
+      color: var(--danger-encre);
+      i { color: var(--danger-encre); }
     }
   }
+}
+
+// ═══ Vue ADMIN recomposée ═══════════════════════════════════════════════════
+
+// Un seul style de titre de section : la vue empilait quatre traitements.
+.dash-section__titre {
+  margin: 0 0 var(--pas-3);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--encre);
+  letter-spacing: -0.005em;
+}
+
+.dash-attention,
+.dash-mesures,
+.dash-campaigns,
+.dash-list { margin-bottom: var(--pas-5); }
+
+// ── Les mesures du mois ──────────────────────────────────────────────────────
+// Trois cartes, une seule grammaire : grand chiffre, unité en petit, libellé,
+// évolution. Ce qui manquait à la vue ADMIN, c'était la comparaison possible.
+.dash-mesures__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--pas-3);
+}
+
+.dash-mesure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  padding: var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  text-decoration: none;
+  transition: border-color var(--duree-courte) var(--ease-out);
+
+  &__valeur {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    color: var(--encre);
+    font-variant-numeric: tabular-nums;
+
+    small {
+      margin-left: var(--pas-1);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--encre-3);
+    }
+  }
+
+  &__label {
+    font-size: 13px;
+    color: var(--encre-2);
+  }
+
+  &__delta {
+    margin-top: var(--pas-1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__delta-hint {
+    margin-left: var(--pas-1);
+    font-weight: 400;
+    color: var(--encre-3);
+  }
+
+  // Seules la consommation et l'encaissé portent une teinte : ce sont les deux
+  // chiffres que l'exploitation regarde en premier.
+  &--conso &__valeur small { color: var(--succes-encre); }
+  &--encaisse &__valeur { color: var(--succes-encre); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dash-mesure:hover { border-color: var(--action); }
+}
+
+// ── Absence de campagne ──────────────────────────────────────────────────────
+// Une section vide ne disparaît pas : elle dit pourquoi elle est vide.
+.dash-vide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-4);
+  flex-wrap: wrap;
+  padding: var(--pas-4);
+  background: var(--surface);
+  border: 1px dashed var(--filet);
+  border-radius: var(--rayon-md);
+
+  &__msg {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--encre-2);
+  }
+
+  &__cta {
+    padding: var(--pas-2) var(--pas-4);
+    background: var(--action);
+    color: var(--sur-action);
+    border-radius: var(--rayon-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform var(--duree-courte) var(--ease-out);
+
+    &:active { transform: scale(0.97); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-mesure, .dash-vide__cta { transition: none; }
+  .dash-vide__cta:active { transform: none; }
 }

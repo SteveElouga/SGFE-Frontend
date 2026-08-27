@@ -8,14 +8,14 @@
 .zs-title {
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 2px;
+  color: var(--encre);
+  margin-bottom: var(--pas-1);
 }
 
 .zs-subtitle {
   font-size: 11px;
-  color: #64748b;
-  margin-bottom: 14px;
+  color: var(--encre-3);
+  margin-bottom: var(--pas-3);
 }
 
 // ── Liste des zones ───────────────────────────────────────────────────────────
@@ -24,44 +24,44 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-4);
   min-height: 60px;
 }
 
 .zs-loading {
   display: flex;
   justify-content: center;
-  padding: 30px;
-  color: $color-primary;
+  padding: var(--pas-6);
+  color: var(--action);
   font-size: 20px;
 }
 
 .zs-empty {
   text-align: center;
-  padding: 30px 10px;
+  padding: var(--pas-6) var(--pas-2);
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--encre-3);
 }
 
 .zs-row {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: var(--pas-3);
   width: 100%;
   text-align: left;
-  padding: 11px 13px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;                                  // md token DESIGN.md
-  background: #fff;
+  padding: var(--pas-3) var(--pas-3);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);                                  // md token DESIGN.md
+  background: var(--surface);
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, box-shadow 0.12s;
 
-  &:hover:not(:disabled) { background: #f8fafc; }
+  &:hover:not(:disabled) { background: var(--surface-douce); }
 
   &--selected {
     border: 1.5px solid $color-primary;
-    background: #f5f8ff;
+    background: var(--surface-douce);
     box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.06);
   }
 
@@ -81,7 +81,7 @@
 .zs-name {
   font-size: 13px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--encre);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -89,22 +89,22 @@
 
 .zs-sub {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--encre-3);
   margin-top: 1px;
 }
 
 .zs-check {
   width: 22px;
   height: 22px;
-  border-radius: 6px;
-  border: 1.5px solid #cbd5e1;
+  border-radius: var(--rayon-sm);
+  border: 1.5px solid var(--filet-pale);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.12s, border-color 0.12s;
 
-  i { font-size: 12px; color: #fff; }
+  i { font-size: 12px; color: var(--surface); }
 
   &--on {
     background: $color-primary;
@@ -117,14 +117,14 @@
   width: 100%;
   height: 48px;
   border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #1a56db, #1d4ed8);
-  color: #fff;
+  border-radius: var(--rayon-lg);
+  background: linear-gradient(135deg, var(--action), var(--action-survol));
+  color: var(--surface);
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(26, 86, 219, 0.35);
-  margin-bottom: 8px;
+  margin-bottom: var(--pas-2);
   transition: opacity 0.15s;
 
   &:hover:not(:disabled) { opacity: 0.92; }
@@ -134,14 +134,14 @@
 .zs-cancel {
   width: 100%;
   height: 42px;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  background: #fff;
-  color: #64748b;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  background: var(--surface);
+  color: var(--encre-3);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.12s;
 
-  &:hover { background: #f8fafc; }
+  &:hover { background: var(--surface-douce); }
 }

@@ -6,11 +6,11 @@
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
 .users-content {
-  padding: 20px 24px;
+  padding: var(--pas-5) var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: #f1f5f9;
+  gap: var(--pas-3);
+  background: var(--fond);
   min-height: calc(100% - 54px);
 }
 
@@ -23,9 +23,9 @@
 // ── Carte tableau ─────────────────────────────────────────────────────────────
 
 .users-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
   overflow: hidden;
 }
 
@@ -34,12 +34,12 @@
 .users-table__user {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--pas-2);
 
   &--off {
     opacity: 0.6;
     .users-table__username { text-decoration: line-through; }
-    .users-table__avatar { background: #cbd5e1; }
+    .users-table__avatar { background: var(--filet-pale); }
   }
 }
 
@@ -48,8 +48,8 @@
   height: 30px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
-  color: #fff;
+  background: linear-gradient(135deg, var(--action), var(--succes));
+  color: var(--surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -60,92 +60,92 @@
 .users-table__username {
   font-weight: 600;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--encre);
 }
 
 .users-table__email {
   font-size: 12px;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 // ── Pill de rôle (couleurs du design) ─────────────────────────────────────────
 .role-pill {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-lg);
   font-size: 11px;
   font-weight: 600;
 
-  &--admin       { background: #eff6ff; color: #1a56db; }
-  &--comptable   { background: #faf5ff; color: #7c3aed; }
-  &--agent       { background: #f0fdf4; color: #0e9f6e; }
-  &--superviseur { background: #ecfeff; color: #0e7490; }
-  &--off         { background: #f1f5f9; color: #94a3b8; }
+  &--admin       { background: var(--action-lueur); color: var(--action); }
+  &--comptable   { background: var(--role-violet-lueur); color: var(--role-violet); }
+  &--agent       { background: var(--succes-fond); color: var(--succes-encre); }
+  &--superviseur { background: var(--role-cyan-lueur); color: var(--role-cyan); }
+  &--off         { background: var(--fond); color: var(--encre-3); }
 }
 
 // ── Statut (point + texte) ────────────────────────────────────────────────────
 .statut-dot {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: var(--pas-1);
   font-size: 11px;
   font-weight: 600;
-  color: #15803d;
+  color: var(--succes-encre);
 
-  &__mark { width: 7px; height: 7px; border-radius: 50%; background: #0e9f6e; }
+  &__mark { width: 7px; height: 7px; border-radius: 50%; background: var(--succes); }
 
   &--off {
-    color: #94a3b8;
-    .statut-dot__mark { background: #cbd5e1; }
+    color: var(--encre-3);
+    .statut-dot__mark { background: var(--filet-pale); }
   }
 }
 
 .users-table__phone {
   font-size: 13px;
-  color: #475569;
+  color: var(--encre-2);
   font-variant-numeric: tabular-nums;
 }
 
 .users-table__date {
   font-size: 13px;
-  color: #64748b;
+  color: var(--encre-3);
 }
 
 .users-table__actions {
   display: flex;
-  gap: 6px;
+  gap: var(--pas-2);
   justify-content: flex-end;
 }
 
 .users-table__action-btn {
   width: 32px;
   height: 32px;
-  border-radius: 6px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
+  border-radius: var(--rayon-sm);
+  border: 1px solid var(--filet);
+  background: var(--surface);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #475569;
+  color: var(--encre-2);
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 
   &:hover {
-    background: #f8fafc;
-    color: $color-primary;
+    background: var(--surface-douce);
+    color: var(--action);
     border-color: $color-primary;
   }
 
   &--danger:hover {
-    background: #fef2f2;
-    color: #dc2626;
-    border-color: #fca5a5;
+    background: var(--danger-fond);
+    color: var(--danger-encre);
+    border-color: var(--danger-trait);
   }
 
   &--success:hover {
-    background: #f0fdf4;
-    color: #0e9f6e;
-    border-color: #86efac;
+    background: var(--succes-fond);
+    color: var(--succes-encre);
+    border-color: var(--succes-trait);
   }
 
   i { font-size: 13px; }
@@ -154,14 +154,14 @@
 .users-table__empty {
   text-align: center;
   padding: 40px 0;
-  color: #64748b;
+  color: var(--encre-3);
   font-size: 14px;
 }
 
 // ── Carte mobile (via data-table appCardRow) ──────────────────────────────────
 // Sur mobile, le wrapper devient transparent : chaque .ucard est une carte
 // autonome (comme .fcard des impayés).
-@media (max-width: 720px) {
+@media (max-width: 1023px) {
   .users-card {
     border: none;
     background: transparent;
@@ -173,17 +173,17 @@
 .ucard {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 10px;
+  gap: var(--pas-3);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-3);
+  margin-bottom: var(--pas-2);
 
   &--off {
     opacity: 0.6;
     .users-table__username { text-decoration: line-through; }
-    .users-table__avatar { background: #cbd5e1; }
+    .users-table__avatar { background: var(--filet-pale); }
   }
 
   &__body {
@@ -191,13 +191,13 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--pas-1);
   }
 
   &__head {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--pas-2);
     min-width: 0;
   }
 
@@ -211,7 +211,7 @@
 
   &__email {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -219,7 +219,7 @@
 
   &__actions {
     display: flex;
-    gap: 6px;
+    gap: var(--pas-2);
     flex-shrink: 0;
   }
 }
