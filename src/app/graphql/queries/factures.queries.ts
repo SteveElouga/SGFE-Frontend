@@ -124,6 +124,7 @@ export const GET_ALL_ENVOIS = gql`
       statut
       dateEnvoi
       erreur
+      raisonEchec
     }
   }
 `;

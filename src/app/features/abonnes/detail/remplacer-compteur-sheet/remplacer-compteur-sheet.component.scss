@@ -3,22 +3,22 @@
 .meter-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
   // Le padding est fourni par app-bottom-sheet (.bs-sheet__body).
 }
 
 .meter-header {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--pas-3);
 
   &__icon {
     flex-shrink: 0;
     width: 42px;
     height: 42px;
-    border-radius: 10px;
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
+    border-radius: var(--rayon-md);
+    background: var(--action-lueur);
+    border: 1px solid var(--action-trait);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -27,60 +27,60 @@
   &__title {
     font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 3px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-1);
   }
 
   &__sub {
     font-size: 13px;
-    color: #64748b;
+    color: var(--encre-3);
     margin: 0;
   }
 }
 
 .meter-old-card {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 16px;
+  background: var(--fond);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
 
   &__tag {
     font-size: 10px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #94a3b8;
-    margin-bottom: 10px;
+    color: var(--encre-3);
+    margin-bottom: var(--pas-2);
   }
 
   &__rows {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--pas-2);
   }
 
   &__row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: var(--pas-2);
   }
 
   &__key {
     font-size: 12px;
-    color: #64748b;
+    color: var(--encre-3);
   }
 
   &__val {
     font-size: 13px;
     font-weight: 600;
-    color: #334155;
+    color: var(--encre-2);
 
     &--mono { font-variant-numeric: tabular-nums; }
   }
 
   &__loading {
-    color: #94a3b8;
+    color: var(--encre-3);
     font-weight: 400;
   }
 }
@@ -88,68 +88,68 @@
 .meter-arrow {
   display: flex;
   justify-content: center;
-  margin: -4px 0;
+  margin: -var(--pas-1) 0;
 
   &__circle {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #1a56db;
+    background: var(--action);
     display: flex;
     align-items: center;
     justify-content: center;
 
-    svg path { stroke: #fff; }
+    svg path { stroke: var(--surface); }
   }
 }
 
 .meter-new-card {
-  border: 1.5px solid #bfdbfe;
-  border-radius: 10px;
-  padding: 16px;
+  border: 1.5px solid var(--action-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--pas-3);
 
   &__title {
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #1a56db;
-    margin-bottom: 2px;
+    color: var(--action);
+    margin-bottom: var(--pas-1);
   }
 }
 
 .meter-location-reprise {
   font-size: 12px;
-  color: #475569;
-  background: #f8fafc;
-  border-radius: 6px;
-  padding: 7px 10px;
+  color: var(--encre-2);
+  background: var(--surface-douce);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-2) var(--pas-2);
   margin: 0;
 }
 
 .meter-info-note {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  padding: 11px 13px;
+  gap: var(--pas-2);
+  background: var(--action-lueur);
+  border: 1px solid var(--action-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-3);
   font-size: 12px;
   line-height: 1.6;
-  color: #1e40af;
+  color: var(--action-survol);
 
-  svg { flex-shrink: 0; margin-top: 2px; }
+  svg { flex-shrink: 0; margin-top: var(--pas-1); }
 }
 
 .meter-footer {
   display: flex;
   flex-direction: column-reverse; // « Confirmer » au-dessus, Annuler dessous
-  gap: 10px;
-  padding-top: 2px;
+  gap: var(--pas-2);
+  padding-top: var(--pas-1);
 
   .dialog-btn { width: 100%; justify-content: center; }
 }
@@ -159,13 +159,13 @@
 .edit-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 .edit-field {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: var(--pas-1);
 
   input[pInputText] { width: 100%; }
 }
@@ -173,15 +173,15 @@
 .edit-label {
   font-size: 13px;
   font-weight: 500;
-  color: #374151;
+  color: var(--encre-2);
 }
 
 // ── Boutons de dialogue ───────────────────────────────────────────────────────
 
 .dialog-btn {
   height: 38px;
-  padding: 0 18px;
-  border-radius: 8px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -190,12 +190,12 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--ghost {
-    @include btn-variant(none, #475569, $border: 1px solid #e2e8f0, $hover-bg: #f8fafc);
+    @include btn-variant(none, var(--encre-2), $border: 1px solid var(--filet), $hover-bg: var(--surface-douce));
   }
 
   &--primary {
     @include btn-variant(
-      linear-gradient(135deg, #1a56db, #1d4ed8), #fff,
+      linear-gradient(135deg, var(--action), var(--action-survol)), var(--surface),
       $shadow: 0 2px 8px rgba(26, 86, 219, 0.3), $hover-opacity: 0.9
     );
   }

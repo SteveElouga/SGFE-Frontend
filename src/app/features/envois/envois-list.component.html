@@ -13,47 +13,72 @@
       optionLabel="label"
       optionValue="value"
       styleClass="envois__filter"
+      [ariaLabel]="'ENVOIS.FILTRE_ARIA' | translate"
     />
-    <span class="envois__count">{{ rows().length }}</span>
+    <span class="envois__count">
+      {{ 'ENVOIS.COUNT' | translate: { count: rows().length } }}
+    </span>
+    @if (nbEchecs() > 0) {
+      <span class="envois__echecs">
+        {{ 'ENVOIS.NB_ECHECS' | translate: { count: nbEchecs() } }}
+      </span>
+    }
   </div>
 
   @if (loading()) {
-    <div class="envois__loading"><i class="pi pi-spin pi-spinner"></i></div>
+    <div class="envois__loading" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    </div>
   } @else if (rows().length === 0) {
     <div class="envois__empty">{{ 'ENVOIS.EMPTY' | translate }}</div>
   } @else {
-    <div class="envois__list">
-      @for (e of rows(); track e.envoiId) {
-        <div class="envoi" [class.envoi--echec]="e.statut === 'ECHEC'">
-          <div class="envoi__body">
-            <div class="envoi__head">
-              <span class="envoi__type">{{ typeLabel(e.typeEnvoi) }}</span>
-              <span class="envoi__date">{{ formatDate(e.dateEnvoi) }}</span>
-            </div>
-            @if (e.statut === 'ECHEC' && e.erreur) {
-              <span class="envoi__err">{{ e.erreur }}</span>
-            }
-          </div>
-          <div class="envoi__aside">
-            <app-badge [tone]="statutTone(e.statut)" [label]="'ENVOIS.STATUT.' + e.statut | translate" />
-            @if (e.statut === 'ECHEC') {
-              <button
-                type="button"
-                class="envoi__resend"
-                [disabled]="resending() === e.envoiId"
-                (click)="renvoyer(e)"
-              >
-                @if (resending() === e.envoiId) {
-                  <i class="pi pi-spin pi-spinner"></i>
-                } @else {
-                  <i class="pi pi-refresh"></i>
+    @for (g of groupes(); track g.cle) {
+      <section class="envois__jour">
+        <h2 class="envois__jour-titre">{{ g.libelle }}</h2>
+        <div class="envois__list">
+          @for (e of g.lignes; track e.envoiId) {
+            <div class="envoi" [class.envoi--echec]="e.statut === 'ECHEC'">
+              <div class="envoi__body">
+                <div class="envoi__head">
+                  <span class="envoi__destinataire">{{ e.destinataire }}</span>
+                  <span class="envoi__type">{{ typeLabel(e.typeEnvoi) }}</span>
+                </div>
+                <div class="envoi__meta">
+                  <span class="envoi__heure">{{ formatHeure(e.dateEnvoi) }}</span>
+                  @if (e.refAbonne) {
+                    <span class="envoi__ref">{{ e.refAbonne }}</span>
+                  }
+                  @if (e.numeroFacture) {
+                    <span class="envoi__ref">{{ e.numeroFacture }}</span>
+                  }
+                </div>
+                @if (e.statut === 'ECHEC' && (e.raisonEchec || e.erreur)) {
+                  <span class="envoi__err">{{ e.raisonEchec || e.erreur }}</span>
                 }
-                {{ 'ENVOIS.RESEND' | translate }}
-              </button>
-            }
-          </div>
+              </div>
+              <div class="envoi__aside">
+                <app-badge [tone]="statutTone(e.statut)" [label]="'ENVOIS.STATUT.' + e.statut | translate" />
+                @if (e.statut === 'ECHEC') {
+                  <button
+                    type="button"
+                    class="envoi__resend"
+                    [disabled]="resending() === e.envoiId"
+                    [attr.aria-label]="('ENVOIS.RESEND' | translate) + ' — ' + e.destinataire"
+                    (click)="renvoyer(e)"
+                  >
+                    @if (resending() === e.envoiId) {
+                      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                    } @else {
+                      <i class="pi pi-refresh" aria-hidden="true"></i>
+                    }
+                    {{ 'ENVOIS.RESEND' | translate }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
         </div>
-      }
-    </div>
+      </section>
+    }
   }
 </div>

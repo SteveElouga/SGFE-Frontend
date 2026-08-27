@@ -1,5 +1,5 @@
 <!-- ══ Résiliation — bottom sheet mobile / dialog desktop (31 · MC-05) ══ -->
-<app-bottom-sheet [open]="open()" (close)="close.emit()">
+<app-bottom-sheet [open]="open()" labelledBy="resilier-sheet-title" (close)="close.emit()">
   <div class="resil-body">
 
     <!-- En-tête personnalisé -->
@@ -12,7 +12,7 @@
         </svg>
       </div>
       <div>
-        <h3 class="resil-header__title">{{ title() }}</h3>
+        <h3 class="resil-header__title" id="resilier-sheet-title">{{ title() }}</h3>
         <p class="resil-header__desc">{{ 'ABONNES.DETAIL.RESILIATION_MSG' | translate }}</p>
       </div>
     </div>

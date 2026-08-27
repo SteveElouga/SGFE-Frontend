@@ -1,7 +1,7 @@
 <app-page-topbar [title]="'IMPAYES.TITLE' | translate" [subtitle]="subtitle()">
-  <button type="button" class="bilan-btn" (click)="exportBilan()" [attr.aria-label]="'IMPAYES.BILAN_PDF' | translate">
-    <i class="pi pi-download"></i>
-    <span class="bilan-btn__label">{{ 'IMPAYES.BILAN_PDF' | translate }}</span>
+  <button type="button" class="bilan-btn" (click)="exportBilan()" [attr.aria-label]="'IMPAYES.BILAN_CSV' | translate">
+    <i class="pi pi-file-excel" aria-hidden="true"></i>
+    <span class="bilan-btn__label">{{ 'IMPAYES.BILAN_CSV' | translate }}</span>
   </button>
 </app-page-topbar>
 
@@ -11,67 +11,51 @@
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
 
-  <!-- KPI strip -->
-  <div class="kpi-strip">
-    <div class="kpi kpi--accent-red">
-      <div class="kpi__value">{{ nbImpayes() }}</div>
-      <div class="kpi__label">{{ 'IMPAYES.KPI_IMPAYEES' | translate }}</div>
+  <!-- KPI strip : fusion 4 → 2 tuiles. La 1re porte le total à recouvrer avec
+       count en hint, la 2e porte l'urgence (étape 3+) avec suspensions en
+       sous-badge. Densité info sans démultiplication de tuiles. -->
+  <div class="kpi-strip" role="list" [attr.aria-label]="'IMPAYES.KPI_ARIA' | translate">
+    <div class="kpi kpi--accent-red" role="listitem">
+      <div class="kpi__value kpi__value--red">{{ formatNombre(totalSolde()) }}<small class="kpi__unit"> FCFA</small></div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_TOTAL_LABEL' | translate }}</div>
+      <div class="kpi__hint">{{ 'IMPAYES.KPI_TOTAL_HINT' | translate: { count: nbImpayes() } }}</div>
     </div>
-    <div class="kpi">
-      <div class="kpi__value kpi__value--red">{{ formatNombre(totalSolde()) }}</div>
-      <div class="kpi__label">{{ 'IMPAYES.KPI_SOLDE' | translate }}</div>
-    </div>
-    <div class="kpi">
+    <div class="kpi" role="listitem">
       <div class="kpi__value kpi__value--warn">{{ nbEtape3Plus() }}</div>
-      <div class="kpi__label">{{ 'IMPAYES.KPI_ETAPE3' | translate }}</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi__value kpi__value--dark">{{ nbSuspendues() }}</div>
-      <div class="kpi__label">{{ 'IMPAYES.KPI_SUSPENDUE' | translate }}</div>
+      <div class="kpi__label">{{ 'IMPAYES.KPI_URGENT_LABEL' | translate }}</div>
+      @if (nbSuspendues() > 0) {
+        <div class="kpi__hint kpi__hint--danger">
+          <i class="pi pi-exclamation-circle" aria-hidden="true"></i>
+          {{ 'IMPAYES.KPI_URGENT_HINT' | translate: { count: nbSuspendues() } }}
+        </div>
+      } @else {
+        <div class="kpi__hint">{{ 'IMPAYES.KPI_URGENT_NONE' | translate }}</div>
+      }
     </div>
   </div>
 
-  <!-- Filters : chips segmentés en mobile (pattern M-05), dropdowns en desktop -->
-  <app-filter-bar
+  <!-- Filtres unifiés (batch 10) -->
+  <app-filters-panel
     [search]="searchTerm()"
     (searchChange)="onSearchChange($event)"
+    [debounceMs]="250"
     searchPlaceholder="IMPAYES.SEARCH_PLACEHOLDER"
-  >
-    <div class="impayes-etape-chips">
-      <app-filter-chips
-        [options]="etapeChips()"
-        [total]="nbImpayes()"
-        [value]="etapeChipValue()"
-        (valueChange)="onEtapeChip($event)"
-      />
-    </div>
-
-    <p-select
-      class="impayes-etape-select"
-      [options]="etapeOptions()"
-      [ngModel]="filtreEtape()"
-      (ngModelChange)="onEtapeChange($event)"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'IMPAYES.COL_ETAPE' | translate"
-    />
-    <p-select
-      class="impayes-tri-select"
-      [options]="triOptions()"
-      [ngModel]="tri()"
-      (ngModelChange)="onTriChange($event)"
-      optionLabel="label"
-      optionValue="value"
-    />
-  </app-filter-bar>
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="impayesFiltres().length"
+    [totalCount]="nbImpayes()"
+    heroNounKey="IMPAYES.RESULTS_HERO"
+  />
 
   <!-- Table -->
   <div class="table-wrap">
     <app-data-table
       [columns]="columns"
       [rows]="impayesFiltres()"
+      [rowLink]="lienFacture"
       [loading]="loading()"
-      [pageSize]="10"
+      [pageSize]="15"
       [rowClass]="rowDanger"
       trackKey="factureId"
       pageInfoKey="IMPAYES.PAGINATION_INFO"
@@ -131,7 +115,7 @@
                 {{ row.numeroAbonne }}@if (row.retardJours !== null) { · J+{{ row.retardJours }} }@if (row.montantPaye > 0) { · {{ 'IMPAYES.ACOMPTE_RECU' | translate }} }
               </span>
             </span>
-            <span class="fcard__solde">{{ formatNombre(row.soldeRestant) }} F</span>
+            <span class="fcard__solde">{{ formatNombre(row.soldeRestant) }} FCFA</span>
           </button>
           <div class="fcard__foot">
             <span class="etape-badge etape-badge--{{ badgeState(row) }}">{{ badgeLabel(row) }}</span>

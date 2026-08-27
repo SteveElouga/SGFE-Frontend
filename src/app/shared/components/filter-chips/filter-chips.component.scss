@@ -4,30 +4,30 @@
 
 .fchips {
   display: flex;
-  gap: 8px;
+  gap: var(--pas-2);
   overflow-x: auto;
-  padding: 2px;               // évite que le focus-ring soit rogné
+  padding: var(--pas-1);               // évite que le focus-ring soit rogné
   @include hide-scrollbar;
 }
 
 .fchips__chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   flex-shrink: 0;             // pilules non compressées → défilement horizontal
   height: 38px;
-  padding: 0 16px;
-  border: 1px solid #e2e8f0;
+  padding: 0 var(--pas-4);
+  border: 1px solid var(--filet);
   border-radius: 999px;
-  background: #fff;
-  color: #475569;
+  background: var(--surface);
+  color: var(--encre-2);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 
-  &:hover:not(&--active) { background: #f8fafc; }
+  &:hover:not(&--active) { background: var(--surface-douce); }
 
   &:focus-visible {
     outline: 2px solid rgba($color-primary, 0.5);
@@ -35,9 +35,9 @@
   }
 
   &--active {
-    background: #0f1c3d;      // navy foncé (maquette)
-    color: #fff;
-    border-color: #0f1c3d;
+    background: var(--navy-nuit);      // navy foncé (maquette)
+    color: var(--surface);
+    border-color: var(--navy-nuit);
   }
 }
 
@@ -49,15 +49,17 @@
   .fchips__chip--active & { opacity: 0.8; }
 }
 
-// Mobile (M-05) : pilules compactes
-@media (max-width: 640px) {
-  .fchips { gap: 6px; }
+// Mobile : pilules resserrées mais cible tactile préservée (WCAG 2.5.5 :
+// 44px cible AAA ; 36px reste bien au-dessus des 24px AA, tout en gardant
+// la compacité visuelle de la barre de filtres mobile).
+@media (max-width: 639px) {
+  .fchips { gap: var(--pas-2); }
 
   .fchips__chip {
-    height: 28px;
-    padding: 0 12px;
-    gap: 4px;
-    font-size: 11px;
+    height: 36px;
+    padding: 0 var(--pas-3);
+    gap: var(--pas-1);
+    font-size: 12px;
   }
 
   .fchips__count { font-size: 11px; }

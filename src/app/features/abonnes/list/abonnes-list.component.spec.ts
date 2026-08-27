@@ -167,8 +167,10 @@ describe('AbonnesListComponent', () => {
 
   it('derives unique sorted quartier options', async () => {
     const { component } = setup(mockAbonnes);
-    const values = component.quartiersOptions().map((o) => o.value);
-    expect(values).toEqual(['Centre', 'Plateau']);
+    // Batch 10 : les options quartier sont projetées dans `filtersConfig`
+    // (panneau de filtres unifié) et non plus dans un computed dédié.
+    const quartier = component.filtersConfig().find((f) => f.key === 'quartier');
+    expect(quartier?.options.map((o) => o.value)).toEqual(['Centre', 'Plateau']);
   });
 
   it('returns empty string for statut summary when no abonnés', () => {

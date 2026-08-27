@@ -1,4 +1,10 @@
-// Couleurs (identité AquaBill — voir maquettes Claude Design)
+// Couleurs — jumeaux SCSS des jetons de `_tokens.scss`.
+//
+// Les jetons runtime (`var(--action)`) sont la source de vérité et ce que
+// consomment les composants. Ces variables SCSS n'existent que pour les
+// fonctions de couleur à la compilation — `rgba($color-primary, .3)`,
+// `color.adjust(...)` — qui ne savent pas lire une variable CSS.
+// Toute modification ici doit être répercutée dans `_tokens.scss`.
 $color-primary: #1a56db;
 $color-accent: #0e9f6e;
 $color-error: #ef4444;

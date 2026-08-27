@@ -7,9 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -18,7 +16,7 @@ import { UsersService } from '../../../core/users/users.service';
 import { Role, User } from '../../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
@@ -28,7 +26,6 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
   selector: 'app-utilisateurs-list',
   imports: [
     DatePipe,
-    FormsModule,
     RouterLink,
     DataTableComponent,
     DataTableCellDirective,
@@ -36,9 +33,8 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
     ConfirmDialogModule,
     ErrorBannerComponent,
     PageTopbarComponent,
-    FilterBarComponent,
+    FiltersPanelComponent,
     TooltipDirective,
-    SelectModule,
     TranslatePipe,
   ],
   providers: [ConfirmationService],
@@ -47,6 +43,9 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UtilisateursListComponent implements OnInit {
+  /** Destination d'une ligne : la fiche utilisateur. */
+  protected readonly lienUtilisateur = (u: { id: string }) => ['/utilisateurs', u.id];
+
   private readonly usersService = inject(UsersService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly toast = inject(ToastService);
@@ -61,11 +60,11 @@ export class UtilisateursListComponent implements OnInit {
   readonly filtreStatut = signal<'TOUS' | 'ACTIF' | 'INACTIF'>('TOUS');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'username', header: 'UTILISATEURS.USERNAME' },
-    { key: 'email', header: 'UTILISATEURS.EMAIL' },
-    { key: 'role', header: 'UTILISATEURS.ROLE' },
-    { key: 'createdAt', header: 'UTILISATEURS.CREATED_AT' },
-    { key: 'statut', header: 'COMMON.STATUS' },
+    { key: 'username', header: 'UTILISATEURS.USERNAME', sortable: true, sortValue: (r) => (r as { username: string }).username },
+    { key: 'email', header: 'UTILISATEURS.EMAIL', sortable: true, sortValue: (r) => (r as { email?: string }).email ?? '' },
+    { key: 'role', header: 'UTILISATEURS.ROLE', sortable: true, sortValue: (r) => (r as { role: string }).role },
+    { key: 'createdAt', header: 'UTILISATEURS.CREATED_AT', sortable: true, sortValue: (r) => new Date((r as { createdAt: string }).createdAt) },
+    { key: 'statut', header: 'COMMON.STATUS', sortable: true, sortValue: (r) => (r as { isActive?: boolean }).isActive ? 'ACTIF' : 'INACTIF' },
     { key: 'actions', header: '' },
   ];
 
@@ -83,24 +82,40 @@ export class UtilisateursListComponent implements OnInit {
     return this.translate.instant(key, { count });
   });
 
-  readonly roleOptions = computed(() => {
+  /** Filtres unifiés (batch 10) : role + statut, tous 2 en select. */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     return [
-      { label: this.translate.instant('UTILISATEURS.ROLES.AGENT', {}, lang), value: 'AGENT' },
-      { label: this.translate.instant('UTILISATEURS.ROLES.COMPTABLE', {}, lang), value: 'COMPTABLE' },
-      { label: this.translate.instant('UTILISATEURS.ROLES.SUPERVISEUR', {}, lang), value: 'SUPERVISEUR' },
-      { label: this.translate.instant('UTILISATEURS.ROLES.ADMIN', {}, lang), value: 'ADMIN' },
+      {
+        key: 'role',
+        label: 'UTILISATEURS.FILTRE_ROLE',
+        options: [
+          { label: this.translate.instant('UTILISATEURS.ROLES.AGENT', {}, lang), value: 'AGENT' },
+          { label: this.translate.instant('UTILISATEURS.ROLES.COMPTABLE', {}, lang), value: 'COMPTABLE' },
+          { label: this.translate.instant('UTILISATEURS.ROLES.SUPERVISEUR', {}, lang), value: 'SUPERVISEUR' },
+          { label: this.translate.instant('UTILISATEURS.ROLES.ADMIN', {}, lang), value: 'ADMIN' },
+        ],
+      },
+      {
+        key: 'statut',
+        label: 'COMMON.STATUS',
+        options: [
+          { label: this.translate.instant('UTILISATEURS.STATUT.ACTIF', {}, lang), value: 'ACTIF' },
+          { label: this.translate.instant('UTILISATEURS.STATUT.INACTIF', {}, lang), value: 'INACTIF' },
+        ],
+      },
     ];
   });
 
-  readonly statutOptions = computed(() => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('UTILISATEURS.STATUT.TOUS', {}, lang), value: 'TOUS' },
-      { label: this.translate.instant('UTILISATEURS.STATUT.ACTIF', {}, lang), value: 'ACTIF' },
-      { label: this.translate.instant('UTILISATEURS.STATUT.INACTIF', {}, lang), value: 'INACTIF' },
-    ];
-  });
+  readonly filterValues = computed<FilterValues>(() => ({
+    role: this.filtreRole(),
+    statut: this.filtreStatut() === 'TOUS' ? null : this.filtreStatut(),
+  }));
+
+  onFiltersChange(v: FilterValues): void {
+    this.filtreRole.set((v['role'] as Role | null) ?? null);
+    this.filtreStatut.set((v['statut'] as 'ACTIF' | 'INACTIF' | null) ?? 'TOUS');
+  }
 
   readonly filteredUsers = computed(() => {
     let list = this.users();

@@ -3,8 +3,8 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
   border: 1px solid transparent;
   font-size: 11px;
   font-weight: 600;
@@ -14,21 +14,21 @@
 
   &--actif,
   &--active {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #15803d;
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
   }
 
   &--suspendu,
   &--inactive {
-    background: #fffbeb;
-    border-color: #fde68a;
-    color: #b45309;
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--ambre-attente);
   }
 
   &--resilie {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
   }
 }

@@ -13,6 +13,10 @@ colors:
   rouge-brulure: "#b91c1c"
   ambre-attente: "#b45309"
   ambre-jaune: "#f59e0b"
+  orange-attention: "#c2410c"
+  orange-attention-clair: "#f97316"
+  orange-lueur: "#fff7ed"
+  orange-trait: "#fed7aa"
   ardoise-nuit: "#0f172a"
   ardoise-encre: "#475569"
   ardoise-brume: "#64748b"
@@ -39,29 +43,92 @@ typography:
     fontWeight: 800
     lineHeight: 1
     letterSpacing: "-0.01em"
+  metric-xl:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "34px"
+    fontWeight: 800
+    lineHeight: 1
+    letterSpacing: "-0.01em"
   headline:
     fontFamily: "Montserrat, sans-serif"
     fontSize: "32px"
     fontWeight: 700
     lineHeight: 1.2
     letterSpacing: "-0.01em"
+  metric-lg:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "32px"
+    fontWeight: 800
+    lineHeight: 1
+  metric-md:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "30px"
+    fontWeight: 700
+    lineHeight: 1
+  kpi-value:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "24px"
+    fontWeight: 800
+    lineHeight: 1.1
+  metric-sm:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "22px"
+    fontWeight: 800
+    lineHeight: 1
   title:
     fontFamily: "Montserrat, sans-serif"
     fontSize: "20px"
     fontWeight: 700
     lineHeight: 1.15
+  page-title:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "17px"
+    fontWeight: 700
+    lineHeight: 1.2
+  subtitle:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "15px"
+    fontWeight: 700
+    lineHeight: 1.3
+  body-strong:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "14px"
+    fontWeight: 600
+    lineHeight: 1.4
+  icon-lg:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "18px"
+    fontWeight: 500
+    lineHeight: 1
+  icon-md:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "16px"
+    fontWeight: 500
+    lineHeight: 1
   body:
     fontFamily: "Montserrat, sans-serif"
     fontSize: "13px"
     fontWeight: 400
     lineHeight: 1.5
+  meta:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "12px"
+    fontWeight: 500
+    lineHeight: 1.4
   label:
     fontFamily: "Montserrat, sans-serif"
     fontSize: "11px"
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: "0.05em"
+  micro:
+    fontFamily: "Montserrat, sans-serif"
+    fontSize: "10px"
+    fontWeight: 600
+    lineHeight: 1.2
+    letterSpacing: "0.05em"
 rounded:
+  mini: "2px"
   xs: "4px"
   sm: "6px"
   md: "8px"
@@ -133,19 +200,29 @@ components:
     rounded: "{rounded.sm}"
     padding: "3px 10px"
   chip-filter:
-    backgroundColor: "{colors.blanc}"
+    backgroundColor: "{colors.ardoise-brise}"
     textColor: "{colors.ardoise-encre}"
     typography: "{typography.body}"
+    fontWeight: 500
     rounded: "{rounded.pill}"
-    padding: "0 16px"
-    height: "38px"
+    padding: "0 13px"
+    height: "34px"
   chip-filter-active:
     backgroundColor: "{colors.navy-nuit}"
     textColor: "{colors.blanc}"
     typography: "{typography.body}"
+    fontWeight: 600
     rounded: "{rounded.pill}"
-    padding: "0 16px"
-    height: "38px"
+    padding: "0 13px"
+    height: "34px"
+  chip-filter-empty:
+    backgroundColor: "{colors.ardoise-brise}"
+    textColor: "{colors.ardoise-brume}"
+    typography: "{typography.body}"
+    fontWeight: 500
+    rounded: "{rounded.pill}"
+    padding: "0 13px"
+    height: "34px"
 ---
 
 # Design System: SGFE — Système de Gestion de Facturation d'Eau
@@ -285,8 +362,9 @@ Le système est **structuré par couche** : chaque type de surface a son ombre n
 
 Le vocabulaire de forme est celui d'un formulaire imprimé passé au rayon-toucher : coins doux mais pas ronds, bordures fines 1px, aucune enveloppe organique.
 
-**Radius scale.** Quatre familles :
-- *Éléments serrés* : badge 6px, page-btn 6px, bouton compact 8px, input 8px.
+**Radius scale.** Cinq familles :
+- *Micro* : 2px (grip de sheet, cartes accolées iOS-style où plusieurs `.act-row` s'empilent en groupe avec radius 10px seulement en tête et pied).
+- *Éléments serrés* : badge 6px, page-btn 6px, bouton compact 8px, input 8px, icône contexte 8px.
 - *Cartes* : 10px (info-cell), 12px (KPI, table wrap, dialog desktop), 14px (carte mobile).
 - *Couches portées* : 16px (dialog desktop), 24px (bottom-sheet mobile — coins hauts uniquement).
 - *Formes rondes* : chip pill 999px, avatar 50%.

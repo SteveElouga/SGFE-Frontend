@@ -8,11 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { DialogModule } from 'primeng/dialog';
-import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -21,36 +18,38 @@ import { ABONNE_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
-import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
+import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import { ReactiverSheetComponent } from '../detail/reactiver-sheet/reactiver-sheet.component';
 
 @Component({
   selector: 'app-abonnes-list',
   imports: [
-    FormsModule,
     RouterLink,
-    SelectModule,
-    DialogModule,
     ErrorBannerComponent,
     StatusBadgeComponent,
     PageTopbarComponent,
-    FilterBarComponent,
-    FilterChipsComponent,
+    FiltersPanelComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
     CompteurPipe,
+    NomAbonnePipe,
     TranslatePipe,
+    ReactiverSheetComponent,
   ],
   templateUrl: './abonnes-list.component.html',
   styleUrl: './abonnes-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AbonnesListComponent implements OnInit {
+  /** Destination d'une ligne : la fiche de l'abonné. */
+  protected readonly lienAbonne = (a: { id: string }) => ['/abonnes', a.id];
+
   private readonly abonnesService = inject(AbonnesService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
@@ -69,11 +68,11 @@ export class AbonnesListComponent implements OnInit {
   readonly quartierFilter = signal<string | null>(null);
 
   readonly columns: DataTableColumn[] = [
-    { key: 'numero', header: 'ABONNES.NUMERO' },
-    { key: 'nom', header: 'ABONNES.NOM_PRENOM' },
-    { key: 'localisation', header: 'ABONNES.QUARTIER_CAMP' },
-    { key: 'compteur', header: 'ABONNES.NUMERO_COMPTEUR' },
-    { key: 'statut', header: 'COMMON.STATUS' },
+    { key: 'numero', header: 'ABONNES.NUMERO', sortable: true, sortValue: (r) => (r as Abonne).numeroAbonne },
+    { key: 'nom', header: 'ABONNES.NOM_PRENOM', sortable: true, sortValue: (r) => `${(r as Abonne).nom} ${(r as Abonne).prenom}` },
+    { key: 'localisation', header: 'ABONNES.QUARTIER_CAMP', sortable: true, sortValue: (r) => (r as Abonne).compteur?.quartier ?? '' },
+    { key: 'compteur', header: 'ABONNES.NUMERO_COMPTEUR', sortable: true, sortValue: (r) => (r as Abonne).compteur?.numeroCompteur ?? 0 },
+    { key: 'statut', header: 'COMMON.STATUS', sortable: true, sortValue: (r) => (r as Abonne).statut },
     { key: 'actions', header: 'COMMON.ACTIONS' },
   ];
 
@@ -123,29 +122,8 @@ export class AbonnesListComponent implements OnInit {
     return parts.join(' · ');
   });
 
-  readonly quartiersOptions = computed(() =>
-    [
-      ...new Set(
-        this.abonnes()
-          .map((a) => a.compteur?.quartier)
-          .filter((q): q is string => !!q),
-      ),
-    ]
-      .sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }))
-      .map((q) => ({ label: q, value: q })),
-  );
-
-  readonly statutOptions = computed((): Array<{ label: string; value: StatutAbonne }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('STATUS.ACTIF', {}, lang), value: 'ACTIF' },
-      { label: this.translate.instant('STATUS.SUSPENDU', {}, lang), value: 'SUSPENDU' },
-      { label: this.translate.instant('STATUS.RESILIE', {}, lang), value: 'RESILIE' },
-    ];
-  });
-
-  /** Chips de statut (mobile M-05) : libellés pluriels + compteurs. */
-  readonly statutChips = computed((): FilterChip[] => {
+  /** Filtres unifiés (batch 10) : statut auto-chips + quartier select. */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     const all = this.abonnes();
     const chips: Array<{ key: string; value: StatutAbonne }> = [
@@ -153,15 +131,40 @@ export class AbonnesListComponent implements OnInit {
       { key: 'ABONNES.CHIP_SUSPENDUS', value: 'SUSPENDU' },
       { key: 'ABONNES.CHIP_RESILIES', value: 'RESILIE' },
     ];
-    return chips.map((c) => ({
-      label: this.translate.instant(c.key, {}, lang),
-      value: c.value,
-      count: all.filter((a) => a.statut === c.value).length,
-    }));
+    const quartiers = [
+      ...new Set(
+        this.abonnes()
+          .map((a) => a.compteur?.quartier)
+          .filter((q): q is string => !!q),
+      ),
+    ].sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+    return [
+      {
+        key: 'statut',
+        label: 'ABONNES.STATUT_FILTER',
+        options: chips.map((c) => ({
+          label: this.translate.instant(c.key, {}, lang),
+          value: c.value,
+          count: all.filter((a) => a.statut === c.value).length,
+        })),
+      },
+      {
+        key: 'quartier',
+        label: 'ABONNES.QUARTIER_FILTER',
+        options: quartiers.map((q) => ({ label: q, value: q })),
+        render: 'select',
+      },
+    ];
   });
 
-  onStatutChip(value: string | null): void {
-    this.statutFilter.set(value as StatutAbonne | null);
+  readonly filterValues = computed<FilterValues>(() => ({
+    statut: this.statutFilter(),
+    quartier: this.quartierFilter(),
+  }));
+
+  onFiltersChange(v: FilterValues): void {
+    this.statutFilter.set((v['statut'] as StatutAbonne | null) ?? null);
+    this.quartierFilter.set(v['quartier']);
   }
 
   /**
@@ -221,10 +224,6 @@ export class AbonnesListComponent implements OnInit {
     }
   }
 
-  voirAbonne(id: string): void {
-    this.router.navigateByUrl(`/abonnes/${id}`);
-  }
-
   modifierAbonne(id: string): void {
     this.router.navigateByUrl(`/abonnes/${id}/modifier`);
   }
@@ -234,22 +233,22 @@ export class AbonnesListComponent implements OnInit {
     this.reactiverDialogVisible.set(true);
   }
 
-  readonly reactiverLoading = signal(false);
-
-  async doReactiver(): Promise<void> {
+  /**
+   * Callback appelé par <app-reactiver-sheet> quand l'abonné vient d'être
+   * réactivé côté service. Met à jour la ligne localement + ferme la sheet +
+   * toast. Remplace l'ancien `doReactiver()` qui portait la mutation Apollo
+   * inline (dupliquée avec ReactiverSheetComponent, cause du P0 v1).
+   */
+  onReactivated(newStatut: StatutAbonne): void {
     const abonne = this.reactiverCible();
     if (!abonne) return;
-    this.reactiverLoading.set(true);
-    try {
-      const updated = await this.abonnesService.reactiverAbonne(abonne.id);
-      this.abonnes.update((list) => list.map((a) => (a.id === updated.id ? updated : a)));
-      this.reactiverDialogVisible.set(false);
-      this.toast.success(this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'), `${abonne.nom} ${abonne.prenom} est de nouveau actif.`);
-    } catch (error: unknown) {
-      const { message } = extractGqlError(error);
-      this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || 'Impossible de réactiver cet abonné.');
-    } finally {
-      this.reactiverLoading.set(false);
-    }
+    this.abonnes.update((list) =>
+      list.map((a) => (a.id === abonne.id ? { ...a, statut: newStatut } : a)),
+    );
+    this.reactiverDialogVisible.set(false);
+    this.toast.success(
+      this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'),
+      `${abonne.nom} ${abonne.prenom} est de nouveau actif.`,
+    );
   }
 }

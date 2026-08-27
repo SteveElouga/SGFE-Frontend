@@ -19,17 +19,27 @@
     </div>
   } @else if (facture(); as f) {
 
-    <!-- Héro solde (mobile — MB-05) -->
+    <!-- Héro solde (mobile — MB-05) : quand payée, le statut prend le lead visuel ;
+         sinon le montant dû reste dominant. -->
     <div class="msolde" [class.msolde--paid]="soldeRestant() === 0">
       <div class="msolde__label">{{ 'FACTURATION.DETAIL.SOLDE_LABEL' | translate }}</div>
-      <div class="msolde__value">
-        {{ soldeRestant().toLocaleString('fr-FR') }} <span class="msolde__devise">FCFA</span>
-      </div>
-      <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
+      @if (soldeRestant() === 0) {
+        <div class="msolde__badge-hero">
+          <app-badge size="lg" [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
+        </div>
+        <div class="msolde__value-hint">
+          {{ soldeRestant().toLocaleString('fr-FR') }} <span class="msolde__devise">FCFA</span>
+        </div>
+      } @else {
+        <div class="msolde__value">
+          {{ soldeRestant().toLocaleString('fr-FR') }} <span class="msolde__devise">FCFA</span>
+        </div>
+        <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
+      }
     </div>
 
     <!-- Header card (desktop) -->
-    <div class="detail-card detail-card--header">
+    <div class="carte detail-card detail-card--header">
       <div class="detail-card__header-row">
         <div>
           <div class="detail-card__numero">{{ f.numeroFacture }}</div>
@@ -77,7 +87,7 @@
     </div>
 
     <!-- Calculation card -->
-    <div class="detail-card">
+    <div class="carte detail-card">
       <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_CALC' | translate }}</div>
 
       <div class="calc-grid2">
@@ -91,21 +101,39 @@
         </div>
       </div>
 
-      <div class="calc-table">
+      <!-- Calcul en équation : ancien − nouveau = conso × tarif → total.
+           Les opérateurs (−, =, ×) rendent la logique métier lisible d'un coup
+           d'œil au lieu d'aligner 4 chiffres opaques (Principe #2 : exactitude
+           financière VISIBLE, pas juste correcte). -->
+      <div class="calc-table" role="group" [attr.aria-label]="'FACTURATION.DETAIL.CALC_ARIA' | translate">
         <div class="calc-table__head">
           <div>{{ 'FACTURATION.DETAIL.ANCIEN_INDEX' | translate }}</div>
+          <div class="calc-op-head" aria-hidden="true"></div>
           <div>{{ 'FACTURATION.DETAIL.NOUVEL_INDEX' | translate }}</div>
+          <div class="calc-op-head" aria-hidden="true"></div>
           <div>{{ 'FACTURATION.DETAIL.CONSO' | translate }}</div>
-          <div>{{ 'FACTURATION.DETAIL.TARIF' | translate }}</div>
+          <div class="calc-op-head" aria-hidden="true"></div>
+          <div class="calc-table__head-help">
+            {{ 'FACTURATION.DETAIL.TARIF' | translate }}
+            <i
+              class="pi pi-info-circle calc-help"
+              [appTooltip]="'FACTURATION.DETAIL.TARIF_TOOLTIP' | translate"
+              tabindex="0"
+              [attr.aria-label]="'FACTURATION.DETAIL.TARIF_TOOLTIP' | translate"
+            ></i>
+          </div>
         </div>
         <div class="calc-table__body">
           <div class="calc-val calc-val--old">{{ f.ancienIndex | number }}</div>
+          <div class="calc-op" aria-hidden="true">−</div>
           <div class="calc-val calc-val--new">{{ f.nouveauIndex | number }}</div>
-          <div class="calc-val calc-val--conso">{{ f.consommation | number }}</div>
+          <div class="calc-op" aria-hidden="true">=</div>
+          <div class="calc-val calc-val--conso">{{ f.consommation | number }} m³</div>
+          <div class="calc-op" aria-hidden="true">×</div>
           <div class="calc-val calc-val--tarif">{{ f.prixM3 | number:'1.0-0' }} {{ 'FACTURATION.DETAIL.M3_TARIF' | translate }}</div>
         </div>
         <div class="calc-table__total">
-          <span class="calc-table__total-label">{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
+          <span class="calc-table__total-label"><span aria-hidden="true">= </span>{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
           <span class="calc-table__total-value">{{ f.montant | fcfa }}</span>
         </div>
       </div>
@@ -122,17 +150,17 @@
         </div>
         <div class="mrows__row">
           <span class="mrows__k">{{ 'FACTURATION.DETAIL.CONSO_TARIF' | translate }}</span>
-          <span class="mrows__v">{{ f.consommation | number }} × {{ f.prixM3 | number:'1.0-0' }} F</span>
+          <span class="mrows__v">{{ f.consommation | number }} × {{ f.prixM3 | number:'1.0-0' }} FCFA</span>
         </div>
         <div class="mrows__row mrows__row--total">
           <span class="mrows__k">{{ 'FACTURATION.DETAIL.TOTAL' | translate }}</span>
-          <span class="mrows__v">{{ f.montant.toLocaleString('fr-FR') }} F</span>
+          <span class="mrows__v">{{ f.montant.toLocaleString('fr-FR') }} FCFA</span>
         </div>
       </div>
     </div>
 
     <!-- Payment history card -->
-    <div class="detail-card">
+    <div class="carte detail-card">
       <div class="card-row-header">
         <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_PAIEMENTS' | translate }}</div>
         @if (f.statut !== 'PAYEE' && canAddPaiement()) {
@@ -155,7 +183,7 @@
                   @if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
                 </div>
               </div>
-              <span class="paiement-badge">{{ 'FACTURATION.DETAIL.ACOMPTE' | translate }}</span>
+              <span class="paiement-badge" [class.paiement-badge--solde]="pctPaye() >= 100">{{ (pctPaye() >= 100 ? 'FACTURATION.DETAIL.SOLDE_PAR' : 'FACTURATION.DETAIL.ACOMPTE') | translate }}</span>
             </div>
           }
         </div>
@@ -171,13 +199,13 @@
                   {{ formatDate(p.datePaiement) }}@if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
                 </span>
               </span>
-              <span class="mpaiements__montant">{{ p.montant.toLocaleString('fr-FR') }} F</span>
+              <span class="mpaiements__montant">{{ p.montant.toLocaleString('fr-FR') }} FCFA</span>
             </div>
           }
           @if (soldeRestant() > 0) {
             <div class="mpaiements__reste">
               <span>{{ 'FACTURATION.DETAIL.RESTE_LABEL' | translate }}</span>
-              <span class="mpaiements__reste-montant">{{ soldeRestant().toLocaleString('fr-FR') }} F</span>
+              <span class="mpaiements__reste-montant">{{ soldeRestant().toLocaleString('fr-FR') }} FCFA</span>
             </div>
           }
         </div>
@@ -185,8 +213,15 @@
 
       @if (solde(); as s) {
         <div class="progress-bar">
-          <div class="progress-bar__track">
-            <div class="progress-bar__fill" [style.width.%]="pctPaye()"></div>
+          <div
+            class="progress-bar__track"
+            role="progressbar"
+            [attr.aria-valuenow]="pctPaye()"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            [attr.aria-label]="'FACTURATION.DETAIL.PAYE' | translate:{montant: s.montantPaye.toLocaleString('fr-FR'), pct: pctPaye()}"
+          >
+            <div class="progress-bar__fill" [class.progress-bar__fill--solde]="pctPaye() >= 100" [style.--pct]="pctPaye() / 100"></div>
           </div>
           <div class="progress-bar__labels">
             <span class="progress-bar__paid">
@@ -202,76 +237,27 @@
       }
 
       @if (showForm()) {
-        <div class="paiement-form__backdrop" (click)="showForm.set(false)" aria-hidden="true"></div>
-        <div class="paiement-form">
-          <div class="paiement-form__grip"></div>
-          <div class="paiement-form__grid">
-            <div class="pf-field">
-              <label class="pf-label" for="det-montant">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>
-              <input
-                id="det-montant"
-                type="number"
-                pInputText
-                class="pf-input pf-input--focus"
-                [class.pf-input--error]="montantExceedsSolde()"
-                [ngModel]="pMontant()"
-                (ngModelChange)="pMontant.set($event)"
-                min="1"
-                [max]="soldeRestant()"
-              />
-              @if (montantExceedsSolde()) {
-                <span class="pf-hint pf-hint--error">
-                  {{ 'FACTURATION.PANEL_MONTANT_MAX' | translate:{montant: soldeRestant().toLocaleString('fr-FR')} }}
-                </span>
-              }
-            </div>
-            <div class="pf-field">
-              <label class="pf-label" for="det-mode">{{ 'FACTURATION.PANEL_MODE' | translate }}</label>
-              <p-select
-                inputId="det-mode"
-                [options]="modeOptions()"
-                [ngModel]="pMode()"
-                (ngModelChange)="pMode.set($event)"
-                optionLabel="label"
-                optionValue="value"
-                styleClass="pf-select"
-              />
-            </div>
-            <div class="pf-field">
-              <label class="pf-label" for="det-date">{{ 'FACTURATION.PANEL_DATE' | translate }}</label>
-              <input
-                id="det-date"
-                type="date"
-                pInputText
-                class="pf-input"
-                [ngModel]="pDate()"
-                (ngModelChange)="pDate.set($event)"
-              />
-            </div>
-            <div class="pf-field">
-              <label class="pf-label" for="det-ref">
-                {{ 'FACTURATION.PANEL_REF' | translate }}
-                @if (refRequired()) { <span class="pf-required">*</span> }
-              </label>
-              <input
-                id="det-ref"
-                type="text"
-                pInputText
-                class="pf-input"
-                [ngModel]="pRef()"
-                (ngModelChange)="pRef.set($event)"
-              />
-            </div>
-          </div>
-          <button
-            class="btn btn--primary btn--full"
-            [disabled]="!panelValid() || submitting()"
-            (click)="submitPaiement()"
-          >
-            @if (submitting()) { <i class="pi pi-spin pi-spinner"></i> }
-            {{ confirmLabel() }}
-          </button>
-        </div>
+        <button
+          type="button"
+          class="paiement-form__backdrop"
+          (click)="showForm.set(false)"
+          [attr.aria-label]="'COMMON.CLOSE' | translate"
+        ></button>
+        <section
+          class="paiement-form"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="det-paiement-title"
+        >
+          <div class="paiement-form__grip" aria-hidden="true"></div>
+          <h3 id="det-paiement-title" class="sr-only">{{ 'FACTURATION.PANEL_TITLE' | translate }}</h3>
+          <app-paiement-form
+            [facture]="f"
+            [soldeRestant]="soldeRestant()"
+            idPrefix="det"
+            (saved)="onPaiementSaved()"
+          />
+        </section>
       }
     </div>
 
@@ -301,15 +287,22 @@
       </button>
     </div>
 
-    <!-- Correction manuelle du statut -->
-    <div class="detail-card detail-card--correction">
-      <div class="correction-head">
+    <!-- Correction manuelle du statut ────────────────────────────────────
+         Forcer le statut d'un document financier sans enregistrer de paiement
+         est une action rare et lourde de conséquence. Elle reste accessible,
+         mais repliée : elle n'a pas à occuper le flux de lecture d'une facture,
+         ni à se déclencher d'un seul clic. -->
+    <details class="carte detail-card detail-card--correction correction">
+      <summary class="correction-summary">
         <span class="correction-head__icon" aria-hidden="true"><i class="pi pi-pencil"></i></span>
-        <div class="correction-head__text">
-          <div class="calc-title">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}</div>
-          <p class="correction-desc">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_DESC' | translate }}</p>
-        </div>
-      </div>
+        <span class="correction-summary__label">
+          {{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}
+        </span>
+        <i class="pi pi-chevron-down correction-summary__chevron" aria-hidden="true"></i>
+      </summary>
+
+      <p class="correction-desc">{{ 'FACTURATION.DETAIL.CORRIGER_STATUT_DESC' | translate }}</p>
+
       <div class="correction-row">
         <p-select
           [options]="statutOptions"
@@ -321,26 +314,39 @@
           styleClass="correction-select"
         />
         <button
-          class="btn btn--primary correction-apply"
+          class="btn correction-apply"
+          [class.btn--primary]="!confirmationCorrection()"
+          [class.correction-apply--confirmer]="confirmationCorrection()"
           [disabled]="!newStatut() || newStatut() === f.statut || changingStatut() || statutCorrectionIncoherent()"
           (click)="corrigerStatut()"
         >
           @if (changingStatut()) { <i class="pi pi-spin pi-spinner"></i> }
+          @else if (confirmationCorrection()) { <i class="pi pi-exclamation-triangle"></i> }
           @else { <i class="pi pi-check"></i> }
-          {{ 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT' | translate }}
+          {{ (confirmationCorrection()
+                ? 'FACTURATION.DETAIL.BTN_CONFIRMER_CORRECTION'
+                : 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT') | translate }}
         </button>
       </div>
+      @if (confirmationCorrection()) {
+        <p class="correction-confirm">
+          {{ 'FACTURATION.DETAIL.CONFIRMER_CORRECTION_MSG' | translate: { statut: ('FACTURATION.STATUT.' + newStatut() | translate) } }}
+          <button type="button" class="correction-annuler" (click)="annulerCorrection()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+        </p>
+      }
       @if (statutCorrectionIncoherent()) {
         <p class="correction-warning">
           <i class="pi pi-exclamation-triangle"></i>
           {{ statutIncoherentMsg() }}
         </p>
       }
-    </div>
+    </details>
 
     <!-- WhatsApp journal -->
     @if (envois().length > 0) {
-      <div class="detail-card">
+      <div class="carte detail-card">
         <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_WHATSAPP' | translate }}</div>
         <div class="journal-list">
           @for (e of envois(); track e.envoiId) {

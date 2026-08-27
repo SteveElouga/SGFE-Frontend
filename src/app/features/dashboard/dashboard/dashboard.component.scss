@@ -1,313 +1,1012 @@
+@use '../../../../styles/variables' as *;
+
 :host { display: block; }
 
-// Variantes de libellés courts (mobile M-04) / longs (desktop 01)
-.u-mobile { display: none; }
-@media (max-width: 768px) {
-  .u-mobile { display: inline; }
-  .u-desktop { display: none; }
-}
+// ────────────────────────────────────────────────────────────────────────────
+// Dashboard SGFE — 3 vues rôle-conditionnelles (batch 13 post-shape v3)
+// Comptable : héros FCFA + 3 KPI variés chromatiquement + top 5 impayés
+// Admin : ribbon 4-KPI cycle + m³ (spécificité eau) + campagnes actives
+// Superviseur : mes campagnes filtrées + actions requises
+// Monde SGFE fixe : Bleu Rivière · Vert Nappe · Navy Nuit · Ardoise · Montserrat.
+// ────────────────────────────────────────────────────────────────────────────
 
-// ── Héro mobile : progression projetée dans le header navy (M-04) ───────────
-.mhero__card {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 10px 12px;
-
-  &--empty {
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    opacity: 0.92;
-  }
-}
-
-.mhero__row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.mhero__label {
-  font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.mhero__pct {
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-}
-
-.mhero__bar {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.mhero__bar-fill {
-  height: 100%;
-  background: #fff;
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-.mhero__sub {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.45);
-  margin-top: 5px;
-}
-
-.dash {
-  padding: 18px 22px;
-  background: #f1f5f9;
+.dash-content {
+  padding: var(--pas-5) var(--pas-6);
+  background: var(--fond);                             // Ardoise Nappe (fond app)
   min-height: calc(100% - 54px);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
 
-  @media (max-width: 768px) { padding: 12px 14px; gap: 12px; }
+  @media (max-width: 1023px) {
+    padding: var(--pas-3);
+    gap: var(--pas-3);
+  }
 }
 
-.dash__loading {
-  display: flex;
-  justify-content: center;
-  padding: 60px;
-  color: #1a56db;
-  font-size: 24px;
-}
-
-.dash__section-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 4px 0 0;
-}
-
-// ── Bandeau : une source indisponible (dégradation gracieuse) ────────────────
-.dash-warn {
-  display: flex;
+// ── Sélecteur période — Phase 3 v4 (H7 Flexibilité, WAI-ARIA radiogroup) ────
+// Chips segmentés au-dessus des KPI. Chip actif = Navy Nuit (Règle Navy
+// Ancrant : structurel persistant). Persist localStorage `dashboard.periode`.
+.dash-periode {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 12.5px;
-  color: #92400e;
+  gap: var(--pas-1);
+  padding: var(--pas-1);
+  background: var(--fond);                             // Ardoise Nappe
+  border-radius: 999px;
+  align-self: flex-start;
 
-  i { color: #f59e0b; flex-shrink: 0; }
-
-  &__retry {
-    margin-left: auto;
-    border: 1px solid #fcd34d;
-    background: #fff;
-    color: #92400e;
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 var(--pas-3);
+    background: transparent;
+    border: none;
+    border-radius: 999px;
     font-size: 12px;
     font-weight: 600;
-    border-radius: 8px;
-    padding: 5px 12px;
+    color: var(--encre-3);
     cursor: pointer;
+    transition: background 0.15s, color 0.15s;
 
-    &:hover { background: #fffbeb; }
+    &:hover:not(&--active) {
+      color: var(--encre);
+      background: var(--surface);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--action);
+      outline-offset: 2px;
+    }
+
+    &--active {
+      background: var(--navy-nuit);                          // Navy Nuit (structurel)
+      color: var(--surface);
+    }
   }
 }
 
-// ── Hero : progression campagne ─────────────────────────────────────────────
-.dash-hero {
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
-  border-radius: 14px;
-  padding: 20px 22px;
-  color: #fff;
+// ── Skeleton chargement initial ─────────────────────────────────────────────
+.dash-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 9px;
-  box-shadow: 0 8px 24px rgba(26, 86, 219, 0.22);
+  gap: var(--pas-3);
+}
 
-  &__label {
-    font-size: 12px;
+// ── Empty global (nouveau tenant, aucune facture) ──────────────────────────
+.dash-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--pas-7) var(--pas-5);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  gap: var(--pas-3);
+
+  i {
+    font-size: 42px;                               // display token DESIGN.md (icône illustrative empty-state)
+    color: var(--encre-3);                                // Ardoise Crayon
+  }
+
+  &__title {
+    font-size: 20px;                               // title DESIGN.md
+    font-weight: 700;
+    color: var(--encre);                                // Ardoise Nuit
+    margin: 0;
+  }
+
+  &__msg {
+    font-size: 14px;
+    color: var(--encre-3);                                // Ardoise Brume
+    max-width: 420px;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__cta {
+    margin-top: var(--pas-2);
+    padding: var(--pas-2) var(--pas-5);
+    background: $color-primary;                    // Bleu Rivière
+    color: var(--surface);
+    border-radius: var(--rayon-md);
+    text-decoration: none;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.85;
+    font-size: 14px;
+    transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
+
+    &:hover { opacity: 0.92; }
+    &:active { transform: scale(0.97); }
+    &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   }
-  &__pct { font-size: 42px; font-weight: 800; line-height: 1; }
-  &__bar {
-    height: 8px;
-    background: rgba(255, 255, 255, 0.25);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  &__bar-fill {
-    height: 100%;
-    background: #fff;
-    border-radius: 4px;
-    transition: width 0.4s ease;
-  }
-  &__sub { font-size: 13px; font-weight: 500; opacity: 0.92; }
-  &__empty { font-size: 15px; font-weight: 600; opacity: 0.92; }
 }
 
-// Mobile : la progression vit dans le header navy (M-04), pas en carte séparée
-@media (max-width: 768px) {
-  .dash-hero { display: none; }
-}
+// ════════════════════════════════════════════════════════════════════════════
+// VUE COMPTABLE — "Où est l'argent ?"
+// ════════════════════════════════════════════════════════════════════════════
 
-// ── KPI ─────────────────────────────────────────────────────────────────────
-// 2 colonnes en mobile (grille 2×2 — maquette M-04)
-.dash-kpi {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+// ── Héros FCFA — Chiffre Fort SGFE (peak visuel de l'écran) ────────────────
+.dash-hero {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-6) 36px;
 
-  @media (max-width: 960px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 768px) { gap: 10px; }
-}
+  @media (max-width: 639px) { padding: var(--pas-5) var(--pas-5); }
 
-.kpi {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-height: 96px;
+  &__link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    color: inherit;
+    gap: var(--pas-2);
 
-  // Carte Impayés teintée rouge en mobile uniquement (M-04) ;
-  // desktop : cartes blanches uniformes (maquette 01).
-  @media (max-width: 768px) {
-    &--red {
-      background: #fef2f2;
-      border-color: #fecaca;
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: 4px;
+      border-radius: var(--rayon-md);
     }
   }
 
   &__label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--encre-2);                                // Ardoise Encre
+    letter-spacing: 0.01em;
   }
 
-  &__value {
-    font-size: 24px;
+  &__count {
+    font-size: 42px;                               // display token DESIGN.md
     font-weight: 800;
-    color: #0f172a;
-    line-height: 1.1;
+    color: var(--encre);                                // Ardoise Nuit
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-top: var(--pas-1);
 
-    small { font-size: 12px; font-weight: 500; color: #94a3b8; margin-left: 3px; }
-    &--green { color: #0e9f6e; }
-    &--red { color: #dc2626; }
-    &--slate { color: #475569; }
-    &--muted { color: #cbd5e1; }
+    @media (max-width: 639px) { font-size: 34px; } // metric-xl DESIGN.md
+  }
+
+  &__devise {
+    font-size: 20px;                               // title DESIGN.md
+    font-weight: 700;
+    color: var(--encre-2);
+    margin-left: var(--pas-1);
+    letter-spacing: 0;
+  }
+
+  &__accent {
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: $color-primary;                    // Bleu Rivière (signature "chiffre officiel")
+    border-radius: var(--rayon-xs);
+    margin-top: var(--pas-2);
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+    margin-top: var(--pas-2);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__delta-hint {
+    font-weight: 500;
+    color: var(--encre-3);
+    font-size: 12px;
+  }
+}
+
+// Delta chromatique — Vert positif / Rouge négatif / Ardoise neutre
+.dash-delta--up { color: var(--succes-encre); }                // Vert Profond
+.dash-delta--down { color: var(--danger-encre); }              // Rouge Errance
+.dash-delta--neutre { color: var(--encre-3); }            // Ardoise Brume
+
+// ── Source error (fallback quand stats indisponibles) ──────────────────────
+.dash-source-error {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-3);
+  padding: var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  color: var(--danger-encre);
+  font-size: 13px;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+    padding: var(--pas-2) var(--pas-3);
+    background: var(--surface);
+    border: 1px solid var(--danger);
+    border-radius: var(--rayon-sm);
+    color: var(--danger-encre);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: auto;
+
+    &:hover { background: var(--danger-fond); }
+    &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
+  }
+}
+
+// ── 3 KPI secondaires chromatiquement variés ───────────────────────────────
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--pas-3);
+
+  @media (max-width: 1023px) { grid-template-columns: 1fr; }
+}
+
+.dash-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  padding: var(--pas-4) var(--pas-5);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 160ms var(--ease-out, ease-out), border-color 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  &:active { transform: translateY(0); }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__value {
+    font-size: 30px;                               // metric-md DESIGN.md
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  &__unit {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--encre-2);
+    margin-top: var(--pas-1);
   }
 
   &__hint {
+    font-size: 12px;
+    color: var(--encre-3);
+    font-variant-numeric: tabular-nums;
+    margin-top: var(--pas-1);
+  }
+
+  // Icône d'aide contextuelle par KPI — Phase 2 v4 (tooltips systématiques H10).
+  // Même pattern que .dash-m3__help : couleur au repos AA-safe, hover teint
+  // sur la couleur sémantique du KPI parent.
+  &__help {
     font-size: 11px;
-    font-weight: 500;
-    color: #94a3b8;
-    margin-top: auto;
+    color: currentColor;
+    opacity: 0.55;
+    margin-left: var(--pas-1);
+    cursor: help;
+    transition: opacity 0.12s;
+    vertical-align: middle;
 
-    &--green { color: #0e9f6e; }
-    &--red { color: #dc2626; }
+    &:hover, &:focus-visible {
+      opacity: 1;
+      outline: none;
+    }
   }
 
-  // Cartes compactes en mobile (M-04)
-  @media (max-width: 768px) {
-    padding: 14px;
-    min-height: 0;
-    gap: 0;
-
-    &__label { font-size: 10px; letter-spacing: 0.4px; margin-bottom: 6px; }
-    &__value { font-size: 22px; line-height: 1; }
-    &__hint { margin-top: 3px; }
+  // Danger : impayés (rouge — priorité action)
+  &--danger {
+    border-color: var(--danger-trait);
+    background: var(--danger-fond);
+    .dash-kpi__value { color: var(--danger-encre); }
+    .dash-kpi__unit { color: var(--rouge-braise); }
+    .dash-kpi__hint { color: var(--danger-encre); font-weight: 600; }
   }
-}
 
-// ── Activité récente ────────────────────────────────────────────────────────
-.dash-activite {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  overflow: hidden;
-}
+  // Warning : partielles (ambre — en cours à finaliser)
+  &--warning {
+    border-color: var(--attente-trait);
+    background: var(--attente-fond);
+    .dash-kpi__value { color: var(--ambre-attente); }
+    .dash-kpi__unit { color: var(--attente-encre); }
+    .dash-kpi__hint { color: var(--ambre-attente); font-weight: 600; }
+  }
 
-.act-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  // Success : paiements aujourd'hui (Vert Nappe — positif)
+  &--success {
+    border-color: var(--succes-trait);
+    background: var(--succes-fond);
+    .dash-kpi__value { color: var(--succes-encre); }
+    .dash-kpi__unit { color: var(--vert-abysse); }
+    .dash-kpi__hint { color: var(--succes-encre); font-weight: 600; }
+  }
 
-  &:last-child { border-bottom: none; }
-
-  &__icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    flex-shrink: 0;
-    display: flex;
+  // Unavailable : source en panne (retry ciblé)
+  &--unavailable {
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    text-align: center;
+    background: var(--surface-douce);
+    border-style: dashed;
+    color: var(--encre-3);
+    font-size: 13px;
 
-    &--paiement { background: #f0fdf4; color: #0e9f6e; }
-    &--impaye { background: #fef2f2; color: #dc2626; }
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--surface);
+      border: 1px solid var(--filet-pale);
+      border-radius: var(--rayon-md);
+      cursor: pointer;
+      color: var(--encre-2);
+      margin-top: var(--pas-2);
+
+      &:hover { color: var(--action); border-color: $color-primary; }
+      &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+    }
   }
 
-  &__body { min-width: 0; }
-  &__text { font-size: 13px; font-weight: 600; color: #0f172a; }
-  &__meta { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  &__unavail { font-size: 12px; }
 }
 
-// Mobile (M-04) : rangées en cartes accolées (1px), coins arrondis en tête et
-// pied de groupe, icônes rondes compactes.
-@media (max-width: 768px) {
-  .dash-activite {
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    overflow: visible;
+// ── Top 5 impayés les plus anciens ─────────────────────────────────────────
+.dash-list {
+  padding: var(--pas-5) var(--pas-5);
+
+  @media (max-width: 639px) { padding: var(--pas-4); }
+
+  &__title {
+    font-size: 15px;                               // subtitle DESIGN.md
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-3);
+    letter-spacing: -0.005em;
+  }
+
+  &__items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: var(--pas-1);
   }
 
-  .act-row {
-    background: #fff;
-    border-bottom: none;
-    border-radius: 2px;
-    padding: 10px 12px;
-    align-items: flex-start;
+  &__item {
+    border-bottom: 1px solid var(--fond);
+    &:last-child { border-bottom: none; }
+  }
 
-    &:first-child { border-radius: 10px 10px 2px 2px; }
-    &:last-child { border-radius: 2px 2px 10px 10px; }
-    &:only-child { border-radius: 10px; }
+  &__link {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: var(--pas-3);
+    align-items: center;
+    padding: var(--pas-3) var(--pas-1);
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--rayon-md);
+    transition: background 0.12s;
 
-    &__icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      font-size: 11px;
-
-      &--paiement { background: #f0fdf4; }
-      &--impaye { background: #fef2f2; }
+    &:hover {
+      background: var(--surface-douce);
+      .dash-list__chev { transform: translateX(2px); color: var(--action); }
+    }
+    &:focus-visible {
+      outline: 2px solid $color-primary;
+      outline-offset: -2px;
     }
 
-    &__text { font-size: 12px; font-weight: 500; }
-    &__meta { font-size: 10px; margin-top: 1px; }
+    @media (max-width: 639px) {
+      grid-template-columns: 1fr auto;
+      row-gap: var(--pas-1);
+    }
+  }
+
+  &__nom {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--encre);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: var(--encre-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__solde {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--danger-encre);                                // rouge (dette)
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.005em;
+  }
+
+  &__chev {
+    font-size: 12px;
+    color: var(--encre-3);
+    transition: transform 0.15s, color 0.15s;
   }
 }
 
-.dash-empty {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  color: #94a3b8;
-  font-size: 13px;
+// ════════════════════════════════════════════════════════════════════════════
+// VUE ADMIN — Ribbon cycle + m³ + campagnes
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Ribbon 4-KPI cycle (relevés → factures → envois → paiements) ───────────
+// Plus de carte enveloppante : les cinq sections du tableau de bord posent
+// leurs éléments sur le fond de page, avec le même titre. Deux d'entre elles
+// étaient encadrées, ce qui suggérait une hiérarchie qui n'existe pas.
+.dash-ribbon {
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-4);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--pas-2);
+    position: relative;
+
+    @media (max-width: 1023px) { grid-template-columns: repeat(2, 1fr); }
+  }
+}
+
+// Chaque étape du ribbon — dégradé subtil de couleur pour signaler l'avancement
+.dash-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pas-1);
+  padding: var(--pas-3) var(--pas-4);
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--rayon-md);
+  background: var(--surface-douce);                             // Ardoise Brise
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
+
+  &:hover {
+    background: var(--surface);
+    border-color: var(--filet);
+    transform: translateY(-1px);
+  }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__value {
+    font-size: 24px;                               // kpi-value DESIGN.md
+    font-weight: 800;
+    line-height: 1;
+    color: var(--encre);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--encre-3);
+  }
+
+  // Dégradé sémantique 4 étapes du cycle SGFE — palette DESIGN.md strict.
+  // L'œil lit gauche→droite : Bleu Clair → Rivière (production factures) →
+  // Vert Nappe → Vert Profond (paiement encaissé). L'argent transite du bleu
+  // vers le vert, la métaphore eau/monnaie.
+  &--releves .dash-step__value { color: var(--action); }   // Bleu Rivière — le clair tombait à 2,43:1
+  &--factures .dash-step__value { color: var(--action); }  // Bleu Rivière (facturation lancée)
+  &--envois .dash-step__value { color: var(--succes-encre); }    // Vert Nappe (envoyé au client)
+  &--paiements .dash-step__value { color: var(--vert-profond); } // Vert Profond (encaissé)
+
+  // Envois : backend v3.3 n'expose pas les stats (statuts limités +
+  // pas de campagne_id). État "Indisponible" honnête, non-cliquable.
+  &--unavailable {
+    background: var(--surface-douce);
+    border-style: dashed;
+    border-color: var(--filet-pale);
+    align-items: flex-start;
+    cursor: default;
+
+    .dash-step__label { color: var(--encre-3); }
+    // Fix v4 P1 : italique "Indisponible" passe var(--encre-faible) (2.45:1 FAIL) →
+    // var(--encre-2) Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
+    // devient enfin lisible.
+    .dash-step__unavail {
+      font-size: 11px;
+      color: var(--encre-2);
+      font-style: italic;
+      margin-top: var(--pas-1);
+    }
+  }
+}
+
+// ── Chiffre Fort m³ — spécificité SGFE eau ─────────────────────────────────
+.dash-m3 {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-6) var(--pas-6);
+
+  @media (max-width: 639px) { padding: var(--pas-5) var(--pas-5); }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    color: inherit;
+    gap: var(--pas-2);
+
+    &:focus-visible {
+      outline: 2px solid var(--succes);
+      outline-offset: 4px;
+      border-radius: var(--rayon-md);
+    }
+  }
+
+  &__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--encre-2);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+  }
+
+  // Icône d'aide contextuelle m³ — tabbable + aria-label (pattern facturation
+  // tooltips batch 7). Fix v4 P1 : contraste au repos passe var(--encre-faible) (2.56:1
+  // FAIL AA) → var(--encre-3) (5.24:1 PASS AA). Sam peut la localiser sans tab actif.
+  &__help {
+    font-size: 12px;
+    color: var(--encre-3);
+    cursor: help;
+    transition: color 0.12s;
+
+    &:hover, &:focus-visible {
+      color: var(--succes-encre);
+      outline: none;
+    }
+  }
+
+  &__count {
+    font-size: 42px;                               // display DESIGN.md
+    font-weight: 800;
+    color: var(--encre);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-top: var(--pas-1);
+
+    @media (max-width: 639px) { font-size: 30px; } // metric-md
+  }
+
+  &__unit {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--succes-encre);                                // Vert Nappe (eau)
+    margin-left: var(--pas-1);
+  }
+
+  &__accent {
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: var(--succes);                           // Vert Nappe (signature eau)
+    border-radius: var(--rayon-xs);
+    margin-top: var(--pas-2);
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+    margin-top: var(--pas-2);
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__delta-hint {
+    font-weight: 500;
+    color: var(--encre-3);
+    font-size: 12px;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// ADMIN + SUPERVISEUR — Cards campagnes
+// ════════════════════════════════════════════════════════════════════════════
+
+// Plus de carte enveloppante : les cinq sections du tableau de bord posent
+// leurs éléments sur le fond de page, avec le même titre. Deux d'entre elles
+// étaient encadrées, ce qui suggérait une hiérarchie qui n'existe pas.
+.dash-campaigns {
+
+  &__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-4);
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--pas-3);
+  }
+}
+
+.dash-camp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  padding: var(--pas-4) var(--pas-4);
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
+
+  &:hover {
+    background: var(--surface);
+    border-color: var(--filet-pale);
+    transform: translateY(-1px);
+  }
+  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pas-2);
+  }
+
+  &__nom {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--encre);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__statut {
+    display: inline-block;
+    padding: var(--pas-1) var(--pas-2);
+    border-radius: var(--rayon-sm);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+
+    &--en_cours { background: var(--action-lueur); color: var(--action); border: 1px solid var(--action-trait); }
+    &--planifiee { background: var(--fond); color: var(--encre-2); border: 1px solid var(--filet); }
+    &--cloturee { background: var(--succes-fond); color: var(--succes-encre); border: 1px solid var(--succes-trait); }
+  }
+
+  &__progress {
+    height: 6px;
+    background: var(--filet);
+    border-radius: var(--rayon-xs);
+    overflow: hidden;
+  }
+
+  &__bar {
+    height: 100%;
+    background: $color-primary;
+    border-radius: var(--rayon-xs);
+    // transform scaleX au lieu de width — évite layout-thrash (pattern facturation)
+    transform-origin: left center;
+    transform: scaleX(var(--pct, 0));
+    transition: transform 300ms var(--ease-out, ease-out);
+    will-change: transform;
+    width: 100%;
+  }
+
+  &__meta {
+    font-size: 12px;
+    color: var(--encre-3);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SUPERVISEUR — Actions requises
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Variant Héros Superviseur (accent Navy Nuit — structurel "mes tournées") ─
+.dash-hero--sup {
+  .dash-hero__accent--sup {
+    background: var(--navy-nuit);                           // Navy Nuit (rôle structurel Superviseur)
+  }
+}
+
+// ── Card Superviseur enrichie : agents affectés visibles ───────────────────
+.dash-camp--sup {
+  .dash-camp__agents {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--pas-1);
+    margin-top: var(--pas-1);
+    padding-top: var(--pas-2);
+    border-top: 1px solid var(--filet);
+
+    &--empty {
+      color: var(--encre-3);
+      font-size: 12px;
+      font-style: italic;
+    }
+  }
+}
+
+.dash-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-1);
+  padding: var(--pas-1) var(--pas-2) var(--pas-1) var(--pas-2);
+  background: var(--action-lueur);                             // Bleu Rivière Lueur (actif)
+  border: 1px solid var(--action-trait);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--action);                                  // Bleu Rivière
+  white-space: nowrap;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--succes-encre);                           // Vert Profond (agent actif)
+    flex-shrink: 0;
+  }
+
+  &--inactif {
+    background: var(--danger-fond);                           // Rouge Lueur (inactif)
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);                                // Rouge
+
+    .dash-agent__dot {
+      background: var(--danger);                         // Rouge Errance
+    }
+  }
+}
+
+// ── Actions Superviseur : conteneur sobre + items typés par sévérité ───────
+// Le conteneur est neutre (fond blanc, pas d'ambre-plein contamining) ; la
+// sévérité est portée par chaque item via un pastille latérale colorée.
+// État "Tout est à jour" — Fix v4 P2 : boucle reconnaissance Superviseur.
+// Règle Vert Rare respectée : le Vert Nappe n'apparaît qu'à ce moment "tout va bien".
+.dash-tout-a-jour {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
+  border-radius: 999px;
+  align-self: flex-start;
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--succes);
+    box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.15);
+  }
+
+  &__text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--succes-encre);
+  }
+}
+
+// Variant empty state Comptable — Fix v4 P3 : tenant avec factures mais 0 paiement
+.dash-empty--comptable {
+  i { color: var(--encre-3); }
+}
+
+.dash-actions {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4) var(--pas-5);
+
+  &__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--encre);                                // Ardoise Nuit (neutre)
+    margin: 0 0 var(--pas-3);
+  }
+
+  &__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-2);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    padding: var(--pas-2) var(--pas-3);
+    font-size: 13px;
+    border-radius: var(--rayon-md);
+    border: 1px solid transparent;
+
+    i {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    // Sévérité info — Bleu Rivière tint (juste une signalisation)
+    &--info {
+      background: var(--action-lueur);
+      border-color: var(--action-trait);
+      color: var(--action-survol);
+      i { color: var(--action); }
+    }
+
+    // Sévérité warning — Ambre triplet (à traiter)
+    &--warning {
+      background: var(--attente-fond);
+      border-color: var(--attente-trait);
+      color: var(--attente-encre);
+      i { color: var(--ambre-attente); }
+    }
+
+    // Sévérité danger — Rouge triplet (urgent)
+    &--danger {
+      background: var(--danger-fond);
+      border-color: var(--danger-trait);
+      color: var(--danger-encre);
+      i { color: var(--danger-encre); }
+    }
+  }
+}
+
+// ═══ Vue ADMIN recomposée ═══════════════════════════════════════════════════
+
+// Un seul style de titre de section : la vue empilait quatre traitements.
+.dash-section__titre {
+  margin: 0 0 var(--pas-3);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--encre);
+  letter-spacing: -0.005em;
+}
+
+.dash-attention,
+.dash-mesures,
+.dash-campaigns,
+.dash-list { margin-bottom: var(--pas-5); }
+
+// ── Les mesures du mois ──────────────────────────────────────────────────────
+// Trois cartes, une seule grammaire : grand chiffre, unité en petit, libellé,
+// évolution. Ce qui manquait à la vue ADMIN, c'était la comparaison possible.
+.dash-mesures__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--pas-3);
+}
+
+.dash-mesure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  padding: var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  text-decoration: none;
+  transition: border-color var(--duree-courte) var(--ease-out);
+
+  &__valeur {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    color: var(--encre);
+    font-variant-numeric: tabular-nums;
+
+    small {
+      margin-left: var(--pas-1);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--encre-3);
+    }
+  }
+
+  &__label {
+    font-size: 13px;
+    color: var(--encre-2);
+  }
+
+  &__delta {
+    margin-top: var(--pas-1);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__delta-hint {
+    margin-left: var(--pas-1);
+    font-weight: 400;
+    color: var(--encre-3);
+  }
+
+  // Seules la consommation et l'encaissé portent une teinte : ce sont les deux
+  // chiffres que l'exploitation regarde en premier.
+  &--conso &__valeur small { color: var(--succes-encre); }
+  &--encaisse &__valeur { color: var(--succes-encre); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dash-mesure:hover { border-color: var(--action); }
+}
+
+// ── Absence de campagne ──────────────────────────────────────────────────────
+// Une section vide ne disparaît pas : elle dit pourquoi elle est vide.
+.dash-vide {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-4);
+  flex-wrap: wrap;
+  padding: var(--pas-4);
+  background: var(--surface);
+  border: 1px dashed var(--filet);
+  border-radius: var(--rayon-md);
+
+  &__msg {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--encre-2);
+  }
+
+  &__cta {
+    padding: var(--pas-2) var(--pas-4);
+    background: var(--action);
+    color: var(--sur-action);
+    border-radius: var(--rayon-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform var(--duree-courte) var(--ease-out);
+
+    &:active { transform: scale(0.97); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-mesure, .dash-vide__cta { transition: none; }
+  .dash-vide__cta:active { transform: none; }
 }

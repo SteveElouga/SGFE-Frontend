@@ -1,5 +1,5 @@
-<app-bottom-sheet [open]="open()" (close)="onClose()">
-  <div class="zs-title">{{ 'CAMPAGNES.ZONES_SHEET.TITLE' | translate }}</div>
+<app-bottom-sheet [open]="open()" labelledBy="zones-sheet-title" (close)="onClose()">
+  <div class="zs-title" id="zones-sheet-title">{{ 'CAMPAGNES.ZONES_SHEET.TITLE' | translate }}</div>
   <div class="zs-subtitle">
     {{ 'CAMPAGNES.ZONES_SHEET.SUBTITLE'
         | translate:{ agent: agentUsername(), n: selectedCount(), abonnes: selectedAbonnes() } }}

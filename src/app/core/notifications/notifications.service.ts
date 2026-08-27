@@ -1,5 +1,8 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, Injector, computed, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { FacturesService } from '../factures/factures.service';
+import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
+import { nomAbonneOuReference } from '../../shared/utils/abonne.utils';
 
 /** Teinte visuelle d'une notification (icône + accent). */
 export type NotifTone = 'danger' | 'success' | 'warning' | 'info';
@@ -42,15 +45,26 @@ const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
 /**
- * État du centre de notifications (cloche + page). Données de démonstration
- * pour l'instant (aucune API backend) : le modèle est structuré pour être
- * remplacé par une query/subscription GraphQL sans changer les composants.
+ * État du centre de notifications (cloche + page).
+ *
+ * Le schéma GraphQL n'expose aucune query `notification*` : plutôt que d'afficher
+ * des données fictives — un badge « 3 » permanent portant sur des factures
+ * inexistantes —, les notifications sont **dérivées de l'existant** :
+ *
+ * | Source                                   | Notification produite        |
+ * |------------------------------------------|------------------------------|
+ * | `envois` dont le statut vaut ECHEC        | Échec d'envoi WhatsApp       |
+ * | `impayes` au solde restant > 0            | Facture impayée              |
+ * | `paiements` non annulés, sur 7 jours      | Paiement encaissé            |
+ *
+ * L'état « lu » n'a pas de backend où vivre : il est conservé dans le
+ * `localStorage` du poste. C'est une commodité locale, pas une donnée métier.
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
   private readonly translate = inject(TranslateService);
 
-  private readonly _notifications = signal<AppNotification[]>(this.seed());
+  private readonly _notifications = signal<AppNotification[]>([]);
 
   /** Notifications triées de la plus récente à la plus ancienne. */
   readonly notifications = computed(() =>
@@ -64,10 +78,16 @@ export class NotificationsService {
   readonly total = computed(() => this._notifications().length);
 
   markAllRead(): void {
+    const ids = this.lireEtatLu();
+    this._notifications().forEach((n) => ids.add(n.id));
+    this.ecrireEtatLu(ids);
     this._notifications.update((list) => list.map((n) => ({ ...n, read: true })));
   }
 
   markRead(id: string): void {
+    const ids = this.lireEtatLu();
+    ids.add(id);
+    this.ecrireEtatLu(ids);
     this._notifications.update((list) =>
       list.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
@@ -133,121 +153,153 @@ export class NotificationsService {
     return d.toISOString();
   }
 
-  private seed(): AppNotification[] {
-    const now = Date.now();
-    const yesterday = new Date(now - DAY);
-    const twoDaysAgo = new Date(now - 2 * DAY);
-    const threeDaysAgo = new Date(now - 3 * DAY);
+  // ── Chargement ──────────────────────────────────────────────────────────────
 
-    return [
-      {
-        id: 'n1',
+  /**
+   * `FacturesService` n'est résolu qu'au premier chargement, pas à la
+   * construction : la cloche est injectée par `page-topbar` sur tous les
+   * écrans, et une dépendance directe imposerait Apollo à chaque composant —
+   * y compris dans les tests qui ne lisent que le compteur.
+   */
+  private readonly injector = inject(Injector);
+  private chargement: Promise<void> | null = null;
+
+  /**
+   * Compose les notifications à partir des données réelles. Idempotent : appelé
+   * une fois par session depuis la coquille, les appels suivants sont ignorés.
+   * Un échec reste silencieux — une cloche vide vaut mieux qu'un écran d'erreur
+   * sur chaque page.
+   */
+  load(): Promise<void> {
+    this.chargement ??= this.charger().catch(() => undefined);
+    return this.chargement;
+  }
+
+  /** Force un rechargement (après un renvoi WhatsApp, un paiement…). */
+  async refresh(): Promise<void> {
+    this.chargement = null;
+    await this.load();
+  }
+
+  private async charger(): Promise<void> {
+    const factures = this.injector.get(FacturesService);
+    const [envoisRes, impayesRes, paiementsRes, facturesRes] = await Promise.allSettled([
+      factures.getAllEnvois(),
+      factures.getImpayes(),
+      factures.getAllPaiements(),
+      factures.getFactures(),
+    ]);
+    const ok = <T,>(r: PromiseSettledResult<T[]>): T[] => (r.status === 'fulfilled' ? r.value : []);
+
+    const facturesList = ok(facturesRes);
+    const parFacture = new Map(facturesList.map((f) => [f.factureId, f]));
+    const libelle = (factureId?: string): { qui: string; ref: string } => {
+      const f = factureId ? parFacture.get(factureId) : undefined;
+      return {
+        qui: nomAbonneOuReference(f?.abonneNom, f?.abonneNumero),
+        ref: f?.numeroFacture ?? '',
+      };
+    };
+
+    const t = (k: string, p?: Record<string, unknown>) => this.translate.instant(k, p);
+    const out: AppNotification[] = [];
+
+    // 1 — Échecs d'envoi WhatsApp : le message n'est pas parti, quelqu'un doit agir.
+    for (const e of ok(envoisRes)) {
+      if (e.statut !== 'ECHEC') continue;
+      const { qui, ref } = libelle(e.factureId);
+      out.push({
+        id: 'envoi:' + e.envoiId,
         tone: 'danger',
-        category: 'RELANCES',
+        category: 'SYSTEME',
         icon: 'pi-whatsapp',
-        title: "Échec d'envoi WhatsApp",
-        message:
-          "Yao Kouadio · numéro injoignable — la facture FACT-2026-06-0018 n'a pas été remise. Renvoi manuel requis.",
-        createdAt: new Date(now - 8 * MINUTE).toISOString(),
+        title: t('NOTIFICATIONS.GEN.ENVOI_ECHEC_TITRE'),
+        message: t('NOTIFICATIONS.GEN.ENVOI_ECHEC_MSG', {
+          qui,
+          facture: ref || '—',
+          raison: e.raisonEchec || e.erreur || t('NOTIFICATIONS.GEN.RAISON_INCONNUE'),
+        }),
+        createdAt: e.dateEnvoi,
         read: false,
         actions: [
           { type: 'RETRY', labelKey: 'NOTIFICATIONS.ACTION.RETRY', variant: 'danger' },
           { type: 'FIX_NUMBER', labelKey: 'NOTIFICATIONS.ACTION.FIX_NUMBER', variant: 'ghost' },
         ],
-      },
-      {
-        id: 'n2',
+      });
+    }
+
+    // 2 — Factures impayées : la file de recouvrement.
+    for (const s of ok(impayesRes)) {
+      if (!(s.soldeRestant > 0)) continue;
+      const { qui, ref } = libelle(s.factureId);
+      // Un impayé n'a pas de date d'apparition : on l'horodate à l'échéance
+      // dépassée, la seule date qui a un sens pour un comptable.
+      const f = parFacture.get(s.factureId);
+      const echeance = f?.dateLimitePaiement
+        ? new Date(f.dateLimitePaiement).toISOString()
+        : new Date().toISOString();
+      out.push({
+        id: 'impaye:' + s.factureId,
+        tone: 'warning',
+        category: 'RELANCES',
+        icon: 'pi-exclamation-triangle',
+        title: t('NOTIFICATIONS.GEN.IMPAYE_TITRE'),
+        message: t('NOTIFICATIONS.GEN.IMPAYE_MSG', {
+          qui,
+          facture: ref || '—',
+          solde: formatFcfa(s.soldeRestant),
+        }),
+        createdAt: echeance,
+        read: false,
+      });
+    }
+
+    // 3 — Paiements encaissés sur 7 jours : la bonne nouvelle, et la trace.
+    const limite = Date.now() - 7 * DAY;
+    for (const pa of ok(paiementsRes)) {
+      if (pa.annule) continue;
+      const quand = new Date(pa.datePaiement).getTime();
+      if (!Number.isFinite(quand) || quand < limite) continue;
+      const { qui, ref } = libelle(pa.factureId);
+      out.push({
+        id: 'paiement:' + pa.paiementId,
         tone: 'success',
         category: 'PAIEMENTS',
         icon: 'pi-credit-card',
-        title: 'Paiement reçu',
-        message:
-          '10 750 FCFA encaissés · Koné Mariam · FACT-2026-06-0002 passe en PARTIELLE (solde 10 750 FCFA).',
-        createdAt: new Date(now - 22 * MINUTE).toISOString(),
+        title: t('NOTIFICATIONS.GEN.PAIEMENT_TITRE'),
+        message: t('NOTIFICATIONS.GEN.PAIEMENT_MSG', {
+          montant: formatFcfa(pa.montant),
+          qui,
+          facture: ref || '—',
+        }),
+        createdAt: pa.datePaiement,
         read: false,
         actions: [{ type: 'VIEW_RECEIPT', labelKey: 'NOTIFICATIONS.ACTION.VIEW_RECEIPT', variant: 'dark' }],
-      },
-      {
-        id: 'n3',
-        tone: 'warning',
-        category: 'SYSTEME',
-        icon: 'pi-calculator',
-        title: 'Compteur estimé — relevé manquant',
-        message:
-          "Traoré Seydou · AB-0009 · marqué « non relevé » par l'agent camara.i. Consommation estimée sur la moyenne des 3 derniers mois.",
-        createdAt: new Date(now - HOUR).toISOString(),
-        read: false,
-      },
-      {
-        id: 'n4',
-        tone: 'info',
-        category: 'SYSTEME',
-        icon: 'pi-calendar',
-        title: 'Campagne « Juin 2026 » clôturée',
-        message: "42 factures générées automatiquement · PDF prêts à l'envoi WhatsApp.",
-        createdAt: new Date(now - 3 * HOUR).toISOString(),
-        read: true,
-      },
-      {
-        id: 'n5',
-        tone: 'danger',
-        category: 'RELANCES',
-        icon: 'pi-exclamation-triangle',
-        title: 'Nouvel impayé détecté',
-        message: 'Diarra Fanta · FACT-2026-05-0031 · +5 jours de retard — relance Étape 2.',
-        createdAt: this.atTime(yesterday, 16, 40),
-        read: true,
-      },
-      {
-        id: 'n6',
-        tone: 'info',
-        category: 'RELANCES',
-        icon: 'pi-send',
-        title: 'Relance envoyée — Étape 3',
-        message: "Traoré Seydou · avertissement WhatsApp + notification interne à l'admin.",
-        createdAt: this.atTime(yesterday, 9, 15),
-        read: true,
-      },
-      {
-        id: 'n7',
-        tone: 'success',
-        category: 'PAIEMENTS',
-        icon: 'pi-wallet',
-        title: '12 paiements encaissés',
-        message: 'Total de la journée : 148 250 FCFA · 3 factures soldées.',
-        createdAt: this.atTime(yesterday, 18, 0),
-        read: true,
-      },
-      {
-        id: 'n8',
-        tone: 'info',
-        category: 'SYSTEME',
-        icon: 'pi-user',
-        title: 'Nouvel utilisateur créé',
-        message: 'Camara Ibrahim · rôle AGENT · créé par thierno.d.',
-        createdAt: this.atTime(twoDaysAgo, 11, 20),
-        read: true,
-      },
-      {
-        id: 'n9',
-        tone: 'warning',
-        category: 'SYSTEME',
-        icon: 'pi-sync',
-        title: 'Synchronisation terrain terminée',
-        message: '3 relevés saisis hors-ligne ont été remontés au retour du réseau.',
-        createdAt: this.atTime(twoDaysAgo, 8, 5),
-        read: true,
-      },
-      {
-        id: 'n10',
-        tone: 'info',
-        category: 'SYSTEME',
-        icon: 'pi-calendar',
-        title: 'Campagne « Juillet 2026 » planifiée',
-        message: 'Démarre le 05/07 à 07h00 · 48 abonnés actifs concernés.',
-        createdAt: this.atTime(threeDaysAgo, 10, 0),
-        read: true,
-      },
-    ];
+      });
+    }
+
+    const lus = this.lireEtatLu();
+    this._notifications.set(out.map((n) => ({ ...n, read: lus.has(n.id) })));
+  }
+
+  // ── État « lu » : local au poste, faute de backend ───────────────────────────
+
+  private static readonly CLE_LUS = 'sgfe:notifications:lues';
+
+  private lireEtatLu(): Set<string> {
+    try {
+      const brut = localStorage.getItem(NotificationsService.CLE_LUS);
+      return new Set<string>(brut ? (JSON.parse(brut) as string[]) : []);
+    } catch {
+      return new Set<string>();
+    }
+  }
+
+  private ecrireEtatLu(ids: Set<string>): void {
+    try {
+      localStorage.setItem(NotificationsService.CLE_LUS, JSON.stringify([...ids]));
+    } catch {
+      // Navigation privée, quota plein : l'écran reste utilisable sans mémoire.
+    }
   }
 }

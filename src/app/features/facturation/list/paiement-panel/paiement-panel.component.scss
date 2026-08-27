@@ -2,140 +2,66 @@
 @use '../../../../../styles/variables' as *;
 
 .payment-panel {
-  background: #fff;
+  background: var(--surface);
   border: 1.5px solid $color-primary;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-5);
   box-shadow: 0 0 0 4px rgba($color-primary, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
 
   &__header {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--pas-3);
   }
 
   &__icon {
     width: 34px;
     height: 34px;
-    border-radius: 8px;
-    background: #eff6ff;
+    border-radius: var(--rayon-md);
+    background: var(--action-lueur);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: $color-primary;
+    color: var(--action);
     font-size: 15px;
   }
 
   &__title {
     font-size: 14px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
   }
 
   &__sub {
     font-size: 11px;
-    color: $color-primary;
-    margin-top: 2px;
+    color: var(--action);
+    margin-top: var(--pas-1);
   }
 
   &__close {
     margin-left: auto;
     background: none;
     border: none;
-    color: #94a3b8;
+    color: var(--encre-3);
     cursor: pointer;
     font-size: 14px;
-    padding: 4px;
+    padding: var(--pas-1);
     line-height: 1;
     transition: color 0.1s;
 
-    &:hover { color: #0f172a; }
+    &:hover { color: var(--encre); }
   }
 
+  // Le formulaire lui-même vit dans <app-paiement-form> (shared) : styles pf-*
+  // + submit portés là. Ce wrapper ne fait plus que délimiter la zone.
   &__form {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 12px;
-
-    @media (max-width: 720px) {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    @media (max-width: 480px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  &__submit {
-    width: 100%;
-    height: 44px;
-    background: $color-primary;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 14px rgba($color-primary, 0.3);
-    transition: background 0.15s, opacity 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    &:hover:not(:disabled) { background: color.adjust($color-primary, $lightness: -8%); }
-    &:disabled { opacity: 0.45; cursor: not-allowed; }
+    display: block;
   }
 }
-
-.pf-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  &--ref { grid-column: span 1; }
-}
-
-.pf-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
-}
-
-.pf-required {
-  color: #b91c1c;
-  margin-left: 2px;
-}
-
-.pf-input {
-  height: 40px;
-
-  &--focus {
-    border-color: $color-primary !important;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.1) !important;
-    font-weight: 700;
-    font-size: 16px;
-  }
-
-  &--error {
-    border-color: $color-error !important;
-    box-shadow: 0 0 0 3px rgba($color-error, 0.1) !important;
-  }
-}
-
-.pf-hint {
-  display: block;
-  margin-top: 5px;
-  font-size: 11px;
-  line-height: 1.4;
-
-  &--error { color: $color-error; }
-}
-
-.pf-select {
-  width: 100%;
-}
+// Ex-styles .pf-field/.pf-label/.pf-required/.pf-input/.pf-hint/.pf-select +
+// .payment-panel__submit retirés : portés par <app-paiement-form> shared
+// (batch 7 facturation, extract). ~85 lignes SCSS supprimées.

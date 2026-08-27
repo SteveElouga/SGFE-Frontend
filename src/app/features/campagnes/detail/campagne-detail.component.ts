@@ -7,8 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -37,12 +38,13 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
 import { AbonnesSheetComponent } from '../abonnes-sheet/abonnes-sheet.component';
+import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   selector: 'app-campagne-detail',
   imports: [
-    RouterLink,
     DatePipe,
     DecimalPipe,
     LowerCasePipe,
@@ -54,6 +56,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     AgentsSheetComponent,
     ZonesSheetComponent,
     AbonnesSheetComponent,
+    BottomSheetComponent,
+    PageTopbarComponent,
     TranslatePipe,
     BadgeComponent,
     SkeletonComponent,
@@ -67,6 +71,9 @@ import { ToastService } from '../../../shared/services/toast.service';
   },
 })
 export class CampagneDetailComponent implements OnInit {
+  /** Ordre d'affichage unique du nom d'abonné — voir `abonne.utils.ts`. */
+  protected readonly nomAbonne = nomAbonne;
+
   /** Exposés au template pour la teinte des puces de statut. */
   protected readonly campagneStatutTone = campagneStatutTone;
   protected readonly releveStatutTone = releveStatutTone;
@@ -186,6 +193,30 @@ export class CampagneDetailComponent implements OnInit {
     const lang = this.translate.currentLang() ?? 'fr';
     return c ? formatPeriodeCampagne(c.periodeMois, c.periodeAnnee, lang) : '';
   });
+
+  /** Titre du topbar : nom de la campagne quand chargée, "…" pendant loading. */
+  readonly topbarTitle = computed(() => {
+    const c = this.campagne();
+    return c ? c.nom : this.translate.instant('COMMON.LOADING');
+  });
+
+  /** Sous-titre : statut + date d'ancrage (cloturée → dateCloture, sinon dateCreation). */
+  readonly topbarSubtitle = computed(() => {
+    const c = this.campagne();
+    if (!c) return '';
+    const lang = this.translate.currentLang() ?? 'fr';
+    const statut = this.translate.instant('CAMPAGNES.STATUT.' + c.statut, {}, lang);
+    const dateLabel = c.statut === 'CLOTUREE' && c.dateCloture
+      ? `${this.translate.instant('CAMPAGNES.CLOTURE_LE', {}, lang)} ${this.formatShortDate(c.dateCloture)}`
+      : `${this.translate.instant('CAMPAGNES.CREE_LE', {}, lang)} ${this.formatShortDate(c.dateCreation)}`;
+    return `${statut} · ${dateLabel}`;
+  });
+
+  /** Formatte une date en dd/MM (locale-agnostic pour la topbar). */
+  private formatShortDate(iso: string): string {
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
 
   readonly pourcentageAffiche = computed(() =>
     Math.round(this.progression()?.pourcentage ?? 0),

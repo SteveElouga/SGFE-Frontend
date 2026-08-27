@@ -1,10 +1,10 @@
 :host {
   align-items: center;
-  gap: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 10px 14px;
+  gap: var(--pas-2);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
 }
 
 .auth-error-message__icon {
@@ -13,5 +13,5 @@
 
 span {
   font-size: 13px;
-  color: #dc2626;
+  color: var(--danger-encre);
 }

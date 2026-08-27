@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonneOuReference } from '../../shared/utils/abonne.utils';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -17,10 +18,11 @@ import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/factu
 import { BadgeComponent, BadgeTone } from '../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../shared/components/filter-bar/filter-bar.component';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../shared/components/filters-panel/filters-panel.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { FcfaPipe, formatFcfa } from '../../shared/pipes/fcfa.pipe';
+import { ToastService } from '../../shared/services/toast.service';
 
 interface CampagneItem {
   campagneId: string;
@@ -35,6 +37,7 @@ interface FactureRef {
   numeroFacture: string;
   abonneId: string;
   abonneNom: string;
+  abonneNumero: string;
   campagneId: string;
   statut: StatutFacture;
 }
@@ -49,6 +52,8 @@ interface PaiementRow {
   modePaiement: ModePaiement;
   referenceTransaction: string;
   statutFacture: StatutFacture | null;
+  annule: boolean;
+  motifAnnulation: string | null;
 }
 
 @Component({
@@ -59,7 +64,7 @@ interface PaiementRow {
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
-    FilterBarComponent,
+    FiltersPanelComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
@@ -74,6 +79,7 @@ export class PaiementsListComponent implements OnInit {
   private readonly service = inject(FacturesService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly toast = inject(ToastService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -88,31 +94,50 @@ export class PaiementsListComponent implements OnInit {
   readonly searchTerm = signal('');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'date', header: 'PAIEMENTS.COL_DATE' },
-    { key: 'abonne', header: 'PAIEMENTS.COL_ABONNE' },
-    { key: 'numeroFacture', header: 'PAIEMENTS.COL_FACTURE' },
-    { key: 'montant', header: 'PAIEMENTS.COL_MONTANT' },
-    { key: 'mode', header: 'PAIEMENTS.COL_MODE' },
-    { key: 'operateur', header: 'PAIEMENTS.COL_OPERATEUR' },
-    { key: 'statut', header: 'PAIEMENTS.COL_STATUT' },
+    { key: 'date', header: 'PAIEMENTS.COL_DATE', sortable: true, sortValue: (r) => new Date((r as PaiementRow).datePaiement) },
+    { key: 'abonne', header: 'PAIEMENTS.COL_ABONNE', sortable: true, sortValue: (r) => (r as PaiementRow).abonneNom },
+    { key: 'numeroFacture', header: 'PAIEMENTS.COL_FACTURE', sortable: true, sortValue: (r) => (r as PaiementRow).numeroFacture },
+    { key: 'montant', header: 'PAIEMENTS.COL_MONTANT', sortable: true, sortValue: (r) => (r as PaiementRow).montant },
+    { key: 'mode', header: 'PAIEMENTS.COL_MODE', sortable: true, sortValue: (r) => (r as PaiementRow).modePaiement },
+    // Colonne « Référence » : donnée métier obligatoire (PRODUCT.md) pour
+    // MOBILE_MONEY et VIREMENT. Anciennement « Opérateur » toujours vide.
+    { key: 'reference', header: 'PAIEMENTS.COL_REFERENCE', sortable: true, sortValue: (r) => (r as PaiementRow).referenceTransaction ?? '' },
+    { key: 'statut', header: 'PAIEMENTS.COL_STATUT', sortable: true, sortValue: (r) => (r as PaiementRow).statutFacture ?? '' },
   ];
 
-  readonly campagneOptions = computed((): Array<{ label: string; value: string | null }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    const all = { label: this.translate.instant('PAIEMENTS.CAMPAGNE_TOUTES', {}, lang), value: null };
-    const items = this.campagnes().map((c) => ({ label: c.nom, value: c.campagneId }));
-    return [all, ...items];
-  });
-
-  readonly modeOptions = computed((): Array<{ label: string; value: ModePaiement | 'TOUS' }> => {
+  /** Filtres unifiés pour `<app-filters-panel>` (batch 10). Date range garde
+   *  son propre p-datepicker externe (contrôle spécialisé). */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     return [
-      { label: this.translate.instant('PAIEMENTS.MODE_TOUS', {}, lang), value: 'TOUS' },
-      { label: this.translate.instant('FACTURATION.MODE.ESPECES', {}, lang), value: 'ESPECES' as const },
-      { label: this.translate.instant('FACTURATION.MODE.MOBILE_MONEY', {}, lang), value: 'MOBILE_MONEY' as const },
-      { label: this.translate.instant('FACTURATION.MODE.VIREMENT', {}, lang), value: 'VIREMENT' as const },
+      {
+        key: 'campagne',
+        label: 'PAIEMENTS.FILTER_CAMPAGNE',
+        options: this.campagnes().map((c) => ({ label: c.nom, value: c.campagneId })),
+        render: 'select',
+      },
+      {
+        key: 'mode',
+        label: 'PAIEMENTS.FILTER_MODE',
+        options: [
+          { label: this.translate.instant('FACTURATION.MODE.ESPECES', {}, lang), value: 'ESPECES' },
+          { label: this.translate.instant('FACTURATION.MODE.MOBILE_MONEY', {}, lang), value: 'MOBILE_MONEY' },
+          { label: this.translate.instant('FACTURATION.MODE.VIREMENT', {}, lang), value: 'VIREMENT' },
+        ],
+      },
     ];
   });
+
+  readonly filterValues = computed<FilterValues>(() => ({
+    campagne: this.selectedCampagneId(),
+    mode: this.filtreMode() === 'TOUS' ? null : this.filtreMode(),
+  }));
+
+  onFiltersChange(v: FilterValues): void {
+    if (v['campagne'] !== this.selectedCampagneId()) this.onCampagneChange(v['campagne']);
+    const mode = (v['mode'] as ModePaiement | null) ?? 'TOUS';
+    if (mode !== this.filtreMode()) this.onModeChange(mode);
+  }
 
   readonly rows = computed((): PaiementRow[] => {
     const facturesMap = this.facturesMap();
@@ -153,17 +178,33 @@ export class PaiementsListComponent implements OnInit {
         paiementId: p.paiementId,
         factureId: p.factureId,
         numeroFacture: f?.numeroFacture ?? '—',
-        abonneNom: f?.abonneNom || '—',
+        abonneNom: nomAbonneOuReference(f?.abonneNom, f?.abonneNumero),
         montant: p.montant,
         datePaiement: p.datePaiement,
         modePaiement: p.modePaiement,
         referenceTransaction: p.referenceTransaction,
         statutFacture: f?.statut ?? null,
+        annule: p.annule ?? false,
+        motifAnnulation: p.motifAnnulation ?? null,
       };
     });
   });
 
-  readonly totalMontant = computed(() => this.rows().reduce((acc, r) => acc + r.montant, 0));
+  /**
+   * Total encaissé : un paiement annulé n'a jamais été encaissé, il ne peut pas
+   * entrer dans ce total (PRODUCT.md § « Exactitude financière visible »).
+   */
+  readonly totalMontant = computed(() =>
+    this.rows().reduce((acc, r) => (r.annule ? acc : acc + r.montant), 0),
+  );
+
+  /** Nombre de lignes annulées affichées — sert à expliquer l'écart au comptable. */
+  readonly nbAnnules = computed(() => this.rows().filter((r) => r.annule).length);
+
+  /** Montant total des annulations affichées, pour la mention sous le KPI. */
+  readonly montantAnnule = computed(() =>
+    this.rows().reduce((acc, r) => (r.annule ? acc + r.montant : acc), 0),
+  );
 
   readonly subtitle = computed(() => {
     const campagneId = this.selectedCampagneId();
@@ -207,6 +248,7 @@ export class PaiementsListComponent implements OnInit {
           numeroFacture: f.numeroFacture,
           abonneId: f.abonneId,
           abonneNom: f.abonneNom ?? '',
+          abonneNumero: f.abonneNumero ?? '',
           campagneId: f.campagneId,
           statut: f.statut,
         });
@@ -276,7 +318,12 @@ export class PaiementsListComponent implements OnInit {
 
   exportCSV(): void {
     const rows = this.rows();
-    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Opérateur', 'Statut'];
+    if (rows.length === 0) {
+      this.toast.info(this.translate.instant('PAIEMENTS.EXPORT_EMPTY'));
+      return;
+    }
+    // BOM UTF-8 pour Excel Windows + colonne Référence remplace Opérateur vide.
+    const headers = ['Date', 'Abonné', 'Facture', 'Montant', 'Mode', 'Référence', 'Statut', 'Annulé', "Motif d'annulation"];
     const lines = rows.map((r) =>
       [
         this.formatDate(r.datePaiement),
@@ -284,18 +331,34 @@ export class PaiementsListComponent implements OnInit {
         r.numeroFacture,
         r.montant,
         r.modePaiement,
-        '—',
+        r.referenceTransaction || '—',
         r.statutFacture ?? '—',
-      ].join(';'),
+        r.annule ? 'OUI' : 'NON',
+        r.motifAnnulation ?? '',
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)   // guillemets pour tout champ (sécurité séparateur)
+        .join(';'),
     );
-    const csv = [headers.join(';'), ...lines].join('\n');
+    const csv = '﻿' + [headers.join(';'), ...lines].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
+    // Nom fichier composite : date + campagne + mode → l'utilisateur sait quel
+    // scope contient le CSV avant même de l'ouvrir.
+    const parts: string[] = ['paiements', new Date().toISOString().slice(0, 10)];
+    const c = this.campagnes().find((x) => x.campagneId === this.selectedCampagneId());
+    if (c) parts.push(`${c.periodeAnnee}-${String(c.periodeMois).padStart(2, '0')}`);
+    const mode = this.filtreMode();
+    if (mode !== 'TOUS') parts.push(mode);
+    const filename = `${parts.join('_')}.csv`;
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'paiements.csv';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+    // Confirmation avec périmètre exporté (fermeture P1 « export silencieux »).
+    this.toast.success(
+      this.translate.instant('PAIEMENTS.EXPORT_SUCCESS', { count: rows.length, filename }),
+    );
   }
 
   formatDate(d: string): string {
@@ -326,8 +389,11 @@ export class PaiementsListComponent implements OnInit {
   }
 
   statutLabel(r: PaiementRow): string {
-    if (r.statutFacture === 'PAYEE') return 'SOLDÉ';
-    if (r.statutFacture === 'PARTIELLE') return 'PARTIEL ⚠';
+    // i18n-aware : les libellés sont dans fr/en.json ; le tone=warning du badge
+    // porte déjà le signal visuel, plus besoin de l'emoji ⚠ Unicode qui viole
+    // la Règle de la Famille Unique et la promesse bilingue.
+    if (r.statutFacture === 'PAYEE') return this.translate.instant('PAIEMENTS.STATUT_SOLDE');
+    if (r.statutFacture === 'PARTIELLE') return this.translate.instant('PAIEMENTS.STATUT_PARTIEL');
     return r.statutFacture ?? '—';
   }
 }

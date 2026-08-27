@@ -1,0 +1,106 @@
+// Le composant est présentationnellement neutre : styles portés par
+// `.pf-*` (shared vocabulaire "paiement form") au niveau global via les
+// hôtes actuels (panel + facture-detail). Ici on isole seulement les
+// éléments propres au shared (submit + grid layout défaut).
+
+:host { display: block; }
+
+.paiement-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pas-3) var(--pas-3);
+
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+    gap: var(--pas-2);
+  }
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  min-width: 0;
+
+  &--ref { grid-column: 1 / -1; }
+}
+
+.pf-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--encre-3);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+
+  &--help {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+  }
+}
+
+// Icône d'aide contextuelle (H10 Nielsen) — hover pour tooltip, tabbable
+// pour clavier + screen-reader (aria-label répète le tooltip).
+.pf-help {
+  font-size: 13px;
+  color: var(--encre-3);
+  cursor: help;
+  transition: color 0.12s;
+
+  &:hover, &:focus-visible { color: var(--action); outline: none; }
+}
+
+.pf-required { color: var(--danger-encre); margin-left: var(--pas-1); }
+
+.pf-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 var(--pas-3);
+  font-size: 14px;
+  border: 1px solid var(--filet-pale);
+  border-radius: var(--rayon-md);
+  transition: border-color 0.12s, box-shadow 0.12s;
+
+  &:focus, &--focus:focus {
+    outline: none;
+    border-color: var(--action);                  // Bleu Rivière DESIGN.md
+    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+  }
+
+  &--error {
+    border-color: var(--danger);
+    &:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); }
+  }
+}
+
+.pf-hint {
+  font-size: 11px;
+  color: var(--encre-3);
+  line-height: 1.4;
+
+  &--error { color: var(--danger-encre); }
+}
+
+.paiement-form__submit {
+  width: 100%;
+  height: 44px;                             // WCAG 2.5.5
+  margin-top: var(--pas-3);
+  border: none;
+  border-radius: var(--rayon-md);
+  background: linear-gradient(135deg, var(--action), var(--succes));
+  color: var(--surface);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-2);
+  transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
+
+  &:hover:not(:disabled) { opacity: 0.92; }
+  &:active:not(:disabled) { transform: scale(0.97); }
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+}

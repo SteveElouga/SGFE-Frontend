@@ -20,50 +20,28 @@
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
 
-  <!-- Filtres : chips segmentés en mobile (pattern M-05), dropdowns en desktop -->
-  <app-filter-bar
+  <!-- Filtres unifiés (batch 10) -->
+  <app-filters-panel
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
+    [debounceMs]="250"
     searchPlaceholder="CAMPAGNES.SEARCH_PLACEHOLDER"
-  >
-    <div class="campagnes-statut-chips">
-      <app-filter-chips
-        [options]="statutChips()"
-        [total]="campagnes().length"
-        [value]="statutChipValue()"
-        allLabel="CAMPAGNES.FILTRE.TOUTES"
-        (valueChange)="onStatutChip($event)"
-      />
-    </div>
-
-    <p-select
-      class="campagnes-agent-select"
-      [options]="agentsDisponibles()"
-      [ngModel]="filtreAgent()"
-      (ngModelChange)="filtreAgent.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'CAMPAGNES.FILTRE_AGENT' | translate"
-      [showClear]="true"
-    />
-
-    <p-select
-      class="campagnes-statut-select"
-      [options]="filtreOptions()"
-      [ngModel]="filtreStatut()"
-      (ngModelChange)="filtreStatut.set($event)"
-      optionLabel="label"
-      optionValue="value"
-    />
-  </app-filter-bar>
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="campagnesFiltrees().length"
+    [totalCount]="campagnes().length"
+    heroNounKey="CAMPAGNES.RESULTS_HERO"
+  />
 
   <!-- Carte tableau -->
   <div class="campagnes-card">
     <app-data-table
       [columns]="columns"
       [rows]="campagnesFiltrees()"
+      [rowLink]="lienCampagne"
       [loading]="loading()"
-      [pageSize]="0"
+      [pageSize]="15"
       [rowClass]="rowClassCampagne"
       trackKey="campagneId"
       emptyMessage="CAMPAGNES.EMPTY"

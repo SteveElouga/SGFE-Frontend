@@ -1,159 +1,471 @@
-<app-page-topbar
-  [title]="'DASHBOARD.TITLE' | translate"
-  [overline]="campagneEnCours() ? ('DASHBOARD.CAMPAGNE_OVERLINE' | translate:{ periode: campagneEnCours()!.nom }) : ''"
->
-  <!-- Progression campagne dans le header navy (mobile — maquette M-04) -->
-  <div topbar-hero class="mhero">
-    @if (campagneEnCours(); as c) {
-      <div class="mhero__card">
-        <div class="mhero__row">
-          <span class="mhero__label">{{ 'DASHBOARD.RELEVES_EN_COURS' | translate }}</span>
-          <span class="mhero__pct">{{ c.pourcentage }}%</span>
-        </div>
-        <div class="mhero__bar">
-          <div class="mhero__bar-fill" [style.width.%]="c.pourcentage"></div>
-        </div>
-        <div class="mhero__sub">{{ c.nbReleves }} / {{ c.totalAbonnes }} {{ 'DASHBOARD.ABONNES_RELEVES' | translate }}</div>
-      </div>
-    } @else if (!loading()) {
-      <div class="mhero__card mhero__card--empty">{{ 'DASHBOARD.NO_CAMPAGNE' | translate }}</div>
-    }
-  </div>
-</app-page-topbar>
+<app-page-topbar [title]="'DASHBOARD.TITLE' | translate" />
 
-<div class="dash">
+<div class="dash-content">
 
+  <!-- Sélecteur période — Phase 3 v4 (H7 Flexibilité). Chips segmentés,
+       persist localStorage, recompute automatique des deltas. Caché sur les
+       empty states et le loading. -->
+  @if (!loading() && !emptyGlobal() && statsParMois() !== null) {
+    <div class="dash-periode" role="radiogroup" [attr.aria-label]="'DASHBOARD.PERIODE.LABEL' | translate">
+      @for (opt of periodeOptions; track opt.key) {
+        <button
+          type="button"
+          class="dash-periode__chip"
+          [class.dash-periode__chip--active]="periode() === opt.key"
+          role="radio"
+          [attr.aria-checked]="periode() === opt.key"
+          [attr.tabindex]="periode() === opt.key ? 0 : -1"
+          (click)="setPeriode(opt.key)"
+        >{{ opt.labelKey | translate }}</button>
+      }
+    </div>
+  }
+
+  <!-- ══ LOADING ─────────────────────────────────────────────────────────── -->
   @if (loading()) {
-    <div class="dash__loading"><i class="pi pi-spin pi-spinner"></i></div>
-  } @else {
+    <div class="dash-skeleton">
+      <app-skeleton height="120px" radius="12px" />
+      <app-skeleton height="80px" radius="12px" />
+      <app-skeleton height="200px" radius="12px" />
+    </div>
+  }
 
-    @if (!stats()) {
-      <div class="dash-warn">
-        <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
-        <span>{{ 'DASHBOARD.STATS_UNAVAILABLE' | translate }}</span>
-        <button type="button" class="dash-warn__retry" (click)="load()">{{ 'COMMON.RETRY' | translate }}</button>
-      </div>
-    }
+  <!-- ══ EMPTY GLOBAL (nouveau tenant : 0 facture, 0 encaissé) ─────────── -->
+  @else if (emptyGlobal()) {
+    <div class="dash-empty" role="status">
+      <i class="pi pi-inbox" aria-hidden="true"></i>
+      <h2 class="dash-empty__title">{{ 'DASHBOARD.EMPTY.TITLE' | translate }}</h2>
+      <p class="dash-empty__msg">{{ 'DASHBOARD.EMPTY.MSG' | translate }}</p>
+      @if (isAdmin()) {
+        <a routerLink="/campagnes/nouveau" class="dash-empty__cta">
+          {{ 'DASHBOARD.EMPTY.CTA_CAMPAGNE' | translate }}
+        </a>
+      }
+    </div>
+  }
 
-    <!-- Hero : progression de la campagne en cours (desktop uniquement) -->
-    <section class="dash-hero">
-      <div class="dash-hero__label">{{ 'DASHBOARD.RELEVES_EN_COURS' | translate }}</div>
-      @if (campagneEnCours(); as c) {
-        <div class="dash-hero__pct">{{ c.pourcentage }}%</div>
-        <div class="dash-hero__bar">
-          <div class="dash-hero__bar-fill" [style.width.%]="c.pourcentage"></div>
-        </div>
-        <div class="dash-hero__sub">{{ c.nbReleves }} / {{ c.totalAbonnes }} {{ 'DASHBOARD.ABONNES_RELEVES' | translate }}</div>
+  <!-- ══ VUE COMPTABLE — "Où est l'argent ?" ─────────────────────────────── -->
+  @else if (viewMode() === 'comptable') {
+    <section class="dash-hero" role="region" aria-labelledby="dash-hero-label">
+      @let d = deltaEncaisse();
+      @if (statsParMois() !== null) {
+        <a routerLink="/paiements" class="dash-hero__link">
+          <span id="dash-hero-label" class="dash-hero__label">
+            {{ 'DASHBOARD.HERO.ENCAISSE_LABEL' | translate: { mois: moisCourantLabel() } }}
+          </span>
+          <span class="dash-hero__count" aria-live="polite">
+            {{ formatFCFA(d.value) }} <span class="dash-hero__devise">FCFA</span>
+          </span>
+          <span class="dash-hero__accent" aria-hidden="true"></span>
+          @if (d.deltaPct !== null) {
+            <span class="dash-hero__delta" [class]="deltaClass(d.deltaPct)">
+              {{ formatDelta(d.deltaPct) }}
+              <span class="dash-hero__delta-hint">
+                {{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}
+              </span>
+            </span>
+          } @else {
+            <span class="dash-hero__delta dash-delta--neutre">
+              {{ 'DASHBOARD.HERO.PREMIER_MOIS' | translate }}
+            </span>
+          }
+        </a>
       } @else {
-        <div class="dash-hero__empty">{{ 'DASHBOARD.NO_CAMPAGNE' | translate }}</div>
+        <div class="dash-source-error">
+          {{ 'DASHBOARD.SOURCE_ERROR' | translate }}
+          <button type="button" (click)="retrySource('statsParMois')" [attr.aria-label]="'DASHBOARD.RETRY_STATS' | translate">
+            <i class="pi pi-refresh" aria-hidden="true"></i>
+            {{ 'COMMON.RETRY' | translate }}
+          </button>
+        </div>
       }
     </section>
 
-    <!-- KPI -->
-    <section class="dash-kpi">
-      <!-- Facturé -->
-      <div class="kpi">
-        <div class="kpi__label">
-          <span class="u-desktop">{{ 'DASHBOARD.KPI_FACTURE' | translate }}</span>
-          <span class="u-mobile">{{ 'DASHBOARD.KPI_FACTURE_SHORT' | translate }}</span>
+    <!-- 3 KPI secondaires — chromatiquement variés + tooltips systématiques v4
+         (Phase 2 : chaque KPI porte sa sémantique explicite, `pi-info-circle`
+         tabbable + aria-label = attaque H10 Aide) -->
+    <div class="dash-kpis" role="list">
+      <!-- Impayés : rouge dominant (danger, priorité action) -->
+      @if (kpiImpayes(); as k) {
+        <a routerLink="/impayes" class="dash-kpi dash-kpi--danger" role="listitem">
+          <span class="dash-kpi__value">{{ k.count }}</span>
+          <span class="dash-kpi__unit">
+            {{ 'DASHBOARD.KPI.IMPAYES' | translate }}
+            <i class="pi pi-info-circle dash-kpi__help"
+               [appTooltip]="'DASHBOARD.KPI.IMPAYES_TOOLTIP' | translate"
+               tabindex="0"
+               [attr.aria-label]="'DASHBOARD.KPI.IMPAYES_TOOLTIP' | translate"></i>
+          </span>
+          <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+        </a>
+      } @else {
+        <div class="dash-kpi dash-kpi--unavailable" role="listitem">
+          <span class="dash-kpi__unavail">{{ 'DASHBOARD.KPI_UNAVAILABLE' | translate }}</span>
+          <button type="button" (click)="retrySource('impayes')" [attr.aria-label]="'DASHBOARD.RETRY_IMPAYES' | translate">
+            <i class="pi pi-refresh" aria-hidden="true"></i>
+          </button>
         </div>
-        @if (stats(); as s) {
-          <div class="kpi__value">{{ formatFCFA(s.montantTotalFactureGlobal) }}</div>
-          @if (nbFactures() !== null) {
-            <div class="kpi__hint">
-              <span class="u-desktop">{{ 'DASHBOARD.KPI_FACTURE_HINT' | translate:{ count: nbFactures() } }}</span>
-              <span class="u-mobile">{{ 'DASHBOARD.KPI_FACTURE_HINT_SHORT' | translate:{ count: nbFactures() } }}</span>
-            </div>
-          } @else {
-            <div class="kpi__hint">FCFA</div>
+      }
+
+      <!-- Partielles : ambre (en cours, à finaliser) -->
+      @if (kpiPartielles(); as k) {
+        <a routerLink="/factures" [queryParams]="{ f_statut: 'PARTIELLE' }" class="dash-kpi dash-kpi--warning" role="listitem">
+          <span class="dash-kpi__value">{{ k.count }}</span>
+          <span class="dash-kpi__unit">
+            {{ 'DASHBOARD.KPI.PARTIELLES' | translate }}
+            <i class="pi pi-info-circle dash-kpi__help"
+               [appTooltip]="'DASHBOARD.KPI.PARTIELLES_TOOLTIP' | translate"
+               tabindex="0"
+               [attr.aria-label]="'DASHBOARD.KPI.PARTIELLES_TOOLTIP' | translate"></i>
+          </span>
+          <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+        </a>
+      }
+
+      <!-- Paiements aujourd'hui : Vert Nappe (positif, ce qui est rentré) -->
+      @if (kpiAujourdhui(); as k) {
+        <a routerLink="/paiements" class="dash-kpi dash-kpi--success" role="listitem">
+          <span class="dash-kpi__value">{{ k.count }}</span>
+          <span class="dash-kpi__unit">
+            {{ 'DASHBOARD.KPI.AUJOURDHUI' | translate }}
+            <i class="pi pi-info-circle dash-kpi__help"
+               [appTooltip]="'DASHBOARD.KPI.AUJOURDHUI_TOOLTIP' | translate"
+               tabindex="0"
+               [attr.aria-label]="'DASHBOARD.KPI.AUJOURDHUI_TOOLTIP' | translate"></i>
+          </span>
+          <span class="dash-kpi__hint">+{{ formatFCFA(k.total) }} FCFA</span>
+        </a>
+      }
+    </div>
+
+    <!-- Empty Comptable tenant vierge — Fix v4 P3 : distinct du emptyGlobal -->
+    @if (emptyComptable()) {
+      <div class="dash-empty dash-empty--comptable" role="status">
+        <i class="pi pi-money-bill" aria-hidden="true"></i>
+        <h2 class="dash-empty__title">{{ 'DASHBOARD.EMPTY.COMPTABLE_TITLE' | translate }}</h2>
+        <p class="dash-empty__msg">{{ 'DASHBOARD.EMPTY.COMPTABLE_MSG' | translate }}</p>
+        <a routerLink="/paiements" class="dash-empty__cta">
+          {{ 'DASHBOARD.EMPTY.COMPTABLE_CTA' | translate }}
+        </a>
+      </div>
+    }
+
+    <!-- Top 5 impayés les plus anciens -->
+    @if (topImpayesAnciens().length > 0) {
+      <section class="carte dash-list" role="region" aria-labelledby="dash-list-label">
+        <h2 id="dash-list-label" class="dash-list__title">
+          {{ 'DASHBOARD.LIST.IMPAYES_ANCIENS' | translate }}
+        </h2>
+        <ul class="dash-list__items">
+          @for (item of topImpayesAnciens(); track item.factureId) {
+            <li class="dash-list__item">
+              <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
+                <span class="dash-list__nom">{{ item.nom }}</span>
+                <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
+                <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
+                <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+              </a>
+            </li>
           }
-        } @else {
-          <div class="kpi__value kpi__value--muted">—</div>
-          <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
-        }
-      </div>
+        </ul>
+      </section>
+    }
+  }
 
-      <!-- Encaissé -->
-      <div class="kpi">
-        <div class="kpi__label">{{ 'DASHBOARD.KPI_ENCAISSE' | translate }}</div>
-        @if (stats(); as s) {
-          <div class="kpi__value kpi__value--green">{{ formatFCFA(s.montantTotalEncaisseGlobal) }}</div>
-          <div class="kpi__hint kpi__hint--green">{{ tauxRecouvrement() }} %<span class="u-desktop"> {{ 'DASHBOARD.RECOUVRE' | translate }}</span></div>
-        } @else {
-          <div class="kpi__value kpi__value--muted">—</div>
-          <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
-        }
-      </div>
+  <!-- ══ VUE ADMIN — Ribbon cycle + m³ + campagnes ─────────────────────── -->
+  @else if (viewMode() === 'admin') {
 
-      <!-- Impayés actifs (source indépendante) : nombre en grand, montant en dessous -->
-      <div class="kpi kpi--red">
-        <div class="kpi__label">
-          <span class="u-desktop">{{ 'DASHBOARD.KPI_IMPAYES' | translate }}</span>
-          <span class="u-mobile">{{ 'DASHBOARD.KPI_IMPAYES_SHORT' | translate }}</span>
+    <!-- ── 1. Ce qui attend une action ───────────────────────────────────
+         L'ADMIN a accès à tout : sa page d'accueil doit d'abord répondre à
+         « qu'est-ce qui est en retard ? », pas afficher un cycle sans verdict.
+         Ces trois compteurs étaient déjà calculés, mais réservés au COMPTABLE. -->
+    @if (kpiImpayes() || kpiPartielles() || kpiAujourdhui()) {
+      <section class="dash-attention" role="region" aria-labelledby="dash-attention-label">
+        <h2 id="dash-attention-label" class="dash-section__titre">
+          {{ 'DASHBOARD.ATTENTION.TITRE' | translate }}
+        </h2>
+        <div class="dash-kpis" role="list">
+          @if (kpiImpayes(); as k) {
+            <a routerLink="/impayes" class="dash-kpi dash-kpi--danger" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.IMPAYES' | translate }}</span>
+              <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
+          @if (kpiPartielles(); as k) {
+            <a routerLink="/factures" [queryParams]="{ f_statut: 'PARTIELLE' }" class="dash-kpi dash-kpi--warning" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.PARTIELLES' | translate }}</span>
+              <span class="dash-kpi__hint">{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
+          @if (kpiAujourdhui(); as k) {
+            <a routerLink="/paiements" class="dash-kpi dash-kpi--success" role="listitem">
+              <span class="dash-kpi__value">{{ k.count }}</span>
+              <span class="dash-kpi__unit">{{ 'DASHBOARD.KPI.AUJOURDHUI' | translate }}</span>
+              <span class="dash-kpi__hint">+{{ formatFCFA(k.total) }} FCFA</span>
+            </a>
+          }
         </div>
-        @if (impayes(); as im) {
-          <div class="kpi__value kpi__value--red">{{ im.count }}</div>
-          <div class="kpi__hint kpi__hint--red">{{ formatFCFA(im.total) }} FCFA</div>
-        } @else {
-          <div class="kpi__value kpi__value--muted">—</div>
-          <div class="kpi__hint">{{ 'DASHBOARD.INDISPONIBLE' | translate }}</div>
-        }
-      </div>
+      </section>
+    }
 
-      <!-- Non relevés (source indépendante : campagne en cours) -->
-      <div class="kpi">
-        <div class="kpi__label">{{ 'DASHBOARD.KPI_NON_RELEVES' | translate }}</div>
-        @if (campagneEnCours(); as c) {
-          <div class="kpi__value kpi__value--slate">{{ c.nonReleves }}</div>
-          <div class="kpi__hint">{{ 'DASHBOARD.ABONNES_RESTANTS' | translate }}</div>
+    <!-- ── 2. Les chiffres du mois ───────────────────────────────────────
+         Le m³ est la spécificité SGFE ; l'encaissé et le facturé disaient déjà
+         quelque chose au COMPTABLE et manquaient ici. Trois mesures, une seule
+         grammaire visuelle — au lieu de quatre traitements différents. -->
+    @if (statsParMois() !== null) {
+      <section class="dash-mesures" role="region" aria-labelledby="dash-mesures-label">
+        <h2 id="dash-mesures-label" class="dash-section__titre">
+          {{ 'DASHBOARD.MESURE.TITRE' | translate: { mois: moisCourantLabel() } }}
+        </h2>
+        <div class="dash-mesures__grid">
+          @let dc = deltaConso();
+          <a routerLink="/rapports" class="dash-mesure dash-mesure--conso">
+            <span class="dash-mesure__valeur">{{ formatNumber(dc.value) }}<small>m³</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.CONSO' | translate }}</span>
+            @if (dc.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(dc.deltaPct)">
+                {{ formatDelta(dc.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+
+          @let df = deltaFacture();
+          <a routerLink="/factures" class="dash-mesure">
+            <span class="dash-mesure__valeur">{{ formatFCFA(df.value) }}<small>FCFA</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.FACTURE' | translate }}</span>
+            @if (df.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(df.deltaPct)">
+                {{ formatDelta(df.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+
+          @let de = deltaEncaisse();
+          <a routerLink="/paiements" class="dash-mesure dash-mesure--encaisse">
+            <span class="dash-mesure__valeur">{{ formatFCFA(de.value) }}<small>FCFA</small></span>
+            <span class="dash-mesure__label">{{ 'DASHBOARD.MESURE.ENCAISSE' | translate }}</span>
+            @if (de.deltaPct !== null) {
+              <span class="dash-mesure__delta" [class]="deltaClass(de.deltaPct)">
+                {{ formatDelta(de.deltaPct) }}
+                <span class="dash-mesure__delta-hint">{{ 'DASHBOARD.HERO.VS_MOIS' | translate: { mois: moisPrecedentLabel() } }}</span>
+              </span>
+            }
+          </a>
+        </div>
+      </section>
+    }
+
+    <!-- ── 3. Le cycle en cours ──────────────────────────────────────────
+         Conservé tel quel : il raconte bien l'enchaînement relevé → facture →
+         envoi → paiement. Il passe après ce qui appelle une décision. -->
+    <section class="dash-ribbon" role="region" aria-labelledby="dash-ribbon-label">
+      <h2 id="dash-ribbon-label" class="dash-section__titre">
+        {{ 'DASHBOARD.RIBBON.TITLE' | translate: { mois: moisCourantLabel() } }}
+      </h2>
+      <div class="dash-ribbon__grid">
+        @if (ribbonCycle().releves; as r) {
+          <a routerLink="/campagnes" class="dash-step dash-step--releves">
+            <span class="dash-step__value">{{ r.count }}</span>
+            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.RELEVES' | translate }}</span>
+          </a>
+        }
+        @if (ribbonCycle().factures; as r) {
+          <a routerLink="/factures" class="dash-step dash-step--factures">
+            <span class="dash-step__value">{{ r.count }}</span>
+            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.FACTURES' | translate }}</span>
+          </a>
+        }
+        @if (ribbonCycle().envois; as r) {
+          <a routerLink="/envois" class="dash-step dash-step--envois">
+            <span class="dash-step__value">{{ r.count }}</span>
+            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
+          </a>
         } @else {
-          <div class="kpi__value kpi__value--muted">—</div>
-          <div class="kpi__hint">{{ 'DASHBOARD.ABONNES_RESTANTS' | translate }}</div>
+          <div class="dash-step dash-step--unavailable">
+            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
+            <span class="dash-step__unavail">{{ 'DASHBOARD.KPI_UNAVAILABLE' | translate }}</span>
+          </div>
+        }
+        @if (ribbonCycle().paiements; as r) {
+          <a routerLink="/paiements" class="dash-step dash-step--paiements">
+            <span class="dash-step__value">{{ r.count }}</span>
+            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.PAIEMENTS' | translate }}</span>
+          </a>
         }
       </div>
     </section>
 
-    <!-- Activité récente : derniers paiements + impayés -->
-    <h2 class="dash__section-title">{{ 'DASHBOARD.ACTIVITE_TITLE' | translate }}</h2>
-    @if (activite(); as acts) {
-      @if (acts.length > 0) {
-        <div class="dash-activite">
-          @for (a of acts; track $index) {
-            <div class="act-row">
-              @if (a.type === 'paiement') {
-                <span class="act-row__icon act-row__icon--paiement"><i class="pi pi-credit-card"></i></span>
-                <div class="act-row__body">
-                  <div class="act-row__text">
-                    @if (a.numero) {
-                      {{ 'DASHBOARD.ACT_PAIEMENT' | translate:{ montant: formatFCFA(a.montant), numero: a.numero } }}
-                    } @else {
-                      {{ 'DASHBOARD.ACT_PAIEMENT_SANS_NUM' | translate:{ montant: formatFCFA(a.montant) } }}
-                    }
-                  </div>
-                  <div class="act-row__meta">{{ ('FACTURATION.MODE.' + a.mode) | translate }} · {{ relativeTime(a.date ?? '') }}</div>
+    <!-- ── 4. Campagnes ──────────────────────────────────────────────────
+         Quand aucune campagne n'est active, la section disparaissait sans rien
+         dire. Une absence de campagne est pourtant une information : c'est
+         souvent qu'il faut en ouvrir une. -->
+    <section class="dash-campaigns" role="region" aria-labelledby="dash-camp-label">
+      <h2 id="dash-camp-label" class="dash-section__titre">
+        {{ 'DASHBOARD.CAMPAIGNS.ACTIVES' | translate: { count: campagnesCards().length } }}
+      </h2>
+      @if (campagnesCards().length > 0) {
+        <div class="dash-campaigns__grid">
+          @for (c of campagnesCards(); track c.campagneId) {
+            <a [routerLink]="['/campagnes', c.campagneId]" class="dash-camp">
+              <div class="dash-camp__head">
+                <span class="dash-camp__nom">{{ c.nom }}</span>
+                <span class="dash-camp__statut dash-camp__statut--{{ c.statut.toLowerCase() }}">
+                  {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
+                </span>
+              </div>
+              <div class="dash-camp__progress" role="progressbar" [attr.aria-valuenow]="c.pourcentage" aria-valuemin="0" aria-valuemax="100">
+                <div class="dash-camp__bar" [style.--pct]="c.pourcentage / 100"></div>
+              </div>
+              <div class="dash-camp__meta">
+                {{ c.nbReleves }} / {{ c.totalAbonnes }} · {{ c.pourcentage }}%
+              </div>
+            </a>
+          }
+        </div>
+      } @else {
+        <div class="dash-vide">
+          <p class="dash-vide__msg">{{ 'DASHBOARD.CAMPAIGNS.AUCUNE' | translate }}</p>
+          <a routerLink="/campagnes/nouvelle" class="dash-vide__cta">
+            {{ 'DASHBOARD.CAMPAIGNS.OUVRIR' | translate }}
+          </a>
+        </div>
+      }
+    </section>
+
+    <!-- ── 5. Les impayés les plus anciens ───────────────────────────────
+         Déjà calculés, jamais montrés à l'ADMIN. C'est la file de travail. -->
+    @if (topImpayesAnciens().length > 0) {
+      <section class="carte dash-list" role="region" aria-labelledby="dash-list-admin-label">
+        <h2 id="dash-list-admin-label" class="dash-section__titre">
+          {{ 'DASHBOARD.LIST.IMPAYES_ANCIENS' | translate }}
+        </h2>
+        <ul class="dash-list__items">
+          @for (item of topImpayesAnciens(); track item.factureId) {
+            <li class="dash-list__item">
+              <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
+                <span class="dash-list__nom">{{ item.nom }}</span>
+                <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
+                <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
+                <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  }
+
+  <!-- ══ VUE SUPERVISEUR — Héros tournée + campagnes enrichies + actions ── -->
+  @else if (viewMode() === 'superviseur') {
+
+    <!-- Héros "avancement de mes tournées" — Chiffre Fort SGFE avec double lecture -->
+    @if (superviseurHero(); as h) {
+      <section class="dash-hero dash-hero--sup" role="region" aria-labelledby="dash-suphero-label">
+        <span id="dash-suphero-label" class="dash-hero__label">
+          {{ 'DASHBOARD.SUPERVISEUR.HERO_LABEL' | translate }}
+        </span>
+        <span class="dash-hero__count" aria-live="polite">
+          {{ h.nbActives }} <span class="dash-hero__devise">{{ 'DASHBOARD.SUPERVISEUR.HERO_ACTIVES' | translate: { count: h.nbActives } }}</span>
+        </span>
+        <span class="dash-hero__accent dash-hero__accent--sup" aria-hidden="true"></span>
+        <span class="dash-hero__delta dash-delta--neutre">
+          {{ 'DASHBOARD.SUPERVISEUR.HERO_MOYENNE' | translate: { pct: h.pourcentageMoyen } }}
+          @if (h.nbTotal > h.nbActives) {
+            <span class="dash-hero__delta-hint">
+              · {{ 'DASHBOARD.SUPERVISEUR.HERO_TOTAL' | translate: { total: h.nbTotal } }}
+            </span>
+          }
+        </span>
+      </section>
+    }
+
+    <section class="dash-campaigns" role="region" aria-labelledby="dash-mcamp-label">
+      <h2 id="dash-mcamp-label" class="dash-campaigns__title">
+        {{ 'DASHBOARD.SUPERVISEUR.MES_CAMPAGNES' | translate: { count: superviseurCards().length } }}
+      </h2>
+
+      @if (superviseurCards().length === 0) {
+        <div class="dash-empty" role="status">
+          <i class="pi pi-briefcase" aria-hidden="true"></i>
+          <p class="dash-empty__msg">{{ 'DASHBOARD.SUPERVISEUR.EMPTY' | translate }}</p>
+          <a routerLink="/campagnes/nouveau" class="dash-empty__cta">
+            {{ 'DASHBOARD.SUPERVISEUR.CTA_NOUVELLE' | translate }}
+          </a>
+        </div>
+      } @else {
+        <div class="dash-campaigns__grid">
+          @for (c of superviseurCards(); track c.campagneId) {
+            <a [routerLink]="['/campagnes', c.campagneId]" class="dash-camp dash-camp--sup">
+              <div class="dash-camp__head">
+                <span class="dash-camp__nom">{{ c.nom }}</span>
+                <span class="dash-camp__statut dash-camp__statut--{{ c.statut.toLowerCase() }}">
+                  {{ 'CAMPAGNES.STATUT.' + c.statut | translate }}
+                </span>
+              </div>
+              <div class="dash-camp__progress" role="progressbar" [attr.aria-valuenow]="c.pourcentage" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuetext]="c.pourcentage + '%'">
+                <div class="dash-camp__bar" [style.--pct]="c.pourcentage / 100"></div>
+              </div>
+              <div class="dash-camp__meta">
+                {{ c.nbReleves }} / {{ c.totalAbonnes }} · {{ c.pourcentage }}%
+              </div>
+
+              <!-- Agents affectés — état actif/inactif visible -->
+              @if (c.agents.length > 0) {
+                <div class="dash-camp__agents">
+                  @for (a of c.agents; track a.agentId) {
+                    <span
+                      class="dash-agent"
+                      [class.dash-agent--inactif]="a.statut === 'INACTIF'"
+                      [attr.title]="a.username + ' · ' + (a.statut || 'ACTIF')"
+                    >
+                      <span class="dash-agent__dot" aria-hidden="true"></span>
+                      {{ a.username }}
+                    </span>
+                  }
                 </div>
               } @else {
-                <span class="act-row__icon act-row__icon--impaye"><i class="pi pi-exclamation-circle"></i></span>
-                <div class="act-row__body">
-                  <div class="act-row__text">
-                    @if (a.numero && a.jours !== undefined) {
-                      {{ 'DASHBOARD.ACT_IMPAYE' | translate:{ jours: a.jours, numero: a.numero } }}
-                    } @else {
-                      {{ 'DASHBOARD.ACT_IMPAYE_SANS_NUM' | translate:{ montant: formatFCFA(a.montant) } }}
-                    }
-                  </div>
-                  <div class="act-row__meta">{{ 'DASHBOARD.ACT_IMPAYE_META' | translate }}</div>
+                <div class="dash-camp__agents dash-camp__agents--empty">
+                  {{ 'DASHBOARD.SUPERVISEUR.AUCUN_AGENT' | translate }}
                 </div>
               }
-            </div>
+            </a>
           }
         </div>
-      } @else {
-        <div class="dash-empty">{{ 'DASHBOARD.NO_ACTIVITE' | translate }}</div>
       }
-    } @else {
-      <div class="dash-empty">{{ 'DASHBOARD.NO_ACTIVITE' | translate }}</div>
-    }
+    </section>
 
+    <!-- Actions requises typées par sévérité (info · warning · danger) -->
+    @if (actionsSuperviseur().length > 0) {
+      <section class="dash-actions" role="region" aria-labelledby="dash-actions-label">
+        <h2 id="dash-actions-label" class="dash-actions__title">
+          {{ 'DASHBOARD.SUPERVISEUR.ACTIONS_REQUISES' | translate }}
+        </h2>
+        <ul class="dash-actions__list" [attr.aria-label]="'DASHBOARD.SUPERVISEUR.ACTIONS_REQUISES' | translate">
+          @for (a of actionsSuperviseur(); track a.key) {
+            <li class="dash-actions__item dash-actions__item--{{ a.severity }}">
+              <i class="pi" [class.pi-info-circle]="a.severity === 'info'"
+                          [class.pi-exclamation-circle]="a.severity === 'warning'"
+                          [class.pi-times-circle]="a.severity === 'danger'"
+                          aria-hidden="true"></i>
+              {{ a.labelKey | translate: a.params }}
+            </li>
+          }
+        </ul>
+      </section>
+    } @else if (showSuperviseurToutAJour()) {
+      <!-- Fix v4 P2 : boucle reconnaissance/récompense. Règle Vert Rare — Vert
+           n'apparaît que quand quelque chose devient vrai ("tout est à jour"). -->
+      <section class="dash-tout-a-jour" role="status">
+        <span class="dash-tout-a-jour__dot" aria-hidden="true"></span>
+        <span class="dash-tout-a-jour__text">
+          {{ 'DASHBOARD.SUPERVISEUR.TOUT_A_JOUR' | translate }}
+        </span>
+      </section>
+    }
   }
+
 </div>

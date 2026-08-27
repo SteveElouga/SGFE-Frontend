@@ -1,5 +1,20 @@
 
-<app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()" />
+<app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()">
+  @if (facturesAEnvoyer().length > 0) {
+    <button
+      class="btn-whatsapp-tous"
+      [disabled]="sendingWhatsapp()"
+      (click)="ouvrirConfirmationWhatsapp()"
+    >
+      @if (sendingWhatsapp()) {
+        <i class="pi pi-spin pi-spinner"></i>
+      } @else {
+        <i class="pi pi-whatsapp"></i>
+      }
+      {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
+    </button>
+  }
+</app-page-topbar>
 
 <div class="factures-content">
 
@@ -28,81 +43,28 @@
     </div>
   }
 
-  <!-- Filters : chips segmentés en mobile (MB-04), dropdowns en desktop -->
-  <app-filter-bar
+  <!-- Filtres unifiés (batch 10) : chips auto-responsive + Effacer tout + tags actifs -->
+  <app-filters-panel
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
+    [debounceMs]="250"
     searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
-  >
-    <div class="factures-statut-chips">
-      <app-filter-chips
-        [options]="statutChips()"
-        [total]="factures().length"
-        [value]="statutChipValue()"
-        allLabel="FACTURATION.CHIP_TOUTES"
-        (valueChange)="onStatutChip($event)"
-      />
-    </div>
-
-    <!-- Campagne switcher -->
-    <p-select
-      class="factures-campagne-select"
-      [options]="allCampagnes()"
-      [ngModel]="campagneId()"
-      (ngModelChange)="onCampagneChange($event)"
-      optionLabel="label"
-      optionValue="value"
-      styleClass="filter-chip"
-    >
-      <ng-template pTemplate="selectedItem">
-        <span class="chip-label">{{ 'FACTURATION.FILTER_CAMPAGNE' | translate }}</span>
-      </ng-template>
-    </p-select>
-
-    <!-- Statut -->
-    <p-select
-      class="factures-statut-select"
-      [options]="filtreOptions()"
-      [ngModel]="filtreStatut()"
-      (ngModelChange)="onStatutChange($event)"
-      optionLabel="label"
-      optionValue="value"
-      styleClass="filter-chip"
-      [class.filter-chip--active]="filtreStatut() !== 'TOUS'"
-    >
-      <ng-template pTemplate="selectedItem">
-        <span class="chip-label">
-          {{ 'FACTURATION.FILTER_STATUT' | translate }}
-          @if (filtreStatut() !== 'TOUS') {
-            <span class="chip-active-dot"></span>
-          }
-        </span>
-      </ng-template>
-    </p-select>
-
-    @if (factures().length > 0) {
-      <button
-        class="btn-whatsapp-tous"
-        [disabled]="sendingWhatsapp()"
-        (click)="envoyerToutesWhatsapp()"
-      >
-        @if (sendingWhatsapp()) {
-          <i class="pi pi-spin pi-spinner"></i>
-        } @else {
-          <i class="pi pi-whatsapp"></i>
-        }
-        {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
-      </button>
-    }
-  </app-filter-bar>
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="facturesFiltrees().length"
+    [totalCount]="factures().length"
+    heroNounKey="FACTURATION.RESULTS_HERO"
+  />
 
   <!-- Table -->
   <div class="factures-table-wrap">
     <app-data-table
       [columns]="columns"
       [rows]="facturesFiltrees()"
+      [rowLink]="lienFacture"
       [loading]="loading()"
-      [pageSize]="5"
+      [pageSize]="10"
       [rowClickable]="rowActivable"
       [rowClass]="rowClassFn"
       (rowClick)="openPanel($event)"
@@ -121,11 +83,13 @@
       <ng-template appCol="abonne" let-f>
         @let abonne = abonneFor(f.abonneId);
         <div class="col-abonne">
-          @if (abonne) {
+          @if (abonne && abonne.nom) {
             <span class="abonne-nom">{{ abonne.nom }}</span>
             <span class="abonne-sub">{{ abonne.numeroAbonne }}</span>
           } @else {
-            <span class="abonne-nom">—</span>
+            <!-- Nom absent (facture dont l'abonné n'est plus résolvable) :
+                 le numéro reste une identité utile, un blanc ne l'est pas. -->
+            <span class="abonne-nom abonne-nom--absent">{{ abonne?.numeroAbonne || '—' }}</span>
           }
         </div>
       </ng-template>
@@ -143,6 +107,12 @@
             <span class="solde-zero">{{ formatNumber(0) }}</span>
           } @else if (f.statut === 'IMPAYEE') {
             <span class="solde-red">{{ formatNumber(solde) }}</span>
+            <i
+              class="pi pi-question-circle solde-estimated"
+              [appTooltip]="'FACTURATION.SOLDE_ESTIMATED_TOOLTIP' | translate"
+              tabindex="0"
+              [attr.aria-label]="'FACTURATION.SOLDE_ESTIMATED_TOOLTIP' | translate"
+            ></i>
           } @else {
             <span class="solde-blue">{{ formatNumber(solde) }}</span>
           }
@@ -194,7 +164,7 @@
             <span class="fcard__sub">{{ f.numeroFacture }} · {{ formatNumber(f.consommation) }} m³</span>
           </div>
           <div class="fcard__right">
-            <span class="fcard__montant">{{ formatNumber(f.montant) }} F</span>
+            <span class="fcard__montant">{{ formatNumber(f.montant) }} FCFA</span>
             <app-badge [tone]="factureStatutTone(f.statut)" [label]="'FACTURATION.STATUT.' + f.statut | translate" />
           </div>
         </button>
@@ -208,5 +178,67 @@
     (close)="closePanel()"
     (saved)="onPaiementSaved()"
   />
+
+  <!-- Confirmation envoi WhatsApp en masse (P0 batch 8 : prévention destructive) -->
+  <app-bottom-sheet
+    [open]="whatsappConfirmVisible()"
+    labelledBy="wa-bulk-sheet-title"
+    (close)="fermerConfirmationWhatsapp()"
+  >
+    <div class="wa-bulk-body">
+      <div class="wa-bulk-body__head">
+        <div class="wa-bulk-body__icon" aria-hidden="true">
+          <i class="pi pi-whatsapp"></i>
+        </div>
+        <div>
+          <h3 id="wa-bulk-sheet-title" class="wa-bulk-body__title">
+            {{ 'FACTURATION.WA_BULK_TITLE' | translate:{ count: facturesAEnvoyer().length } }}
+          </h3>
+          <p class="wa-bulk-body__desc">{{ 'FACTURATION.WA_BULK_DESC' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="wa-bulk-summary" role="group" [attr.aria-label]="'FACTURATION.WA_BULK_SUMMARY_ARIA' | translate">
+        <div class="wa-bulk-summary__row">
+          <span>{{ 'FACTURATION.WA_BULK_IMPAYEES' | translate }}</span>
+          <span class="wa-bulk-summary__v">{{ facturesAEnvoyer().length }}</span>
+        </div>
+        <div class="wa-bulk-summary__row">
+          <span>{{ 'FACTURATION.WA_BULK_CAMPAGNE' | translate }}</span>
+          <span class="wa-bulk-summary__v">{{ campagneNom() || '—' }}</span>
+        </div>
+      </div>
+
+      <div class="wa-bulk-warn" role="note">
+        <i class="pi pi-info-circle wa-bulk-warn__icon" aria-hidden="true"></i>
+        <span>{{ 'FACTURATION.WA_BULK_WARN' | translate }}</span>
+      </div>
+
+      <div class="wa-bulk-actions">
+        <button
+          type="button"
+          class="wa-bulk-btn wa-bulk-btn--ghost"
+          (click)="fermerConfirmationWhatsapp()"
+          [disabled]="sendingWhatsapp()"
+        >
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button
+          type="button"
+          class="wa-bulk-btn wa-bulk-btn--confirm"
+          (click)="confirmerEnvoiWhatsapp()"
+          [disabled]="sendingWhatsapp()"
+          [attr.aria-busy]="sendingWhatsapp()"
+        >
+          @if (sendingWhatsapp()) {
+            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          } @else {
+            <i class="pi pi-whatsapp" aria-hidden="true"></i>
+          }
+          {{ 'FACTURATION.WA_BULK_CONFIRM' | translate:{ count: facturesAEnvoyer().length } }}
+        </button>
+      </div>
+    </div>
+  </app-bottom-sheet>
 
 </div>

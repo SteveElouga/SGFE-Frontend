@@ -2,76 +2,17 @@
 
 :host { display: block; }
 
-// ── Topbar fil d'ariane ───────────────────────────────────────────────────────
-
-.af-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  height: 54px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.af-topbar__back {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #94a3b8;
-  text-decoration: none;
-  transition: color 0.12s;
-
-  &:hover { color: $color-primary; }
-}
-
-.af-topbar__sep {
-  color: #e2e8f0;
-  font-size: 14px;
-}
-
-.af-topbar__title {
-  font-size: 13px;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.af-topbar__badge {
-  margin-left: 8px;
-  border-radius: 6px;
-  padding: 3px 10px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-
-  &--create {
-    background: #eff6ff;
-    border-color: #bfdbfe;
-    color: #1d4ed8;
-  }
-
-  &--edit {
-    background: #fffbeb;
-    border-color: #fde68a;
-    color: #b45309;
-  }
-}
+// Topbar déléguée à <app-page-topbar> ; le badge CRÉATION/MODIFICATION est
+// porté par `overline` (surtitre au-dessus du titre en mobile).
 
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
 .af-content {
-  padding: 20px 24px;
+  padding: var(--pas-5) var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: #f1f5f9;
+  gap: var(--pas-3);
+  background: var(--fond);
   min-height: calc(100% - 54px);
 }
 
@@ -80,7 +21,7 @@
 .af-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--pas-4);
 }
 
 // ── Bannière erreur de chargement ─────────────────────────────────────────────
@@ -88,42 +29,42 @@
 .af-load-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
   font-size: 14px;
-  color: #b91c1c;
+  color: var(--danger-encre);
 }
 
 // ── Carte principale ──────────────────────────────────────────────────────────
 
 .af-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--pas-5);
 }
 
 .af-card__header {
-  padding-bottom: 4px;
-  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: var(--pas-1);
+  border-bottom: 1px solid var(--fond);
 }
 
 .af-card__title {
   font-size: 13px;
   font-weight: 600;
-  color: #0f172a;
-  margin-bottom: 3px;
+  color: var(--encre);
+  margin-bottom: var(--pas-1);
 }
 
 .af-card__subtitle {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--encre-3);
 }
 
 // ── Sections ──────────────────────────────────────────────────────────────────
@@ -131,16 +72,16 @@
 .af-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 .af-section__title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--pas-2);
   font-size: 12px;
   font-weight: 700;
-  color: #475569;
+  color: var(--encre-2);
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -150,7 +91,7 @@
 .af-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: var(--pas-3);
 }
 
 // ── Champs de formulaire ──────────────────────────────────────────────────────
@@ -158,7 +99,7 @@
 .af-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--pas-2);
 
   &--full {
     grid-column: 1 / -1;
@@ -173,31 +114,31 @@
 .af-label {
   font-size: 12px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--encre-3);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
 }
 
 .af-label__sub {
   font-size: 10px;
   font-weight: 400;
-  color: #94a3b8;
+  color: var(--encre-3);
 }
 
 .af-field__hint {
   font-size: 10px;
-  color: #94a3b8;
+  color: var(--encre-3);
   margin-top: 1px;
 }
 
 .af-field__error {
   font-size: 11px;
-  color: #b91c1c;
-  margin-top: 2px;
+  color: var(--danger-encre);
+  margin-top: var(--pas-1);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--pas-1);
 
   &::before {
     content: '';
@@ -213,7 +154,7 @@
 .af-field--error {
   input[pInputText].ng-invalid,
   input[pInputText].ng-invalid:focus {
-    border-color: #ef4444;
+    border-color: var(--danger);
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
   }
 }
@@ -241,17 +182,17 @@
 
 .af-readonly {
   height: 40px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 0 14px;
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: 0 var(--pas-3);
   display: flex;
   align-items: center;
   justify-content: space-between;
 
   &--disabled {
-    background: #f8fafc;
-    border-color: #f1f5f9;
+    background: var(--surface-douce);
+    border-color: var(--fond);
   }
 
   &--badge {
@@ -262,28 +203,28 @@
 .af-readonly__value {
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--encre-3);
 
   &--mono {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    color: #0f172a;
+    color: var(--encre);
   }
 
   &--muted {
     font-size: 12px;
     font-weight: 400;
-    color: #94a3b8;
+    color: var(--encre-3);
   }
 }
 
 .af-readonly__badge {
   font-size: 10px;
   font-weight: 500;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 2px 7px;
-  border-radius: 4px;
+  color: var(--encre-3);
+  background: var(--fond);
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-xs);
   flex-shrink: 0;
 }
 
@@ -292,8 +233,8 @@
 .af-status-badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.3px;
@@ -301,21 +242,21 @@
   border: 1px solid transparent;
 
   &--actif {
-    background: #f0fdf4;
-    border-color: #bbf7d0;
-    color: #15803d;
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
   }
 
   &--suspendu {
-    background: #fffbeb;
-    border-color: #fde68a;
-    color: #b45309;
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--ambre-attente);
   }
 
   &--resilie {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #b91c1c;
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
   }
 }
 
@@ -323,13 +264,13 @@
 
 .af-actions {
   display: flex;
-  gap: 10px;
-  padding-top: 4px;
+  gap: var(--pas-2);
+  padding-top: var(--pas-1);
 }
 
 .af-btn {
   height: 46px;
-  border-radius: 10px;
+  border-radius: var(--rayon-md);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -343,8 +284,8 @@
 
   &--primary {
     flex: 1;
-    background: linear-gradient(135deg, #1a56db, #1d4ed8);
-    color: #fff;
+    background: linear-gradient(135deg, var(--action), var(--action-survol));
+    color: var(--surface);
     border: none;
     box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
 
@@ -352,15 +293,15 @@
   }
 
   &--ghost {
-    padding: 0 22px;
-    background: #fff;
-    border: 1.5px solid #e2e8f0;
-    color: #475569;
+    padding: 0 var(--pas-5);
+    background: var(--surface);
+    border: 1.5px solid var(--filet);
+    color: var(--encre-2);
 
     &:hover:not(:disabled) {
-      border-color: #cbd5e1;
-      color: #334155;
-      background: #f8fafc;
+      border-color: var(--filet-pale);
+      color: var(--encre-2);
+      background: var(--surface-douce);
     }
   }
 }

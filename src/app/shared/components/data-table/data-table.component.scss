@@ -7,15 +7,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 48px;
-  color: $color-primary;
+  padding: var(--pas-7);
+  color: var(--action);
   font-size: 22px;
 }
 
 .dt__empty {
   text-align: center;
-  padding: 48px;
-  color: #94a3b8;
+  padding: var(--pas-7);
+  color: var(--encre-3);
   font-size: 14px;
 }
 
@@ -29,44 +29,69 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: #64748b;
-    background: #f8fafc;
-    border-bottom: 1.5px solid #e2e8f0;
-    padding: 10px 16px;
+    color: var(--encre-3);
+    background: var(--surface-douce);
+    border-bottom: 1.5px solid var(--filet);
+    padding: var(--pas-2) var(--pas-4);
     white-space: nowrap;
   }
 
   tbody > tr > td {
-    padding: 13px 16px;
-    border-bottom: 1px solid #f1f5f9;
+    padding: var(--pas-3) var(--pas-4);
+    border-bottom: 1px solid var(--fond);
     vertical-align: middle;
     font-size: 13px;
-    color: #0f172a;
+    color: var(--encre);
   }
 
   tbody > tr:last-child > td { border-bottom: none; }
 
-  &--striped tbody > tr:nth-child(even) > td { background: #fafbfc; }
+  &--striped tbody > tr:nth-child(even) > td { background: var(--surface); }
+}
+
+// Bouton d'en-tête pour tri : hérite du look du th mais devient cliquable.
+// Un span visuel discret indique la direction (asc/desc/off).
+.dt__sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.12s;
+
+  &:hover { color: var(--action); }
+  &:focus-visible { outline: 2px solid rgba($color-primary, 0.4); outline-offset: 2px; border-radius: var(--rayon-xs); }
+
+  &--active { color: var(--action); }
+
+  &__ghost { opacity: 0.35; }
+
+  i { font-size: 10px; }
 }
 
 .dt__row {
   &--clickable {
     cursor: pointer;
-    &:hover > td { background: #f5f7fa; }
+    &:hover > td { background: var(--surface-douce); }
     &:focus-visible { outline: 2px solid rgba($color-primary, 0.4); outline-offset: -2px; }
   }
 
   // Ligne active/sélectionnée (ex : facture dont le panneau de paiement est ouvert)
   &--selected > td {
-    background: #eff6ff;
+    background: var(--action-lueur);
     box-shadow: inset 3px 0 0 $color-primary;
   }
 
   // Ligne mise en avant (ex : campagne en cours) — teinte discrète
-  &--active > td { background: #f8fbff; }
+  &--active > td { background: var(--surface-douce); }
 
   // Ligne en alerte (ex : impayé suspendu) — teinte rouge très discrète
-  &--danger > td { background: #fef9f9; }
+  &--danger > td { background: var(--danger-fond); }
 }
 
 // ── Défilement horizontal ────────────────────────────────────────────────────
@@ -83,7 +108,7 @@
 .dt__cards { display: none; }
 
 .dt--has-cards {
-  @media (max-width: 720px) {
+  @media (max-width: 1023px) {
     .dt__scroll { display: none; }
     .dt__cards { display: flex; flex-direction: column; }
   }
@@ -94,33 +119,33 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 18px;
-  border-top: 1px solid #f1f5f9;
+  gap: var(--pas-3);
+  padding: var(--pas-2) var(--pas-4);
+  border-top: 1px solid var(--fond);
   flex-wrap: wrap;
 }
 
 .dt__page-info {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--encre-3);
 }
 
 .dt__pages {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--pas-1);
 }
 
 .dt__page-btn {
   min-width: 30px;
   height: 30px;
-  padding: 0 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  background: #fff;
+  padding: 0 var(--pas-2);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--surface);
   font-size: 12px;
   font-weight: 500;
-  color: #475569;
+  color: var(--encre-2);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -128,20 +153,39 @@
   transition: background 0.1s, border-color 0.1s;
 
   &:hover:not(:disabled) {
-    background: #f8fafc;
+    background: var(--surface-douce);
     border-color: $color-primary;
-    color: $color-primary;
+    color: var(--action);
   }
 
   &--active {
     background: $color-primary;
     border-color: $color-primary;
-    color: #fff;
+    color: var(--surface);
 
-    &:hover { background: $color-primary; color: #fff; }
+    &:hover { background: $color-primary; color: var(--surface); }
   }
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 
   i { font-size: 11px; }
+}
+
+// ── Lien de ligne ─────────────────────────────────────────────────────────────
+// Il hérite de la couleur de la cellule : la ligne entière est déjà cliquable,
+// souligner le premier champ en bleu ferait croire à deux destinations.
+.dt__lien {
+  color: inherit;
+  text-decoration: none;
+  display: block;
+
+  &:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--focus-anneau);
+    outline-offset: var(--focus-decalage);
+    border-radius: var(--rayon-xs);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .dt__lien:hover { text-decoration: underline; text-underline-offset: 3px; }
 }

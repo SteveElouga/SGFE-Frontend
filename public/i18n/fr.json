@@ -25,7 +25,7 @@
     "CAMPAIGN_ACTIVE": "Campagne active"
   },
   "COMMON": {
-    "LOADING": "Chargement…",
+    "LOADING": "Chargement en cours",
     "RETRY": "Réessayer",
     "SAVE": "Enregistrer",
     "CANCEL": "Annuler",
@@ -50,7 +50,18 @@
     "MIN_2_CHARS": "Minimum 2 caractères",
     "INTEGER_MIN_1": "Entier ≥ 1 requis",
     "SEE": "Voir",
-    "ALL": "Tous"
+    "ALL": "Tous",
+    "RESULTS_COUNT": "{{count}} sur {{total}}",
+    "RESULTS_TOTAL": "{{count}} résultats",
+    "CLEAR_ALL_FILTERS": "Effacer les filtres",
+    "ACTIVE_FILTERS": "Filtres actifs",
+    "REMOVE": "Retirer",
+    "FILTERS_CLEARED": "Filtres effacés",
+    "UNDO": "Annuler",
+    "RESULTS_HERO_LABEL": "résultats",
+    "RESULTS_HERO_OVER": "sur {{total}} au total",
+    "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
+    "SKIP_TO_CONTENT": "Aller au contenu"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -61,6 +72,7 @@
   },
   "ABONNES": {
     "TITLE": "Abonnés",
+    "RESULTS_HERO": "abonnés",
     "SUBTITLE_SINGULAR": "{{ count }} abonné enregistré",
     "SUBTITLE_PLURAL": "{{ count }} abonnés enregistrés",
     "SUMMARY_ACTIF_SINGULAR": "{{ count }} actif",
@@ -100,6 +112,7 @@
       "LAST_INVOICES": "Dernières factures",
       "NO_INVOICES": "Aucune facture disponible pour le moment",
       "SEE_ALL_INVOICES": "Voir toutes les factures",
+      "TABS_LABEL": "Onglets de la fiche abonné",
       "TAB_INFO": "Informations",
       "TAB_FACTURES": "Factures",
       "TAB_CONSO": "Historique conso",
@@ -110,7 +123,7 @@
       "KPI_FACTURES": "Factures émises",
       "KPI_FACTURES_SINCE": "depuis souscription",
       "KPI_SOLDE": "Solde impayé",
-      "SOLDE_ZERO": "Aucun impayé ✓",
+      "SOLDE_ZERO": "Aucun impayé",
       "SOLDE_DU": "Régularisation requise",
       "KPI_SINCE": "Abonné depuis",
       "HIST_CURRENT": "Compteur actuel",
@@ -170,6 +183,19 @@
       "REACTIV_INFO": "L'abonné retrouve un accès normal. Il sera automatiquement inclus dans les prochaines campagnes de relevé.",
       "REACTIVER_BTN": "Réactiver l'abonné",
       "REACTIVER_LOADING": "Réactivation…",
+      "SUSPENDRE_TITLE_NOM": "Suspendre l'abonné {{nom}} {{prenom}} ?",
+      "SUSPENDRE_INFO": "L'accès à l'eau sera coupé immédiatement. L'abonné reste dans le fichier ; vous pourrez le réactiver à tout moment.",
+      "SUSPENDRE_STATUT_LABEL": "Statut de l'abonné",
+      "SUSPENDRE_STATUT_CHANGE": "ACTIF → SUSPENDU",
+      "SUSPENDRE_ACCES_LABEL": "Accès eau",
+      "SUSPENDRE_ACCES_VALUE": "COUPÉ",
+      "SUSPENDRE_HISTORIQUE_LABEL": "Factures & historique",
+      "SUSPENDRE_HISTORIQUE_VALUE": "Conservés",
+      "SUSPENDRE_CAMPAGNES_LABEL": "Prochaines campagnes",
+      "SUSPENDRE_CAMPAGNES_VALUE": "Exclu tant que suspendu",
+      "SUSPENDRE_REVERSIBLE_INFO": "Action réversible : la réactivation rétablit l'accès et réintègre l'abonné aux prochaines campagnes.",
+      "SUSPENDRE_BTN": "Suspendre l'abonné",
+      "SUSPENDRE_LOADING": "Suspension…",
       "METER_OLD_TAG": "Ancien compteur — sera archivé",
       "METER_OLD_IDX_LABEL": "Dernier index conservé",
       "METER_OLD_POSE": "posé le",
@@ -232,6 +258,7 @@
   },
   "UTILISATEURS": {
     "TITLE": "Utilisateurs",
+    "RESULTS_HERO": "utilisateurs",
     "SUBTITLE_SINGULAR": "{{ count }} compte enregistré",
     "SUBTITLE_PLURAL": "{{ count }} comptes enregistrés",
     "NEW": "Nouvel utilisateur",
@@ -382,7 +409,13 @@
     "RECOUVRE": "recouvré",
     "RECENT_CAMPAGNES": "Campagnes récentes",
     "STATS_UNAVAILABLE": "Statistiques momentanément indisponibles (service Reporting).",
+    "ACTIVITE_UNAVAILABLE": "Activité momentanément indisponible.",
     "INDISPONIBLE": "Indisponible",
+    "AUCUNE_FACTURE": "Aucune facture émise",
+    "LOADING": "Chargement du tableau de bord",
+    "KPI_ARIA": "Indicateurs clés du jour",
+    "RETRY_ARIA": "Relancer le chargement du tableau de bord",
+    "RETRY_KPI_ARIA": "Relancer le chargement de {{ kpi }}",
     "RELEVES_EN_COURS": "Relevés en cours",
     "ABONNES_RELEVES": "abonnés relevés",
     "KPI_NON_RELEVES": "Non relevés",
@@ -398,7 +431,88 @@
     "ACT_IMPAYE": "Impayé J+{{ jours }} — {{ numero }}",
     "ACT_IMPAYE_SANS_NUM": "Impayé de {{ montant }} FCFA",
     "ACT_IMPAYE_META": "Auto",
-    "CAMPAGNE_OVERLINE": "Campagne {{ periode }}"
+    "CAMPAGNE_OVERLINE": "Campagne {{ periode }}",
+    "MOIS_ACTUEL": "ce mois",
+    "PERIODE": {
+      "LABEL": "Période comparée",
+      "MOIS_1": "1 mois",
+      "MOIS_3": "3 mois",
+      "MOIS_6": "6 mois",
+      "MOIS_12": "12 mois",
+      "N_DERNIERS_MOIS": "{{n}} derniers mois",
+      "N_MOIS_PRECEDENTS": "{{n}} mois précédents"
+    },
+    "SOURCE_ERROR": "Données financières momentanément indisponibles.",
+    "RETRY_STATS": "Recharger les statistiques",
+    "RETRY_IMPAYES": "Recharger les impayés",
+    "KPI_UNAVAILABLE": "Indisponible",
+    "EMPTY": {
+      "TITLE": "Rien à afficher pour le moment",
+      "MSG": "Créez votre première campagne pour commencer à générer des factures et suivre les encaissements.",
+      "CTA_CAMPAGNE": "Créer une campagne",
+      "COMPTABLE_TITLE": "Aucun paiement enregistré pour ce mois",
+      "COMPTABLE_MSG": "Les factures sont émises mais aucun paiement n'a encore été enregistré. Commencez par le premier.",
+      "COMPTABLE_CTA": "Enregistrer un paiement"
+    },
+    "HERO": {
+      "ENCAISSE_LABEL": "encaissé en {{mois}}",
+      "VS_MOIS": "vs {{mois}}",
+      "PREMIER_MOIS": "premier mois de suivi"
+    },
+    "KPI": {
+      "IMPAYES": "impayés",
+      "IMPAYES_TOOLTIP": "Factures avec statut IMPAYÉE — aucun paiement enregistré. Le montant affiché est la somme des factures.",
+      "PARTIELLES": "partielles",
+      "PARTIELLES_TOOLTIP": "Factures avec statut PARTIELLE — un ou plusieurs paiements enregistrés mais le solde restant est > 0. Le montant affiché est la somme des soldes restants.",
+      "AUJOURDHUI": "aujourd'hui",
+      "AUJOURDHUI_TOOLTIP": "Paiements dont la date d'enregistrement tombe aujourd'hui. Un paiement encaissé ce matin sur une facture de mai apparaît ici."
+    },
+    "LIST": {
+      "IMPAYES_ANCIENS": "Impayés les plus anciens"
+    },
+    "RIBBON": {
+      "TITLE": "Cycle en cours · {{mois}}",
+      "RELEVES": "campagnes en cours",
+      "FACTURES": "factures émises",
+      "ENVOIS": "envois WhatsApp",
+      "PAIEMENTS": "paiements reçus"
+    },
+    "M3": {
+      "LABEL": "consommés en {{mois}}",
+      "TOOLTIP": "Consommation agrégée sur les factures générées ce mois. Une conso relevée en juin mais facturée en juillet apparaît en juillet."
+    },
+    "CAMPAIGNS": {
+      "ACTIVES": "Campagnes actives ({{count}})",
+      "AUCUNE": "Aucune campagne de relevé n'est ouverte en ce moment.",
+      "OUVRIR": "Ouvrir une campagne"
+    },
+    "SUPERVISEUR": {
+      "MES_CAMPAGNES": "Mes campagnes ({{count}})",
+      "EMPTY": "Aucune campagne créée pour l'instant.",
+      "CTA_NOUVELLE": "Créer une campagne",
+      "ACTIONS_REQUISES": "Actions requises",
+      "AUCUN_AGENT": "Aucun agent assigné",
+      "HERO_LABEL": "mes tournées",
+      "HERO_ACTIVES": "campagne(s) active(s)",
+      "HERO_MOYENNE": "Avancement moyen · {{pct}}%",
+      "HERO_TOTAL": "{{total}} au total",
+      "TOUT_A_JOUR": "Tout est à jour · aucune action requise"
+    },
+    "ACTIONS": {
+      "ATTENTE_DEMARRAGE": "{{count}} campagne(s) prête(s) à démarrer",
+      "AGENTS_INACTIFS": "{{count}} agent(s) inactif(s) depuis plus de 48h",
+      "CAMPAGNES_RETARD": "{{count}} campagne(s) en retard (>20 jours)",
+      "CAMPAGNES_PRETES_CLOTURE": "{{count}} campagne(s) prête(s) à clôturer (100% relevés)"
+    },
+    "ATTENTION": {
+      "TITRE": "Ce qui attend une action"
+    },
+    "MESURE": {
+      "CONSO": "consommés",
+      "FACTURE": "facturés",
+      "ENCAISSE": "encaissés",
+      "TITRE": "{{mois}} en chiffres"
+    }
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -518,10 +632,12 @@
     "RESET_BTN": "Recevoir un lien de réinitialisation",
     "RESET_SENT": "Lien de réinitialisation envoyé par email.",
     "RESET_NO_EMAIL": "Aucun email associé à ce compte — contactez un administrateur.",
-    "LOGOUT": "Se déconnecter"
+    "LOGOUT": "Se déconnecter",
+    "DONNEES_NOTE": "Ces informations sont gérées par un administrateur. Pour les modifier, contactez-le."
   },
   "CAMPAGNES": {
     "TITLE": "Campagnes",
+    "RESULTS_HERO": "campagnes",
     "NEW": "Nouvelle campagne",
     "EMPTY": "Aucune campagne trouvée",
     "ERROR_LOAD": "Impossible de charger les campagnes",
@@ -718,13 +834,14 @@
   },
   "FACTURATION": {
     "TITLE": "Factures",
+    "RESULTS_HERO": "factures",
     "SUBTITLE": "{{count}} factures",
     "SUBTITLE_CAMPAGNE": "{{nom}} · {{count}} factures",
     "SEARCH_PLACEHOLDER": "Abonné, n° facture…",
     "COL_NUMERO": "N° Facture",
     "COL_ABONNE": "Abonné",
-    "COL_MONTANT": "Montant",
-    "COL_SOLDE": "Solde restant",
+    "COL_MONTANT": "Montant (FCFA)",
+    "COL_SOLDE": "Solde restant (FCFA)",
     "COL_STATUT": "Statut",
     "COL_ACTIONS": "Actions",
     "EMPTY": "Aucune facture pour cette campagne",
@@ -742,8 +859,10 @@
     "PANEL_MONTANT": "Montant reçu (FCFA) *",
     "PANEL_MONTANT_MAX": "Le montant ne peut pas dépasser le solde restant ({{montant}} FCFA).",
     "PANEL_MODE": "Mode de paiement *",
+    "PANEL_MODE_TOOLTIP": "Espèces : encaissement direct sans trace bancaire. Mobile Money : Orange/MTN/etc. — numéro d'opération obligatoire. Virement : compte à compte — référence bancaire obligatoire.",
     "PANEL_DATE": "Date *",
     "PANEL_REF": "Référence transaction",
+    "PANEL_REF_TOOLTIP": "Obligatoire pour Mobile Money et Virement (traçabilité bancaire — permet de retrouver la transaction en cas de litige). Optionnelle pour les espèces.",
     "PANEL_CONFIRM": "Confirmer le paiement — {{montant}} FCFA",
     "PANEL_CONFIRM_EMPTY": "Confirmer le paiement",
     "MODE": {
@@ -754,6 +873,10 @@
     },
     "ERROR_LOAD": "Impossible de charger les factures",
     "SUCCESS_PAIEMENT": "Paiement enregistré avec succès",
+    "PAIEMENT_UNDO_TITLE": "Paiement en cours",
+    "PAIEMENT_UNDO_MSG": "5 secondes pour annuler",
+    "PAIEMENT_UNDO_ACTION": "Annuler",
+    "PAIEMENT_UNDO_CANCELLED": "Paiement annulé",
     "SUCCESS_WHATSAPP": "Facture renvoyée par WhatsApp",
     "SUCCESS_GENERE": "Factures générées avec succès",
     "SUCCESS_WHATSAPP_TOUS": "Toutes les factures ont été envoyées par WhatsApp",
@@ -761,6 +884,14 @@
     "BANNER_GENERER_SUB": "La génération automatique est désactivée pour cette campagne.",
     "BTN_GENERER": "Générer les factures",
     "BTN_WHATSAPP_TOUS": "Tout envoyer par WhatsApp",
+    "WA_BULK_TITLE": "Envoyer {{count}} factures par WhatsApp ?",
+    "WA_BULK_DESC": "Un message WhatsApp sera envoyé à chaque abonné avec sa facture impayée ou partielle en pièce jointe.",
+    "WA_BULK_SUMMARY_ARIA": "Résumé de l'envoi WhatsApp",
+    "WA_BULK_IMPAYEES": "Factures à envoyer",
+    "WA_BULK_CAMPAGNE": "Campagne",
+    "WA_BULK_WARN": "L'action est immédiate. Les factures déjà payées ne recevront pas de message.",
+    "WA_BULK_CONFIRM": "Envoyer les {{count}} messages",
+    "SOLDE_ESTIMATED_TOOLTIP": "Solde estimé à partir du statut. Le montant réel dû sera vérifié à l'ouverture du panneau de paiement (source backend autoritaire).",
     "ACCUEIL_SUB": "Sélectionnez une campagne pour consulter ses factures",
     "ACCUEIL_EMPTY": "Aucune campagne disponible",
     "BTN_VOIR_FACTURES": "Voir les factures",
@@ -772,10 +903,12 @@
       "TITLE_CALC": "Détail du calcul",
       "COMPTEUR": "Compteur",
       "PERIODE": "Période relevée",
+      "CALC_ARIA": "Calcul de la facture : ancien index moins nouveau index égale consommation, fois tarif, égale montant",
       "ANCIEN_INDEX": "Ancien index",
       "NOUVEL_INDEX": "Nouvel index",
       "CONSO": "Conso (m³)",
       "TARIF": "Tarif",
+      "TARIF_TOOLTIP": "Prix du m³ défini par l'administrateur en Configuration, appliqué automatiquement à toutes les factures de la période. Un changement de tarif ne rétroagit pas sur les factures déjà émises.",
       "M3_TARIF": "FCFA/m³",
       "TOTAL": "Total facturé",
       "TITLE_PAIEMENTS": "Historique des paiements",
@@ -798,7 +931,10 @@
       "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} ».",
       "SOLDE_LABEL": "Solde restant dû",
       "CONSO_TARIF": "Consommation × tarif",
-      "RESTE_LABEL": "Reste à percevoir"
+      "RESTE_LABEL": "Reste à percevoir",
+      "BTN_CONFIRMER_CORRECTION": "Confirmer",
+      "CONFIRMER_CORRECTION_MSG": "Le statut passera à « {{statut}} » sans qu'aucun paiement soit enregistré.",
+      "SOLDE_PAR": "Solde réglé"
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",
@@ -811,6 +947,7 @@
   },
   "PAIEMENTS": {
     "TITLE": "Paiements",
+    "RESULTS_HERO": "paiements",
     "SUBTITLE": "{{count}} paiements",
     "TOTAL_ENCAISSE": "Total encaissé",
     "NB_TRANSACTIONS": "Transactions",
@@ -827,14 +964,26 @@
     "DATE_PLACEHOLDER": "Filtrer par date",
     "COL_ABONNE": "Abonné",
     "COL_OPERATEUR": "Opérateur",
+    "COL_REFERENCE": "Référence",
     "COL_STATUT": "Statut",
     "BTN_EXPORT": "Exporter CSV",
     "PAGINATION_INFO": "Affichage {{start}}–{{end}} de {{total}} paiements",
     "FILTER_CAMPAGNE": "Campagne",
-    "FILTER_MODE": "Mode"
+    "FILTER_MODE": "Mode",
+    "REF_MANQUANTE": "Référence transaction manquante — donnée obligatoire pour Mobile Money et virement",
+    "REF_MANQUANTE_SHORT": "Réf. manquante",
+    "STATUT_SOLDE": "Soldé",
+    "STATUT_PARTIEL": "Partiel",
+    "EXPORT_EMPTY": "Aucun paiement à exporter avec ces filtres",
+    "EXPORT_SUCCESS": "{{count}} paiement(s) exporté(s) — {{filename}}",
+    "TOTAL_KPI_ARIA": "Total encaissé sur la période affichée",
+    "TOTAL_KPI_HINT": "sur {{count}} transaction(s) affichée(s)",
+    "ANNULE": "Annulé",
+    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés"
   },
   "IMPAYES": {
     "TITLE": "Impayés",
+    "RESULTS_HERO": "impayés",
     "SUBTITLE": "{{count}} impayés",
     "TOTAL_DU": "Total dû",
     "NB_IMPAYES": "Impayés",
@@ -857,6 +1006,15 @@
     "PAGINATION_INFO": "Affichage {{start}}–{{end}} de {{total}} impayés",
     "SUBTITLE_FULL": "{{count}} abonnés · {{solde}} de solde",
     "BILAN_PDF": "Bilan impayés PDF",
+    "BILAN_CSV": "Exporter le bilan (CSV)",
+    "BILAN_EMPTY": "Aucun impayé à exporter avec ces filtres",
+    "BILAN_SUCCESS": "Bilan exporté — {{filename}}",
+    "KPI_ARIA": "Indicateurs impayés",
+    "KPI_TOTAL_LABEL": "Total à recouvrer",
+    "KPI_TOTAL_HINT": "{{count}} facture(s) impayée(s)",
+    "KPI_URGENT_LABEL": "À traiter en urgence (étape 3+)",
+    "KPI_URGENT_HINT": "dont {{count}} ligne(s) suspendue(s)",
+    "KPI_URGENT_NONE": "Aucune suspension en cours",
     "KPI_IMPAYEES": "factures impayées",
     "KPI_SOLDE": "FCFA de solde restant",
     "KPI_ETAPE3": "en étape 3 ou plus",
@@ -865,11 +1023,12 @@
     "COL_PAYE": "Payé",
     "COL_RETARD": "Retard",
     "SEARCH_PLACEHOLDER": "Abonné, n° facture…",
-    "TRI_ANCIENNETE": "Tri : Ancienneté ↓",
-    "TRI_SOLDE": "Tri : Solde ↓",
+    "TRI_LABEL": "Tri",
+    "TRI_ANCIENNETE": "Ancienneté ↓",
+    "TRI_SOLDE": "Solde ↓",
     "BADGE": {
       "SUSPENDUE": "Étape 4 · Suspendue",
-      "PAUSE": "⏸ Pause 5 j — acompte reçu",
+      "PAUSE": "Pause 5 j — acompte reçu",
       "ETAPE1": "Étape 1 · Rappel doux",
       "ETAPE2": "Étape 2 · Rappel ferme",
       "ETAPE3": "Étape 3 · Avertissement"
@@ -904,6 +1063,13 @@
     "FUTURE_MSG": "Dès que la facture est soldée : suivi marqué résolu, ligne d'eau rétablie, WhatsApp de confirmation envoyé automatiquement.",
     "BTN_PAIEMENT": "+ Enregistrer un paiement — solde {{solde}}",
     "BTN_RENVOYER": "Renvoyer le dernier message",
+    "COOLDOWN": "Attendre {{seconds}} s",
+    "CONFIRM_TITLE": "Envoyer une relance WhatsApp ?",
+    "CONFIRM_SUB": "Un message sera envoyé à {{nom}} — action irréversible.",
+    "CONFIRM_PREVIEW_ARIA": "Aperçu du message qui sera envoyé",
+    "CONFIRM_PREVIEW_LABEL": "Message ({{stage}})",
+    "CONFIRM_NO_PREVIEW": "(Aucune relance envoyée jusqu'ici — le premier message sera composé par le serveur.)",
+    "CONFIRM_SEND": "Envoyer maintenant",
     "ERROR_LOAD": "Impossible de charger l'historique des relances",
     "SUCCESS_RENVOI": "Message renvoyé",
     "STAGE1": {
@@ -958,15 +1124,28 @@
       "RETRY": "↻ Réessayer",
       "FIX_NUMBER": "Corriger le n°",
       "VIEW_RECEIPT": "Voir le reçu"
+    },
+    "GEN": {
+      "ENVOI_ECHEC_TITRE": "Échec d'envoi WhatsApp",
+      "ENVOI_ECHEC_MSG": "{{qui}} · {{facture}} — {{raison}}. Renvoi manuel requis.",
+      "RAISON_INCONNUE": "motif non communiqué par la passerelle",
+      "IMPAYE_TITRE": "Facture impayée",
+      "IMPAYE_MSG": "{{qui}} · {{facture}} — solde restant {{solde}}.",
+      "PAIEMENT_TITRE": "Paiement encaissé",
+      "PAIEMENT_MSG": "{{montant}} · {{qui}} · {{facture}}."
     }
   },
   "TERRAIN": {
     "TITLE": "Mes relevés",
+    "LOADING": "Chargement des relevés",
     "OFFLINE_TITLE": "Hors ligne — réseau indisponible",
     "OFFLINE_SUB": "Vos saisies sont enregistrées sur le téléphone",
     "SYNC_PENDING": "{{count}} relevé(s) en attente de sync",
     "SYNC_AUTO": "Envoi automatique dès le retour du réseau",
+    "SYNC_MSG": "Vos relevés partiront dès que le réseau revient",
     "RETRY": "Réessayer",
+    "RETRY_ARIA": "Relancer la synchronisation maintenant",
+    "PROGRESS_ARIA": "Progression : {{faits}} sur {{total}} abonnés relevés",
     "SECTION_A_RELEVER": "À relever",
     "SECTION_PENDING": "Saisis hors ligne",
     "SECTION_SYNCED": "Déjà synchronisés",
@@ -995,7 +1174,7 @@
     "TOAST_SAVED": "Relevé enregistré",
     "TOAST_SAVED_OFFLINE": "Enregistré hors ligne — sera synchronisé",
     "ERROR_LOAD": "Impossible de charger les relevés",
-    "EMPTY": "Tous les relevés sont faits ✓",
+    "EMPTY": "Tous les relevés sont faits",
     "NO_CAMPAGNE": "Aucune campagne en cours",
     "PROGRESS": "{{faits}} / {{total}} abonnés",
     "FILTER_ALL": "Tous",
@@ -1009,10 +1188,12 @@
     "LECTURE_SEULE": "lecture seule",
     "DOIT_ETRE": "Doit être ≥ {{ancien}} m³",
     "CONSO_CALC": "Consommation calculée",
+    "CONSO_INHABITUELLE": "Consommation inhabituelle — vérifier le compteur avant de valider",
     "OBSERVATION_OPT": "Observation (optionnelle)",
     "OBSERVATION_PH": "Compteur lisible, abonné présent…",
     "ENREGISTRER": "Enregistrer",
     "MARQUER_NR_EST": "Marquer non relevé / estimé",
+    "IMPOSSIBLE_RELEVER": "Impossible de relever cet abonné",
     "SUCCESS_TITLE": "Index enregistré !",
     "RESUME": "Résumé du relevé",
     "ENREGISTRE_A": "Enregistré à {{time}} · {{agent}}",
@@ -1021,10 +1202,10 @@
     "RETOUR_LISTE": "Retour à la liste",
     "STATUT": {
       "A_RELEVER": "À relever",
-      "RELEVE": "✓ Relevé",
+      "RELEVE": "Relevé",
       "ESTIME": "Estimé",
       "NON_RELEVE": "Non relevé",
-      "PENDING": "⟳ En attente"
+      "PENDING": "En attente"
     }
   },
   "ENVOIS": {
@@ -1046,8 +1227,15 @@
       "RELANCE_2": "Rappel 2",
       "AVERTISSEMENT": "Avertissement",
       "SUSPENSION": "Suspension",
-      "RETABLISSEMENT": "Rétablissement"
-    }
+      "RETABLISSEMENT": "Rétablissement",
+      "RECU": "Reçu"
+    },
+    "COUNT": "{{count}} envoi(s)",
+    "NB_ECHECS": "{{count}} échec(s)",
+    "AUJOURDHUI": "Aujourd'hui",
+    "HIER": "Hier",
+    "DESTINATAIRE_INCONNU": "Destinataire inconnu",
+    "FILTRE_ARIA": "Filtrer par statut"
   },
   "RAPPORTS": {
     "TITLE": "Rapports",

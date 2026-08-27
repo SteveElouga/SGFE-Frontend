@@ -6,23 +6,25 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { Envoi, Facture, ModePaiement, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import { Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { PaiementFormComponent } from '../../../shared/components/paiement-form/paiement-form.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { FcfaPipe } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 
@@ -31,10 +33,11 @@ import { ToastService } from '../../../shared/services/toast.service';
     FormsModule,
     DecimalPipe,
     SelectModule,
-    InputTextModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
+    PaiementFormComponent,
+    TooltipDirective,
     FcfaPipe,
     BadgeComponent,
   ],
@@ -67,13 +70,8 @@ export class FactureDetailComponent implements OnInit {
   readonly campagne = signal<Campagne | null>(null);
 
   readonly showForm = signal(false);
-  readonly submitting = signal(false);
   readonly changingStatut = signal(false);
   readonly newStatut = signal<StatutFacture | null>(null);
-  readonly pMontant = signal('');
-  readonly pMode = signal<ModePaiement>('ESPECES');
-  readonly pDate = signal('');
-  readonly pRef = signal('');
 
   readonly statutOptions: Array<{ label: string; value: StatutFacture }> = [
     { label: 'Impayée', value: 'IMPAYEE' },
@@ -81,24 +79,11 @@ export class FactureDetailComponent implements OnInit {
     { label: 'Payée', value: 'PAYEE' },
   ];
 
-  readonly modeOptions = computed((): Array<{ label: string; value: ModePaiement }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('FACTURATION.MODE.ESPECES', {}, lang), value: 'ESPECES' },
-      { label: this.translate.instant('FACTURATION.MODE.MOBILE_MONEY', {}, lang), value: 'MOBILE_MONEY' },
-      { label: this.translate.instant('FACTURATION.MODE.VIREMENT', {}, lang), value: 'VIREMENT' },
-    ];
-  });
-
   readonly pctPaye = computed(() => {
     const s = this.solde();
     if (!s || s.montantTotal === 0) return 0;
     return Math.min(100, Math.round((s.montantPaye / s.montantTotal) * 100));
   });
-
-  readonly refRequired = computed(
-    () => this.pMode() === 'MOBILE_MONEY' || this.pMode() === 'VIREMENT',
-  );
 
   // Source autoritaire : le solde calculé par le backend (montant réellement dû
   // d'après les paiements enregistrés). Ne jamais s'appuyer sur le statut seul,
@@ -109,36 +94,6 @@ export class FactureDetailComponent implements OnInit {
   // ne suffit pas : sa synchro backend est dégradée (soldeRestant=0 possible
   // avec un statut encore IMPAYEE/PARTIELLE).
   readonly canAddPaiement = computed(() => this.soldeRestant() > 0);
-
-  readonly montantExceedsSolde = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    return !Number.isNaN(montant) && montant > this.soldeRestant();
-  });
-
-  readonly panelValid = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    const refOk = !this.refRequired() || !!this.pRef().trim();
-    return (
-      !Number.isNaN(montant) &&
-      montant > 0 &&
-      montant <= this.soldeRestant() &&
-      !!this.pDate() &&
-      refOk
-    );
-  });
-
-  readonly confirmLabel = computed(() => {
-    const montant = Number.parseFloat(this.pMontant());
-    const lang = this.translate.currentLang() ?? undefined;
-    if (Number.isNaN(montant) || montant <= 0) {
-      return this.translate.instant('FACTURATION.PANEL_CONFIRM_EMPTY', {}, lang);
-    }
-    return this.translate.instant(
-      'FACTURATION.PANEL_CONFIRM',
-      { montant: montant.toLocaleString('fr-FR') },
-      lang,
-    );
-  });
 
   // Statut déductible du solde backend (autoritaire) : c'est le seul statut
   // cohérent avec l'argent réellement dû/payé.
@@ -176,7 +131,7 @@ export class FactureDetailComponent implements OnInit {
     const a = this.abonne();
     // Repli sur le nom enrichi porté par la facture quand l'abonné n'est pas
     // résolu (query `abonne` refusée au COMPTABLE).
-    return a ? `${a.nom} ${a.prenom}`.trim() : (this.facture()?.abonneNom ?? '');
+    return a ? nomAbonne(a.prenom, a.nom) : (this.facture()?.abonneNom ?? '');
   });
 
   /** Sous-titre mobile du header navy (MB-05) : « Koné Mariam · AB-0002 ». */
@@ -219,7 +174,6 @@ export class FactureDetailComponent implements OnInit {
   ngOnInit(): void {
     const factureId = this.route.snapshot.params['factureId'] as string;
     this.autoOpenPaiement.set(this.route.snapshot.queryParams['paiement'] === '1');
-    this.pDate.set(new Date().toISOString().split('T')[0]);
     void this.load(factureId);
   }
 
@@ -237,11 +191,8 @@ export class FactureDetailComponent implements OnInit {
       this.solde.set(solde);
       this.paiements.set(paiements);
       this.envois.set(envois);
-      if (solde.soldeRestant > 0) {
-        this.pMontant.set(String(solde.soldeRestant));
-        if (this.autoOpenPaiement() && facture.statut !== 'PAYEE') {
-          this.showForm.set(true);
-        }
+      if (solde.soldeRestant > 0 && this.autoOpenPaiement() && facture.statut !== 'PAYEE') {
+        this.showForm.set(true);
       }
       void this.loadRefs(facture);
     } catch (err: unknown) {
@@ -293,28 +244,16 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
-  async submitPaiement(): Promise<void> {
-    const f = this.facture();
-    if (!f || !this.panelValid() || this.submitting()) return;
-    this.submitting.set(true);
-    try {
-      await this.facturesService.enregistrerPaiement({
-        factureId: f.factureId,
-        abonneId: f.abonneId,
-        montant: Number.parseFloat(this.pMontant()),
-        datePaiement: this.pDate(),
-        modePaiement: this.pMode(),
-        referenceTransaction: this.pRef() || undefined,
-      });
-      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
-      this.showForm.set(false);
-      await this.reload();
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.submitting.set(false);
-    }
+  /**
+   * Callback émis par `<app-paiement-form>` (shared) après enregistrement
+   * réussi. Le composant partagé gère la validation, l'appel API et l'a11y ;
+   * ici on ferme le formulaire, notifie l'utilisateur et rafraîchit les
+   * données dérivées (solde, statut, historique).
+   */
+  async onPaiementSaved(): Promise<void> {
+    this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
+    this.showForm.set(false);
+    await this.reload();
   }
 
   async envoyerWhatsapp(): Promise<void> {
@@ -346,12 +285,27 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
+  /** Premier clic : on demande confirmation. Deuxième : on applique. */
+  readonly confirmationCorrection = signal(false);
+
+  annulerCorrection(): void {
+    this.confirmationCorrection.set(false);
+  }
+
   async corrigerStatut(): Promise<void> {
     const f = this.facture();
     const statut = this.newStatut();
     if (!f || !statut || statut === f.statut || this.changingStatut()) return;
     // Refuser une correction qui contredirait le solde backend (autoritaire).
     if (this.statutCorrectionIncoherent()) return;
+
+    // Forcer un statut n'enregistre aucun paiement : on ne le fait pas d'un
+    // seul clic sur un document comptable.
+    if (!this.confirmationCorrection()) {
+      this.confirmationCorrection.set(true);
+      return;
+    }
+    this.confirmationCorrection.set(false);
     this.changingStatut.set(true);
     try {
       const updated = await this.facturesService.updateStatutFacture(f.factureId, statut);

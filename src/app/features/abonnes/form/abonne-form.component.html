@@ -1,21 +1,11 @@
 
-<!-- ── Topbar fil d'ariane ── -->
-<header class="af-topbar">
-  <a routerLink="/abonnes" class="af-topbar__back">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-      <path d="M9 11L5 7l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    {{ 'ABONNES.TITLE' | translate }}
-  </a>
-  <span class="af-topbar__sep">/</span>
-  @if (mode === 'create') {
-    <span class="af-topbar__title">{{ 'ABONNES.FORM.CREATE_TITLE' | translate }}</span>
-    <span class="af-topbar__badge af-topbar__badge--create">{{ 'ABONNES.FORM.BADGE_CREATE' | translate }}</span>
-  } @else {
-    <span class="af-topbar__title">{{ 'ABONNES.FORM.EDIT_TITLE' | translate }} {{ numeroAbonneDisplay() }}</span>
-    <span class="af-topbar__badge af-topbar__badge--edit">{{ 'ABONNES.FORM.BADGE_EDIT' | translate }}</span>
-  }
-</header>
+<!-- ── Topbar : bande navy standard (M-04/M-05) ── -->
+<app-page-topbar
+  [title]="topbarTitle()"
+  [overline]="topbarOverline()"
+  backLink="/abonnes"
+  [backLabel]="'ABONNES.TITLE' | translate"
+/>
 
 <!-- ── Contenu ── -->
 <div class="af-content">
@@ -105,10 +95,14 @@
               name="afNom"
               placeholder="ex. Diallo"
               autocomplete="family-name"
+              required
+              aria-required="true"
+              [attr.aria-invalid]="nomFieldError() ? 'true' : null"
+              [attr.aria-describedby]="nomFieldError() ? 'afNom-err' : null"
               [class.ng-invalid]="nomFieldError()"
             />
             @if (nomFieldError()) {
-              <span class="af-field__error">{{ nomFieldError() }}</span>
+              <span id="afNom-err" class="af-field__error" role="alert">{{ nomFieldError() }}</span>
             }
           </div>
 
@@ -125,10 +119,14 @@
               name="afPrenom"
               placeholder="ex. Amadou"
               autocomplete="given-name"
+              required
+              aria-required="true"
+              [attr.aria-invalid]="prenomFieldError() ? 'true' : null"
+              [attr.aria-describedby]="prenomFieldError() ? 'afPrenom-err' : null"
               [class.ng-invalid]="prenomFieldError()"
             />
             @if (prenomFieldError()) {
-              <span class="af-field__error">{{ prenomFieldError() }}</span>
+              <span id="afPrenom-err" class="af-field__error" role="alert">{{ prenomFieldError() }}</span>
             }
           </div>
 
@@ -158,10 +156,14 @@
               (blur)="quartierTouched.set(true)"
               name="afQuartier"
               placeholder="ex. Bastos"
+              required
+              aria-required="true"
+              [attr.aria-invalid]="quartierFieldError() ? 'true' : null"
+              [attr.aria-describedby]="quartierFieldError() ? 'afQuartier-err' : null"
               [class.ng-invalid]="quartierFieldError()"
             />
             @if (quartierFieldError()) {
-              <span class="af-field__error">{{ quartierFieldError() }}</span>
+              <span id="afQuartier-err" class="af-field__error" role="alert">{{ quartierFieldError() }}</span>
             }
           </div>
 
@@ -173,15 +175,20 @@
               id="afCamp"
               type="number"
               min="1"
+              inputmode="numeric"
               [ngModel]="camp()"
               (ngModelChange)="camp.set($event)"
               (blur)="campTouched.set(true)"
               name="afCamp"
               placeholder="ex. 3"
+              required
+              aria-required="true"
+              [attr.aria-invalid]="campFieldError() ? 'true' : null"
+              [attr.aria-describedby]="campFieldError() ? 'afCamp-err' : null"
               [class.ng-invalid]="campFieldError()"
             />
             @if (campFieldError()) {
-              <span class="af-field__error">{{ campFieldError() }}</span>
+              <span id="afCamp-err" class="af-field__error" role="alert">{{ campFieldError() }}</span>
             }
           </div>
 
@@ -226,12 +233,15 @@
               name="afTel"
               placeholder="6XX XXX XXX"
               autocomplete="tel"
+              inputmode="tel"
+              [attr.aria-invalid]="phoneFieldError() ? 'true' : null"
+              [attr.aria-describedby]="phoneFieldError() ? 'afTel-err' : 'afTel-hint'"
               [class.ng-invalid]="phoneFieldError()"
             />
             @if (phoneFieldError()) {
-              <span class="af-field__error">{{ phoneFieldError() }}</span>
+              <span id="afTel-err" class="af-field__error" role="alert">{{ phoneFieldError() }}</span>
             } @else {
-              <span class="af-field__hint">{{ 'ABONNES.FORM.PHONE_HINT_FULL' | translate }}</span>
+              <span id="afTel-hint" class="af-field__hint">{{ 'ABONNES.FORM.PHONE_HINT_FULL' | translate }}</span>
             }
           </div>
 
@@ -243,8 +253,8 @@
             @if (mode === 'create') {
               <div class="af-date-wrapper">
                 <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="#94a3b8" stroke-width="1.2"/>
-                  <path d="M5 1v2M9 1v2M1 6h12" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/>
+                  <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="#64748b" stroke-width="1.2"/>
+                  <path d="M5 1v2M9 1v2M1 6h12" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
                 </svg>
                 <input
                   pInputText
@@ -254,11 +264,15 @@
                   (ngModelChange)="datePose.set($event)"
                   (blur)="datePoseTouched.set(true)"
                   name="afDate"
+                  required
+                  aria-required="true"
+                  [attr.aria-invalid]="datePoseFieldError() ? 'true' : null"
+                  [attr.aria-describedby]="datePoseFieldError() ? 'afDate-err' : null"
                   [class.ng-invalid]="datePoseFieldError()"
                 />
               </div>
               @if (datePoseFieldError()) {
-                <span class="af-field__error">{{ datePoseFieldError() }}</span>
+                <span id="afDate-err" class="af-field__error" role="alert">{{ datePoseFieldError() }}</span>
               }
             } @else {
               <div class="af-readonly">
@@ -292,15 +306,20 @@
                 id="afNumero"
                 type="number"
                 min="1"
+                inputmode="numeric"
                 [ngModel]="numeroCompteur()"
                 (ngModelChange)="numeroCompteur.set($event)"
                 (blur)="numeroCompteurTouched.set(true)"
                 name="afNumero"
                 placeholder="ex. 1042"
+                required
+                aria-required="true"
+                [attr.aria-invalid]="numeroCompteurFieldError() ? 'true' : null"
+                [attr.aria-describedby]="numeroCompteurFieldError() ? 'afNumero-err' : null"
                 [class.ng-invalid]="numeroCompteurFieldError()"
               />
               @if (numeroCompteurFieldError()) {
-                <span class="af-field__error">{{ numeroCompteurFieldError() }}</span>
+                <span id="afNumero-err" class="af-field__error" role="alert">{{ numeroCompteurFieldError() }}</span>
               }
             } @else {
               <div class="af-readonly">
@@ -324,6 +343,7 @@
                 type="number"
                 min="0"
                 step="0.001"
+                inputmode="decimal"
                 [ngModel]="indexInitial()"
                 (ngModelChange)="indexInitial.set($event)"
                 name="afIndex"

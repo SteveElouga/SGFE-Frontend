@@ -1,5 +1,5 @@
-<app-bottom-sheet [open]="open()" (close)="onClose()">
-  <div class="as-title">{{ 'CAMPAGNES.ABONNES_SHEET.TITLE' | translate }}</div>
+<app-bottom-sheet [open]="open()" labelledBy="abonnes-sheet-title" (close)="onClose()">
+  <div class="as-title" id="abonnes-sheet-title">{{ 'CAMPAGNES.ABONNES_SHEET.TITLE' | translate }}</div>
   <div class="as-subtitle">
     {{ 'CAMPAGNES.ABONNES_SHEET.SUBTITLE' | translate: { n: count() } }}
   </div>

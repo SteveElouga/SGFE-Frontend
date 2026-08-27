@@ -9,32 +9,33 @@
   top: 0;
   z-index: 10;
   height: 54px;
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0 22px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--filet);
+  padding: 0 var(--pas-5);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--pas-3);
   flex-shrink: 0;
 
   &__left {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--pas-3);
     min-width: 0;
   }
 
   &__title {
+    margin: 0;                 // <h1> de l'écran
     font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
     line-height: 1.2;
   }
 
   &__crumb {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--encre-3);
     margin-top: 1px;
   }
 }
@@ -42,10 +43,10 @@
 .uedit-back {
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #64748b;
+  border-radius: var(--rayon-md);
+  border: 1px solid var(--filet);
+  background: var(--surface-douce);
+  color: var(--encre-3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,21 +54,21 @@
   flex-shrink: 0;
   transition: background 0.12s, color 0.12s;
 
-  &:hover { background: #f1f5f9; color: $color-primary; }
+  &:hover { background: var(--fond); color: var(--action); }
 }
 
 .uedit-status-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--pas-2);
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 600;
-  color: #15803d;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 20px;
-  padding: 4px 12px;
+  color: var(--succes-encre);
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-1) var(--pas-3);
 
   &__dot {
     width: 7px;
@@ -77,21 +78,21 @@
   }
 
   &--off {
-    color: #64748b; // WCAG AA sur #f1f5f9 (#94a3b8 échouait le contraste)
-    background: #f1f5f9;
-    border-color: #e2e8f0;
+    color: var(--encre-3); // WCAG AA sur var(--fond) (var(--encre-faible) échouait le contraste)
+    background: var(--fond);
+    border-color: var(--filet);
 
-    .uedit-status-pill__dot { background: #94a3b8; }
+    .uedit-status-pill__dot { background: var(--encre-faible); }
   }
 }
 
 // ── Contenu ───────────────────────────────────────────────────────────────────
 
 .uedit-content {
-  padding: 18px 22px;
+  padding: var(--pas-4) var(--pas-5);
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
   // Conteneur de requête : les cartes s'adaptent à LEUR largeur réelle
   // (et pas seulement au viewport), utile si l'écran est dans un panneau étroit.
   container-type: inline-size;
@@ -99,18 +100,18 @@
 }
 
 .uedit-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4) var(--pas-5);
 
   &__title {
     font-size: 13px;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 14px;
+    color: var(--encre);
+    margin-bottom: var(--pas-3);
 
-    &--tight { margin-bottom: 3px; }
+    &--tight { margin-bottom: var(--pas-1); }
   }
 }
 
@@ -119,20 +120,20 @@
 .uedit-identity {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--pas-3);
 
   &__info { flex: 1; min-width: 0; }
 
   &__name-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--pas-2);
     flex-wrap: wrap;   // le badge de rôle passe sous le nom si trop étroit
   }
 
   // Carte étroite : avatar + infos sur la 1re ligne, bouton « Réinitialiser »
   // en pleine largeur en dessous (sinon il écrase la colonne infos).
-  @container uedit (max-width: 620px) {
+  @container uedit (max-width: 639px) {
     flex-wrap: wrap;
 
     .uedit-identity__info { flex-basis: calc(100% - 62px); } // garde infos larges
@@ -146,13 +147,13 @@
   &__name {
     font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--encre);
   }
 
   &__meta {
     font-size: 11px;
-    color: #94a3b8;
-    margin-top: 3px;
+    color: var(--encre-3);
+    margin-top: var(--pas-1);
   }
 }
 
@@ -165,28 +166,28 @@
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
-  color: #fff;
+  color: var(--surface);
   flex-shrink: 0;
-  background: linear-gradient(135deg, #1a56db, #0e9f6e);
+  background: linear-gradient(135deg, var(--action), var(--succes));
 
-  &.role-admin { background: linear-gradient(135deg, #1a56db, #1d4ed8); }
-  &.role-agent { background: linear-gradient(135deg, #0e9f6e, #15803d); }
-  &.role-comptable { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
-  &.role-superviseur { background: linear-gradient(135deg, #0891b2, #0e7490); }
+  &.role-admin { background: linear-gradient(135deg, var(--action), var(--action-survol)); }
+  &.role-agent { background: linear-gradient(135deg, var(--succes), var(--succes-encre)); }
+  &.role-comptable { background: linear-gradient(135deg, var(--role-violet), var(--role-violet)); }
+  &.role-superviseur { background: linear-gradient(135deg, var(--role-cyan), var(--role-cyan)); }
 }
 
 .uedit-role-badge {
   font-size: 10px;
   font-weight: 600;
-  border-radius: 20px;
-  padding: 3px 10px;
-  background: #eff6ff;
-  color: $color-primary;
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-1) var(--pas-2);
+  background: var(--action-lueur);
+  color: var(--action);
 
-  &.role-admin { background: #eff6ff; color: #1a56db; }
-  &.role-agent { background: #f0fdf4; color: #0e9f6e; }
-  &.role-comptable { background: #faf5ff; color: #7c3aed; }
-  &.role-superviseur { background: #ecfeff; color: #0e7490; }
+  &.role-admin { background: var(--action-lueur); color: var(--action); }
+  &.role-agent { background: var(--succes-fond); color: var(--succes-encre); }
+  &.role-comptable { background: var(--role-violet-lueur); color: var(--role-violet); }
+  &.role-superviseur { background: var(--role-cyan-lueur); color: var(--role-cyan); }
 }
 
 // ── Grille de champs ──────────────────────────────────────────────────────────
@@ -194,10 +195,10 @@
 .uedit-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: var(--pas-3);
+  margin-bottom: var(--pas-3);
 
-  @media (max-width: 640px) {
+  @media (max-width: 639px) {
     grid-template-columns: 1fr;
   }
 }
@@ -209,14 +210,14 @@
   &__label {
     font-size: 11px;
     font-weight: 500;
-    color: #64748b;
-    margin-bottom: 4px;
+    color: var(--encre-3);
+    margin-bottom: var(--pas-1);
   }
 
   &__note {
     font-size: 10px;
-    color: #94a3b8;
-    margin-top: 4px;
+    color: var(--encre-3);
+    margin-top: var(--pas-1);
   }
 
   input[pInputText] { width: 100%; }
@@ -229,7 +230,7 @@
 
   input[pInputText] {
     width: 100%;
-    padding-right: 34px;
+    padding-right: var(--pas-6);
   }
 
   &__lock {
@@ -245,18 +246,18 @@
 .uedit-phone {
   display: flex;
   align-items: stretch;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
   overflow: hidden;
   transition: border-color 0.12s, box-shadow 0.12s;
 
   &__prefix {
-    padding: 0 12px;
+    padding: 0 var(--pas-3);
     font-size: 14px;
     font-weight: 500;
-    color: #64748b;
-    background: #f8fafc;
-    border-right: 1px solid #e2e8f0;
+    color: var(--encre-3);
+    background: var(--surface-douce);
+    border-right: 1px solid var(--filet);
     display: flex;
     align-items: center;
     flex-shrink: 0;
@@ -269,8 +270,8 @@
     background: transparent;
   }
 
-  &--valid { border-color: #bbf7d0; }
-  &--invalid { border-color: #fecaca; }
+  &--valid { border-color: var(--succes-trait); }
+  &--invalid { border-color: var(--danger-trait); }
 }
 
 // ── Bandeau canal d'activation ────────────────────────────────────────────────
@@ -278,17 +279,17 @@
 .uedit-channel {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 8px;
-  padding: 10px 14px;
-  color: $color-accent;
+  gap: var(--pas-2);
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
+  color: var(--succes-encre);
 
   &--email {
-    background: #eff6ff;
-    border-color: #bfdbfe;
-    color: $color-primary;
+    background: var(--action-lueur);
+    border-color: var(--action-trait);
+    color: var(--action);
   }
 
   svg { flex-shrink: 0; }
@@ -302,8 +303,8 @@
 
   &__note {
     font-size: 11px;
-    color: #64748b;
-    margin-left: 4px;
+    color: var(--encre-3);
+    margin-left: var(--pas-1);
   }
 }
 
@@ -313,7 +314,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--pas-4);
 
   &__text {
     min-width: 0;
@@ -321,28 +322,28 @@
     &--icon {
       display: flex;
       align-items: center;
-      gap: 11px;
+      gap: var(--pas-3);
     }
   }
 
   &__desc {
     font-size: 11px;
-    color: #64748b;
+    color: var(--encre-3);
     line-height: 1.5;
     margin: 0;
 
-    strong { color: #475569; font-weight: 600; }
+    strong { color: var(--encre-2); font-weight: 600; }
   }
 
   &__actions {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--pas-3);
     flex-shrink: 0;
   }
 
   // Carte étroite : description pleine largeur, action(s) en dessous.
-  @container uedit (max-width: 620px) {
+  @container uedit (max-width: 639px) {
     flex-wrap: wrap;
 
     .uedit-row__actions {
@@ -355,8 +356,8 @@
 .uedit-shield {
   width: 34px;
   height: 34px;
-  border-radius: 9px;
-  background: #eff6ff;
+  border-radius: var(--rayon-md);
+  background: var(--action-lueur);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,21 +370,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--pas-3);
 
   &__note {
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--encre-3);
   }
 
   &__actions {
     display: flex;
-    gap: 10px;
+    gap: var(--pas-2);
     flex-shrink: 0;
   }
 
   // Carte étroite : note pleine largeur au-dessus, boutons pleine largeur dessous.
-  @container uedit (max-width: 620px) {
+  @container uedit (max-width: 639px) {
     flex-wrap: wrap;
 
     .uedit-footer__note { flex-basis: 100%; }
@@ -398,27 +399,27 @@
 .uedit-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-  padding: 11px 14px;
+  gap: var(--pas-2);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-3);
   font-size: 12px;
-  color: #dc2626;
+  color: var(--danger-encre);
 }
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .uedit-btn {
   height: 38px;
-  padding: 0 16px;
-  border-radius: 8px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: var(--pas-2);
   transition: opacity 0.15s, background 0.15s;
   white-space: nowrap;
 
@@ -426,9 +427,9 @@
   &--disabled { opacity: 0.5; }
 
   &--primary {
-    background: linear-gradient(135deg, #1a56db, #1d4ed8);
+    background: linear-gradient(135deg, var(--action), var(--action-survol));
     border: none;
-    color: #fff;
+    color: var(--surface);
     box-shadow: 0 3px 10px rgba(26, 86, 219, 0.3);
 
     &:hover:not(:disabled) { opacity: 0.9; }
@@ -436,52 +437,52 @@
   }
 
   &--ghost {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    color: var(--encre-3);
 
-    &:hover:not(:disabled) { background: #f8fafc; }
+    &:hover:not(:disabled) { background: var(--surface-douce); }
   }
 
   &--outline {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    color: var(--encre-3);
 
-    &:hover:not(:disabled) { background: #f8fafc; }
+    &:hover:not(:disabled) { background: var(--surface-douce); }
   }
 
   &--outline-primary {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    color: $color-primary;
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    color: var(--action);
 
-    &:hover:not(:disabled) { background: #eff6ff; border-color: #bfdbfe; }
+    &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--action-trait); }
   }
 
   &--success {
-    background: linear-gradient(135deg, #047857, #065f46);
+    background: linear-gradient(135deg, var(--succes-encre), var(--succes-encre));
     border: none;
-    color: #fff;
+    color: var(--surface);
     box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
 
     &:hover:not(:disabled) { opacity: 0.9; }
   }
 
   &--danger {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    background: linear-gradient(135deg, var(--danger), var(--danger-encre));
     border: none;
-    color: #fff;
+    color: var(--surface);
 
     &:hover:not(:disabled) { opacity: 0.9; }
   }
 
   &--danger-soft {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background: var(--danger-fond);
+    border: 1px solid var(--danger-trait);
+    color: var(--danger-encre);
 
-    &:hover:not(:disabled) { background: #fee2e2; }
+    &:hover:not(:disabled) { background: var(--danger-trait); }
   }
 }
 
@@ -490,22 +491,22 @@
 .udeact-body {
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding: 24px;
+  gap: var(--pas-4);
+  padding: var(--pas-5);
 }
 
 .udeact-header {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--pas-3);
 
   &__icon {
     flex-shrink: 0;
     width: 46px;
     height: 46px;
-    border-radius: 12px;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    border-radius: var(--rayon-lg);
+    background: var(--danger-fond);
+    border: 1px solid var(--danger-trait);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -514,14 +515,14 @@
   &__title {
     font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 4px;
+    color: var(--encre);
+    margin: 0 0 var(--pas-1);
     line-height: 1.3;
   }
 
   &__desc {
     font-size: 13px;
-    color: #64748b;
+    color: var(--encre-3);
     margin: 0;
     line-height: 1.5;
   }
@@ -530,7 +531,7 @@
 .udeact-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--pas-2);
 }
 
 // ── Skeleton / introuvable ────────────────────────────────────────────────────
@@ -538,20 +539,20 @@
 .uedit-skeleton {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--pas-3);
 }
 
 .uedit-notfound {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--pas-2);
   padding: 60px 0;
-  color: #94a3b8;
+  color: var(--encre-3);
   font-size: 14px;
 
   &__link {
-    color: $color-primary;
+    color: var(--action);
     font-weight: 600;
     text-decoration: none;
   }

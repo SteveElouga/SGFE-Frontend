@@ -9,12 +9,12 @@
 
 .otp-brand-card {
   display: flex;
-  gap: 13px;
+  gap: var(--pas-3);
   align-items: flex-start;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4);
 
   &__icon {
     flex-shrink: 0;
@@ -23,8 +23,8 @@
   &__title {
     font-size: 13px;
     font-weight: 600;
-    color: #fff;
-    margin-bottom: 3px;
+    color: var(--surface);
+    margin-bottom: var(--pas-1);
   }
 
   &__desc {
@@ -45,10 +45,10 @@
   top: 28px;
   right: 36px;
   font-size: 13px;
-  color: #64748b;
+  color: var(--encre-3);
   text-decoration: none;
 
-  span { color: $color-primary; }
+  span { color: var(--action); }
 
   @media (max-width: 1023px) {
     display: none;

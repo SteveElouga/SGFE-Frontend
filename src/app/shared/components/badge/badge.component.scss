@@ -1,18 +1,19 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: var(--rayon-sm);
   border: 1px solid transparent;
-  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
   white-space: nowrap;
 
-  &--success { background: #f0fdf4; border-color: #bbf7d0; color: #15803d; }
-  &--info    { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
-  &--danger  { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
-  &--warning { background: #fffbeb; border-color: #fde68a; color: #b45309; }
-  &--neutral { background: #f1f5f9; border-color: #e2e8f0; color: #475569; }
+  &--md { padding: var(--pas-1) var(--pas-2); font-size: 10.5px; }
+  &--lg { padding: var(--pas-2) var(--pas-4); font-size: 14px; letter-spacing: 0.4px; }  // Héro : statut dominant (facturation PAYÉE)
+
+  &--success { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
+  &--info    { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
+  &--danger  { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
+  &--warning { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--ambre-attente); }
+  &--neutral { background: var(--fond); border-color: var(--filet); color: var(--encre-2); }
 }

@@ -1,0 +1,132 @@
+<div class="fp">
+
+  <!-- ── Résultat ─────────────────────────────────────────────────────────
+       Le total non filtré est déjà dans la barre de titre : le répéter en
+       chiffre de 32 px coûtait 110 px de hauteur pour zéro information. Cette
+       ligne n'apparaît que lorsqu'un filtre restreint la liste — c'est-à-dire
+       quand le nombre affiché diffère de ce que dit la barre de titre. -->
+  @if (afficheResultat()) {
+    <p class="fp__resultat" role="status" aria-live="polite">
+      <b>{{ resultCount() }}</b>
+      {{ heroNounKey() | translate: { count: resultCount() } }}
+      @if (heroSubtitle()) {
+        <span class="fp__resultat-sub">{{ heroSubtitle() }}</span>
+      }
+    </p>
+  }
+
+  <!-- ── Controls : recherche + selects (context switchers) ─────────────── -->
+  <div class="fp__controls">
+    @if (showSearch()) {
+      <p-iconfield class="fp__search">
+        <p-inputicon
+          [styleClass]="isDebouncing() ? 'pi pi-spin pi-spinner fp__search-icon--busy' : 'pi pi-search'"
+          [attr.aria-hidden]="'true'"
+        />
+        <input
+          pInputText
+          type="text"
+          [placeholder]="searchPlaceholder() | translate"
+          [attr.aria-label]="searchPlaceholder() | translate"
+          [ngModel]="localSearch()"
+          (ngModelChange)="onSearchInput($event)"
+        />
+      </p-iconfield>
+    }
+
+    <!-- Contrôle de filtre spécialisé projeté par l'écran (plage de dates…) :
+         il appartient à la carte de filtres, pas au fond de page. -->
+    <ng-content select="[fp-extra]" />
+
+    @for (f of selectFilters(); track f.key) {
+      <div class="fp__filter" [class]="visibilityClass(f)">
+        <p-select
+          class="fp__select fp__select--{{ renderMode(f) }}"
+          [class.fp__select--active]="valueOf(f.key) !== null"
+          [options]="asMutableOptions(f.options)"
+          [ngModel]="valueOf(f.key)"
+          (ngModelChange)="setFilterValue(f.key, $event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="f.label | translate"
+          [showClear]="f.clearable !== false"
+          [attr.aria-label]="f.label | translate"
+        />
+      </div>
+    }
+  </div>
+
+  <!-- ── Chipsets : filtres à chips (mode chips ou auto ≤5 options) ─────── -->
+  @if (chipFilters().length > 0) {
+    <div class="fp__chipsets">
+      @for (f of chipFilters(); track f.key) {
+        <div class="fp__chipset" [class]="visibilityClass(f)"
+             role="radiogroup" [attr.aria-label]="f.label | translate">
+          @if (f.clearable !== false) {
+            <button
+              type="button"
+              class="fp__chip"
+              [class.fp__chip--active]="valueOf(f.key) === null"
+              role="radio"
+              [attr.aria-checked]="valueOf(f.key) === null"
+              [attr.tabindex]="valueOf(f.key) === null ? 0 : -1"
+              (click)="setFilterValue(f.key, null)"
+              (keydown)="onChipKeydown($event, f, null)"
+            >{{ 'COMMON.ALL' | translate }}</button>
+          }
+          @for (opt of f.options; track opt.value) {
+            <button
+              type="button"
+              class="fp__chip"
+              [class.fp__chip--active]="valueOf(f.key) === opt.value"
+              [class.fp__chip--empty]="opt.count === 0"
+              [attr.aria-disabled]="opt.count === 0 ? 'true' : null"
+              [attr.tabindex]="opt.count === 0 ? -1 : (valueOf(f.key) === opt.value ? 0 : -1)"
+              role="radio"
+              [attr.aria-checked]="valueOf(f.key) === opt.value"
+              (click)="setFilterValue(f.key, opt.value)"
+              (keydown)="onChipKeydown($event, f, opt.value)"
+            >
+              {{ f.translateLabels ? (opt.label | translate) : opt.label }}
+              @if (opt.count !== undefined) {
+                <span class="fp__chip-count">({{ opt.count }})</span>
+              }
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Meta : tags dismissables + effacer ─────────────────────────────── -->
+  @if (activeCount() > 0) {
+    <div class="fp__meta">
+      <div class="fp__tags" role="list" [attr.aria-label]="'COMMON.ACTIVE_FILTERS' | translate">
+        @for (tag of activeTags(); track tag.key) {
+          <button
+            type="button"
+            class="fp__tag"
+            role="listitem"
+            (click)="removeTag(tag.key)"
+            [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + ' — ' + ('COMMON.REMOVE' | translate)"
+          >
+            <span class="fp__tag-key">{{ tag.filterLabel }}</span>
+            <span class="fp__tag-sep">:</span>
+            <span class="fp__tag-val">{{ tag.valueLabel }}</span>
+            <i class="pi pi-times fp__tag-close" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="fp__clear-all"
+        (click)="clearAll()"
+      >
+        <i class="pi pi-eraser" aria-hidden="true"></i>
+        <span>{{ clearAllLabel() | translate }}</span>
+      </button>
+    </div>
+  }
+
+</div>

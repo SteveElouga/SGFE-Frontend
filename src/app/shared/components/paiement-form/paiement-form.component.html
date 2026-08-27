@@ -1,0 +1,94 @@
+<div class="paiement-form__grid">
+  <div class="pf-field">
+    <label class="pf-label" [attr.for]="montantId()">{{ 'FACTURATION.PANEL_MONTANT' | translate }}</label>
+    <input
+      [id]="montantId()"
+      type="number"
+      inputmode="numeric"
+      pInputText
+      class="pf-input pf-input--focus"
+      [class.pf-input--error]="montantExceedsSolde()"
+      [ngModel]="pMontant()"
+      (ngModelChange)="pMontant.set($event)"
+      min="1"
+      [max]="effectiveSolde()"
+      [attr.aria-invalid]="montantExceedsSolde()"
+      [attr.aria-describedby]="montantExceedsSolde() ? montantErrId() : null"
+    />
+    @if (montantExceedsSolde()) {
+      <span [id]="montantErrId()" class="pf-hint pf-hint--error" role="alert">
+        {{ 'FACTURATION.PANEL_MONTANT_MAX' | translate:{montant: effectiveSolde().toLocaleString('fr-FR')} }}
+      </span>
+    }
+  </div>
+
+  <div class="pf-field">
+    <label class="pf-label pf-label--help" [attr.for]="modeId()">
+      {{ 'FACTURATION.PANEL_MODE' | translate }}
+      <i
+        class="pi pi-info-circle pf-help"
+        [appTooltip]="'FACTURATION.PANEL_MODE_TOOLTIP' | translate"
+        tabindex="0"
+        [attr.aria-label]="'FACTURATION.PANEL_MODE_TOOLTIP' | translate"
+      ></i>
+    </label>
+    <p-select
+      [inputId]="modeId()"
+      [options]="modeOptions()"
+      [ngModel]="pMode()"
+      (ngModelChange)="pMode.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      styleClass="pf-select"
+    />
+  </div>
+
+  <div class="pf-field">
+    <label class="pf-label" [attr.for]="dateId()">{{ 'FACTURATION.PANEL_DATE' | translate }}</label>
+    <input
+      [id]="dateId()"
+      type="date"
+      pInputText
+      class="pf-input"
+      [ngModel]="pDate()"
+      (ngModelChange)="pDate.set($event)"
+    />
+  </div>
+
+  <div class="pf-field pf-field--ref">
+    <label class="pf-label pf-label--help" [attr.for]="refId()">
+      {{ 'FACTURATION.PANEL_REF' | translate }}
+      @if (refRequired()) { <span class="pf-required" aria-hidden="true">*</span> }
+      <i
+        class="pi pi-info-circle pf-help"
+        [appTooltip]="'FACTURATION.PANEL_REF_TOOLTIP' | translate"
+        tabindex="0"
+        [attr.aria-label]="'FACTURATION.PANEL_REF_TOOLTIP' | translate"
+      ></i>
+    </label>
+    <input
+      [id]="refId()"
+      type="text"
+      pInputText
+      class="pf-input"
+      autocomplete="off"
+      [required]="refRequired()"
+      [attr.aria-required]="refRequired()"
+      [ngModel]="pRef()"
+      (ngModelChange)="pRef.set($event)"
+    />
+  </div>
+</div>
+
+<button
+  class="paiement-form__submit"
+  type="button"
+  [disabled]="!formValid() || submitting()"
+  [attr.aria-busy]="submitting()"
+  (click)="submit()"
+>
+  @if (submitting()) {
+    <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+  }
+  {{ confirmLabel() }}
+</button>

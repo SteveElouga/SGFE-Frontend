@@ -29,10 +29,10 @@
     <div class="timeline-card">
       <div class="timeline-card__title">{{ 'RELANCES.TIMELINE_TITLE' | translate }}</div>
 
-      <div class="timeline">
+      <ol class="timeline">
         @for (step of steps(); track step.numero) {
-          <div class="tl-step">
-            <div class="tl-rail">
+          <li class="tl-step">
+            <div class="tl-rail" aria-hidden="true">
               <div class="tl-node {{ step.toneClass }}">{{ step.numero }}</div>
               <div class="tl-line"></div>
             </div>
@@ -42,7 +42,11 @@
                   {{ step.title }}
                 </span>
                 <span class="tl-when">
-                  {{ step.dateLabel }}
+                  @if (step.dateIso) {
+                    <time [attr.datetime]="step.dateIso">{{ step.dateLabel }}</time>
+                  } @else {
+                    {{ step.dateLabel }}
+                  }
                   @if (step.deliveredLabel) {
                     · <span class="tl-delivered">{{ step.deliveredLabel }}</span>
                   } @else {
@@ -62,12 +66,12 @@
                 <span class="tl-tag tl-tag--suspension">{{ step.suspensionBadge }}</span>
               }
             </div>
-          </div>
+          </li>
         }
 
         <!-- Rétablissement (futur) -->
-        <div class="tl-step tl-step--last">
-          <div class="tl-rail">
+        <li class="tl-step tl-step--last">
+          <div class="tl-rail" aria-hidden="true">
             <div class="tl-node tl-node--future" [class.tl-node--resolu]="resolu()">✓</div>
           </div>
           <div class="tl-body">
@@ -76,8 +80,8 @@
             </div>
             <div class="tl-msg tl-msg--future">{{ 'RELANCES.FUTURE_MSG' | translate }}</div>
           </div>
-        </div>
-      </div>
+        </li>
+      </ol>
     </div>
 
     <!-- Action bar -->
@@ -87,11 +91,68 @@
           {{ paiementLabel() }}
         </button>
       }
-      <button type="button" class="btn-renvoi" [disabled]="renvoi()" (click)="renvoyerDernier()">
-        @if (renvoi()) { <i class="pi pi-spin pi-spinner"></i> }
-        {{ 'RELANCES.BTN_RENVOYER' | translate }}
+      <button
+        type="button"
+        class="btn-renvoi"
+        [disabled]="renvoi() || renvoiCooldown() > 0"
+        [attr.aria-busy]="renvoi()"
+        (click)="openConfirmRenvoi()"
+      >
+        @if (renvoi()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+        {{ renvoiButtonLabel() }}
       </button>
     </div>
 
   }
 </div>
+
+<!-- Sheet de confirmation WhatsApp — communication client irréversible -->
+<app-bottom-sheet
+  [open]="renvoiConfirmOpen()"
+  labelledBy="renvoi-confirm-title"
+  (close)="cancelConfirmRenvoi()"
+>
+  <div class="renvoi-confirm">
+    <div class="renvoi-confirm__head">
+      <i class="pi pi-whatsapp renvoi-confirm__icon" aria-hidden="true"></i>
+      <div>
+        <h3 class="renvoi-confirm__title" id="renvoi-confirm-title">
+          {{ 'RELANCES.CONFIRM_TITLE' | translate }}
+        </h3>
+        <p class="renvoi-confirm__sub">
+          {{ 'RELANCES.CONFIRM_SUB' | translate:{ nom: abonneNom() } }}
+        </p>
+      </div>
+    </div>
+
+    <div class="renvoi-confirm__preview" role="region" [attr.aria-label]="'RELANCES.CONFIRM_PREVIEW_ARIA' | translate">
+      <div class="renvoi-confirm__preview-label">
+        {{ 'RELANCES.CONFIRM_PREVIEW_LABEL' | translate:{ stage: renvoiPreviewTitle() } }}
+      </div>
+      <blockquote class="renvoi-confirm__preview-body">
+        {{ renvoiPreviewMessage() || ('RELANCES.CONFIRM_NO_PREVIEW' | translate) }}
+      </blockquote>
+    </div>
+
+    <div class="renvoi-confirm__actions">
+      <button
+        type="button"
+        class="renvoi-confirm__btn renvoi-confirm__btn--send"
+        [disabled]="renvoi() || !renvoiPreviewMessage()"
+        [attr.aria-busy]="renvoi()"
+        (click)="confirmRenvoi()"
+      >
+        @if (renvoi()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+        {{ 'RELANCES.CONFIRM_SEND' | translate }}
+      </button>
+      <button
+        type="button"
+        class="renvoi-confirm__btn renvoi-confirm__btn--cancel"
+        [disabled]="renvoi()"
+        (click)="cancelConfirmRenvoi()"
+      >
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

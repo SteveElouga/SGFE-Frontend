@@ -17,6 +17,7 @@ import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
+import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
 
@@ -28,6 +29,10 @@ const STAGES = [
   { numero: 4, offsetJours: 10, titleKey: 'RELANCES.STAGE4.TITLE', msgKey: 'RELANCES.STAGE4.MSG' },
 ] as const;
 
+/** Cooldown post-envoi WhatsApp : évite le double-envoi accidentel + laisse au
+ *  backend le temps de propager (idempotence non garantie côté gateway). */
+const RENVOI_COOLDOWN_SECONDS = 60;
+
 interface StepVm {
   numero: number;
   done: boolean;
@@ -36,6 +41,8 @@ interface StepVm {
   title: string;
   message: string;
   dateLabel: string;
+  /** Date ISO pour <time datetime="..."> — parseurs machine + a11y (SR annonce). */
+  dateIso: string | null;
   deliveredLabel: string | null;
   scheduledLabel: string | null;
   adminBadge: string | null;
@@ -43,7 +50,7 @@ interface StepVm {
 }
 
 @Component({
-  imports: [TranslatePipe, ErrorBannerComponent, PageTopbarComponent],
+  imports: [TranslatePipe, ErrorBannerComponent, PageTopbarComponent, BottomSheetComponent],
   templateUrl: './relances-historique.component.html',
   styleUrl: './relances-historique.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +67,11 @@ export class RelancesHistoriqueComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly renvoi = signal(false);
+
+  /** Sheet de confirmation avant envoi WhatsApp — communication client irréversible. */
+  readonly renvoiConfirmOpen = signal(false);
+  /** Secondes restantes avant de pouvoir renvoyer à nouveau (garde-fou double-envoi). */
+  readonly renvoiCooldown = signal(0);
 
   readonly facture = signal<Facture | null>(null);
   readonly solde = signal<SoldeFacture | null>(null);
@@ -133,6 +145,7 @@ export class RelancesHistoriqueComponent implements OnInit {
         title: this.translate.instant(stage.titleKey, {}, lang),
         message: this.translate.instant(stage.msgKey, params, lang),
         dateLabel: done ? this.formatDateHeure(date) : this.formatDateCourte(date),
+        dateIso: date ? date.toISOString().slice(0, 10) : null,
         deliveredLabel: done ? this.translate.instant('RELANCES.DELIVERED', {}, lang) : null,
         scheduledLabel: done ? null : this.translate.instant('RELANCES.SCHEDULED', {}, lang),
         adminBadge:
@@ -145,6 +158,29 @@ export class RelancesHistoriqueComponent implements OnInit {
             : null,
       };
     });
+  });
+
+  /** Aperçu du message qui sera renvoyé (dernier stage franchi). Best-effort :
+   *  le backend peut recomposer le message avec des variables plus récentes ;
+   *  cette preview est fidèle à l'affichage timeline courant. */
+  readonly renvoiPreviewMessage = computed(() => {
+    const done = this.steps().filter((s) => s.done);
+    return done.length > 0 ? done[done.length - 1].message : '';
+  });
+
+  readonly renvoiPreviewTitle = computed(() => {
+    const done = this.steps().filter((s) => s.done);
+    return done.length > 0 ? done[done.length - 1].title : '';
+  });
+
+  /** Libellé du bouton d'action : soit "Renvoyer", soit "Attendre Ns" pendant cooldown. */
+  readonly renvoiButtonLabel = computed(() => {
+    const cd = this.renvoiCooldown();
+    if (cd > 0) {
+      const lang = this.translate.currentLang() ?? undefined;
+      return this.translate.instant('RELANCES.COOLDOWN', { seconds: cd }, lang);
+    }
+    return this.translate.instant('RELANCES.BTN_RENVOYER');
   });
 
   ngOnInit(): void {
@@ -200,19 +236,43 @@ export class RelancesHistoriqueComponent implements OnInit {
     void this.router.navigate(['/factures', f.factureId], { queryParams: { paiement: 1 } });
   }
 
-  async renvoyerDernier(): Promise<void> {
+  /** Ouvre la sheet de confirmation. Refuse si envoi en cours ou cooldown actif. */
+  openConfirmRenvoi(): void {
+    if (this.renvoi() || this.renvoiCooldown() > 0) return;
+    this.renvoiConfirmOpen.set(true);
+  }
+
+  cancelConfirmRenvoi(): void {
+    if (this.renvoi()) return; // pas d'annulation en plein envoi
+    this.renvoiConfirmOpen.set(false);
+  }
+
+  /** Envoie effectivement le message. Ferme la sheet, arme le cooldown. */
+  async confirmRenvoi(): Promise<void> {
     const f = this.facture();
     if (!f || this.renvoi()) return;
     this.renvoi.set(true);
     try {
       await this.facturesService.renvoyerFactureWhatsapp(f.factureId);
       this.toast.success(this.translate.instant('RELANCES.SUCCESS_RENVOI'));
+      this.renvoiConfirmOpen.set(false);
+      this.startCooldown();
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
     } finally {
       this.renvoi.set(false);
     }
+  }
+
+  private startCooldown(): void {
+    this.renvoiCooldown.set(RENVOI_COOLDOWN_SECONDS);
+    const tick = (): void => {
+      const remaining = this.renvoiCooldown() - 1;
+      this.renvoiCooldown.set(Math.max(0, remaining));
+      if (remaining > 0) setTimeout(tick, 1000);
+    };
+    setTimeout(tick, 1000);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

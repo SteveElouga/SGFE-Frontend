@@ -8,6 +8,7 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { NomAbonnePipe } from '../../../../shared/pipes/nom-abonne.pipe';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -28,7 +29,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
  */
 @Component({
   selector: 'app-remplacer-compteur-sheet',
-  imports: [FormsModule, DatePipe, InputTextModule, TranslatePipe, BottomSheetComponent, CompteurPipe],
+  imports: [NomAbonnePipe, FormsModule, DatePipe, InputTextModule, TranslatePipe, BottomSheetComponent, CompteurPipe],
   templateUrl: './remplacer-compteur-sheet.component.html',
   styleUrl: './remplacer-compteur-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

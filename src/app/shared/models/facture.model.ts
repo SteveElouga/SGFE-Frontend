@@ -57,6 +57,11 @@ export interface Paiement {
   modePaiement: ModePaiement;
   referenceTransaction: string;
   createdAt: string;
+  /** Un paiement annulé reste visible mais ne compte dans aucun total. */
+  annule: boolean;
+  annuleLe: string | null;
+  annulePar: string | null;
+  motifAnnulation: string | null;
 }
 
 export interface EnregistrerPaiementInput {
@@ -76,6 +81,8 @@ export interface Envoi {
   dateEnvoi: string;
   typeEnvoi?: string;
   erreur: string;
+  /** Motif d'échec renvoyé par la passerelle WhatsApp (numéro injoignable…). */
+  raisonEchec?: string | null;
 }
 
 export interface SuiviImpaye {

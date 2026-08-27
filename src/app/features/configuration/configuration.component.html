@@ -117,12 +117,12 @@
             </div>
 
             <!-- Modale tarif — bottom sheet mobile / dialog desktop (écran 30 · MC-04) -->
-            <app-bottom-sheet [open]="editingTarif()" (close)="resetTarif()">
+            <app-bottom-sheet [open]="editingTarif()" labelledBy="tarif-modal-title" (close)="resetTarif()">
               <div class="tarif-modal">
                 <div class="tarif-modal__header">
                   <div class="tarif-modal__icon" aria-hidden="true"><i class="pi pi-dollar"></i></div>
                   <div>
-                    <h3 class="tarif-modal__title">{{ 'CONFIGURATION.TARIF_MODAL_TITLE' | translate }}</h3>
+                    <h3 class="tarif-modal__title" id="tarif-modal-title">{{ 'CONFIGURATION.TARIF_MODAL_TITLE' | translate }}</h3>
                     <p class="tarif-modal__sub">{{ 'CONFIGURATION.TARIF_MODAL_SUB' | translate }}</p>
                   </div>
                 </div>

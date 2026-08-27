@@ -1,64 +1,12 @@
-
-<!-- ══ Modal Réactivation ══ -->
-<p-dialog
-  [visible]="reactiverDialogVisible()"
-  (visibleChange)="reactiverDialogVisible.set($event)"
-  [modal]="true"
-  [showHeader]="false"
-  [style]="{ width: '460px' }"
-  [draggable]="false"
-  [closable]="false"
->
-  <div class="reactiv-body">
-    <div class="reactiv-header">
-      <div class="reactiv-header__icon" aria-hidden="true">
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-          <path d="M5 11.5l4 4 8-8" stroke="#0e9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div>
-        @if (reactiverCible()) {
-          <h3 class="reactiv-header__title">{{ 'ABONNES.DETAIL.REACTIV_TITLE_NOM' | translate : { nom: reactiverCible()!.nom, prenom: reactiverCible()!.prenom } }}</h3>
-        }
-        <p class="reactiv-header__desc">{{ 'ABONNES.DETAIL.REACTIV_INFO' | translate }}</p>
-      </div>
-    </div>
-
-    <table class="reactiv-summary">
-      <tbody>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_STATUT_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_STATUT_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val">{{ 'ABONNES.DETAIL.REACTIV_COMPTEUR_CHANGE' | translate }}</td>
-        </tr>
-        <tr class="reactiv-summary__row">
-          <th scope="row" class="reactiv-summary__key">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_LABEL' | translate }}</th>
-          <td class="reactiv-summary__val reactiv-summary__val--muted">{{ 'ABONNES.DETAIL.REACTIV_CAMPAGNES_VALUE' | translate }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="reactiv-footer">
-      <button class="dialog-btn dialog-btn--ghost"
-        (click)="reactiverDialogVisible.set(false)"
-        [disabled]="reactiverLoading()">
-        {{ 'COMMON.CANCEL' | translate }}
-      </button>
-      <button class="dialog-btn dialog-btn--success"
-        (click)="doReactiver()"
-        [disabled]="reactiverLoading()">
-        @if (reactiverLoading()) {
-          {{ 'ABONNES.DETAIL.REACTIVER_LOADING' | translate }}
-        } @else {
-          {{ 'ABONNES.DETAIL.REACTIVER_BTN' | translate }}
-        }
-      </button>
-    </div>
-  </div>
-</p-dialog>
+<!-- Réactivation — désormais via le composant shared <app-reactiver-sheet>.
+     L'ex-<p-dialog> custom + le SCSS .reactiv-* dupliqué ont été retirés
+     (P0 v1 abonnes : deux modales coexistantes = incohérence app-wide). -->
+<app-reactiver-sheet
+  [open]="reactiverDialogVisible()"
+  [abonne]="reactiverCible()"
+  (close)="reactiverDialogVisible.set(false)"
+  (saved)="onReactivated($event)"
+/>
 
 <app-page-topbar
   [title]="'ABONNES.TITLE' | translate"
@@ -79,52 +27,28 @@
     <app-error-banner [message]="error()!" (retry)="loadAbonnes()" />
   }
 
-  <!-- Carte filtres -->
-  <app-filter-bar
+  <!-- Filtres unifiés (batch 10) -->
+  <app-filters-panel
     [search]="searchTerm()"
     (searchChange)="searchTerm.set($event)"
+    [debounceMs]="250"
     searchPlaceholder="ABONNES.SEARCH_PLACEHOLDER"
-  >
-    <!-- Statut : chips segmentés en mobile, dropdown en desktop -->
-    <div class="abonnes-statut-chips">
-      <app-filter-chips
-        [options]="statutChips()"
-        [total]="abonnes().length"
-        [value]="statutFilter()"
-        (valueChange)="onStatutChip($event)"
-      />
-    </div>
-
-    <p-select
-      class="abonnes-statut-select"
-      [options]="statutOptions()"
-      [ngModel]="statutFilter()"
-      (ngModelChange)="statutFilter.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'ABONNES.STATUT_FILTER' | translate"
-      [showClear]="true"
-    />
-
-    <p-select
-      class="abonnes-quartier-select"
-      [options]="quartiersOptions()"
-      [ngModel]="quartierFilter()"
-      (ngModelChange)="quartierFilter.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      [placeholder]="'ABONNES.QUARTIER_FILTER' | translate"
-      [showClear]="true"
-    />
-  </app-filter-bar>
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="filteredAbonnes().length"
+    [totalCount]="abonnes().length"
+    heroNounKey="ABONNES.RESULTS_HERO"
+  />
 
   <!-- Carte tableau -->
   <div class="abonnes-card">
     <app-data-table
       [columns]="columns"
       [rows]="filteredAbonnes()"
+      [rowLink]="lienAbonne"
       [loading]="loading()"
-      [pageSize]="5"
+      [pageSize]="15"
       [striped]="true"
       trackKey="id"
       [emptyMessage]="emptyKey()"
@@ -134,7 +58,7 @@
       </ng-template>
 
       <ng-template appCol="nom" let-abonne>
-        <div class="abonnes-table__nom">{{ abonne.nom }} {{ abonne.prenom }}</div>
+        <div class="abonnes-table__nom">{{ abonne.prenom | nomAbonne: abonne.nom }}</div>
       </ng-template>
 
       <ng-template appCol="localisation" let-abonne>
@@ -161,18 +85,15 @@
 
       <ng-template appCol="actions" let-abonne>
         <div class="abonnes-table__actions">
-          <button
-            type="button"
-            class="abonnes-table__action-btn"
-            (click)="voirAbonne(abonne.id)"
-          >{{ 'ABONNES.VOIR' | translate }}</button>
-
+          <!-- « Voir » a disparu : le n° d'abonné est désormais un lien vers la
+               fiche, et la ligne entière y mène. Répéter la destination en
+               bouton fantôme sur chaque ligne n'ajoutait qu'du bruit. -->
           @if (abonne.statut === 'ACTIF') {
-            <button
-              type="button"
+            <a
               class="abonnes-table__action-btn"
-              (click)="modifierAbonne(abonne.id)"
-            >{{ 'ABONNES.MODIFIER' | translate }}</button>
+              [routerLink]="['/abonnes', abonne.id, 'modifier']"
+              [attr.aria-label]="('ABONNES.MODIFIER' | translate) + ' ' + abonne.numeroAbonne"
+            >{{ 'ABONNES.MODIFIER' | translate }}</a>
           }
 
           @if (abonne.statut === 'SUSPENDU') {
@@ -186,10 +107,10 @@
       </ng-template>
 
       <ng-template appCardRow let-abonne>
-        <button type="button" class="acard" (click)="voirAbonne(abonne.id)">
+        <a class="acard" [routerLink]="['/abonnes', abonne.id]">
           <span class="acard__avatar acard__avatar--{{ avatarVariant(abonne) }}">{{ abonne.nom.charAt(0).toUpperCase() }}</span>
           <span class="acard__info">
-            <span class="acard__nom" [class.acard__nom--muted]="abonne.statut !== 'ACTIF'">{{ abonne.nom }} {{ abonne.prenom }}</span>
+            <span class="acard__nom" [class.acard__nom--muted]="abonne.statut !== 'ACTIF'">{{ abonne.prenom | nomAbonne: abonne.nom }}</span>
             <span class="acard__sub">
               {{ abonne.numeroAbonne }}@if (abonne.compteur) { · {{ abonne.compteur.numeroCompteur | compteur }} · {{ abonne.compteur.quartier }}, Camp {{ abonne.compteur.camp }} }
             </span>
@@ -198,7 +119,7 @@
             <app-status-badge [status]="abonne.statut" />
             <i class="pi pi-chevron-right acard__chevron"></i>
           </span>
-        </button>
+        </a>
       </ng-template>
     </app-data-table>
   </div>

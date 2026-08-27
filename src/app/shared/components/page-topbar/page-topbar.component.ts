@@ -16,6 +16,9 @@ import { LayoutService } from '../../services/layout.service';
  * Un slot `[topbar-hero]` permet de projeter un bloc pleine largeur dans le
  * header navy (ex. progression de campagne du dashboard).
  *
+ * Le titre est le `<h1>` de la page : chaque écran qui utilise cette barre a
+ * donc exactement un titre de niveau 1, et les sections descendent en `<h2>`.
+ *
  * `ViewEncapsulation.None` afin que les actions projetées héritent de la classe
  * utilitaire `.page-topbar-action` sans `::ng-deep`.
  *
@@ -41,7 +44,7 @@ import { LayoutService } from '../../services/layout.service';
             @if (overline()) {
               <span class="page-topbar__overline">{{ overline() }}</span>
             }
-            <span class="page-topbar__title">{{ title() }}</span>
+            <h1 class="page-topbar__title">{{ title() }}</h1>
             @if (subtitle()) {
               <span class="page-topbar__subtitle">{{ subtitle() }}</span>
             }

@@ -7,9 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
@@ -19,11 +17,12 @@ import { Facture, StatutFacture, factureStatutTone } from '../../../shared/model
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { FilterBarComponent } from '../../../shared/components/filter-bar/filter-bar.component';
-import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { PaiementPanelComponent } from './paiement-panel/paiement-panel.component';
+import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
+import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 
 interface AbonneInfo {
@@ -39,24 +38,26 @@ interface CampagneOption {
 
 @Component({
   imports: [
-    FormsModule,
-    SelectModule,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
-    FilterBarComponent,
-    FilterChipsComponent,
+    FiltersPanelComponent,
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
     BadgeComponent,
     PaiementPanelComponent,
+    BottomSheetComponent,
+    TooltipDirective,
   ],
   templateUrl: './factures-list.component.html',
   styleUrl: './factures-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FacturesListComponent implements OnInit {
+  /** Destination d'une ligne : le détail de la facture. */
+  protected readonly lienFacture = (f: { factureId: string }) => ['/factures', f.factureId];
+
   /** Exposé au template pour la teinte des puces de statut. */
   protected readonly factureStatutTone = factureStatutTone;
 
@@ -84,11 +85,11 @@ export class FacturesListComponent implements OnInit {
   readonly searchTerm = signal('');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'numero', header: 'FACTURATION.COL_NUMERO' },
-    { key: 'abonne', header: 'FACTURATION.COL_ABONNE' },
-    { key: 'montant', header: 'FACTURATION.COL_MONTANT' },
-    { key: 'solde', header: 'FACTURATION.COL_SOLDE' },
-    { key: 'statut', header: 'FACTURATION.COL_STATUT' },
+    { key: 'numero', header: 'FACTURATION.COL_NUMERO', sortable: true, sortValue: (r) => (r as Facture).numeroFacture },
+    { key: 'abonne', header: 'FACTURATION.COL_ABONNE', sortable: true, sortValue: (r) => this.abonneFor((r as Facture).abonneId)?.nom ?? '' },
+    { key: 'montant', header: 'FACTURATION.COL_MONTANT', sortable: true, sortValue: (r) => (r as Facture).montant },
+    { key: 'solde', header: 'FACTURATION.COL_SOLDE', sortable: true, sortValue: (r) => this.soldeFor(r as Facture) ?? 0 },
+    { key: 'statut', header: 'FACTURATION.COL_STATUT', sortable: true, sortValue: (r) => (r as Facture).statut },
     { key: 'actions', header: 'FACTURATION.COL_ACTIONS' },
   ];
   /** Seules les factures non soldées sont cliquables (ouvre le panneau de paiement). */
@@ -100,40 +101,64 @@ export class FacturesListComponent implements OnInit {
   /** Facture dont le panneau de paiement est ouvert (null = fermé). */
   readonly selectedFacture = signal<Facture | null>(null);
 
-  readonly filtreOptions = computed((): Array<{ label: string; value: StatutFacture | 'TOUS' }> => {
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('FACTURATION.STATUT.TOUS', {}, lang), value: 'TOUS' },
-      { label: this.translate.instant('FACTURATION.STATUT.IMPAYEE', {}, lang), value: 'IMPAYEE' },
-      { label: this.translate.instant('FACTURATION.STATUT.PARTIELLE', {}, lang), value: 'PARTIELLE' },
-      { label: this.translate.instant('FACTURATION.STATUT.PAYEE', {}, lang), value: 'PAYEE' },
-    ] as Array<{ label: string; value: StatutFacture | 'TOUS' }>;
-  });
+  /** Confirmation d'envoi WhatsApp en masse (P0 batch 8 list). */
+  readonly whatsappConfirmVisible = signal(false);
 
-  /** Chips de statut (mobile, pattern MB-04) : libellés pluriels + compteurs. */
-  readonly statutChips = computed((): FilterChip[] => {
+  /**
+   * Factures cibles de l'envoi en masse : uniquement IMPAYEE et PARTIELLE
+   * (PAYEE = déjà réglée, pas de raison de relancer). Comptées pour le récap.
+   */
+  readonly facturesAEnvoyer = computed(() =>
+    this.factures().filter((f) => f.statut === 'IMPAYEE' || f.statut === 'PARTIELLE'),
+  );
+
+  /**
+   * Définition des filtres exposés au `<app-filters-panel>` shared. Statut =
+   * auto (chips ≤5 options en mobile, select en desktop). Campagne = select
+   * partout (souvent >5 options + sémantique de switch de contexte).
+   */
+  readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
     const all = this.factures();
-    const chips: Array<{ key: string; value: StatutFacture }> = [
-      { key: 'FACTURATION.CHIP_IMPAYEES', value: 'IMPAYEE' },
-      { key: 'FACTURATION.CHIP_PARTIELLES', value: 'PARTIELLE' },
-      { key: 'FACTURATION.CHIP_PAYEES', value: 'PAYEE' },
+    return [
+      {
+        key: 'statut',
+        label: 'FACTURATION.FILTER_STATUT',
+        options: [
+          { label: this.translate.instant('FACTURATION.CHIP_IMPAYEES', {}, lang), value: 'IMPAYEE', count: all.filter((f) => f.statut === 'IMPAYEE').length },
+          { label: this.translate.instant('FACTURATION.CHIP_PARTIELLES', {}, lang), value: 'PARTIELLE', count: all.filter((f) => f.statut === 'PARTIELLE').length },
+          { label: this.translate.instant('FACTURATION.CHIP_PAYEES', {}, lang), value: 'PAYEE', count: all.filter((f) => f.statut === 'PAYEE').length },
+        ],
+      },
+      {
+        key: 'campagne',
+        label: 'FACTURATION.FILTER_CAMPAGNE',
+        options: this.allCampagnes().map((c) => ({ label: c.label, value: c.value })),
+        render: 'select',
+        clearable: false,   // campagne = contexte, doit toujours avoir une valeur
+      },
     ];
-    return chips.map((c) => ({
-      label: this.translate.instant(c.key, {}, lang),
-      value: c.value,
-      count: all.filter((f) => f.statut === c.value).length,
-    }));
   });
 
-  /** Valeur des chips : `null` = « Toutes » (le signal utilise 'TOUS'). */
-  readonly statutChipValue = computed(() => {
-    const statut = this.filtreStatut();
-    return statut === 'TOUS' ? null : statut;
-  });
+  /** État courant des filtres à passer au shared. */
+  readonly filterValues = computed<FilterValues>(() => ({
+    statut: this.filtreStatut() === 'TOUS' ? null : this.filtreStatut(),
+    campagne: this.campagneId() || null,
+  }));
 
-  onStatutChip(value: string | null): void {
-    this.onStatutChange((value as StatutFacture | null) ?? 'TOUS');
+  /**
+   * Handler unifié : le shared émet un `FilterValues` complet à chaque
+   * changement. Traduction : statut null → 'TOUS' interne, campagne différente
+   * → navigation (contexte).
+   */
+  onFiltersChange(v: FilterValues): void {
+    const campagne = v['campagne'];
+    if (campagne && campagne !== this.campagneId()) {
+      void this.router.navigate(['/factures/campagne', campagne]);
+      return;
+    }
+    const statut = (v['statut'] as StatutFacture | null) ?? 'TOUS';
+    if (statut !== this.filtreStatut()) this.onStatutChange(statut);
   }
 
   readonly facturesFiltrees = computed(() => {
@@ -268,12 +293,24 @@ export class FacturesListComponent implements OnInit {
     }
   }
 
-  async envoyerToutesWhatsapp(): Promise<void> {
+  /** Ouvre la sheet de confirmation avant l'envoi en masse (P0 v4). */
+  ouvrirConfirmationWhatsapp(): void {
+    if (this.facturesAEnvoyer().length === 0 || this.sendingWhatsapp()) return;
+    this.whatsappConfirmVisible.set(true);
+  }
+
+  fermerConfirmationWhatsapp(): void {
+    this.whatsappConfirmVisible.set(false);
+  }
+
+  /** Exécute réellement l'envoi après confirmation utilisateur. */
+  async confirmerEnvoiWhatsapp(): Promise<void> {
     if (this.sendingWhatsapp()) return;
     this.sendingWhatsapp.set(true);
     try {
       await this.facturesService.envoyerToutesFacturesWhatsapp(this.campagneId());
       this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP_TOUS'));
+      this.whatsappConfirmVisible.set(false);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
@@ -309,6 +346,16 @@ export class FacturesListComponent implements OnInit {
     return this.soldes().get(f.factureId) ?? null;
   }
 
+  /**
+   * Signale à l'utilisateur qu'un solde est une estimation heuristique (statut
+   * IMPAYEE non vérifié) plutôt qu'une donnée backend autoritaire (PAYEE=0 ou
+   * PARTIELLE fetched). Utilisé pour afficher un indicateur discret + tooltip
+   * dans la colonne Solde (P1 batch 8 list : honnêteté visuelle).
+   */
+  soldeEstimated(f: Facture): boolean {
+    return f.statut === 'IMPAYEE';
+  }
+
   abonneFor(abonneId: string): AbonneInfo | null {
     return this.abonnesMap().get(abonneId) ?? null;
   }
@@ -333,11 +380,25 @@ export class FacturesListComponent implements OnInit {
     this.selectedFacture.set(null);
   }
 
-  /** Le paiement a été enregistré par le panneau → recharge la liste. */
+  /**
+   * Le paiement a été enregistré par le panneau. Comportement (P2 batch 8) :
+   * - Facture désormais PAYEE → close panel (rien de plus à faire).
+   * - Facture encore PARTIELLE → re-set `selectedFacture` avec l'objet
+   *   fraîchement chargé (nouvelle référence) → l'effect du panel réagit et
+   *   recharge son solde, permettant d'enregistrer un autre paiement sans
+   *   avoir à re-cliquer sur la ligne.
+   */
   async onPaiementSaved(): Promise<void> {
     this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
-    this.closePanel();
+    const currentId = this.selectedFacture()?.factureId;
     await this.load();
+    if (!currentId) return;
+    const updated = this.factures().find((f) => f.factureId === currentId);
+    if (!updated || updated.statut === 'PAYEE') {
+      this.closePanel();
+    } else {
+      this.selectedFacture.set(updated);
+    }
   }
 
   async envoyerWhatsapp(factureId: string, event: Event): Promise<void> {

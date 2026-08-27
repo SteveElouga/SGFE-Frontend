@@ -1,7 +1,9 @@
+<a class="shell__skip" href="#contenu">{{ 'COMMON.SKIP_TO_CONTENT' | translate }}</a>
+
 <div class="shell" [class.shell--menu-open]="layout.menuOpen()">
   <app-sidebar class="shell__sidebar" />
   <div class="shell__scrim" (click)="layout.closeMenu()" aria-hidden="true"></div>
-  <main class="shell__content">
+  <main class="shell__content" id="contenu" tabindex="-1">
     <router-outlet />
   </main>
   <app-bottom-tabs />

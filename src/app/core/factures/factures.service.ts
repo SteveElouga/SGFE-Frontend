@@ -46,6 +46,20 @@ import {
 export class FacturesService {
   private readonly apollo = inject(Apollo);
 
+  /**
+   * Cache mémoire pour `getFactures()` : évite les doublons quand plusieurs
+   * appelants (composant qui redirect puis re-mount, background loaders)
+   * demandent la même vue globale en <30s. Invalidé automatiquement après
+   * chaque mutation qui modifie les factures (enregistrer/générer/statut/WA).
+   * TTL court car nouvelles factures apparaissent vite en production.
+   */
+  private facturesCache: { key: string; data: Facture[]; ts: number } | null = null;
+  private static readonly CACHE_TTL_MS = 30_000;
+
+  private invalidateFacturesCache(): void {
+    this.facturesCache = null;
+  }
+
   async getFacturesParCampagne(campagneId: string): Promise<Facture[]> {
     const result = await firstValueFrom(
       this.apollo.query<{ facturesParCampagne: Facture[] }>({
@@ -119,6 +133,7 @@ export class FacturesService {
         variables: { campagneId, envoyerWhatsappAuto },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.genererFactures;
   }
 
@@ -129,6 +144,7 @@ export class FacturesService {
         variables: { campagneId },
       }),
     );
+    this.invalidateFacturesCache();
   }
 
   async envoyerFactureWhatsapp(factureId: string, abonneId: string): Promise<Envoi> {
@@ -138,6 +154,7 @@ export class FacturesService {
         variables: { factureId, abonneId },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.envoyerFactureWhatsapp;
   }
 
@@ -148,6 +165,7 @@ export class FacturesService {
         variables: { factureId },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.renvoyerFactureWhatsapp;
   }
 
@@ -159,6 +177,7 @@ export class FacturesService {
         variables: { envoiId },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.renvoyerEnvoi;
   }
 
@@ -176,6 +195,7 @@ export class FacturesService {
         },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.enregistrerPaiement;
   }
 
@@ -215,6 +235,15 @@ export class FacturesService {
     abonneId?: string;
     statut?: string;
   } = {}): Promise<Facture[]> {
+    const key = JSON.stringify(params);
+    const now = Date.now();
+    if (
+      this.facturesCache &&
+      this.facturesCache.key === key &&
+      now - this.facturesCache.ts < FacturesService.CACHE_TTL_MS
+    ) {
+      return this.facturesCache.data;
+    }
     const result = await firstValueFrom(
       this.apollo.query<{ factures: Facture[] }>({
         query: GET_FACTURES,
@@ -222,7 +251,9 @@ export class FacturesService {
         fetchPolicy: 'network-only',
       }),
     );
-    return result.data!.factures;
+    const data = result.data!.factures;
+    this.facturesCache = { key, data, ts: now };
+    return data;
   }
 
   async getTarifActuel(): Promise<Tarif | null> {
@@ -242,6 +273,7 @@ export class FacturesService {
         variables: { factureId, statut },
       }),
     );
+    this.invalidateFacturesCache();
     return result.data!.updateStatutFacture;
   }
 

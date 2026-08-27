@@ -62,4 +62,6 @@ AquaBill*.html
 
 # Outillage local (Claude Code, coverage)
 .claude/
-.coverage.impeccable/
+.coverage
+.impeccable/
+

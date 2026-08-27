@@ -3,6 +3,7 @@ import {
   ElementRef,
   OnDestroy,
   Renderer2,
+  effect,
   inject,
   input,
 } from '@angular/core';
@@ -15,6 +16,10 @@ import {
  * ```html
  * <button [appTooltip]="'ABONNES.TOOLTIP' | translate" tooltipPosition="bottom">…</button>
  * ```
+ *
+ * Accessibilité : sur un hôte sans texte visible (bouton à icône seule), le
+ * texte du tooltip devient son `aria-label`. Sans quoi un lecteur d'écran
+ * annonce « bouton », sans rien d'autre.
  */
 @Directive({
   selector: '[appTooltip]',
@@ -35,6 +40,21 @@ export class TooltipDirective implements OnDestroy {
 
   private panel: HTMLElement | null = null;
   private showTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    effect(() => {
+      const texte = this.appTooltip();
+      const hote = this.el.nativeElement;
+      // On ne remplace jamais un nom déjà fourni par le gabarit.
+      const dejaNomme =
+        !!hote.textContent?.trim() ||
+        hote.hasAttribute('aria-label') ||
+        hote.hasAttribute('aria-labelledby');
+      if (texte && !dejaNomme) {
+        this.renderer.setAttribute(hote, 'aria-label', texte);
+      }
+    });
+  }
 
   onMouseEnter(): void {
     if (!this.appTooltip()) return;
@@ -59,6 +79,8 @@ export class TooltipDirective implements OnDestroy {
     const panel = this.renderer.createElement('div') as HTMLElement;
     this.renderer.addClass(panel, 'aq-tooltip');
     this.renderer.setAttribute(panel, 'role', 'tooltip');
+    // Le nom est déjà porté par l'`aria-label` de l'hôte : on évite le doublon.
+    this.renderer.setAttribute(panel, 'aria-hidden', 'true');
     panel.textContent = this.appTooltip();
     this.renderer.appendChild(document.body, panel);
     this.panel = panel;
