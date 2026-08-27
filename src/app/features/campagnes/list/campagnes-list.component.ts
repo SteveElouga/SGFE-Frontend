@@ -13,10 +13,11 @@ import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { QueryRef } from 'apollo-angular';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
+import { nomCampagneAffichable } from '../../../shared/utils/campagne.utils';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import {
   Campagne,
-  CampagneAgent,
+  AgentAffecte,
   StatutCampagne,
   campagneStatutTone,
   formatPeriodeCampagne,
@@ -101,14 +102,14 @@ export class CampagnesListComponent implements OnInit {
     if (term) list = list.filter((c) => c.nom.toLowerCase().includes(term));
 
     const agent = this.filtreAgent();
-    if (agent) list = list.filter((c) => c.agents?.some((a) => a.username === agent));
+    if (agent) list = list.filter((c) => this.agentsDe(c)?.some((a) => a.username === agent));
 
     return list;
   });
 
   readonly agentsDisponibles = computed(() => {
     const set = new Set<string>();
-    this.campagnes().forEach((c) => c.agents?.forEach((a) => set.add(a.username)));
+    this.campagnes().forEach((c) => this.agentsDe(c)?.forEach((a) => set.add(a.username)));
     return [...set].sort((a, b) => a.localeCompare(b, 'fr')).map((u) => ({ label: u, value: u }));
   });
 
@@ -193,6 +194,7 @@ export class CampagnesListComponent implements OnInit {
           if (data?.campagnes) {
             this.campagnes.set(data.campagnes as Campagne[]);
             void this.loadProgressions(data.campagnes as Campagne[]);
+            void this.loadAgents(data.campagnes as Campagne[]);
           } else if (!loading) {
             this.error.set(this.translate.instant('CAMPAGNES.ERROR_LOAD'));
           }
@@ -215,6 +217,37 @@ export class CampagnesListComponent implements OnInit {
     }
   }
 
+  /**
+   * Agents affectés, par identifiant de campagne.
+   *
+   * Le type `Campagne` de la gateway n'expose pas `agents` — la colonne lisait
+   * un champ inexistant et affichait « — » pour toutes les campagnes, y compris
+   * celles qui en ont un. Le filtre « Tous les agents » restait vide pour la
+   * même raison. La query dédiée `agentsCampagne(campagneId)` existe depuis, et
+   * le détail de campagne s'en sert déjà.
+   *
+   * Une requête par campagne : acceptable ici (une campagne par mois), mais
+   * c'est bien un N+1. La vraie réponse reste d'exposer `agents` sur le type
+   * `Campagne` — voir `docs/BESOINS_API_campagne_agents.md`, dont la partie
+   * « pas de query de lecture » est désormais périmée.
+   */
+  private readonly agentsParCampagne = signal<Map<string, AgentAffecte[]>>(new Map());
+
+  agentsDe(c: Campagne): AgentAffecte[] | undefined {
+    return this.agentsParCampagne().get(c.campagneId);
+  }
+
+  private async loadAgents(campagnes: Campagne[]): Promise<void> {
+    const results = await Promise.allSettled(
+      campagnes.map((c) => this.service.getAgentsCampagne(c.campagneId)),
+    );
+    const map = new Map<string, AgentAffecte[]>();
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') map.set(campagnes[i].campagneId, r.value);
+    });
+    this.agentsParCampagne.set(map);
+  }
+
   private async loadProgressions(campagnes: Campagne[]): Promise<void> {
     const results = await Promise.allSettled(
       campagnes.map((c) => this.service.getProgression(c.campagneId)),
@@ -231,7 +264,22 @@ export class CampagnesListComponent implements OnInit {
     this.progressions.set(map);
   }
 
-  formatAgents(agents: CampagneAgent[] | undefined): string {
+  /**
+   * Nom affichable, suffixé de la date de création quand deux campagnes
+   * portent le même nom — le cas des deux « Août 2026 », que la liste rendait
+   * strictement indiscernables, même date planifiée comprise.
+   */
+  nomAffichable(c: Campagne): string {
+    const homonymes = this.campagnes().filter((x) => x.nom === c.nom).length;
+    return nomCampagneAffichable({
+      nom: c.nom,
+      dateCreation: c.dateCreation,
+      nbHomonymes: homonymes,
+      lang: this.translate.currentLang() ?? 'fr',
+    });
+  }
+
+  formatAgents(agents: AgentAffecte[] | undefined): string {
     if (!agents?.length) return '—';
     return agents.map((a) => a.username).join(' · ');
   }

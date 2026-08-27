@@ -17,6 +17,8 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { ExportsService } from '../../core/rapports/exports.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { GET_STATS_GLOBALES } from '../../graphql/queries/stats.queries';
+import { CampagnesService } from '../../core/campagnes/campagnes.service';
+import { nomCampagneAffichable } from '../../shared/utils/campagne.utils';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
 
@@ -59,11 +61,35 @@ export class RapportsListComponent implements OnInit {
     const homonymes = (this.stats()?.historiqueCampagnes ?? []).filter(
       (x) => x.nomCampagne === h.nomCampagne,
     ).length;
-    return homonymes > 1 ? `${h.nomCampagne} · ${h.campagneId.slice(0, 6)}` : h.nomCampagne;
+    return nomCampagneAffichable({
+      nom: h.nomCampagne,
+      // `StatsCampagne` ne porte pas de date : on la cherche dans la liste des
+      // campagnes réelles. Absente = la campagne n'existe plus côté Campagne,
+      // et le repli sur l'identifiant dit précisément cela.
+      dateCreation: this.datesCampagnes().get(h.campagneId) ?? null,
+      nbHomonymes: homonymes,
+      lang: this.translate.currentLang() ?? 'fr',
+      replisurId: h.campagneId,
+    });
+  }
+
+  /** Date de création par identifiant, pour désambiguïser les homonymes. */
+  private readonly datesCampagnes = signal<Map<string, string>>(new Map());
+
+  private async loadDatesCampagnes(): Promise<void> {
+    try {
+      const campagnes = await this.campagnesService.getCampagnes();
+      this.datesCampagnes.set(
+        new Map(campagnes.filter((c) => c.dateCreation).map((c) => [c.campagneId, c.dateCreation!])),
+      );
+    } catch {
+      // Non bloquant : sans les dates, on retombe sur le fragment d'identifiant.
+    }
   }
 
   private readonly apollo = inject(Apollo);
   private readonly exports = inject(ExportsService);
+  private readonly campagnesService = inject(CampagnesService);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
 
@@ -90,6 +116,7 @@ export class RapportsListComponent implements OnInit {
 
   ngOnInit(): void {
     void this.load();
+    void this.loadDatesCampagnes();
   }
 
   async load(): Promise<void> {

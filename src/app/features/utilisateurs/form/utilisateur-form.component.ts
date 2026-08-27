@@ -17,10 +17,12 @@ import { Role, User } from '../../../shared/models/user.model';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../../shared/utils/phone.utils';
 import { AuthFieldComponent } from '../../../shared/components/auth-field/auth-field.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 
 @Component({
   selector: 'app-utilisateur-form',
   imports: [
+    PageTopbarComponent,
     FormsModule,
     RouterLink,
     InputTextModule,

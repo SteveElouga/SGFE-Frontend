@@ -1,16 +1,18 @@
 
-<div class="user-form-page">
-  <nav class="user-form-page__breadcrumb">
-    <a routerLink="/utilisateurs" class="user-form-page__back">
-      <i class="pi pi-arrow-left"></i>
-      {{ 'UTILISATEURS.FORM.BACK' | translate }}
-    </a>
-  </nav>
+<!-- Cet écran se passait du bandeau partagé : ni fil d'Ariane, ni cloche, ni
+     titre de page — un lien « ← Retour » nu. C'était le vingtième écran hors
+     du composant, comme /terrain avant correction. -->
+<app-page-topbar
+  [title]="mode() === 'create' ? ('UTILISATEURS.FORM.CREATE_TITLE' | translate) : ('UTILISATEURS.FORM.EDIT_TITLE' | translate)"
+  backLink="/utilisateurs"
+  [backLabel]="'UTILISATEURS.TITLE' | translate"
+/>
 
+<div class="user-form-page">
   <div class="user-form-page__card">
-    <h1 class="user-form-page__title">
+    <h2 class="user-form-page__title">
       {{ mode() === 'create' ? ('UTILISATEURS.FORM.CREATE_TITLE' | translate) : ('UTILISATEURS.FORM.EDIT_TITLE' | translate) }}
-    </h1>
+    </h2>
     <p class="user-form-page__subtitle">
       @if (mode() === 'create') {
         {{ 'UTILISATEURS.FORM.SUBTITLE_CREATE' | translate }}
