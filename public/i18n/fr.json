@@ -25,7 +25,7 @@
     "CAMPAIGN_ACTIVE": "Campagne active"
   },
   "COMMON": {
-    "LOADING": "Chargement…",
+    "LOADING": "Chargement en cours",
     "RETRY": "Réessayer",
     "SAVE": "Enregistrer",
     "CANCEL": "Annuler",
@@ -43,7 +43,6 @@
     "YES": "Oui",
     "NO": "Non",
     "CLOSE": "Fermer",
-    "LOADING": "Chargement en cours",
     "BACK": "Retour",
     "SEE_ALL": "Voir tout",
     "CREATED_AT": "Créé le",
@@ -61,7 +60,8 @@
     "UNDO": "Annuler",
     "RESULTS_HERO_LABEL": "résultats",
     "RESULTS_HERO_OVER": "sur {{total}} au total",
-    "RESULTS_HERO_MULTI": "{{count}} filtres actifs"
+    "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
+    "SKIP_TO_CONTENT": "Aller au contenu"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -432,7 +432,6 @@
     "ACT_IMPAYE_SANS_NUM": "Impayé de {{ montant }} FCFA",
     "ACT_IMPAYE_META": "Auto",
     "CAMPAGNE_OVERLINE": "Campagne {{ periode }}",
-
     "MOIS_ACTUEL": "ce mois",
     "PERIODE": {
       "LABEL": "Période comparée",
@@ -483,7 +482,9 @@
       "TOOLTIP": "Consommation agrégée sur les factures générées ce mois. Une conso relevée en juin mais facturée en juillet apparaît en juillet."
     },
     "CAMPAIGNS": {
-      "ACTIVES": "Campagnes actives ({{count}})"
+      "ACTIVES": "Campagnes actives ({{count}})",
+      "AUCUNE": "Aucune campagne de relevé n'est ouverte en ce moment.",
+      "OUVRIR": "Ouvrir une campagne"
     },
     "SUPERVISEUR": {
       "MES_CAMPAGNES": "Mes campagnes ({{count}})",
@@ -502,6 +503,15 @@
       "AGENTS_INACTIFS": "{{count}} agent(s) inactif(s) depuis plus de 48h",
       "CAMPAGNES_RETARD": "{{count}} campagne(s) en retard (>20 jours)",
       "CAMPAGNES_PRETES_CLOTURE": "{{count}} campagne(s) prête(s) à clôturer (100% relevés)"
+    },
+    "ATTENTION": {
+      "TITRE": "Ce qui attend une action"
+    },
+    "MESURE": {
+      "CONSO": "consommés",
+      "FACTURE": "facturés",
+      "ENCAISSE": "encaissés",
+      "TITRE": "{{mois}} en chiffres"
     }
   },
   "CONFIGURATION": {
@@ -622,7 +632,8 @@
     "RESET_BTN": "Recevoir un lien de réinitialisation",
     "RESET_SENT": "Lien de réinitialisation envoyé par email.",
     "RESET_NO_EMAIL": "Aucun email associé à ce compte — contactez un administrateur.",
-    "LOGOUT": "Se déconnecter"
+    "LOGOUT": "Se déconnecter",
+    "DONNEES_NOTE": "Ces informations sont gérées par un administrateur. Pour les modifier, contactez-le."
   },
   "CAMPAGNES": {
     "TITLE": "Campagnes",
@@ -829,8 +840,8 @@
     "SEARCH_PLACEHOLDER": "Abonné, n° facture…",
     "COL_NUMERO": "N° Facture",
     "COL_ABONNE": "Abonné",
-    "COL_MONTANT": "Montant",
-    "COL_SOLDE": "Solde restant",
+    "COL_MONTANT": "Montant (FCFA)",
+    "COL_SOLDE": "Solde restant (FCFA)",
     "COL_STATUT": "Statut",
     "COL_ACTIONS": "Actions",
     "EMPTY": "Aucune facture pour cette campagne",
@@ -920,7 +931,10 @@
       "STATUT_INCOHERENT": "Statut incohérent avec le solde restant ({{solde}} FCFA). Le seul statut cohérent est « {{statut}} ».",
       "SOLDE_LABEL": "Solde restant dû",
       "CONSO_TARIF": "Consommation × tarif",
-      "RESTE_LABEL": "Reste à percevoir"
+      "RESTE_LABEL": "Reste à percevoir",
+      "BTN_CONFIRMER_CORRECTION": "Confirmer",
+      "CONFIRMER_CORRECTION_MSG": "Le statut passera à « {{statut}} » sans qu'aucun paiement soit enregistré.",
+      "SOLDE_PAR": "Solde réglé"
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",
@@ -963,7 +977,9 @@
     "EXPORT_EMPTY": "Aucun paiement à exporter avec ces filtres",
     "EXPORT_SUCCESS": "{{count}} paiement(s) exporté(s) — {{filename}}",
     "TOTAL_KPI_ARIA": "Total encaissé sur la période affichée",
-    "TOTAL_KPI_HINT": "sur {{count}} transaction(s) affichée(s)"
+    "TOTAL_KPI_HINT": "sur {{count}} transaction(s) affichée(s)",
+    "ANNULE": "Annulé",
+    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés"
   },
   "IMPAYES": {
     "TITLE": "Impayés",
@@ -1108,6 +1124,15 @@
       "RETRY": "↻ Réessayer",
       "FIX_NUMBER": "Corriger le n°",
       "VIEW_RECEIPT": "Voir le reçu"
+    },
+    "GEN": {
+      "ENVOI_ECHEC_TITRE": "Échec d'envoi WhatsApp",
+      "ENVOI_ECHEC_MSG": "{{qui}} · {{facture}} — {{raison}}. Renvoi manuel requis.",
+      "RAISON_INCONNUE": "motif non communiqué par la passerelle",
+      "IMPAYE_TITRE": "Facture impayée",
+      "IMPAYE_MSG": "{{qui}} · {{facture}} — solde restant {{solde}}.",
+      "PAIEMENT_TITRE": "Paiement encaissé",
+      "PAIEMENT_MSG": "{{montant}} · {{qui}} · {{facture}}."
     }
   },
   "TERRAIN": {
@@ -1202,8 +1227,15 @@
       "RELANCE_2": "Rappel 2",
       "AVERTISSEMENT": "Avertissement",
       "SUSPENSION": "Suspension",
-      "RETABLISSEMENT": "Rétablissement"
-    }
+      "RETABLISSEMENT": "Rétablissement",
+      "RECU": "Reçu"
+    },
+    "COUNT": "{{count}} envoi(s)",
+    "NB_ECHECS": "{{count}} échec(s)",
+    "AUJOURDHUI": "Aujourd'hui",
+    "HIER": "Hier",
+    "DESTINATAIRE_INCONNU": "Destinataire inconnu",
+    "FILTRE_ARIA": "Filtrer par statut"
   },
   "RAPPORTS": {
     "TITLE": "Rapports",

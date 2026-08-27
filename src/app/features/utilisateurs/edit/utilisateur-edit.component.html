@@ -8,7 +8,7 @@
       </svg>
     </button>
     <div>
-      <div class="uedit-topbar__title">{{ 'UTILISATEURS.EDIT.TITLE' | translate }}</div>
+      <h1 class="uedit-topbar__title">{{ 'UTILISATEURS.EDIT.TITLE' | translate }}</h1>
       @if (user()) {
         <div class="uedit-topbar__crumb">{{ 'UTILISATEURS.EDIT.BREADCRUMB' | translate : { username: user()!.username } }}</div>
       }

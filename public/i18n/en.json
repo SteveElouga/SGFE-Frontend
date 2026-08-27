@@ -25,7 +25,7 @@
     "CAMPAIGN_ACTIVE": "Active campaign"
   },
   "COMMON": {
-    "LOADING": "Loading…",
+    "LOADING": "Loading",
     "RETRY": "Retry",
     "SAVE": "Save",
     "CANCEL": "Cancel",
@@ -43,7 +43,6 @@
     "YES": "Yes",
     "NO": "No",
     "CLOSE": "Close",
-    "LOADING": "Loading",
     "BACK": "Back",
     "SEE_ALL": "See all",
     "CREATED_AT": "Created on",
@@ -61,7 +60,8 @@
     "UNDO": "Undo",
     "RESULTS_HERO_LABEL": "results",
     "RESULTS_HERO_OVER": "of {{total}} total",
-    "RESULTS_HERO_MULTI": "{{count}} active filters"
+    "RESULTS_HERO_MULTI": "{{count}} active filters",
+    "SKIP_TO_CONTENT": "Skip to content"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -432,7 +432,6 @@
     "ACT_IMPAYE_SANS_NUM": "Unpaid {{ montant }} FCFA",
     "ACT_IMPAYE_META": "Auto",
     "CAMPAGNE_OVERLINE": "Campaign {{ periode }}",
-
     "MOIS_ACTUEL": "this month",
     "PERIODE": {
       "LABEL": "Comparison period",
@@ -483,7 +482,9 @@
       "TOOLTIP": "Consumption aggregated from invoices generated this month. A reading from June invoiced in July appears in July."
     },
     "CAMPAIGNS": {
-      "ACTIVES": "Active campaigns ({{count}})"
+      "ACTIVES": "Active campaigns ({{count}})",
+      "AUCUNE": "No meter-reading campaign is currently open.",
+      "OUVRIR": "Open a campaign"
     },
     "SUPERVISEUR": {
       "MES_CAMPAGNES": "My campaigns ({{count}})",
@@ -502,6 +503,15 @@
       "AGENTS_INACTIFS": "{{count}} agent(s) inactive for more than 48h",
       "CAMPAGNES_RETARD": "{{count}} campaign(s) overdue (>20 days)",
       "CAMPAGNES_PRETES_CLOTURE": "{{count}} campaign(s) ready to close (100% readings)"
+    },
+    "ATTENTION": {
+      "TITRE": "Needs your attention"
+    },
+    "MESURE": {
+      "CONSO": "consumed",
+      "FACTURE": "invoiced",
+      "ENCAISSE": "collected",
+      "TITRE": "{{mois}} at a glance"
     }
   },
   "CONFIGURATION": {
@@ -622,7 +632,8 @@
     "RESET_BTN": "Send a reset link",
     "RESET_SENT": "Reset link sent by email.",
     "RESET_NO_EMAIL": "No email associated with this account — contact an administrator.",
-    "LOGOUT": "Sign out"
+    "LOGOUT": "Sign out",
+    "DONNEES_NOTE": "This information is managed by an administrator. Contact them to change it."
   },
   "CAMPAGNES": {
     "TITLE": "Campaigns",
@@ -829,8 +840,8 @@
     "SEARCH_PLACEHOLDER": "Subscriber, invoice no…",
     "COL_NUMERO": "Invoice No.",
     "COL_ABONNE": "Subscriber",
-    "COL_MONTANT": "Amount",
-    "COL_SOLDE": "Balance due",
+    "COL_MONTANT": "Amount (FCFA)",
+    "COL_SOLDE": "Outstanding (FCFA)",
     "COL_STATUT": "Status",
     "COL_ACTIONS": "Actions",
     "EMPTY": "No invoices for this campaign",
@@ -920,7 +931,10 @@
       "STATUT_INCOHERENT": "Status inconsistent with the remaining balance ({{solde}} FCFA). The only consistent status is “{{statut}}”.",
       "SOLDE_LABEL": "Outstanding balance",
       "CONSO_TARIF": "Consumption × rate",
-      "RESTE_LABEL": "Remaining to collect"
+      "RESTE_LABEL": "Remaining to collect",
+      "BTN_CONFIRMER_CORRECTION": "Confirm",
+      "CONFIRMER_CORRECTION_MSG": "The status will change to “{{statut}}” without recording any payment.",
+      "SOLDE_PAR": "Paid in full"
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",
@@ -963,7 +977,9 @@
     "EXPORT_EMPTY": "No payments to export with these filters",
     "EXPORT_SUCCESS": "{{count}} payment(s) exported — {{filename}}",
     "TOTAL_KPI_ARIA": "Total collected for the displayed period",
-    "TOTAL_KPI_HINT": "across {{count}} displayed transaction(s)"
+    "TOTAL_KPI_HINT": "across {{count}} displayed transaction(s)",
+    "ANNULE": "Cancelled",
+    "TOTAL_HORS_ANNULES": "{{count}} cancelled payment(s) excluded — {{montant}} not collected"
   },
   "IMPAYES": {
     "TITLE": "Overdue",
@@ -1108,6 +1124,15 @@
       "RETRY": "↻ Retry",
       "FIX_NUMBER": "Fix number",
       "VIEW_RECEIPT": "View receipt"
+    },
+    "GEN": {
+      "ENVOI_ECHEC_TITRE": "WhatsApp delivery failed",
+      "ENVOI_ECHEC_MSG": "{{qui}} · {{facture}} — {{raison}}. Manual resend required.",
+      "RAISON_INCONNUE": "no reason reported by the gateway",
+      "IMPAYE_TITRE": "Unpaid invoice",
+      "IMPAYE_MSG": "{{qui}} · {{facture}} — {{solde}} outstanding.",
+      "PAIEMENT_TITRE": "Payment collected",
+      "PAIEMENT_MSG": "{{montant}} · {{qui}} · {{facture}}."
     }
   },
   "TERRAIN": {
@@ -1202,8 +1227,15 @@
       "RELANCE_2": "Reminder 2",
       "AVERTISSEMENT": "Warning",
       "SUSPENSION": "Suspension",
-      "RETABLISSEMENT": "Reinstatement"
-    }
+      "RETABLISSEMENT": "Reinstatement",
+      "RECU": "Receipt"
+    },
+    "COUNT": "{{count}} message(s)",
+    "NB_ECHECS": "{{count}} failure(s)",
+    "AUJOURDHUI": "Today",
+    "HIER": "Yesterday",
+    "DESTINATAIRE_INCONNU": "Unknown recipient",
+    "FILTRE_ARIA": "Filter by status"
   },
   "RAPPORTS": {
     "TITLE": "Reports",

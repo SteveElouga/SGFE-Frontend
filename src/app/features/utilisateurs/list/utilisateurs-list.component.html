@@ -35,6 +35,7 @@
     <app-data-table
       [columns]="columns"
       [rows]="filteredUsers()"
+      [rowLink]="lienUtilisateur"
       [loading]="loading()"
       [pageSize]="20"
       trackKey="id"
@@ -117,16 +118,31 @@
             </span>
           </div>
           <div class="ucard__actions">
-            <button type="button" class="users-table__action-btn" (click)="editUser(user)">
-              <i class="pi pi-pencil"></i>
+            <button
+              type="button"
+              class="users-table__action-btn"
+              [attr.aria-label]="('COMMON.EDIT' | translate) + ' ' + user.username"
+              (click)="editUser(user)"
+            >
+              <i class="pi pi-pencil" aria-hidden="true"></i>
             </button>
             @if (user.isActive) {
-              <button type="button" class="users-table__action-btn users-table__action-btn--danger" (click)="confirmDeactivate(user)">
-                <i class="pi pi-ban"></i>
+              <button
+                type="button"
+                class="users-table__action-btn users-table__action-btn--danger"
+                [attr.aria-label]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
+                (click)="confirmDeactivate(user)"
+              >
+                <i class="pi pi-ban" aria-hidden="true"></i>
               </button>
             } @else {
-              <button type="button" class="users-table__action-btn users-table__action-btn--success" (click)="reactivate(user)">
-                <i class="pi pi-refresh"></i>
+              <button
+                type="button"
+                class="users-table__action-btn users-table__action-btn--success"
+                [attr.aria-label]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
+                (click)="reactivate(user)"
+              >
+                <i class="pi pi-refresh" aria-hidden="true"></i>
               </button>
             }
           </div>

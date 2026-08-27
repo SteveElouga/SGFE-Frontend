@@ -7,6 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common';
@@ -70,6 +71,9 @@ import { ToastService } from '../../../shared/services/toast.service';
   },
 })
 export class CampagneDetailComponent implements OnInit {
+  /** Ordre d'affichage unique du nom d'abonné — voir `abonne.utils.ts`. */
+  protected readonly nomAbonne = nomAbonne;
+
   /** Exposés au template pour la teinte des puces de statut. */
   protected readonly campagneStatutTone = campagneStatutTone;
   protected readonly releveStatutTone = releveStatutTone;

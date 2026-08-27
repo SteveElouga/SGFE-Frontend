@@ -14,7 +14,7 @@
         <header class="t-head">
           <div class="t-head__campagne">{{ campagneNom() || ('TERRAIN.NO_CAMPAGNE' | translate) }}</div>
           <div class="t-head__title-row">
-            <span class="t-head__title">{{ 'TERRAIN.TITLE' | translate }}</span>
+            <h1 class="t-head__title">{{ 'TERRAIN.TITLE' | translate }}</h1>
           </div>
           <div class="t-progress-row">
             <span>{{ 'TERRAIN.PROGRESS' | translate: { faits: nbFaits(), total: countTous() } }}</span>

@@ -26,7 +26,8 @@
     <div class="detail-header">
       <div class="detail-header__left">
         <div class="detail-header__title-row">
-          <h1 class="detail-header__nom">{{ c.nom }}</h1>
+          <!-- Le <h1> de la page est porté par <app-page-topbar>. -->
+          <h2 class="detail-header__nom">{{ c.nom }}</h2>
           <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
         </div>
         <p class="detail-header__meta">
@@ -320,7 +321,7 @@
               @let isARelever = r.statut === 'A_RELEVER';
               <tr [class.releves-table__row--muted]="isARelever">
                 <td class="col-abonne" [class.col-abonne--muted]="isARelever">
-                  @let nomAb = ((r.abonnePrenom ?? '') + ' ' + (r.abonneNom ?? '')).trim();
+                  @let nomAb = nomAbonne(r.abonnePrenom, r.abonneNom);
                   @if (nomAb) {
                     {{ nomAb }}@if (r.numeroAbonne) { <span class="id-fallback">{{ r.numeroAbonne }}</span> }
                   } @else {
@@ -374,7 +375,7 @@
           <div class="rm-card">
             <span class="rm-card__dot rm-card__dot--{{ r.statut | lowercase }}"></span>
             <div class="rm-card__info">
-              @let nomCard = ((r.abonneNom ?? '') + ' ' + (r.abonnePrenom ?? '')).trim();
+              @let nomCard = nomAbonne(r.abonnePrenom, r.abonneNom);   <!-- même ordre que le tableau -->
               <span class="rm-card__nom">{{ nomCard || r.numeroAbonne || (r.abonneId | slice:0:8) }}</span>
               <span class="rm-card__sub">
                 @if (isReleve) {

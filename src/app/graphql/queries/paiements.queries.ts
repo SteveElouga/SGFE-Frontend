@@ -10,6 +10,10 @@ export const GET_ALL_PAIEMENTS = gql`
       modePaiement
       referenceTransaction
       createdAt
+      annule
+      annuleLe
+      annulePar
+      motifAnnulation
     }
   }
 `;
