@@ -8,6 +8,24 @@ import {
   output,
 } from '@angular/core';
 
+/**
+ * Vitesse (px/ms) au-delà de laquelle un geste bref referme, quelle qu'en soit
+ * l'amplitude. Sans elle, un petit coup sec vers le bas ne ferme pas : il faut
+ * traîner la feuille jusqu'au seuil, ce qui donne une impression de résistance
+ * là où le doigt a clairement dit « va-t'en ».
+ */
+const VITESSE_FERMETURE = 0.11;
+
+/** Distance (px) au-delà de laquelle on referme même sans élan. */
+const DISTANCE_FERMETURE = 96;
+
+/**
+ * Amortissement du glissement vers le haut. La feuille est déjà en butée ; on
+ * ne bloque pas net pour autant — rien ne s'arrête net dans le monde réel, et
+ * un mur invisible se sent immédiatement.
+ */
+const AMORTI_HAUT = 0.25;
+
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -41,7 +59,16 @@ const FOCUSABLE_SELECTOR =
       [attr.aria-labelledby]="labelledBy() || null"
       [attr.aria-label]="labelledBy() ? null : (ariaLabel() || null)"
     >
-      <div class="bs-sheet__grip" aria-hidden="true"></div>
+      <div
+        class="bs-sheet__poignee"
+        aria-hidden="true"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointercancel)="onPointerUp($event)"
+      >
+        <div class="bs-sheet__grip"></div>
+      </div>
       <div class="bs-sheet__body">
         <ng-content />
       </div>
@@ -104,6 +131,78 @@ export class BottomSheetComponent {
       '[BottomSheetComponent] Ouverte sans nom accessible. Ajoutez ' +
         '`labelledBy="<id-du-titre>"` ou `ariaLabel="Titre"` sur <app-bottom-sheet>.',
     );
+  }
+
+  // ── Glisser pour fermer ────────────────────────────────────────────────────
+  //
+  // La poignée était dessinée mais ne servait à rien. C'est une promesse : sur
+  // un téléphone, un trait arrondi en haut d'une feuille annonce qu'on peut la
+  // tirer. Le premier geste de quelqu'un qui veut fermer est de la pousser vers
+  // le bas — et il ne se passait rien, ce qui se lit comme une panne avant de se
+  // lire comme une absence de fonctionnalité.
+  //
+  // Le geste n'existe qu'en mobile : au-delà de 1024 px, la feuille est un
+  // dialog centré, que tirer vers le bas n'aurait aucun sens.
+
+  private depart = 0;
+  private departLe = 0;
+  private decalage = 0;
+  private pointeur: number | null = null;
+
+  private get panneau(): HTMLElement | null {
+    return this.hostRef.nativeElement.querySelector('.bs-sheet');
+  }
+
+  private get gesteApplicable(): boolean {
+    return window.matchMedia('(max-width: 1023px)').matches;
+  }
+
+  onPointerDown(ev: PointerEvent): void {
+    // Un second doigt en cours de glissement ferait sauter la feuille jusqu'à
+    // lui : on ignore tout ce qui arrive après le premier.
+    if (this.pointeur !== null || !this.open() || !this.gesteApplicable) return;
+    this.pointeur = ev.pointerId;
+    this.depart = ev.clientY;
+    this.departLe = ev.timeStamp;
+    this.decalage = 0;
+    // La capture garde le geste même si le doigt sort de la poignée — sinon
+    // glisser vite fait perdre le contact au bout de quelques pixels.
+    (ev.target as HTMLElement).setPointerCapture?.(ev.pointerId);
+    const el = this.panneau;
+    if (el) el.style.transition = 'none';
+  }
+
+  onPointerMove(ev: PointerEvent): void {
+    if (this.pointeur !== ev.pointerId) return;
+    const brut = ev.clientY - this.depart;
+    // Vers le haut, la feuille est en butée : on laisse un peu de mou plutôt
+    // qu'un blocage sec.
+    this.decalage = brut >= 0 ? brut : brut * AMORTI_HAUT;
+    const el = this.panneau;
+    // On écrit `transform` sur l'élément et non une variable CSS : une variable
+    // posée sur un parent ferait recalculer les styles de tous ses enfants à
+    // chaque image, et une feuille en contient beaucoup.
+    if (el) el.style.transform = `translate(-50%, ${this.decalage}px)`;
+  }
+
+  onPointerUp(ev: PointerEvent): void {
+    if (this.pointeur !== ev.pointerId) return;
+    const el = this.panneau;
+    const duree = Math.max(1, ev.timeStamp - this.departLe);
+    const vitesse = this.decalage / duree;
+    this.pointeur = null;
+
+    if (el) {
+      el.style.transition = '';
+      el.style.transform = '';
+    }
+
+    // Un geste bref et net vaut un geste long : on referme sur l'élan comme sur
+    // la distance.
+    if (this.decalage > DISTANCE_FERMETURE || vitesse > VITESSE_FERMETURE) {
+      this.close.emit();
+    }
+    this.decalage = 0;
   }
 
   onEscape(): void {

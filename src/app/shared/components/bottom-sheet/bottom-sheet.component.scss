@@ -60,15 +60,28 @@
     }
   }
 
+  // Zone de préhension : le trait fait 4 px de haut, ce qui est intenable au
+  // doigt. La zone sensible l'entoure sans se voir.
+  &__poignee {
+    flex-shrink: 0;
+    padding: var(--pas-2) 0 var(--pas-1);
+    cursor: grab;
+    // Sans cela, le navigateur interprète le glissement vertical comme un
+    // défilement et le geste ne parvient jamais au composant.
+    touch-action: none;
+
+    &:active { cursor: grabbing; }
+
+    @media (min-width: 1024px) { display: none; }
+  }
+
   &__grip {
     width: 40px;
     height: 4px;
     background: var(--filet);
     border-radius: var(--rayon-xs);
-    margin: 10px auto 0;
+    margin: 6px auto 0;
     flex-shrink: 0;
-
-    @media (min-width: 1024px) { display: none; }
   }
 
   &__body {
