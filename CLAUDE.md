@@ -453,6 +453,37 @@ npx tsc --noEmit
 
 ---
 
+## Budgets de build — seuils mesurés, pas hérités
+
+`angular.json` porte deux budgets. Ce ne sont **pas** les valeurs par défaut de
+la CLI : elles ont été recalibrées le 27 août 2026 sur des mesures réelles,
+après avoir cherché le gaspillage plutôt que de déplacer le seuil.
+
+| Budget | Alerte | Erreur | Mesuré ce jour-là |
+|---|---|---|---|
+| `initial` | 680 kB | 800 kB | **652,68 kB** (165,14 kB transférés) |
+| `anyComponentStyle` | 20 kB | 26 kB | **19,48 kB** (`campagne-detail`) |
+
+**Pourquoi 680 et non 500.** Le bundle initial est à 96 % du framework :
+Angular 282 kB (core, router, common), Apollo + GraphQL 152 kB, runtime PrimeNG
+43 kB, rxjs 23 kB, ngx-translate 16 kB. Le code de l'application elle-même pèse
+**24 kB**. Descendre sous 500 kB demanderait d'abandonner Apollo, que la règle
+fondamentale de ce projet impose. Le vrai gaspillage a été trouvé et retiré :
+le préréglage Aura importé en bloc coûtait 76 kB de jetons pour 77 composants
+jamais rendus (voir `core/theme/aquabill-preset.ts`).
+
+**Pourquoi 20 et non 12.** L'hypothèse d'une duplication massive entre feuilles
+de composants est fausse : mesurée, elle est de **6,3 %**. Déduplication
+complète, la pire feuille passerait de 23,4 à 21,8 kB — toujours au-dessus de
+12. Ces écrans ont simplement beaucoup de styles distincts.
+
+Un budget sert de fil de détente contre les régressions, pas de vœu pieux : ces
+seuils laissent ~4 % de marge sur le mesuré, donc toute dérive réelle les fait
+sauter. **Les relever de nouveau sans avoir d'abord cherché le gaspillage serait
+manquer leur but.**
+
+---
+
 ## Interface Terrain — Priorité absolue mobile
 
 L'interface agent (`features/terrain/`) est la plus critique du projet.

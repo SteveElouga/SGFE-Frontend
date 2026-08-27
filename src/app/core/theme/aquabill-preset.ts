@@ -1,8 +1,65 @@
 import { definePreset } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
+import base from '@primeuix/themes/aura/base';
+import cssAura from '@primeuix/themes/aura/css';
+import button from '@primeuix/themes/aura/button';
+import confirmdialog from '@primeuix/themes/aura/confirmdialog';
+import datepicker from '@primeuix/themes/aura/datepicker';
+import dialog from '@primeuix/themes/aura/dialog';
+import iconfield from '@primeuix/themes/aura/iconfield';
+import inputtext from '@primeuix/themes/aura/inputtext';
+import password from '@primeuix/themes/aura/password';
+import popover from '@primeuix/themes/aura/popover';
+import ripple from '@primeuix/themes/aura/ripple';
+import select from '@primeuix/themes/aura/select';
+import toast from '@primeuix/themes/aura/toast';
+import tooltip from '@primeuix/themes/aura/tooltip';
 
-// Palette alignée sur l'identité AquaBill (bleu #1a56db — voir maquettes Claude Design)
-export const AquaBillPreset = definePreset(Aura, {
+/**
+ * Préréglage composé à la pièce, et non dérivé de `@primeuix/themes/aura`.
+ *
+ * L'import par défaut d'Aura est **un seul module de 106 kB** portant les
+ * jetons des 88 composants de la bibliothèque. Aucun bundler ne peut l'élaguer :
+ * `definePreset` consomme l'objet entier. L'application en monte onze — garder
+ * les 77 autres, c'était 74 kB de jetons pour des composants qui ne seront
+ * jamais rendus.
+ *
+ * Aura publiant un module par composant, on ne prend que le nécessaire et
+ * l'élagage devient celui du bundler, pas un filtrage à l'exécution (qui,
+ * lui, ne retire rien du bundle — vérifié).
+ *
+ * `ripple` et `tooltip` ne correspondent à aucun import `primeng/*` : ce sont
+ * des comportements que les composants PrimeNG activent eux-mêmes.
+ *
+ * ⚠️ Monter un nouveau composant PrimeNG sans ajouter son import ici le rendrait
+ * sans style, silencieusement. `aquabill-preset.spec.ts` compare cette liste
+ * aux imports `primeng/*` du code source et échoue si l'une avance sans l'autre.
+ */
+// Le sous-chemin `aura/css` déclare un export nommé `css` dans ses `.d.ts`
+// mais n'expose qu'un export par défaut à l'exécution (`export { t as default }`).
+// Le paquet se contredit ; on suit le runtime et on redonne le type que ses
+// propres types annoncent.
+const css = cssAura as unknown as string;
+
+const AuraMinimal = {
+  ...base,
+  css,
+  components: {
+    button,
+    confirmdialog,
+    datepicker,
+    dialog,
+    iconfield,
+    inputtext,
+    password,
+    popover,
+    ripple,
+    select,
+    toast,
+    tooltip,
+  },
+};
+
+export const AquaBillPreset = definePreset(AuraMinimal, {
   semantic: {
     primary: {
       50: '#eff6ff',
