@@ -144,6 +144,31 @@
   --rayon-lg:  12px;    // feuille modale, grande carte
   --rayon-rond: 999px;  // chip, avatar, point
 
+  // ── 4bis. Échelle typographique ────────────────────────────────────────────
+  // Il n'y en avait aucune : 25 tailles distinctes dans le dépôt, de 10 à 30 px,
+  // avec 10 / 10,5 / 11 px voisines et indiscernables. Un continuum, pas une
+  // échelle — et la cause directe des badges de statut rendus à trois tailles
+  // différentes selon l'écran.
+  //
+  // Sept crans suffisent. Le plancher est à 11 px : sous cette taille, un écran
+  // de terrain tenu à bout de bras en plein soleil ne se lit plus.
+  --texte-xs:   11px;   // badge, étiquette de colonne, méta
+  --texte-sm:   12px;   // aide sous un champ, sous-titre de ligne
+  --texte-md:   13px;   // texte de tableau, corps dense
+  --texte-lg:   14px;   // corps courant
+  --texte-xl:   16px;   // sous-titre de section
+  --texte-2xl:  20px;   // titre d'écran
+  --texte-3xl:  30px;   // chiffre de KPI
+
+  // ── 4ter. Badge de statut ──────────────────────────────────────────────────
+  // Un seul badge, partout. Mesuré avant : 10 / 10,5 / 11 px, rayons 4 / 6 /
+  // 12 px, capitales sur trois écrans et casse normale sur deux.
+  --badge-texte:  var(--texte-xs);
+  --badge-rayon:  var(--rayon-sm);
+  --badge-poids:  600;
+  --badge-casse:  uppercase;
+  --badge-espace: 0.04em;
+
   // ── 5. Élévation ──────────────────────────────────────────────────────────
   // L'ombre d'un CTA prend la teinte du CTA (règle du DESIGN.md).
   --ombre-carte:   0 1px 2px rgba(15, 28, 61, 0.05);

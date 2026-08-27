@@ -194,11 +194,11 @@
 .mode-badge {
   display: inline-block;
   padding: var(--pas-1) var(--pas-2);
-  border-radius: var(--rayon-sm);                 // rounded.sm — aligné sur <app-badge> partagé
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  border-radius: var(--badge-rayon);                 // rounded.sm — aligné sur <app-badge> partagé
+  font-size: var(--badge-texte);
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
   border: 1px solid;
 
   &--especes      { background: var(--surface-douce); border-color: var(--filet); color: var(--encre-2); }

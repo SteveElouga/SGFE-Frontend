@@ -1,14 +1,17 @@
+// Référence unique du badge de statut. Mesuré avant unification : cinq variantes
+// dans l'application, de 10 à 11 px, rayons 4 / 6 / 12 px, capitales sur trois
+// écrans et casse normale sur deux. Tout passe désormais par les jetons.
 .badge {
   display: inline-flex;
   align-items: center;
-  border-radius: var(--rayon-sm);
+  border-radius: var(--badge-rayon);
   border: 1px solid transparent;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
   white-space: nowrap;
 
-  &--md { padding: var(--pas-1) var(--pas-2); font-size: 10.5px; }
+  &--md { padding: var(--pas-1) var(--pas-2); font-size: var(--badge-texte); }
   &--lg { padding: var(--pas-2) var(--pas-4); font-size: 14px; letter-spacing: 0.4px; }  // Héro : statut dominant (facturation PAYÉE)
 
   &--success { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }

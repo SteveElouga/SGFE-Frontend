@@ -76,13 +76,13 @@
 
 // Le type de message est un attribut du destinataire, pas l'inverse.
 .envoi__type {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: var(--badge-texte);
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
   color: var(--encre-2);
   background: var(--fond);
-  border-radius: var(--rayon-xs);
+  border-radius: var(--badge-rayon);
   padding: var(--pas-1) var(--pas-2);
 }
 
