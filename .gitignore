@@ -65,3 +65,9 @@ AquaBill*.html
 .coverage
 .impeccable/
 
+
+# Scripts de diagnostic temporaires (Playwright) — jamais versionnés.
+.diag.mjs
+.mob.mjs
+.render-tmp.mjs
+.verif-tmp.mjs
