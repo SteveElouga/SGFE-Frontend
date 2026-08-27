@@ -103,8 +103,17 @@ export class RelancesHistoriqueComponent implements OnInit {
 
   readonly headerMeta = computed(() => {
     const lang = this.translate.currentLang() ?? undefined;
+    const jours = this.retardJours();
+    // « Échéance dépassée de 0 jours » n'a pas de sens : à zéro, l'échéance
+    // tombe aujourd'hui. Et « 1 jours » n'en a pas davantage.
+    const cle =
+      jours <= 0
+        ? 'RELANCES.HEADER_META_AUJ'
+        : jours === 1
+          ? 'RELANCES.HEADER_META_JOUR'
+          : 'RELANCES.HEADER_META';
     return this.translate.instant(
-      'RELANCES.HEADER_META',
+      cle,
       {
         facture: this.facture()?.numeroFacture ?? '—',
         solde: formatFcfa(this.soldeRestant()),

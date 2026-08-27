@@ -16,6 +16,7 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { Abonne, Compteur, HistoriqueCompteurEntry, StatutAbonne } from '../../../shared/models/abonne.model';
 import { Facture } from '../../../shared/models/facture.model';
+import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
 import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
@@ -95,6 +96,22 @@ export class AbonneDetailComponent {
   );
   readonly nbFactures = computed(() => this.factures().length);
 
+  /**
+   * Solde réellement dû par l'abonné.
+   *
+   * La carte lisait `abonne.soldeImpayes` — un champ que **la gateway n'expose
+   * pas** sur le type `Abonne` (vérifié par introspection). Le modèle le
+   * déclarait optionnel, donc rien n'a jamais protesté : la carte affichait
+   * « — » pour tous les abonnés, à jamais, pendant que l'onglet Factures
+   * juste en dessous listait leurs factures impayées.
+   *
+   * `Facture` ne porte pas le solde non plus — il vit sur `SoldeFacture`. On
+   * interroge donc le solde de chaque facture non soldée (une poignée par
+   * abonné) et on additionne. `null` tant que rien n'a été chargé : on ne
+   * prétend pas qu'un solde inconnu vaut zéro.
+   */
+  readonly soldeImpaye = signal<number | null>(null);
+
   /** Conso moyenne sur les 6 dernières factures (m³), arrondie. */
   readonly consoMoyenne = computed(() => {
     const list = this.facturesTriees().slice(0, 6);
@@ -127,7 +144,10 @@ export class AbonneDetailComponent {
 
   readonly initial = computed(() => {
     const a = this.abonne();
-    return a ? (a.nom[0] ?? '?').toUpperCase() : '?';
+    // L'initiale se prenait sur `nom`, qui vaut « Mr/Mme » pour l'essentiel du
+    // fichier abonnés : tous les avatars affichaient « M ». On la prend sur le
+    // nom tel qu'il est affiché.
+    return a ? (nomAbonne(a.prenom, a.nom)[0] ?? '?').toUpperCase() : '?';
   });
 
   readonly localisationLine = computed(() => {
@@ -168,27 +188,31 @@ export class AbonneDetailComponent {
   });
 
   readonly soldeKpiClass = computed(() => {
-    const s = this.abonne()?.soldeImpayes;
-    if (s === undefined || s === null) return 'abonne-kpi--slate';
+    const s = this.soldeImpaye();
+    if (s === null) return 'abonne-kpi--slate';
     return s === 0 ? 'abonne-kpi--green' : 'abonne-kpi--red';
   });
 
   readonly soldeFormate = computed(() => {
-    const s = this.abonne()?.soldeImpayes;
-    if (s === undefined || s === null) return '—';
+    const s = this.soldeImpaye();
+    if (s === null) return '—';
     return formatFcfa(s);
   });
 
   /** Titre du topbar : nom+prénom quand chargé, "…" en chargement. */
   readonly topbarTitle = computed(() => {
     const a = this.abonne();
-    if (a) return `${a.nom} ${a.prenom}`;
+    // Le pipe `nomAbonne` avait été posé sur le gabarit et pas ici : la barre
+    // affichait « Mr/Mme Jeoffred » quand la carte, 130 px plus bas, affichait
+    // « Jeoffred Mr/Mme ». Même ordre partout — prénom puis nom, comme la
+    // gateway le compose dans `Facture.abonneNom`.
+    if (a) return nomAbonne(a.prenom, a.nom);
     return this.translate.instant('COMMON.LOADING');
   });
 
   readonly soldeSub = computed(() => {
-    const s = this.abonne()?.soldeImpayes;
-    if (s === undefined || s === null) return '';
+    const s = this.soldeImpaye();
+    if (s === null) return '';
     const lang = this.translate.currentLang() ?? undefined;
     const key = s === 0 ? 'ABONNES.DETAIL.SOLDE_ZERO' : 'ABONNES.DETAIL.SOLDE_DU';
     return this.translate.instant(key, {}, lang);
@@ -247,11 +271,35 @@ export class AbonneDetailComponent {
     try {
       const factures = await this.facturesService.getFactures({ abonneId: this.abonneId });
       this.factures.set(factures);
+      await this.calculerSolde(factures);
     } catch {
       // Non bloquant : la fiche reste utilisable sans l'historique de facturation.
     } finally {
       this.facturesLoading.set(false);
     }
+  }
+
+  /**
+   * Additionne les soldes restants des factures non soldées. Les erreurs par
+   * facture sont avalées : un solde partiel vaut mieux qu'une carte vide, et
+   * la fiche reste utilisable sans.
+   */
+  private async calculerSolde(factures: readonly Facture[]): Promise<void> {
+    const impayees = factures.filter((f) => f.statut !== 'PAYEE');
+    if (impayees.length === 0) {
+      this.soldeImpaye.set(0);
+      return;
+    }
+    const soldes = await Promise.all(
+      impayees.map((f) =>
+        this.facturesService
+          .getSoldeFacture(f.factureId)
+          .then((s) => s.soldeRestant ?? 0)
+          .catch(() => null),
+      ),
+    );
+    const connus = soldes.filter((v): v is number => v !== null);
+    this.soldeImpaye.set(connus.length > 0 ? connus.reduce((a, b) => a + b, 0) : null);
   }
 
   periodeFacture(f: Facture): string {
