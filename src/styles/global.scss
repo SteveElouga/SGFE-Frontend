@@ -51,12 +51,20 @@ textarea {
   white-space: nowrap;
   max-width: 260px;
   white-space: normal;
-  animation: aq-tooltip-in 0.12s ease;
+  // `transform-origin` est posé par la directive selon le côté d'apparition :
+  // le panneau naît du bouton, pas d'un point abstrait au milieu de lui-même.
+  // Un `scale` partant de 0,96 plutôt que de zéro : rien, dans le monde réel,
+  // n'apparaît à partir de rien.
+  animation: aq-tooltip-in 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+
+  // Deuxième tooltip d'affilée : il s'ouvre déjà sans délai, l'animer en plus
+  // rejouerait à chaque bouton un mouvement que l'utilisateur vient de voir.
+  &[data-instantane] { animation: none; }
 }
 
 @keyframes aq-tooltip-in {
-  from { opacity: 0; transform: translateY(3px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 // ── Retour au toucher : l'interface répond à l'appui ─────────────────────────
