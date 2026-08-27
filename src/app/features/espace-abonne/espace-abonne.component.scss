@@ -184,12 +184,17 @@
     color: var(--encre-3);
   }
 
+  // Une somme ne se coupe pas : « 73 00 / 0 FCFA » sur deux lignes se lit mal
+  // et se lit faux. Plutôt que de la laisser se briser ou déborder, on la
+  // laisse rétrécir jusqu'à tenir — le chiffre reste d'un seul tenant à
+  // toutes les largeurs.
   &__val {
-    font-size: var(--texte-3xl);
+    font-size: clamp(var(--texte-xl), 7vw, var(--texte-3xl));
     font-weight: 800;
     line-height: 1.1;
     color: var(--encre);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   &__sub { font-size: var(--texte-md); color: var(--encre-2); }
@@ -232,12 +237,15 @@
   // retrouver, pas le relire.
   &--soldee { background: var(--surface-douce); box-shadow: none; }
 
+  // Le numéro peut être long et le badge ne se coupe pas : sans ces trois
+  // règles, l'en-tête pousse la carte hors de l'écran sur un petit téléphone.
   &__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--pas-2);
     margin-bottom: var(--pas-3);
+    flex-wrap: wrap;
   }
 
   &__num {
@@ -245,6 +253,8 @@
     font-weight: 700;
     color: var(--encre);
     font-variant-numeric: tabular-nums;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   &__motif {
@@ -258,6 +268,10 @@
     font-size: var(--texte-md);
     color: var(--info-encre);
     line-height: 1.5;
+    // Le motif est une phrase libre saisie par un agent : rien ne garantit
+    // qu'elle contienne un point de césure avant le bord de l'écran.
+    overflow-wrap: anywhere;
+    min-width: 0;
 
     .pi { margin-top: 2px; flex-shrink: 0; }
   }
@@ -304,6 +318,7 @@
   padding: var(--pas-1) var(--pas-3);
   border-radius: var(--rayon-rond);
   white-space: nowrap;
+  flex-shrink: 0;
 
   &--ok { background: var(--succes-fond); color: var(--succes-encre); }
   &--warn { background: var(--attente-fond); color: var(--attente-encre); }
@@ -346,5 +361,4 @@
 
 @media (max-width: 420px) {
   .ea-fac__grid { grid-template-columns: 1fr; }
-  .ea-solde__val { font-size: var(--texte-2xl); }
 }

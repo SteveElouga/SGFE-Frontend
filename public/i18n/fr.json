@@ -1316,7 +1316,7 @@
     "HEADING": "Vos factures",
     "LOADING": "Chargement de vos factures…",
     "SOLDE_TOTAL": "Solde total à régler",
-    "FACTURES_A_REGLER": "{{ n }} facture(s) avec un reste à payer",
+    "FACTURES_A_REGLER": "{{ n }} factures avec un reste à payer",
     "TOUT_PAYE": "Tout est réglé — merci !",
     "LIEN_VALIDE_JUSQU": "Lien valable jusqu'au {{ date }}",
     "FACTURE": "Facture",
@@ -1335,16 +1335,20 @@
     "RETRY": "Réessayer",
     "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau",
     "RIEN_ECHU": "Rien n'est encore en retard — à régler avant le {{ date }}",
-    "DONT_ECHU": "Dont {{ montant }} en retard depuis {{ n }} jour(s)",
+    "DONT_ECHU": "Dont {{ montant }} en retard depuis {{ n }} jours",
     "REGULARISATION": "Régularisation",
-    "RETARD_DEPUIS": "En retard depuis {{ n }} jour(s)",
-    "ECHEANCE_PROCHE": "À régler dans {{ n }} jour(s)",
+    "RETARD_DEPUIS": "En retard depuis {{ n }} jours",
+    "ECHEANCE_PROCHE": "À régler dans {{ n }} jours",
     "BADGE": {
       "REGLEE": "Réglée",
       "PARTIELLE": "Partielle",
       "EN_RETARD": "En retard",
       "A_VENIR": "À régler"
-    }
+    },
+    "FACTURES_A_REGLER_UNE": "1 facture avec un reste à payer",
+    "DONT_ECHU_UN": "Dont {{ montant }} en retard depuis 1 jour",
+    "RETARD_DEPUIS_UN": "En retard depuis 1 jour",
+    "ECHEANCE_PROCHE_UN": "À régler demain"
   },
   "APP": {
     "NAME": "SGFE",

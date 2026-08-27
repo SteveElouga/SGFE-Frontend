@@ -1316,7 +1316,7 @@
     "HEADING": "Your invoices",
     "LOADING": "Loading your invoices…",
     "SOLDE_TOTAL": "Total amount due",
-    "FACTURES_A_REGLER": "{{ n }} invoice(s) with a balance due",
+    "FACTURES_A_REGLER": "{{ n }} invoices with a balance due",
     "TOUT_PAYE": "Everything is paid — thank you!",
     "LIEN_VALIDE_JUSQU": "Link valid until {{ date }}",
     "FACTURE": "Invoice",
@@ -1335,16 +1335,20 @@
     "RETRY": "Retry",
     "FOOTER": "SGFE · Secure access to your water invoices",
     "RIEN_ECHU": "Nothing overdue yet — due by {{ date }}",
-    "DONT_ECHU": "Including {{ montant }} overdue for {{ n }} day(s)",
+    "DONT_ECHU": "Including {{ montant }} overdue for {{ n }} days",
     "REGULARISATION": "Adjustment",
-    "RETARD_DEPUIS": "Overdue for {{ n }} day(s)",
-    "ECHEANCE_PROCHE": "Due in {{ n }} day(s)",
+    "RETARD_DEPUIS": "Overdue for {{ n }} days",
+    "ECHEANCE_PROCHE": "Due in {{ n }} days",
     "BADGE": {
       "REGLEE": "Paid",
       "PARTIELLE": "Partial",
       "EN_RETARD": "Overdue",
       "A_VENIR": "Due"
-    }
+    },
+    "FACTURES_A_REGLER_UNE": "1 invoice with a balance due",
+    "DONT_ECHU_UN": "Including {{ montant }} overdue for 1 day",
+    "RETARD_DEPUIS_UN": "Overdue for 1 day",
+    "ECHEANCE_PROCHE_UN": "Due tomorrow"
   },
   "APP": {
     "NAME": "SGFE",

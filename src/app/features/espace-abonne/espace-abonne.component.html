@@ -64,7 +64,7 @@
                   </span>
                 } @else {
                   <span class="ea-solde__sub">
-                    {{ 'ESPACE.FACTURES_A_REGLER' | translate: { n: nbAPayer() } }}
+                    {{ pluriel('ESPACE.FACTURES_A_REGLER', nbAPayer(), '_UNE') | translate: { n: nbAPayer() } }}
                   </span>
                 }
               }
@@ -73,7 +73,7 @@
                 <span class="ea-solde__label">{{ 'ESPACE.SOLDE_TOTAL' | translate }}</span>
                 <span class="ea-solde__val">{{ soldeTotal() | fcfa }}</span>
                 <span class="ea-solde__sub">
-                  {{ 'ESPACE.DONT_ECHU' | translate: { montant: (soldeEchu() | fcfa), n: retardMax() } }}
+                  {{ pluriel('ESPACE.DONT_ECHU', retardMax()) | translate: { montant: (soldeEchu() | fcfa), n: retardMax() } }}
                 </span>
               }
             }
@@ -168,11 +168,11 @@
                        elle ne se déduit pas d'une date. -->
                   @if (l.joursDeRetard > 0) {
                     <p class="ea-fac__retard">
-                      {{ 'ESPACE.RETARD_DEPUIS' | translate: { n: l.joursDeRetard } }}
+                      {{ pluriel('ESPACE.RETARD_DEPUIS', l.joursDeRetard) | translate: { n: l.joursDeRetard } }}
                     </p>
                   } @else if (l.joursRestants > 0 && l.joursRestants <= 7) {
                     <p class="ea-fac__bientot">
-                      {{ 'ESPACE.ECHEANCE_PROCHE' | translate: { n: l.joursRestants } }}
+                      {{ pluriel('ESPACE.ECHEANCE_PROCHE', l.joursRestants) | translate: { n: l.joursRestants } }}
                     </p>
                   }
 
