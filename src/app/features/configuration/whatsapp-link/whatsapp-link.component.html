@@ -55,6 +55,29 @@
   </div>
 }
 
+<!-- Liaison rompue : elle ne se rétablira pas d'elle-même.
+     Un spinner ici serait un mensonge — il promet une fin qui ne viendra pas.
+     On dit ce qui s'est passé, depuis quand, et ce qu'il y a à faire. -->
+@else if (rompu()) {
+  <div class="wa-link wa-link--rompu" role="alert">
+    <div class="wa-link__icon wa-link__icon--alerte" aria-hidden="true">
+      <i class="pi pi-exclamation-triangle"></i>
+    </div>
+    <div class="wa-link__body">
+      <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_ROMPU_TITRE' | translate }}</div>
+      <div class="wa-link__desc">{{ 'CONFIGURATION.WHATSAPP_ROMPU_DESC' | translate }}</div>
+      @if (depuis()) {
+        <div class="wa-link__depuis">
+          {{ 'CONFIGURATION.WHATSAPP_ROMPU_DEPUIS' | translate: { duree: depuis() } }}
+        </div>
+      }
+    </div>
+    <button type="button" class="btn btn--ghost btn--sm" (click)="retry()">
+      {{ 'COMMON.RETRY' | translate }}
+    </button>
+  </div>
+}
+
 <!-- Service en cours de démarrage (pas encore de QR) -->
 @else {
   <div class="wa-link wa-link--pending">

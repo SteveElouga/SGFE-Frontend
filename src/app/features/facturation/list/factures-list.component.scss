@@ -263,7 +263,17 @@
   cursor: help;
   transition: color 0.12s;
 
-  &:hover, &:focus-visible { color: var(--encre-3); outline: none; }
+  // Survol et focus ne disent pas la même chose : l'un décore, l'autre dit où
+  // l'on se trouve au clavier. Les fondre dans une règle commune faisait
+  // disparaître l'anneau au profit d'un simple changement de couleur.
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--encre-3); }
+  }
+  &:focus-visible {
+    color: var(--encre-3);
+    outline: var(--focus-epaisseur) solid var(--focus-anneau);
+    outline-offset: var(--focus-decalage);
+  }
 }
 
 // ── Row actions ───────────────────────────────────────────────────────────────

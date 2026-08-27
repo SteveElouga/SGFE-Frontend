@@ -210,7 +210,14 @@
     cursor: help;
     transition: color 0.12s;
 
-    &:hover, &:focus-visible { color: var(--action); outline: none; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--action); }
+    }
+    &:focus-visible {
+      color: var(--action);
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
+    }
   }
 
   &__body {
