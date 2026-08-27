@@ -1,0 +1,95 @@
+<!-- ══ Saisie d'un arriéré — bottom sheet mobile / dialog desktop ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="arriere-sheet-title" (close)="onClose()">
+  <div class="arr-body">
+
+    <!-- En-tête -->
+    <div class="arr-header">
+      <div class="arr-header__icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path d="M11 6v6M11 15v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.8"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="arr-header__title" id="arriere-sheet-title">
+          {{ 'ABONNES.ARRIERE.TITRE' | translate }}
+        </h3>
+        <p class="arr-header__desc">
+          {{ 'ABONNES.ARRIERE.DESC' | translate: { nom: nomComplet() } }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Montant -->
+    <div class="arr-champ">
+      <label class="arr-champ__label" for="arriere-montant">
+        {{ 'ABONNES.ARRIERE.MONTANT' | translate }}
+      </label>
+      <div class="arr-champ__monnaie">
+        <input
+          id="arriere-montant"
+          class="arr-champ__input"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          step="100"
+          [ngModel]="montant()"
+          (ngModelChange)="montant.set($event)"
+          [attr.aria-describedby]="'arriere-montant-aide'"
+          placeholder="0"
+        />
+        <span class="arr-champ__unite" aria-hidden="true">FCFA</span>
+      </div>
+      <p class="arr-champ__aide" id="arriere-montant-aide">
+        {{ 'ABONNES.ARRIERE.MONTANT_AIDE' | translate }}
+      </p>
+    </div>
+
+    <!-- Motif : obligatoire, c'est la seule justification d'un montant déclaré -->
+    <div class="arr-champ">
+      <label class="arr-champ__label" for="arriere-motif">
+        {{ 'ABONNES.ARRIERE.MOTIF' | translate }}
+      </label>
+      <input
+        id="arriere-motif"
+        class="arr-champ__input"
+        type="text"
+        maxlength="255"
+        [ngModel]="motif()"
+        (ngModelChange)="motif.set($event)"
+        [attr.aria-describedby]="'arriere-motif-aide'"
+        [placeholder]="'ABONNES.ARRIERE.MOTIF_EXEMPLE' | translate"
+      />
+      <p class="arr-champ__aide" id="arriere-motif-aide">
+        {{ 'ABONNES.ARRIERE.MOTIF_AIDE' | translate }}
+      </p>
+    </div>
+
+    <!-- Récapitulatif : on ne crée pas une dette à l'aveugle -->
+    @if (recap()) {
+      <div class="arr-recap" role="status">
+        <span class="arr-recap__titre">{{ 'ABONNES.ARRIERE.RECAP_TITRE' | translate }}</span>
+        <ul class="arr-recap__liste">
+          <li>{{ 'ABONNES.ARRIERE.RECAP_FACTURE' | translate: { montant: recap() } }}</li>
+          <li>{{ 'ABONNES.ARRIERE.RECAP_EXIGIBLE' | translate }}</li>
+          <li>{{ 'ABONNES.ARRIERE.RECAP_RELANCES' | translate }}</li>
+        </ul>
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="arr-actions">
+      <button type="button" class="arr-btn arr-btn--annuler" (click)="onClose()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="arr-btn arr-btn--valider"
+        [disabled]="!formValide() || submitting()"
+        (click)="submit()"
+      >
+        {{ (submitting() ? 'COMMON.SAVING' : 'ABONNES.ARRIERE.VALIDER') | translate }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

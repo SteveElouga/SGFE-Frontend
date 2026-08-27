@@ -100,3 +100,26 @@ export interface Tarif {
   dateEffet: string;
   isActive: boolean;
 }
+
+/**
+ * Ce qu'un abonné doit encore, toutes factures confondues.
+ *
+ * `plusAncienneEcheance` porte l'âge de la dette — c'est lui qui fait payer,
+ * pas le montant. `null` quand l'abonné est à jour.
+ */
+export interface DetteAbonne {
+  totalDu: number;
+  nbFactures: number;
+  plusAncienneEcheance: string | null;
+}
+
+/**
+ * Résultat d'un encaissement au niveau abonné.
+ *
+ * `paiements` porte la ventilation réelle — une écriture par facture touchée,
+ * de la plus ancienne à la plus récente.
+ */
+export interface PaiementAbonne {
+  paiements: Paiement[];
+  excedentEnAvoir: number;
+}

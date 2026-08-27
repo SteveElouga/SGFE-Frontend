@@ -61,7 +61,8 @@
     "RESULTS_HERO_LABEL": "results",
     "RESULTS_HERO_OVER": "of {{total}} total",
     "RESULTS_HERO_MULTI": "{{count}} active filters",
-    "SKIP_TO_CONTENT": "Skip to content"
+    "SKIP_TO_CONTENT": "Skip to content",
+    "SAVING": "Saving…"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -254,7 +255,22 @@
     },
     "CHIP_ACTIFS": "Active",
     "CHIP_SUSPENDUS": "Suspended",
-    "CHIP_RESILIES": "Terminated"
+    "CHIP_RESILIES": "Terminated",
+    "ARRIERE": {
+      "TITRE": "Record an arrear",
+      "DESC": "Records a debt {{nom}} owed before the system went live.",
+      "MONTANT": "Amount owed",
+      "MONTANT_AIDE": "The total the subscriber owed before the application.",
+      "MOTIF": "Reason",
+      "MOTIF_EXEMPLE": "e.g. Arrear predating go-live",
+      "MOTIF_AIDE": "Required: no meter reading justifies this amount — this reason is its only record.",
+      "RECAP_TITRE": "What will be created",
+      "RECAP_FACTURE": "An adjustment invoice of {{montant}}",
+      "RECAP_EXIGIBLE": "Due immediately — the debt predates the system",
+      "RECAP_RELANCES": "It enters arrears and reminders like any other invoice",
+      "VALIDER": "Create adjustment",
+      "SUCCES": "Arrear recorded — {{numero}}"
+    }
   },
   "UTILISATEURS": {
     "TITLE": "Users",

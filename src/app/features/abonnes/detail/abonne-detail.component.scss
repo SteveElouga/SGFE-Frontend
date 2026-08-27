@@ -788,3 +788,31 @@
   .abonne-tabs__nav { overflow-x: auto; @include hide-scrollbar; }
   .abonne-tab-pane, .abonne-invoices { overflow-x: auto; @include hide-scrollbar; }
 }
+
+// Saisir un arriéré : un lien de service dans la carte de solde. Constater une
+// dette antérieure est rare — l'action ne doit pas concurrencer le chiffre.
+.abonne-kpi__action {
+  margin-top: var(--pas-2);
+  padding: var(--pas-1) 0;
+  min-height: 32px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--action);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  align-self: flex-start;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--action-survol); }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+    border-radius: var(--rayon-xs);
+  }
+}

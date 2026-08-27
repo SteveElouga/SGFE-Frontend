@@ -61,7 +61,8 @@
     "RESULTS_HERO_LABEL": "résultats",
     "RESULTS_HERO_OVER": "sur {{total}} au total",
     "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
-    "SKIP_TO_CONTENT": "Aller au contenu"
+    "SKIP_TO_CONTENT": "Aller au contenu",
+    "SAVING": "Enregistrement…"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -254,7 +255,22 @@
     },
     "CHIP_ACTIFS": "Actifs",
     "CHIP_SUSPENDUS": "Suspendus",
-    "CHIP_RESILIES": "Résiliés"
+    "CHIP_RESILIES": "Résiliés",
+    "ARRIERE": {
+      "TITRE": "Saisir un arriéré",
+      "DESC": "Constate une dette de {{nom}} antérieure à la mise en service.",
+      "MONTANT": "Montant dû",
+      "MONTANT_AIDE": "Le total que l'abonné devait avant l'application.",
+      "MOTIF": "Motif",
+      "MOTIF_EXEMPLE": "ex. Arriéré antérieur à la mise en service",
+      "MOTIF_AIDE": "Obligatoire : aucun relevé ne justifie ce montant, ce motif en est la seule trace.",
+      "RECAP_TITRE": "Ce qui va être créé",
+      "RECAP_FACTURE": "Une facture de régularisation de {{montant}}",
+      "RECAP_EXIGIBLE": "Exigible immédiatement — la dette date d'avant",
+      "RECAP_RELANCES": "Elle entre dans les impayés et les relances comme une facture ordinaire",
+      "VALIDER": "Créer la régularisation",
+      "SUCCES": "Arriéré enregistré — {{numero}}"
+    }
   },
   "UTILISATEURS": {
     "TITLE": "Utilisateurs",

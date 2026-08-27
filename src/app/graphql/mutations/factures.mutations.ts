@@ -102,3 +102,65 @@ export const UPDATE_TARIF = gql`
     }
   }
 `;
+
+/**
+ * Constate à la main une dette antérieure à la mise en service.
+ *
+ * Le motif est obligatoire : le montant d'une régularisation est **déclaré**,
+ * aucun index ne le justifie, et le motif en est la seule trace.
+ */
+export const CREER_REGULARISATION = gql`
+  mutation CreerRegularisation(
+    $abonneId: String!
+    $montant: Float!
+    $motif: String!
+    $dateLimitePaiement: String
+  ) {
+    creerRegularisation(
+      abonneId: $abonneId
+      montant: $montant
+      motif: $motif
+      dateLimitePaiement: $dateLimitePaiement
+    ) {
+      factureId
+      numeroFacture
+      montant
+      statut
+      dateLimitePaiement
+    }
+  }
+`;
+
+/**
+ * Encaisse un versement au nom d'un abonné, imputé du plus ancien au plus récent.
+ *
+ * La réponse porte la **ventilation réelle** : une écriture par facture touchée.
+ * C'est elle qui permet de montrer au caissier ce qui vient de se passer, et
+ * pas seulement que ça s'est passé.
+ */
+export const ENREGISTRER_PAIEMENT_ABONNE = gql`
+  mutation EnregistrerPaiementAbonne(
+    $abonneId: String!
+    $montant: Float!
+    $datePaiement: String!
+    $modePaiement: String!
+    $referenceTransaction: String
+  ) {
+    enregistrerPaiementAbonne(
+      abonneId: $abonneId
+      montant: $montant
+      datePaiement: $datePaiement
+      modePaiement: $modePaiement
+      referenceTransaction: $referenceTransaction
+    ) {
+      excedentEnAvoir
+      paiements {
+        paiementId
+        factureId
+        montant
+        modePaiement
+        datePaiement
+      }
+    }
+  }
+`;

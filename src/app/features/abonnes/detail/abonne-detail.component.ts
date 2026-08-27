@@ -26,6 +26,7 @@ import { RemplacerCompteurSheetComponent } from './remplacer-compteur-sheet/remp
 import { ReactiverSheetComponent } from './reactiver-sheet/reactiver-sheet.component';
 import { ResilierSheetComponent } from './resilier-sheet/resilier-sheet.component';
 import { SuspendreSheetComponent } from './suspendre-sheet/suspendre-sheet.component';
+import { ArriereSheetComponent } from './arriere-sheet/arriere-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -45,6 +46,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     ReactiverSheetComponent,
     ResilierSheetComponent,
     SuspendreSheetComponent,
+    ArriereSheetComponent,
     PageTopbarComponent,
   ],
   templateUrl: './abonne-detail.component.html',
@@ -111,6 +113,14 @@ export class AbonneDetailComponent {
    * prétend pas qu'un solde inconnu vaut zéro.
    */
   readonly soldeImpaye = signal<number | null>(null);
+
+  /** Feuille de saisie d'un arriéré antérieur à la mise en service. */
+  readonly arriereDialogVisible = signal(false);
+
+  /** Après création : la dette et la liste des factures ont changé. */
+  async onArriereSaved(): Promise<void> {
+    await this.loadFactures();
+  }
 
   /** Conso moyenne sur les 6 dernières factures (m³), arrondie. */
   readonly consoMoyenne = computed(() => {
