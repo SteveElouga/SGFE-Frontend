@@ -1,0 +1,222 @@
+{
+  "CreateAbonneInput": {
+    "adresse": {
+      "requis": false,
+      "type": "String"
+    },
+    "camp": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "datePose": {
+      "requis": true,
+      "type": "String!"
+    },
+    "indexInitial": {
+      "requis": true,
+      "type": "Float!"
+    },
+    "nom": {
+      "requis": true,
+      "type": "String!"
+    },
+    "numeroCompteur": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "prenom": {
+      "requis": true,
+      "type": "String!"
+    },
+    "quartier": {
+      "requis": true,
+      "type": "String!"
+    },
+    "telephoneWhatsapp": {
+      "requis": true,
+      "type": "String!"
+    }
+  },
+  "UpdateAbonneInput": {
+    "adresse": {
+      "requis": false,
+      "type": "String"
+    },
+    "nom": {
+      "requis": false,
+      "type": "String"
+    },
+    "prenom": {
+      "requis": false,
+      "type": "String"
+    },
+    "telephoneWhatsapp": {
+      "requis": false,
+      "type": "String"
+    }
+  },
+  "UpdateCompteurInput": {
+    "camp": {
+      "requis": false,
+      "type": "Int"
+    },
+    "datePose": {
+      "requis": false,
+      "type": "String"
+    },
+    "indexInitial": {
+      "requis": false,
+      "type": "Float"
+    },
+    "quartier": {
+      "requis": false,
+      "type": "String"
+    }
+  },
+  "RemplacerCompteurInput": {
+    "dateRemplacement": {
+      "requis": true,
+      "type": "String!"
+    },
+    "indexFermeture": {
+      "requis": true,
+      "type": "Float!"
+    },
+    "motif": {
+      "requis": false,
+      "type": "String!"
+    },
+    "nouveauCamp": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "nouveauNumeroCompteur": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "nouveauQuartier": {
+      "requis": true,
+      "type": "String!"
+    },
+    "nouvelIndexInitial": {
+      "requis": true,
+      "type": "Float!"
+    }
+  },
+  "CreateCampagneInput": {
+    "datePlanifiee": {
+      "requis": false,
+      "type": "String!"
+    },
+    "demarrerMaintenant": {
+      "requis": false,
+      "type": "Boolean!"
+    },
+    "envoyerWhatsappAuto": {
+      "requis": false,
+      "type": "Boolean!"
+    },
+    "genererFacturesAuto": {
+      "requis": false,
+      "type": "Boolean!"
+    },
+    "nom": {
+      "requis": true,
+      "type": "String!"
+    },
+    "numeroMobileMoney": {
+      "requis": false,
+      "type": "String!"
+    },
+    "periodeAnnee": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "periodeMois": {
+      "requis": true,
+      "type": "Int!"
+    }
+  },
+  "SaisirIndexInput": {
+    "abonneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "campagneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "nouveauIndex": {
+      "requis": true,
+      "type": "Float!"
+    },
+    "observation": {
+      "requis": false,
+      "type": "String!"
+    }
+  },
+  "CorrigerReleveInput": {
+    "abonneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "campagneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "nouveauIndex": {
+      "requis": true,
+      "type": "Float!"
+    },
+    "observation": {
+      "requis": false,
+      "type": "String!"
+    }
+  },
+  "ZoneInput": {
+    "camp": {
+      "requis": true,
+      "type": "Int!"
+    },
+    "quartier": {
+      "requis": true,
+      "type": "String!"
+    }
+  },
+  "MarquerNonReleveInput": {
+    "abonneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "campagneId": {
+      "requis": true,
+      "type": "String!"
+    },
+    "observation": {
+      "requis": false,
+      "type": "String!"
+    },
+    "statut": {
+      "requis": false,
+      "type": "String!"
+    }
+  },
+  "UpdateInfosSocieteInput": {
+    "adresse": {
+      "requis": false,
+      "type": "String!"
+    },
+    "logoPath": {
+      "requis": false,
+      "type": "String!"
+    },
+    "nom": {
+      "requis": false,
+      "type": "String!"
+    },
+    "telephone": {
+      "requis": false,
+      "type": "String!"
+    }
+  }
+}
