@@ -92,7 +92,25 @@ export class RelancesHistoriqueComponent implements OnInit {
 
   readonly estSuspendu = computed(() => this.etapeActuelle() >= 4);
 
-  readonly retardJours = computed(() => this.joursDepuis(this.suivi()?.dateDepassement ?? null) ?? 0);
+  /**
+   * Jours de retard, calculés depuis la **date limite de la facture**.
+   *
+   * Ils se prenaient sur `suivi.dateDepassement` — or le `SuiviImpaye` n'est
+   * créé que par le cron de relance, à sa première escalade. Tant qu'il n'a pas
+   * tourné, il n'existe pas : le retard retombait à zéro et l'écran annonçait
+   * « dépassée de 0 jours », puis « Échéance aujourd'hui » après un premier
+   * correctif qui n'avait changé que le libellé.
+   *
+   * Mesuré sur cet environnement : six factures à 31 jours de retard, zéro
+   * `SuiviImpaye` en base. La date limite de la facture, elle, est toujours
+   * là — c'est la seule source fiable.
+   */
+  readonly retardJours = computed(() => {
+    const limite = this.facture()?.dateLimitePaiement ?? null;
+    const depuisFacture = this.joursDepuis(limite);
+    if (depuisFacture !== null) return depuisFacture;
+    return this.joursDepuis(this.suivi()?.dateDepassement ?? null) ?? 0;
+  });
 
   readonly resolu = computed(() => !!this.suivi()?.resoluLe);
 

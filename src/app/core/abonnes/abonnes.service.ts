@@ -153,6 +153,12 @@ export class AbonnesService {
       this.apollo.mutate<{ createAbonne: Abonne }>({
         mutation: CREATE_ABONNE,
         variables: { input },
+        // Sans cela, la liste garde son cache : un abonné créé n'apparaissait
+        // pas dans `/abonnes` avant un rechargement forcé du navigateur.
+        // `startCacheSync` tient `GET_ABONNES_ACTIFS` à jour, mais rien ne
+        // suivait `GET_ABONNES`, la requête de la liste.
+        refetchQueries: [{ query: GET_ABONNES }, { query: GET_ABONNES_ACTIFS }],
+        awaitRefetchQueries: true,
       }),
     );
     const abonne = result.data?.createAbonne;
