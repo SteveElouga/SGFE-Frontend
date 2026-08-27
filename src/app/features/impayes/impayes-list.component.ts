@@ -23,7 +23,9 @@ import {
   DataTableCellDirective,
 } from '../../shared/components/data-table/data-table.directives';
 import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
+import { RouterLink } from '@angular/router';
 import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
+import { nomAbonne } from '../../shared/utils/abonne.utils';
 
 /** Fenêtre de pause des relances après réception d'un acompte (EF-IMP). */
 const PAUSE_ACOMPTE_JOURS = 5;
@@ -63,6 +65,7 @@ interface ImpayeRow {
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
+    RouterLink,
   ],
   templateUrl: './impayes-list.component.html',
   styleUrl: './impayes-list.component.scss',
@@ -85,6 +88,49 @@ export class ImpayesListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly filtreEtape = signal<number | 'TOUS'>('TOUS');
   readonly tri = signal<'ANCIENNETE' | 'SOLDE'>('ANCIENNETE');
+
+  /**
+   * Vue courante : par abonné (défaut) ou par facture.
+   *
+   * L'écran listait une ligne par facture. Six lignes pour quatre personnes,
+   * alors que la question qu'on se pose devant un écran d'impayés est « qui
+   * doit combien, et depuis quand » — pas « quelle facture n'est pas soldée ».
+   * Le détail par facture reste accessible : c'est lui qu'il faut pour agir sur
+   * une créance précise.
+   */
+  readonly vue = signal<'abonne' | 'facture'>('abonne');
+
+  formatMontant(n: number): string {
+    return formatFcfa(n);
+  }
+
+  /**
+   * Impayés regroupés par abonné, du plus ancien retard au plus récent.
+   *
+   * L'ordre porte l'urgence : celui qui traîne depuis le plus longtemps est
+   * celui que la relance va suspendre en premier.
+   */
+  readonly groupesAbonnes = computed(() => {
+    const parAbonne = new Map<string, ImpayeRow[]>();
+    for (const r of this.impayesFiltres()) {
+      const cle = r.abonneId ?? r.abonneNom;
+      const liste = parAbonne.get(cle);
+      if (liste) liste.push(r);
+      else parAbonne.set(cle, [r]);
+    }
+    return [...parAbonne.entries()]
+      .map(([abonneId, lignes]) => ({
+        abonneId,
+        abonneNom: lignes[0].abonneNom,
+        numeroAbonne: lignes[0].numeroAbonne,
+        nbFactures: lignes.length,
+        totalDu: lignes.reduce((acc, l) => acc + l.soldeRestant, 0),
+        retardMax: lignes.reduce((acc, l) => Math.max(acc, l.retardJours ?? 0), 0),
+        etapeMax: lignes.reduce((acc, l) => Math.max(acc, l.etapeActuelle ?? 0), 0),
+        lignes,
+      }))
+      .sort((a, b) => b.retardMax - a.retardMax);
+  });
 
   readonly columns: DataTableColumn[] = [
     { key: 'abonne', header: 'IMPAYES.COL_ABONNE', sortable: true, sortValue: (r) => (r as ImpayeRow).abonneNom },
@@ -248,7 +294,13 @@ export class ImpayesListComponent implements OnInit {
     const facture = facturesMap.get(s.factureId);
     const abonneId = suivi?.abonneId ?? facture?.abonneId ?? null;
     const abonne = abonneId ? abonnesMap.get(abonneId) : undefined;
-    const retardJours = this.joursDepuis(suivi?.dateDepassement ?? null);
+    // Le retard se prenait sur `suivi.dateDepassement`, écrit par le seul cron
+    // de relance : tant qu'il n'a pas tourné, le suivi n'existe pas et l'âge
+    // retombait à zéro. Mesuré : six factures à 31 jours, zéro SuiviImpaye.
+    // L'échéance du solde, elle, est toujours là.
+    const retardJours =
+      this.joursDepuis(s.dateLimitePaiement || null) ??
+      this.joursDepuis(suivi?.dateDepassement ?? null);
 
     const dp = dernierPaiement.get(s.factureId) ?? null;
     const enPause =
@@ -260,7 +312,7 @@ export class ImpayesListComponent implements OnInit {
     return {
       factureId: s.factureId,
       abonneId,
-      abonneNom: abonne ? `${abonne.nom} ${abonne.prenom}`.trim() : '—',
+      abonneNom: abonne ? nomAbonne(abonne.prenom, abonne.nom) : '—',
       numeroAbonne: abonne?.numeroAbonne ?? '—',
       numeroFacture: facture?.numeroFacture ?? '—',
       montantTotal: s.montantTotal,

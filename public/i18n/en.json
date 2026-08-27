@@ -1078,7 +1078,14 @@
     "CONFIG_ACTIVEE": "enabled",
     "CONFIG_SUFFIX": "configurable in Settings",
     "CHIP_ETAPE": "Step {{ n }}",
-    "ACOMPTE_RECU": "deposit received"
+    "ACOMPTE_RECU": "deposit received",
+    "VUE": {
+      "LABEL": "View",
+      "ABONNE": "By subscriber",
+      "FACTURE": "By invoice",
+      "NB_FACTURES": "{{n}} invoice(s)",
+      "RETARD": "{{n}} days overdue"
+    }
   },
   "RELANCES": {
     "BACK": "Overdue",

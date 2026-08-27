@@ -1078,7 +1078,14 @@
     "CONFIG_ACTIVEE": "activée",
     "CONFIG_SUFFIX": "configurable dans Paramètres",
     "CHIP_ETAPE": "Étape {{ n }}",
-    "ACOMPTE_RECU": "acompte reçu"
+    "ACOMPTE_RECU": "acompte reçu",
+    "VUE": {
+      "LABEL": "Vue",
+      "ABONNE": "Par abonné",
+      "FACTURE": "Par facture",
+      "NB_FACTURES": "{{n}} facture(s)",
+      "RETARD": "{{n}} j de retard"
+    }
   },
   "RELANCES": {
     "BACK": "Impayés",
