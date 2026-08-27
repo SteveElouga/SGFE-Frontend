@@ -229,7 +229,8 @@ export class FacturesService {
       this.apollo.query<{ suiviImpaye: SuiviImpaye }>({
         query: GET_SUIVI_IMPAYE,
         variables: { factureId },
-        fetchPolicy: 'cache-first',
+        // L'escalade des relances avance toute seule, par cron.
+        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.suiviImpaye;

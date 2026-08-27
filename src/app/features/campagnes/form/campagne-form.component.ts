@@ -194,7 +194,8 @@ export class CampagneFormComponent implements OnInit {
     this.apollo
       .watchQuery<{ abonnesActifs: AbonneActif[] }>({
         query: GET_ABONNES_ACTIFS,
-        fetchPolicy: 'cache-first',
+        // Bâtir une campagne sur une liste périmée y oublie des abonnés.
+        fetchPolicy: 'cache-and-network',
       })
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

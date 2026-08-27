@@ -242,7 +242,7 @@ export class ImpayesListComponent implements OnInit {
         firstValueFrom(
           this.apollo.query<{ abonnes: AbonneRef[] }>({
             query: GET_ABONNES,
-            fetchPolicy: 'cache-first',
+            fetchPolicy: 'network-only',
           }),
         ),
         this.service.getAllPaiements(),

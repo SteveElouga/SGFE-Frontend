@@ -64,9 +64,28 @@ function apolloOptionsFactory(): ApolloClient.Options {
       transportLink,
     ]),
     cache: apolloCache,
+    // ── Politique de cache : le cache peint, le réseau tranche ────────────────
+    //
+    // `cache-first` n'est juste que pour une donnée qui ne peut pas changer dans
+    // notre dos. Rien ici n'entre dans cette catégorie : chaque liste est
+    // modifiée par d'autres postes, par la clôture d'une campagne, par un cron
+    // de relance. Un abonné créé par un collègue n'apparaissait donc jamais —
+    // et comme le cache est aussi persisté dans localStorage, une recharge
+    // forcée du navigateur ne le corrigeait pas non plus : elle vide la mémoire,
+    // pas le stockage local.
+    //
+    // Ce qu'on veut du cache, c'est l'affichage instantané, pas la réponse
+    // faisant foi. `cache-and-network` dit exactement cela : peindre depuis le
+    // cache, puis corriger avec le réseau. `nextFetchPolicy` évite de
+    // re-solliciter le réseau à chaque re-souscription d'une même requête déjà
+    // revalidée dans la session.
+    //
+    // Pour `query` — un fetch ponctuel, sans flux à corriger après coup —
+    // Apollo n'accepte pas `cache-and-network` : il n'aurait personne à qui
+    // livrer la seconde valeur. `network-only` est donc son équivalent.
     defaultOptions: {
-      watchQuery: { fetchPolicy: 'cache-first' },
-      query:      { fetchPolicy: 'cache-first' },
+      watchQuery: { fetchPolicy: 'cache-and-network', nextFetchPolicy: 'cache-first' },
+      query:      { fetchPolicy: 'network-only' },
     },
   };
 }

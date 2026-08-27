@@ -112,7 +112,8 @@ export class AbonnesService {
     const result = await firstValueFrom(
       this.apollo.query<{ abonnesActifs: Array<{ id: string; compteur?: { quartier: string; camp: number } | null }> }>({
         query: GET_ABONNES_ACTIFS,
-        fetchPolicy: 'cache-first',
+        // C'est cette lecture qui affichait 17 abonnés au lieu de 18.
+        fetchPolicy: 'network-only',
       }),
     );
     return (result.data?.abonnesActifs ?? []).map((a) => ({
