@@ -11,26 +11,33 @@
 
       <!-- ═══════════ 07 — Liste des relevés ═══════════ -->
       @case ('list') {
-        <header class="t-head">
-          <div class="t-head__campagne">{{ campagneNom() || ('TERRAIN.NO_CAMPAGNE' | translate) }}</div>
-          <div class="t-head__title-row">
-            <h1 class="t-head__title">{{ 'TERRAIN.TITLE' | translate }}</h1>
+        <!-- Le bandeau partagé : /terrain était le seul des 19 écrans à se
+             fabriquer son propre en-tête navy. Sur mobile ça passait (pas de
+             barre latérale, la dalle joue l'app bar) ; dans la coquille
+             desktop c'était un corps étranger — pas de cloche, pas de bouton
+             menu, autre échelle typographique. La progression descend dans le
+             slot héro prévu pour ça. -->
+        <app-page-topbar
+          [overline]="campagneNom() || ('TERRAIN.NO_CAMPAGNE' | translate)"
+          [title]="'TERRAIN.TITLE' | translate"
+        >
+          <div topbar-hero class="t-progress-bloc">
+            <div class="t-progress-row">
+              <span>{{ 'TERRAIN.PROGRESS' | translate: { faits: nbFaits(), total: countTous() } }}</span>
+              <span>{{ progressPct() }}%</span>
+            </div>
+            <div
+              class="t-progress"
+              role="progressbar"
+              [attr.aria-valuenow]="progressPct()"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              [attr.aria-label]="'TERRAIN.PROGRESS_ARIA' | translate: { faits: nbFaits(), total: countTous() }"
+            >
+              <div class="t-progress__fill" [style.--pct]="progressPct() / 100"></div>
+            </div>
           </div>
-          <div class="t-progress-row">
-            <span>{{ 'TERRAIN.PROGRESS' | translate: { faits: nbFaits(), total: countTous() } }}</span>
-            <span>{{ progressPct() }}%</span>
-          </div>
-          <div
-            class="t-progress"
-            role="progressbar"
-            [attr.aria-valuenow]="progressPct()"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            [attr.aria-label]="'TERRAIN.PROGRESS_ARIA' | translate: { faits: nbFaits(), total: countTous() }"
-          >
-            <div class="t-progress__fill" [style.--pct]="progressPct() / 100"></div>
-          </div>
-        </header>
+        </app-page-topbar>
 
         @if (!offline.online()) {
           <div class="t-offline" role="status">
