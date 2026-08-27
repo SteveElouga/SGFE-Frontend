@@ -23,10 +23,32 @@
   display: flex;
   flex-direction: column;
 
-  @media (min-width: 1024px) {
-    max-width: 720px;
-    // Sur grand écran, la colonne est un document : on la détache du bord.
-    border-inline: 1px solid var(--filet);
+  // Au-delà du mobile, la contrainte de 480 px n'a plus de sens : l'écran
+  // occupait 720 px sur 1 328 disponibles, avec 304 px de vide de chaque côté
+  // et le même fond que la page — une maquette mobile posée au centre.
+  // La colonne s'efface, c'est le contenu qui se compose.
+  @media (min-width: 640px) {
+    max-width: none;
+  }
+}
+
+// ── Bandeau navy ──────────────────────────────────────────────────────────────
+// En mobile il court d'un bord à l'autre, sous l'encoche. En desktop il devient
+// l'en-tête de la page : pleine largeur, et son contenu s'aligne sur la même
+// colonne de lecture que le corps.
+.t-head {
+  @media (min-width: 640px) {
+    padding-block: var(--pas-5);
+  }
+}
+
+.t-head__inner,
+.t-body {
+  @media (min-width: 640px) {
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: var(--pas-5);
   }
 }
 

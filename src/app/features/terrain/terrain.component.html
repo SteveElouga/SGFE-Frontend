@@ -12,6 +12,10 @@
       <!-- ═══════════ 07 — Liste des relevés ═══════════ -->
       @case ('list') {
         <header class="t-head">
+          <!-- L'enveloppe aligne le contenu du bandeau sur la même colonne de
+               lecture que le corps : en desktop, le navy court d'un bord à
+               l'autre mais son texte ne part pas se coller au bord. -->
+          <div class="t-head__inner">
           <div class="t-head__campagne">{{ campagneNom() || ('TERRAIN.NO_CAMPAGNE' | translate) }}</div>
           <div class="t-head__title-row">
             <h1 class="t-head__title">{{ 'TERRAIN.TITLE' | translate }}</h1>
@@ -29,6 +33,7 @@
             [attr.aria-label]="'TERRAIN.PROGRESS_ARIA' | translate: { faits: nbFaits(), total: countTous() }"
           >
             <div class="t-progress__fill" [style.--pct]="progressPct() / 100"></div>
+          </div>
           </div>
         </header>
 
