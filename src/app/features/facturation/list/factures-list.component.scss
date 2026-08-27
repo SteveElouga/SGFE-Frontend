@@ -79,7 +79,9 @@
   white-space: nowrap;
   transition: background 0.15s, opacity 0.15s, transform 160ms var(--ease-out);
 
-  &:hover:not(:disabled) { background: var(--action-survol); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { background: var(--action-survol); }
+  }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -106,7 +108,9 @@
   box-shadow: 0 1px 3px rgba(22, 101, 52, 0.18); // profondeur discrète (plus légère que le CTA du sheet)
   transition: opacity 0.15s, box-shadow 0.15s, transform 160ms var(--ease-out, ease-out);
 
-  &:hover:not(:disabled) { opacity: 0.92; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.24); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { opacity: 0.92; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.24); }
+  }
   &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -282,7 +286,9 @@
   transition: background 0.12s, border-color 0.12s;
   white-space: nowrap;
 
-  &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
+  }
 
   &--primary {
     background: $color-primary;
@@ -290,9 +296,11 @@
     border-color: $color-primary;
     font-weight: 600;
 
-    &:hover {
-      background: color.adjust($color-primary, $lightness: -8%);
-      border-color: color.adjust($color-primary, $lightness: -8%);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: color.adjust($color-primary, $lightness: -8%);
+        border-color: color.adjust($color-primary, $lightness: -8%);
+      }
     }
   }
 
@@ -415,7 +423,9 @@
     background: none;
     color: var(--encre-2);
     border: 1px solid var(--filet);
-    &:hover:not(:disabled) { background: var(--surface-douce); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--surface-douce); }
+    }
   }
 
   &--confirm {
@@ -423,7 +433,9 @@
     color: var(--surface);
     border: none;
     box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28);
-    &:hover:not(:disabled) { opacity: 0.92; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { opacity: 0.92; }
+    }
     &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   }
 }

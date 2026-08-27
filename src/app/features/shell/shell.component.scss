@@ -6,7 +6,10 @@
   top: 8px;
   left: 8px;
   z-index: 1000;
-  padding: var(--pas-2) var(--pas-4);
+  padding: var(--pas-3) var(--pas-4);
+  min-height: 44px;                 // WCAG 2.5.5
+  display: flex;
+  align-items: center;
   border-radius: var(--rayon-md);
   background: var(--navy-nuit);
   color: var(--surface);
@@ -41,7 +44,9 @@
 .shell__content {
   flex: 1;
   overflow-y: auto;
-  background: var(--filet);
+  // C'était `--filet` : une couleur de bordure servant de fond de page. Le
+  // reste de l'application pose son contenu sur `--fond`.
+  background: var(--fond);
   min-width: 0;
 }
 

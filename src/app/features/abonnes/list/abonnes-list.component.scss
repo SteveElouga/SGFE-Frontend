@@ -55,7 +55,9 @@
   border-radius: var(--rayon-sm);
   cursor: pointer;
 
-  &:hover { background: var(--danger-fond); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--danger-fond); }
+  }
 }
 
 // ── Carte tableau ─────────────────────────────────────────────────────────────
@@ -149,10 +151,12 @@
   white-space: nowrap;
   transition: border-color 0.12s, color 0.12s, background 0.12s;
 
-  &:hover {
-    border-color: $color-primary;
-    color: var(--action);
-    background: var(--action-lueur);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: $color-primary;
+      color: var(--action);
+      background: var(--action-lueur);
+    }
   }
 
   &--reactiver {
@@ -160,10 +164,12 @@
     border-color: var(--succes-trait);
     color: var(--succes-encre);
 
-    &:hover {
-      background: var(--mint-tapis);
-      border-color: var(--succes-trait);
-      color: var(--vert-profond);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: var(--mint-tapis);
+        border-color: var(--succes-trait);
+        color: var(--vert-profond);
+      }
     }
   }
 }

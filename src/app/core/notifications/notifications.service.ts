@@ -1,6 +1,7 @@
 import { Injectable, Injector, computed, inject, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../factures/factures.service';
+import { AuthService } from '../auth/auth.service';
 import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
 import { nomAbonneOuReference } from '../../shared/utils/abonne.utils';
 
@@ -162,7 +163,19 @@ export class NotificationsService {
    * y compris dans les tests qui ne lisent que le compteur.
    */
   private readonly injector = inject(Injector);
+  private readonly auth = inject(AuthService);
   private chargement: Promise<void> | null = null;
+
+  /**
+   * Les trois sources — envois, impayés, paiements — sont refusées par la
+   * gateway à l'AGENT et au SUPERVISEUR. Les appeler pour eux ne produisait
+   * pas une cloche vide mais trois toasts « Accès non autorisé » empilés sur
+   * l'écran terrain, à chaque connexion.
+   */
+  private peutCharger(): boolean {
+    const role = this.auth.role();
+    return role === 'ADMIN' || role === 'COMPTABLE';
+  }
 
   /**
    * Compose les notifications à partir des données réelles. Idempotent : appelé
@@ -171,6 +184,7 @@ export class NotificationsService {
    * sur chaque page.
    */
   load(): Promise<void> {
+    if (!this.peutCharger()) return Promise.resolve();
     this.chargement ??= this.charger().catch(() => undefined);
     return this.chargement;
   }

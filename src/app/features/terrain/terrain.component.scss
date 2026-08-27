@@ -1,15 +1,33 @@
 @use '../../../styles/variables' as *;
 
-:host { display: block; }
+// L'écran terrain est conçu pour le pouce d'un agent : une colonne étroite,
+// lisible sous le soleil. Mais ADMIN et SUPERVISEUR l'ouvrent depuis un poste
+// fixe, et la colonne y flottait, en-tête coupé, dans un fond vide.
+//
+// `:host` remplit désormais la hauteur du contenu de la coquille, et la
+// colonne s'y étire ; au-delà de la tablette, elle s'élargit sans jamais
+// devenir une pleine largeur — la saisie d'index reste une lecture verticale.
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
 
 .terrain {
   position: relative;
+  flex: 1;
+  width: 100%;
   max-width: 480px;
   margin: 0 auto;
-  min-height: 100%;
   background: var(--fond);
   display: flex;
   flex-direction: column;
+
+  @media (min-width: 1024px) {
+    max-width: 720px;
+    // Sur grand écran, la colonne est un document : on la détache du bord.
+    border-inline: 1px solid var(--filet);
+  }
 }
 
 .t-loading { display: flex; justify-content: center; padding: var(--pas-7); color: var(--action); font-size: 22px; }
@@ -55,7 +73,9 @@
   flex-shrink: 0;
   transition: background 0.15s ease, transform 160ms var(--ease-out);
 
-  &:hover { background: rgba(255, 255, 255, 0.16); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: rgba(255, 255, 255, 0.16); }
+  }
   &:focus-visible { outline: 2px solid var(--surface); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }
@@ -136,7 +156,9 @@
     flex-shrink: 0;
     transition: background 0.15s ease, transform 160ms var(--ease-out);
 
-    &:hover:not(:disabled) { background: var(--ambre-tapis); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--ambre-tapis); }
+    }
     &:focus-visible { outline: 2px solid var(--ambre-attente); outline-offset: 2px; }
     &:active:not(:disabled) { transform: scale(0.97); }
     &:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -339,7 +361,9 @@
   border-radius: var(--rayon-md);
   transition: color 0.15s ease, background 0.15s ease, transform 160ms var(--ease-out);
 
-  &:hover { color: var(--danger-encre); background: var(--danger-fond); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--danger-encre); background: var(--danger-fond); }
+  }
   &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 
@@ -457,7 +481,9 @@
   font-weight: 700;
   box-shadow: 0 4px 14px rgba($color-primary, 0.4);
 
-  &:hover:not(:disabled) { background: var(--action-survol); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { background: var(--action-survol); }
+  }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
@@ -478,7 +504,9 @@
   font-weight: 700;
   box-shadow: 0 4px 14px rgba(22, 101, 52, 0.4);
 
-  &:hover { filter: brightness(1.05); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { filter: brightness(1.05); }
+  }
   &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }
@@ -491,7 +519,9 @@
   font-size: 13px;
   font-weight: 500;
 
-  &:hover { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--surface-douce); }
+  }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }

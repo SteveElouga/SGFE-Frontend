@@ -522,7 +522,9 @@
 
   tbody tr:last-child td { border-bottom: none; }
 
-  tbody tr:hover td { background: var(--surface-douce); }
+  @media (hover: hover) and (pointer: fine) {
+    tbody tr:hover td { background: var(--surface-douce); }
+  }
 
   &__row--muted td { color: var(--encre-3); }
 }
@@ -693,7 +695,9 @@
     font-weight: 600;
     cursor: pointer;
     i { font-size: 11px; }
-    &:hover { text-decoration: underline; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { text-decoration: underline; }
+    }
   }
 }
 
@@ -783,7 +787,9 @@
   transition: background 0.12s, border-color 0.12s;
 
   i { font-size: 10px; }
-  &:hover { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
+  }
 }
 
 .agent-statut {

@@ -289,7 +289,9 @@
     border: none;
     box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
 
-    &:hover:not(:disabled) { opacity: 0.9; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { opacity: 0.9; }
+    }
   }
 
   &--ghost {
@@ -298,10 +300,12 @@
     border: 1.5px solid var(--filet);
     color: var(--encre-2);
 
-    &:hover:not(:disabled) {
-      border-color: var(--filet-pale);
-      color: var(--encre-2);
-      background: var(--surface-douce);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        border-color: var(--filet-pale);
+        color: var(--encre-2);
+        background: var(--surface-douce);
+      }
     }
   }
 }

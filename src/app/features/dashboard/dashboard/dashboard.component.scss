@@ -39,7 +39,7 @@
   &__chip {
     display: inline-flex;
     align-items: center;
-    height: 32px;
+    height: 44px;                   // WCAG 2.5.5 — était 32px
     padding: 0 var(--pas-3);
     background: transparent;
     border: none;
@@ -50,9 +50,11 @@
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
 
-    &:hover:not(&--active) {
-      color: var(--encre);
-      background: var(--surface);
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(&--active) {
+        color: var(--encre);
+        background: var(--surface);
+      }
     }
     &:focus-visible {
       outline: 2px solid var(--action);
@@ -116,7 +118,9 @@
     font-size: 14px;
     transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
 
-    &:hover { opacity: 0.92; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { opacity: 0.92; }
+    }
     &:active { transform: scale(0.97); }
     &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
   }
@@ -234,7 +238,9 @@
     cursor: pointer;
     margin-left: auto;
 
-    &:hover { background: var(--danger-fond); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--danger-fond); }
+    }
     &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
   }
 }
@@ -260,9 +266,11 @@
   color: inherit;
   transition: transform 160ms var(--ease-out, ease-out), border-color 0.15s, box-shadow 0.15s;
 
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
   }
   &:active { transform: translateY(0); }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
@@ -357,7 +365,9 @@
       color: var(--encre-2);
       margin-top: var(--pas-2);
 
-      &:hover { color: var(--action); border-color: $color-primary; }
+      @media (hover: hover) and (pointer: fine) {
+        &:hover { color: var(--action); border-color: $color-primary; }
+      }
       &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
     }
   }
@@ -404,9 +414,11 @@
     border-radius: var(--rayon-md);
     transition: background 0.12s;
 
-    &:hover {
-      background: var(--surface-douce);
-      .dash-list__chev { transform: translateX(2px); color: var(--action); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: var(--surface-douce);
+        .dash-list__chev { transform: translateX(2px); color: var(--action); }
+      }
     }
     &:focus-visible {
       outline: 2px solid $color-primary;
@@ -490,10 +502,12 @@
   border: 1px solid transparent;
   transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
 
-  &:hover {
-    background: var(--surface);
-    border-color: var(--filet);
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--surface);
+      border-color: var(--filet);
+      transform: translateY(-1px);
+    }
   }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 
@@ -671,10 +685,12 @@
   color: inherit;
   transition: background 0.15s, border-color 0.15s, transform 160ms var(--ease-out, ease-out);
 
-  &:hover {
-    background: var(--surface);
-    border-color: var(--filet-pale);
-    transform: translateY(-1px);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--surface);
+      border-color: var(--filet-pale);
+      transform: translateY(-1px);
+    }
   }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 
@@ -993,6 +1009,9 @@
   }
 
   &__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;               // WCAG 2.5.5
     padding: var(--pas-2) var(--pas-4);
     background: var(--action);
     color: var(--sur-action);
@@ -1007,6 +1026,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dash-mesure, .dash-vide__cta { transition: none; }
+  .dash-mesure,
+  .dash-vide__cta { transition: none; }
   .dash-vide__cta:active { transform: none; }
 }

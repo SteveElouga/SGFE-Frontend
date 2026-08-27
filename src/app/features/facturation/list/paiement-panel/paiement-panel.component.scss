@@ -53,7 +53,9 @@
     line-height: 1;
     transition: color 0.1s;
 
-    &:hover { color: var(--encre); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--encre); }
+    }
   }
 
   // Le formulaire lui-même vit dans <app-paiement-form> (shared) : styles pf-*

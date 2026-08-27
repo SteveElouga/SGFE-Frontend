@@ -259,7 +259,9 @@
     background: var(--surface);
     color: var(--encre-3);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { border-color: $color-primary; color: var(--action); background: var(--action-lueur); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { border-color: $color-primary; color: var(--action); background: var(--action-lueur); }
+    }
   }
 
   &--cloturer {
@@ -267,7 +269,9 @@
     background: var(--surface);
     color: var(--danger-encre);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { background: var(--danger-fond); border-color: var(--danger-trait); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--danger-fond); border-color: var(--danger-trait); }
+    }
   }
 
   &--demarrer {
@@ -275,7 +279,9 @@
     background: var(--surface);
     color: var(--action);
     transition: border-color 0.12s, color 0.12s, background 0.12s;
-    &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
+    }
   }
 }
 

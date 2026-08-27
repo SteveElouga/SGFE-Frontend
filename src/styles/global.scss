@@ -59,14 +59,38 @@ textarea {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-// ── Feedback de press universel sur les boutons (l'UI « répond » au doigt) ────
-// Les .btn sont redéfinis par composant ; le scale au :active s'applique partout
-// (au pire il claque instantanément, au mieux il s'anime — net gain à chaque clic).
-.btn {
-  transition: transform 160ms var(--ease-out);
+// ── Retour au toucher : l'interface répond à l'appui ─────────────────────────
+// La règle ne visait que `.btn`, une classe que la plupart des boutons n'ont
+// pas — les boutons PrimeNG, les actions de barre de titre et les pastilles
+// n'avaient aucun retour. Mesuré : `transform: none` pendant l'appui sur
+// « Se connecter ».
+//
+// Le press-scale de 0,97 est une règle du DESIGN.md. Il porte sur tout ce qui
+// se presse, sauf ce qui est désactivé — un contrôle inerte ne doit pas
+// prétendre répondre.
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+.btn,
+a.page-topbar-action {
+  transition: transform var(--duree-courte, 160ms) var(--ease-out);
 }
-.btn:active {
+
+button:not(:disabled):active,
+[role='button']:not([aria-disabled='true']):active,
+.btn:not(:disabled):active,
+a.page-topbar-action:active {
   transform: scale(0.97);
+}
+
+// Sous mouvement réduit, l'appui ne déforme plus rien : le retour passe par la
+// couleur, que les composants gardent.
+@media (prefers-reduced-motion: reduce) {
+  button:active,
+  [role='button']:active,
+  .btn:active,
+  a.page-topbar-action:active {
+    transform: none;
+  }
 }
 
 // ── Fallback :focus-visible global ────────────────────────────────────────────
@@ -191,4 +215,41 @@ button[aria-busy='true'],
   padding: var(--pas-5);
 
   @media (max-width: 639px) { padding: var(--pas-4); }
+}
+
+
+// ── Cibles tactiles ───────────────────────────────────────────────────────────
+// WCAG 2.5.5 : 44×44 px minimum. Les champs et les déclencheurs de liste
+// tombaient à 40 px — suffisant à la souris, juste sous le seuil au pouce.
+// L'agent de relevé saisit en tournée, parfois ganté.
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea,
+.p-select,
+.p-inputtext,
+.p-datepicker-input,
+.p-select-dropdown {
+  min-height: 44px;
+}
+
+// Les déclencheurs PrimeNG gardaient 40 px de large malgré la hauteur relevée.
+.p-select-dropdown,
+.p-datepicker-dropdown {
+  min-width: 44px;
+}
+
+// Filet de sécurité : un <button> est une cible tactile. Les traquer un par un
+// dans 68 feuilles laissait toujours passer les sélecteurs imbriqués ; la règle
+// vaut donc par défaut, et se lève explicitement là où le bouton n'est pas une
+// cible autonome (une puce dans une phrase, un chevron de tri).
+button:not(.dt__sort-btn):not(.correction-annuler):not(.nb__mark) {
+  min-height: 44px;
+}
+
+// Une carte-ligne cliquable en mobile est elle aussi une cible.
+[class$='card__top'],
+[class$='card'],
+.fcard__pay,
+.envoi__resend {
+  min-height: 44px;
 }

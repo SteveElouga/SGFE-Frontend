@@ -440,7 +440,9 @@
     cursor: pointer;
     white-space: nowrap;
 
-    &:hover { background: var(--danger-fond); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--danger-fond); }
+    }
     i { font-size: 11px; }
   }
 

@@ -27,6 +27,8 @@
     cursor: pointer;
     transition: background 0.15s;
 
-    &:hover { background: var(--danger-trait); }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--danger-trait); }
+    }
   }
 }
