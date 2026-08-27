@@ -94,10 +94,27 @@ export class NotificationsService {
     );
   }
 
+  /**
+   * Analyse une date ISO, ou `null` si elle est absente ou illisible.
+   *
+   * Un envoi WhatsApp **en échec** n'a jamais été envoyé : sa date est vide.
+   * `new Date('')` produit alors une date invalide que `toLocaleDateString`
+   * rendait telle quelle — « Invalid Date » s'affichait en clair dans le
+   * centre de notifications.
+   */
+  private parseDate(iso: string): Date | null {
+    if (!iso) return null;
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+
   /** Retourne le groupe temporel (Aujourd'hui / Hier / Cette semaine / Plus ancien). */
   groupOf(iso: string): NotifGroup {
     const now = new Date();
-    const d = new Date(iso);
+    const d = this.parseDate(iso);
+    // Sans date exploitable, la notification descend en bas de pile plutôt que
+    // de s'inviter dans « Aujourd'hui ».
+    if (d === null) return 'OLDER';
     if (this.sameDay(d, now)) return 'TODAY';
     const yesterday = new Date(now.getTime() - DAY);
     if (this.sameDay(d, yesterday)) return 'YESTERDAY';
@@ -109,7 +126,8 @@ export class NotificationsService {
   relativeTime(iso: string): string {
     const lang = this.translate.currentLang() ?? undefined;
     const now = new Date();
-    const d = new Date(iso);
+    const d = this.parseDate(iso);
+    if (d === null) return '';
     const diff = now.getTime() - d.getTime();
 
     if (this.sameDay(d, now)) {
