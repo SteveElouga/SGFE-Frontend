@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from '@apollo/client/core';
 
 // PENDING BACKEND: confirm query name and arguments (pagination, filters)
 export const GET_USERS = gql`

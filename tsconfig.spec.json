@@ -4,7 +4,9 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/spec",
-    "types": ["vitest/globals"]
+    // "node" : aquabill-preset.spec.ts lit les sources pour vérifier que
+    // chaque composant PrimeNG monté a bien ses jetons dans le préréglage.
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.spec.ts"]
 }
