@@ -85,9 +85,20 @@
 
       <ng-template appCol="actions" let-abonne>
         <div class="abonnes-table__actions">
-          <!-- « Voir » a disparu : le n° d'abonné est désormais un lien vers la
-               fiche, et la ligne entière y mène. Répéter la destination en
-               bouton fantôme sur chaque ligne n'ajoutait qu'du bruit. -->
+          <!-- « Voir » avait été retiré au motif que le n° d'abonné était déjà
+               un lien et que la ligne entière menait à la fiche. La deuxième
+               moitié était fausse — la table ne déclarait pas rowClickable — et
+               la première invisible : le lien héritait de la couleur du texte
+               et ne se soulignait qu'au survol, donc jamais sur un téléphone.
+               Les deux affordances existent maintenant ; celle-ci reste parce
+               qu'une colonne d'actions est l'endroit où l'on cherche une
+               action, et qu'elle se lit sans avoir à survoler quoi que ce soit. -->
+          <a
+            class="abonnes-table__action-btn"
+            [routerLink]="['/abonnes', abonne.id]"
+            [attr.aria-label]="('ABONNES.VOIR' | translate) + ' ' + abonne.numeroAbonne"
+          >{{ 'ABONNES.VOIR' | translate }}</a>
+
           @if (abonne.statut === 'ACTIF') {
             <a
               class="abonnes-table__action-btn"
