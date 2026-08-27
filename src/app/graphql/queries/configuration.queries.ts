@@ -9,6 +9,8 @@ export const WHATSAPP_STATUS_SUB = gql`
       ready
       qr
       number
+      phase
+      depuisMs
     }
   }
 `;

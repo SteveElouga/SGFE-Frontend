@@ -633,7 +633,10 @@
       "EMAIL": "E-mail admin (Brevo)",
       "EMAIL_PLACEHOLDER": "admin@exemple.ci",
       "EMAIL_HINT": "Vide = notifications désactivées"
-    }
+    },
+    "WHATSAPP_ROMPU_TITRE": "Liaison WhatsApp rompue",
+    "WHATSAPP_ROMPU_DESC": "Aucune facture ne peut partir tant que le compte n'est pas relié. Cliquez sur Réessayer : un nouveau QR code apparaîtra dans la minute.",
+    "WHATSAPP_ROMPU_DEPUIS": "Hors service depuis {{ duree }}"
   },
   "PROFIL": {
     "TITLE": "Mon profil",

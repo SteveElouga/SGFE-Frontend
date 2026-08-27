@@ -633,7 +633,10 @@
       "EMAIL": "Admin email (Brevo)",
       "EMAIL_PLACEHOLDER": "admin@example.com",
       "EMAIL_HINT": "Empty = notifications disabled"
-    }
+    },
+    "WHATSAPP_ROMPU_TITRE": "WhatsApp link is down",
+    "WHATSAPP_ROMPU_DESC": "No invoice can be sent until the account is linked again. Click Retry — a new QR code will appear within a minute.",
+    "WHATSAPP_ROMPU_DEPUIS": "Down for {{ duree }}"
   },
   "PROFIL": {
     "TITLE": "My profile",
