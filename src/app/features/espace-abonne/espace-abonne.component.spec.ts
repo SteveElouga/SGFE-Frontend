@@ -22,11 +22,20 @@ import {
  * ce qui va le faire suspendre.
  */
 
-/** Date du jour décalée de `jours`, au format ISO court. */
+/**
+ * Date du jour décalée de `n` jours, au format court.
+ *
+ * Composée à la main plutôt que par `toISOString()` : celui-ci convertit en UTC,
+ * si bien qu'à l'est de Greenwich, passé minuit, il rend la veille. Ces tests
+ * ont commencé à échouer à 00 h 08 pour cette seule raison — et ce n'était pas
+ * eux qui avaient tort sur le fond, mais bien un décalage réel entre la date
+ * qu'ils fabriquaient et celle que le composant lisait.
+ */
 function jours(n: number): string {
   const d = new Date();
   d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  const p = (v: number) => String(v).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
 }
 
 function facture(p: Partial<EspaceAbonneFacture> = {}): EspaceAbonneFacture {
@@ -365,5 +374,87 @@ describe('EspaceAbonneComponent · avoir', () => {
   it('un avoir n’empêche pas le régime « à venir » de s’appliquer', () => {
     const c = setup(4_000, 10_000);
     expect(c.regime()).toBe('a-venir');
+  });
+});
+
+describe('EspaceAbonneComponent · lecture des dates', () => {
+  /**
+   * Une échéance de facture n'a pas d'heure : c'est un jour du calendrier, et
+   * il doit se lire dans le calendrier de celui qui regarde l'écran.
+   *
+   * `new Date('2026-08-27')` ne rend pas le 27 août — il rend minuit UTC ce
+   * jour-là, converti dans le fuseau du navigateur. À l'ouest de Greenwich cela
+   * tombe la veille au soir, et l'échéance recule d'un jour : une facture due
+   * le 27 s'annonce en retard dès le 27 au matin.
+   *
+   * Ces tests fixent une date absolue plutôt que relative, pour que le décalage
+   * se voie où qu'ils tournent.
+   */
+  function avecEcheance(echeance: string, aujourdhui: string) {
+    vi.useFakeTimers();
+    const [a, m, j] = aujourdhui.split('-').map(Number);
+    vi.setSystemTime(new Date(a, m - 1, j, 9, 0, 0)); // 9 h du matin, heure locale
+
+    const svc = {
+      getFactures: vi.fn().mockReturnValue(
+        of({
+          abonne_id: 'ab-1',
+          token_expiration: '2026-12-31',
+          factures: [
+            {
+              facture_id: 'f-1',
+              numero: 'FACT-1',
+              date_releve: '2026-08-01',
+              montant: 10_000,
+              statut: 'IMPAYEE',
+              date_limite_paiement: echeance,
+              solde_restant: 10_000,
+              montant_paye: 0,
+            },
+          ],
+        }),
+      ),
+      pdfUrl: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 't' } } } },
+      ],
+    });
+    return TestBed.createComponent(EspaceAbonneComponent).componentInstance;
+  }
+
+  afterEach(() => vi.useRealTimers());
+
+  it('le jour même de l’échéance, rien n’est en retard', () => {
+    const c = avecEcheance('2026-08-27', '2026-08-27');
+    expect(c.lignes()[0].joursDeRetard).toBe(0);
+    expect(c.regime()).toBe('a-venir');
+  });
+
+  it('le lendemain, le retard vaut exactement un jour', () => {
+    const c = avecEcheance('2026-08-27', '2026-08-28');
+    expect(c.lignes()[0].joursDeRetard).toBe(1);
+  });
+
+  it('la veille, il reste exactement un jour', () => {
+    const c = avecEcheance('2026-08-28', '2026-08-27');
+    expect(c.lignes()[0].joursRestants).toBe(1);
+  });
+
+  it('un mois de retard se compte au jour près', () => {
+    const c = avecEcheance('2026-07-28', '2026-08-28');
+    expect(c.lignes()[0].joursDeRetard).toBe(31);
+  });
+
+  it('un horodatage complet reste lisible', () => {
+    // Le service n'en envoie pas aujourd'hui, mais un backend peut se mettre à
+    // horodater sans prévenir — et ce serait alors muet.
+    const c = avecEcheance('2026-08-27T14:30:00+01:00', '2026-08-28');
+    expect(c.lignes()[0].joursDeRetard).toBe(1);
   });
 });

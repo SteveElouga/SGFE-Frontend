@@ -220,9 +220,32 @@ export class EspaceAbonneComponent {
     return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   }
 
-  /** `null` plutôt qu'un `Invalid Date` qui contaminerait tous les calculs. */
+  /**
+   * Lit une date sans heure comme une date **locale**, et non comme un instant UTC.
+   *
+   * `new Date('2026-08-27')` ne rend pas le 27 août : il rend minuit UTC ce
+   * jour-là, converti dans le fuseau du navigateur. À l'ouest de Greenwich, cela
+   * tombe la veille au soir — et l'échéance recule d'un jour. Une facture due le
+   * 27 s'annoncerait en retard dès le 27 au matin, et le compteur de jours
+   * afficherait partout une unité de trop.
+   *
+   * Une échéance de facture n'a pas d'heure : c'est un jour du calendrier, et il
+   * doit se lire dans le calendrier de celui qui regarde l'écran.
+   *
+   * Renvoie `null` sur une date illisible, plutôt qu'un `Invalid Date` qui
+   * contaminerait silencieusement tous les calculs en aval.
+   */
   private dateOuNull(iso: string | null | undefined): number | null {
     if (!iso) return null;
+
+    const jourSeul = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
+    if (jourSeul) {
+      const [, a, m, j] = jourSeul;
+      const d = new Date(Number(a), Number(m) - 1, Number(j));
+      return Number.isNaN(d.getTime()) ? null : d.getTime();
+    }
+
+    // Horodatage complet : il porte son propre instant, on le ramène au jour local.
     const t = new Date(iso).getTime();
     return Number.isNaN(t) ? null : this.debutDeJournee(new Date(t));
   }
