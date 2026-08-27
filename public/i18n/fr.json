@@ -273,7 +273,7 @@
     "DESACTIVER_CONFIRM": "L'utilisateur ne pourra plus se connecter. Cette action est réversible.",
     "SUCCESS_DESACTIVATION": "Compte désactivé",
     "SUCCESS_DESACTIVATION_DETAIL": "{{ username }} ne peut plus se connecter.",
-    "FILTRE_ROLE": "Filtrer par rôle",
+    "FILTRE_ROLE": "Rôle",
     "STATUT": {
       "TOUS": "Tous les statuts",
       "ACTIF": "Actifs",
