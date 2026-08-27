@@ -26,6 +26,8 @@ export const GET_IMPAYES = gql`
       montantPaye
       soldeRestant
       statut
+      abonneId
+      dateLimitePaiement
     }
   }
 `;

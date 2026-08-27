@@ -998,7 +998,21 @@
     "TOTAL_KPI_ARIA": "Total encaissé sur la période affichée",
     "TOTAL_KPI_HINT": "sur {{count}} transaction(s) affichée(s)",
     "ANNULE": "Annulé",
-    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés"
+    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés",
+    "ENCAISSEMENT": {
+      "TITRE": "Encaisser un versement",
+      "DESC": "{{nom}} doit {{total}}. Le versement s'impute du plus ancien au plus récent.",
+      "MONTANT": "Montant reçu",
+      "MODE": "Mode de paiement",
+      "REFERENCE": "Référence de la transaction",
+      "REFERENCE_EXEMPLE": "ex. MP260827.1423.A12345",
+      "IMPUTATION_TITRE": "Ce versement sera imputé ainsi",
+      "RETARD": "dû depuis {{n}} jours",
+      "EXCEDENT": "{{montant}} en excédent — porté au crédit de l'abonné",
+      "VALIDER": "Encaisser",
+      "SUCCES": "Versement enregistré",
+      "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures"
+    }
   },
   "IMPAYES": {
     "TITLE": "Impayés",

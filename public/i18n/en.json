@@ -998,7 +998,21 @@
     "TOTAL_KPI_ARIA": "Total collected for the displayed period",
     "TOTAL_KPI_HINT": "across {{count}} displayed transaction(s)",
     "ANNULE": "Cancelled",
-    "TOTAL_HORS_ANNULES": "{{count}} cancelled payment(s) excluded — {{montant}} not collected"
+    "TOTAL_HORS_ANNULES": "{{count}} cancelled payment(s) excluded — {{montant}} not collected",
+    "ENCAISSEMENT": {
+      "TITRE": "Record a payment",
+      "DESC": "{{nom}} owes {{total}}. The payment is applied oldest first.",
+      "MONTANT": "Amount received",
+      "MODE": "Payment method",
+      "REFERENCE": "Transaction reference",
+      "REFERENCE_EXEMPLE": "e.g. MP260827.1423.A12345",
+      "IMPUTATION_TITRE": "This payment will be applied as follows",
+      "RETARD": "{{n}} days overdue",
+      "EXCEDENT": "{{montant}} left over — credited to the subscriber",
+      "VALIDER": "Record payment",
+      "SUCCES": "Payment recorded",
+      "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices"
+    }
   },
   "IMPAYES": {
     "TITLE": "Overdue",

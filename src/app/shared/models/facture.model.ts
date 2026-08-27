@@ -47,6 +47,8 @@ export interface SoldeFacture {
   montantPaye: number;
   soldeRestant: number;
   statut: StatutFacture;
+  abonneId: string;
+  dateLimitePaiement: string;
 }
 
 export interface Paiement {

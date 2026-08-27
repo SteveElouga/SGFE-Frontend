@@ -816,3 +816,21 @@
     border-radius: var(--rayon-xs);
   }
 }
+
+// Deux gestes dans la carte de solde : encaisser (courant, donc en avant) et
+// saisir un arriéré (rare, donc en retrait). Le poids visuel dit la fréquence.
+.abonne-kpi__actions {
+  margin-top: var(--pas-2);
+  display: flex;
+  gap: var(--pas-4);
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.abonne-kpi__action--primaire {
+  text-decoration: none;
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  background: var(--action-lueur);
+  color: var(--action-survol);
+}

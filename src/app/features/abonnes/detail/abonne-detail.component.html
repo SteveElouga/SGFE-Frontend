@@ -105,9 +105,17 @@
         <div class="abonne-kpi__sub">{{ soldeSub() }}</div>
         <!-- Le geste est là où la dette se lit. Discret : constater un arriéré
              est rare, et l'action ne doit pas concurrencer le chiffre. -->
-        <button type="button" class="abonne-kpi__action" (click)="arriereDialogVisible.set(true)">
-          {{ 'ABONNES.ARRIERE.TITRE' | translate }}
-        </button>
+        <div class="abonne-kpi__actions">
+          @if (soldesOuverts().length > 0) {
+            <button type="button" class="abonne-kpi__action abonne-kpi__action--primaire"
+              (click)="encaissementDialogVisible.set(true)">
+              {{ 'PAIEMENTS.ENCAISSEMENT.VALIDER' | translate }}
+            </button>
+          }
+          <button type="button" class="abonne-kpi__action" (click)="arriereDialogVisible.set(true)">
+            {{ 'ABONNES.ARRIERE.TITRE' | translate }}
+          </button>
+        </div>
       </div>
       <div class="abonne-kpi abonne-kpi--slate"
         [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SINCE' | translate">
@@ -492,6 +500,16 @@
     </div>
   }
 </div>
+
+<app-encaissement-sheet
+  [open]="encaissementDialogVisible()"
+  [abonneId]="abonneId"
+  [abonneNom]="topbarTitle()"
+  [soldes]="soldesOuverts()"
+  [numerosParFacture]="numerosParFacture()"
+  (close)="encaissementDialogVisible.set(false)"
+  (saved)="onEncaissementSaved()"
+/>
 
 <app-arriere-sheet
   [open]="arriereDialogVisible()"

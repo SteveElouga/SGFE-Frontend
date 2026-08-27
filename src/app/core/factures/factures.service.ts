@@ -340,7 +340,9 @@ export class FacturesService {
   ): Array<{ factureId: string; numeroFacture: string; part: number; dateLimitePaiement: string }> {
     const ordonnes = [...soldes]
       .filter((s) => s.soldeRestant > 0)
-      .sort((a, b) => a.dateLimitePaiement.localeCompare(b.dateLimitePaiement));
+      // Une échéance absente passe en dernier plutôt que de faire tomber
+      // l'écran : mieux vaut une ventilation approximative qu'un plantage.
+      .sort((a, b) => (a.dateLimitePaiement || '9999').localeCompare(b.dateLimitePaiement || '9999'));
     const parts: Array<{ factureId: string; numeroFacture: string; part: number; dateLimitePaiement: string }> = [];
     let restant = montant;
     for (const s of ordonnes) {
