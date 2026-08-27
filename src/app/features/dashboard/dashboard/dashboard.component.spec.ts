@@ -52,6 +52,8 @@ function solde(partial: Partial<SoldeFacture>): SoldeFacture {
     montantPaye: 0,
     soldeRestant: 5000,
     statut: 'IMPAYEE',
+    abonneId: 'a1',
+    dateLimitePaiement: '2026-07-27',
     ...partial,
   };
 }
