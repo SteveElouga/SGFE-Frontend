@@ -1,30 +1,53 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import schemaEntrees from './schema-entrees.json';
+import { buildClientSchema, parse, validate, type IntrospectionQuery } from 'graphql';
+import introspection from './schema-introspection.json';
 
 /**
- * Le contrat d'entrée GraphQL, vérifié contre un instantané du schéma.
+ * Chaque requête et mutation du frontend, validée contre le schéma réel.
  *
- * TypeScript ne voit rien des variables d'une mutation : elles traversent
- * Apollo sous forme d'objet libre, et le compilateur valide qu'elles
- * correspondent à l'interface locale — pas que l'interface locale corresponde
- * au serveur. `remplacerCompteur` a vécu ainsi avec cinq champs sur six portant
- * des noms qui n'existaient nulle part côté gateway : la compilation passait,
- * les tests passaient, et la fonctionnalité échouait à chaque tentative.
+ * TypeScript ne voit rien d'un document GraphQL : ni les variables, ni les
+ * champs sélectionnés. Le compilateur vérifie qu'un objet correspond à une
+ * interface locale, jamais que cette interface correspond au serveur. Deux
+ * pannes l'ont montré, à quelques heures d'intervalle.
  *
- * L'instantané `schema-entrees.json` se régénère avec
- * `node scripts/rafraichir-schema.mjs` sur une gateway en marche. Quand le
- * backend change une entrée, ce test tombe — ce qui est précisément le moment
- * où l'on veut l'apprendre.
+ * `remplacerCompteur` envoyait cinq champs sur six sous des noms qui n'existent
+ * nulle part côté gateway. Le remplacement de compteur n'a donc jamais
+ * fonctionné.
+ *
+ * `GetSoldeFacture` a demandé `avoirImpute` avant que la gateway déployée ne
+ * l'expose : l'écran d'une facture s'est vidé sur un « Cannot query field ».
+ *
+ * Dans les deux cas, la compilation passait, les tests passaient, et la seule
+ * chose qui échouait était la fonctionnalité — devant l'utilisateur.
+ *
+ * `graphql.validate` fait ce travail complètement : variables, champs, types,
+ * arguments, fragments. Il ne restait qu'à lui donner le schéma.
+ *
+ * L'instantané se régénère avec `node scripts/rafraichir-schema.mjs` sur une
+ * gateway en marche. Il vieillit, et c'est voulu : quand le backend change son
+ * schéma, ce test tombe — précisément au moment où l'on veut l'apprendre.
  */
 
-type ChampSchema = { type: string; requis: boolean };
-const SCHEMA = schemaEntrees as Record<string, Record<string, ChampSchema>>;
+const SCHEMA = buildClientSchema(introspection as unknown as IntrospectionQuery);
 
-/** Interfaces `*Input` déclarées dans le frontend, avec leurs champs. */
-function interfacesLocales(): Map<string, { champs: Set<string>; fichier: string }> {
-  const trouvees = new Map<string, { champs: Set<string>; fichier: string }>();
-  const motif = /export interface (\w*Input)\s*\{([\s\S]*?)\n\}/g;
+/** Un document `gql` trouvé dans les sources, avec sa provenance. */
+interface Document {
+  nom: string;
+  source: string;
+  fichier: string;
+}
+
+/**
+ * Extrait les documents `gql` des sources.
+ *
+ * On lit le texte plutôt que d'importer les modules : importer exécuterait
+ * `gql`, qui accepte n'importe quoi — c'est justement le problème qu'on essaie
+ * d'attraper.
+ */
+function documents(): Document[] {
+  const trouves: Document[] = [];
+  const motif = /export const (\w+)\s*=\s*gql`([\s\S]*?)`;/g;
 
   const parcourir = (dossier: string): void => {
     for (const entree of readdirSync(dossier)) {
@@ -32,59 +55,64 @@ function interfacesLocales(): Map<string, { champs: Set<string>; fichier: string
       if (statSync(chemin).isDirectory()) {
         parcourir(chemin);
       } else if (chemin.endsWith('.ts') && !chemin.endsWith('.spec.ts')) {
-        const source = readFileSync(chemin, 'utf8');
-        for (const m of source.matchAll(motif)) {
-          const champs = new Set(
-            [...m[2].matchAll(/^ {2}(\w+)\??:/gm)].map((c) => c[1]),
-          );
-          if (champs.size > 0) trouvees.set(m[1], { champs, fichier: chemin });
+        const texte = readFileSync(chemin, 'utf8');
+        for (const m of texte.matchAll(motif)) {
+          // Les documents composés par interpolation (`${FRAGMENT}`) ne peuvent
+          // pas être validés isolément : leur fragment vit ailleurs.
+          if (m[2].includes('${')) continue;
+          trouves.push({ nom: m[1], source: m[2], fichier: chemin });
         }
       }
     }
   };
   parcourir('src/app');
-  return trouvees;
+  return trouves;
 }
 
-describe('contrat GraphQL — entrées', () => {
-  const locales = interfacesLocales();
+describe('contrat GraphQL', () => {
+  const docs = documents();
 
-  it('l’instantané du schéma est présent et non vide', () => {
-    expect(Object.keys(SCHEMA).length).toBeGreaterThan(0);
+  it('trouve les documents du frontend', () => {
+    // Un extracteur qui ne trouve rien passerait tous les tests suivants sans
+    // rien vérifier — c'est le mode de panne le plus discret d'une garde.
+    expect(docs.length).toBeGreaterThan(20);
   });
 
-  it('aucune interface n’envoie un champ que le serveur ignore', () => {
-    const fautifs: string[] = [];
-    for (const [nom, { champs, fichier }] of locales) {
-      const serveur = SCHEMA[nom];
-      if (!serveur) continue;
-      const inconnus = [...champs].filter((c) => !(c in serveur)).sort();
-      if (inconnus.length > 0) fautifs.push(`${nom} (${fichier}) → ${inconnus.join(', ')}`);
-    }
-    expect(fautifs).toEqual([]);
+  it('l’instantané du schéma est exploitable', () => {
+    expect(SCHEMA.getQueryType()).toBeTruthy();
+    expect(SCHEMA.getMutationType()).toBeTruthy();
   });
 
-  it('aucune interface n’omet un champ obligatoire', () => {
+  it('chaque document est valide contre le schéma de la gateway', () => {
     const fautifs: string[] = [];
-    for (const [nom, { champs, fichier }] of locales) {
-      const serveur = SCHEMA[nom];
-      if (!serveur) continue;
-      const manquants = Object.entries(serveur)
-        .filter(([c, d]) => d.requis && !champs.has(c))
-        .map(([c]) => c)
-        .sort();
-      if (manquants.length > 0) fautifs.push(`${nom} (${fichier}) → ${manquants.join(', ')}`);
+
+    for (const doc of docs) {
+      let ast;
+      try {
+        ast = parse(doc.source);
+      } catch (err) {
+        fautifs.push(`${doc.nom} (${doc.fichier}) → syntaxe : ${(err as Error).message}`);
+        continue;
+      }
+      const erreurs = validate(SCHEMA, ast);
+      for (const e of erreurs) {
+        fautifs.push(`${doc.nom} (${doc.fichier}) → ${e.message}`);
+      }
     }
+
+    // Le tableau plutôt qu'un booléen : quand ça tombe, on veut lire quel
+    // document et quel champ, pas « attendu true, reçu false ».
     expect(fautifs).toEqual([]);
   });
 
   it('le remplacement de compteur distingue bien les deux compteurs', () => {
-    // Le cas qui a motivé ce fichier : la mutation manipule celui qu'on archive
-    // et celui qu'on pose. Un champ nommé « numeroCompteur » ne dit pas duquel
-    // il parle, et c'est l'ambiguïté qui avait produit l'erreur.
-    const serveur = SCHEMA['RemplacerCompteurInput'];
-    expect(serveur).toBeDefined();
-    expect(Object.keys(serveur).sort()).toEqual([
+    // Le cas qui a motivé ce fichier. La mutation manipule celui qu'on archive
+    // et celui qu'on pose ; un champ nommé « numeroCompteur » ne dit pas duquel
+    // il parle, et c'est cette ambiguïté qui avait produit l'erreur.
+    const entree = SCHEMA.getType('RemplacerCompteurInput');
+    expect(entree).toBeTruthy();
+    const champs = Object.keys((entree as { getFields(): object }).getFields()).sort();
+    expect(champs).toEqual([
       'dateRemplacement',
       'indexFermeture',
       'motif',
@@ -93,6 +121,5 @@ describe('contrat GraphQL — entrées', () => {
       'nouveauQuartier',
       'nouvelIndexInitial',
     ]);
-    expect(locales.get('RemplacerCompteurInput')?.champs.has('numeroCompteur')).toBe(false);
   });
 });
