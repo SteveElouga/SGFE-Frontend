@@ -953,7 +953,11 @@
       "RESTE_LABEL": "Reste à percevoir",
       "BTN_CONFIRMER_CORRECTION": "Confirmer",
       "CONFIRMER_CORRECTION_MSG": "Le statut passera à « {{statut}} » sans qu'aucun paiement soit enregistré.",
-      "SOLDE_PAR": "Solde réglé"
+      "SOLDE_PAR": "Solde réglé",
+      "CONSO_DU_MOIS": "Consommation du mois",
+      "SOLDE_ANTERIEUR": "Solde antérieur · {{n}} facture(s)",
+      "TOTAL_A_PAYER": "Total à payer",
+      "DEPUIS": "dont {{montant}} dus depuis le {{date}}"
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",

@@ -138,6 +138,37 @@
         </div>
       </div>
 
+      <!-- Le solde antérieur se pose À CÔTÉ de la bande de calcul, jamais
+           dedans : celle-ci explique une consommation, celui-là constate une
+           dette. Les confondre reviendrait à faire croire que l'abonné a
+           consommé ce qu'il traîne. N'apparaît que s'il y en a un. -->
+      @if (aUnSoldeAnterieur()) {
+        <div class="anterieur">
+          <div class="anterieur__ligne">
+            <span class="anterieur__k">{{ 'FACTURATION.DETAIL.CONSO_DU_MOIS' | translate }}</span>
+            <span class="anterieur__v">{{ f.montant | fcfa }}</span>
+          </div>
+          <div class="anterieur__ligne">
+            <span class="anterieur__k">
+              {{ 'FACTURATION.DETAIL.SOLDE_ANTERIEUR' | translate: { n: soldeAnterieur()!.nbFactures } }}
+            </span>
+            <span class="anterieur__v anterieur__v--dette">{{ soldeAnterieur()!.totalDu | fcfa }}</span>
+          </div>
+          <div class="anterieur__ligne anterieur__ligne--total">
+            <span class="anterieur__k">{{ 'FACTURATION.DETAIL.TOTAL_A_PAYER' | translate }}</span>
+            <span class="anterieur__v">{{ totalAPayer() | fcfa }}</span>
+          </div>
+          @if (soldeAnterieurEchu()) {
+            <p class="anterieur__note">
+              {{ 'FACTURATION.DETAIL.DEPUIS' | translate: {
+                   montant: (soldeAnterieur()!.totalDu | fcfa),
+                   date: (soldeAnterieur()!.plusAncienneEcheance | date: 'dd/MM/yyyy')
+                 } }}
+            </p>
+          }
+        </div>
+      }
+
       <!-- Détail du calcul en lignes clé/valeur (mobile — MB-05) -->
       <div class="mrows">
         <div class="mrows__row">

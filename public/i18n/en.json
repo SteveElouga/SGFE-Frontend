@@ -953,7 +953,11 @@
       "RESTE_LABEL": "Remaining to collect",
       "BTN_CONFIRMER_CORRECTION": "Confirm",
       "CONFIRMER_CORRECTION_MSG": "The status will change to “{{statut}}” without recording any payment.",
-      "SOLDE_PAR": "Paid in full"
+      "SOLDE_PAR": "Paid in full",
+      "CONSO_DU_MOIS": "This month's consumption",
+      "SOLDE_ANTERIEUR": "Prior balance · {{n}} invoice(s)",
+      "TOTAL_A_PAYER": "Total due",
+      "DEPUIS": "including {{montant}} owed since {{date}}"
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",
