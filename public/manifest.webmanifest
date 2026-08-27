@@ -1,6 +1,6 @@
 {
-  "name": "Facturation Eau",
-  "short_name": "Eau",
+  "name": "SGFE — Gestion de facturation d’eau",
+  "short_name": "SGFE",
   "theme_color": "#0f1c3d",
   "background_color": "#ffffff",
   "display": "standalone",

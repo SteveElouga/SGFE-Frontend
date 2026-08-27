@@ -224,7 +224,7 @@
                 </div>
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.INDEX_INITIAL' | translate }}</span>
-                  <span class="abonne-info-row__value abonne-info-row__value--mono">{{ a.compteur.indexInitial.toFixed(3) }} m³</span>
+                  <span class="abonne-info-row__value abonne-info-row__value--mono">{{ (a.compteur.indexInitial | number:'1.0-0') }} m³</span>
                 </div>
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
@@ -420,7 +420,7 @@
                   </div>
                   <div class="hist-current__row">
                     <span class="hist-current__key">{{ 'ABONNES.DETAIL.INDEX_INITIAL' | translate }}</span>
-                    <span class="hist-current__val">{{ a.compteur.indexInitial.toFixed(3) }} m³</span>
+                    <span class="hist-current__val">{{ (a.compteur.indexInitial | number:'1.0-0') }} m³</span>
                   </div>
                   <div class="hist-current__row">
                     <span class="hist-current__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
@@ -460,7 +460,7 @@
                           <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_ANCIEN' | translate }}</span>
                           <span class="hist-meter__num">{{ entry.ancienCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.ancienCompteur.quartier }} · Camp {{ entry.ancienCompteur.camp }}</span>
-                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ entry.ancienCompteur.indexInitial.toFixed(3) }} m³</span>
+                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ (entry.ancienCompteur.indexInitial | number:'1.0-0') }} m³</span>
                         </div>
                         <!-- Flèche -->
                         <div class="hist-arrow" aria-hidden="true">
@@ -473,7 +473,7 @@
                           <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_NOUVEAU' | translate }}</span>
                           <span class="hist-meter__num">{{ entry.nouveauCompteur.numeroCompteur | compteur }}</span>
                           <span class="hist-meter__loc">{{ entry.nouveauCompteur.quartier }} · Camp {{ entry.nouveauCompteur.camp }}</span>
-                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ entry.nouveauCompteur.indexInitial.toFixed(3) }} m³</span>
+                          <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ (entry.nouveauCompteur.indexInitial | number:'1.0-0') }} m³</span>
                         </div>
                       </div>
                     </div>

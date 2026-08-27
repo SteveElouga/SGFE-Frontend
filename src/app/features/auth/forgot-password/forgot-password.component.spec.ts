@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { provideRouter } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { of, throwError } from 'rxjs';
@@ -10,7 +11,8 @@ describe('ForgotPasswordComponent', () => {
 
     TestBed.configureTestingModule({
       imports: [ForgotPasswordComponent],
-      providers: [provideRouter([]), { provide: Apollo, useValue: { mutate: mutateSpy } }],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),provideRouter([]), { provide: Apollo, useValue: { mutate: mutateSpy } }],
     });
 
     const fixture = TestBed.createComponent(ForgotPasswordComponent);

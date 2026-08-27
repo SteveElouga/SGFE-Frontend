@@ -394,6 +394,9 @@ export class PaiementsListComponent implements OnInit {
     // la Règle de la Famille Unique et la promesse bilingue.
     if (r.statutFacture === 'PAYEE') return this.translate.instant('PAIEMENTS.STATUT_SOLDE');
     if (r.statutFacture === 'PARTIELLE') return this.translate.instant('PAIEMENTS.STATUT_PARTIEL');
-    return r.statutFacture ?? '—';
+    // Le statut brut de la gateway (« IMPAYEE », sans accent) s'affichait tel
+    // quel dès qu'il sortait des deux cas ci-dessus.
+    if (!r.statutFacture) return '—';
+    return this.translate.instant('FACTURATION.STATUT.' + r.statutFacture);
   }
 }

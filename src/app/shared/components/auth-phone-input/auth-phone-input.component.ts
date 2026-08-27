@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { isValidCameroonPhone } from '../../utils/phone.utils';
 
 @Component({
   selector: 'app-auth-phone-input',
-  imports: [FormsModule, InputTextModule],
+  imports: [TranslatePipe, FormsModule, InputTextModule],
   templateUrl: './auth-phone-input.component.html',
   styleUrl: './auth-phone-input.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

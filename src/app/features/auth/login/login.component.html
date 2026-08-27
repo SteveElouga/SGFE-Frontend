@@ -1,11 +1,11 @@
 <div class="login">
   <app-auth-brand-panel>
     <h1>
-      Gérez votre<br />
-      <strong>distribution d'eau</strong>
+      {{ 'AUTH.HERO_1' | translate }}<br />
+      <strong>{{ 'AUTH.HERO_2' | translate }}</strong>
     </h1>
     <div class="auth-brand__divider"></div>
-    <p>Relevés, facturation et recouvrement centralisés en un seul endroit.</p>
+    <p>{{ 'AUTH.HERO_SOUS' | translate }}</p>
     <ul class="login__checklist">
       @for (item of checklist; track item) {
         <li>
@@ -41,12 +41,12 @@
         fill-opacity=".85"
       />
     </svg>
-    <div class="login__logo-name">AquaBill</div>
-    <div class="login__logo-tagline">Gestion de distribution d'eau</div>
+    <div class="login__logo-name">{{ 'APP.NAME' | translate }}</div>
+    <div class="login__logo-tagline">{{ 'APP.TAGLINE' | translate }}</div>
   </div>
 
   <div class="login__panel">
-    <a class="login__help" href="mailto:support@aquabill.app">{{ 'AUTH.HELP_LINK' | translate }}</a>
+    <a class="login__help" href="mailto:support@sgfe.app">{{ 'AUTH.HELP_LINK' | translate }}</a>
 
     <form class="login__form" (ngSubmit)="onSubmit()">
       <h2>{{ 'AUTH.LOGIN_WELCOME' | translate }}</h2>
@@ -102,18 +102,8 @@
       <app-auth-error-message [text]="errorMessage()" />
 
       <app-auth-submit-button [label]="'AUTH.SUBMIT' | translate" [loading]="loading()" [disabled]="!canSubmit()" />
-
-      <div class="login__roles">
-        <span>{{ 'AUTH.ACCESS_BY_ROLE' | translate }}</span>
-        <div>
-          <span class="login__role login__role--admin">ADMIN</span>
-          <span class="login__role login__role--agent">AGENT</span>
-          <span class="login__role login__role--comptable">COMPTABLE</span>
-          <span class="login__role login__role--superviseur">SUPERVISEUR</span>
-        </div>
-      </div>
     </form>
 
-    <div class="login__version">AquaBill v1.0.0</div>
+    <div class="login__version">{{ 'APP.NAME' | translate }} v1.0.0</div>
   </div>
 </div>
