@@ -27,6 +27,14 @@ export interface EspaceAbonneData {
   abonne_id: string;
   token_expiration: string;
   factures: EspaceAbonneFacture[];
+  /**
+   * Crédit disponible de l'abonné, en FCFA.
+   *
+   * Il s'impute de lui-même sur la prochaine facture. Le taire produirait, le
+   * mois suivant, un montant que le client ne peut rapprocher d'aucune
+   * consommation — et qu'il prendra donc pour une erreur.
+   */
+  avoir?: number;
 }
 
 /**

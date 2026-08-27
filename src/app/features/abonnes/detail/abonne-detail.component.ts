@@ -132,6 +132,17 @@ export class AbonneDetailComponent {
    */
   readonly soldesOuverts = signal<SoldeFacture[]>([]);
 
+  /**
+   * Avoir disponible : ce que la régie doit à l'abonné.
+   *
+   * Le symétrique du solde impayé, et il se lit dans le même geste. Un caissier
+   * qui encaisse sans le savoir fait payer deux fois ; un abonné qui voit sa
+   * facture suivante réduite sans explication croit à une erreur. Le serveur
+   * tenait ce compte depuis le début — aucun écran ne le montrait.
+   */
+  readonly avoir = signal<number>(0);
+  readonly avoirFormate = computed(() => formatFcfa(this.avoir()));
+
   /** Numéro lisible par identifiant de facture, pour nommer les parts. */
   readonly numerosParFacture = computed(() =>
     Object.fromEntries(this.factures().map((f) => [f.factureId, f.numeroFacture])),
@@ -306,7 +317,7 @@ export class AbonneDetailComponent {
     try {
       const factures = await this.facturesService.getFactures({ abonneId: this.abonneId });
       this.factures.set(factures);
-      await this.calculerSolde(factures);
+      await Promise.all([this.calculerSolde(factures), this.chargerAvoir(this.abonneId)]);
     } catch {
       // Non bloquant : la fiche reste utilisable sans l'historique de facturation.
     } finally {
@@ -319,8 +330,22 @@ export class AbonneDetailComponent {
    * facture sont avalées : un solde partiel vaut mieux qu'une carte vide, et
    * la fiche reste utilisable sans.
    */
+  /**
+   * Charge l'avoir de l'abonne.
+   *
+   * Degradation silencieuse : un avoir indisponible ne doit pas empecher la
+   * fiche de s'afficher. Zero est alors le repli honnete — n'annoncer aucun
+   * credit est moins grave qu'en annoncer un faux.
+   */
+  private async chargerAvoir(abonneId: string): Promise<void> {
+    const a = await this.facturesService.getAvoirAbonne(abonneId).catch(() => null);
+    this.avoir.set(a?.montant ?? 0);
+  }
+
   private async calculerSolde(factures: readonly Facture[]): Promise<void> {
-    const impayees = factures.filter((f) => f.statut !== 'PAYEE');
+    // Une facture annulee n'est plus une dette : la compter ici ferait
+    // reapparaitre dans le solde un montant que personne ne doit plus.
+    const impayees = factures.filter((f) => f.statut !== 'PAYEE' && f.statut !== 'ANNULEE');
     if (impayees.length === 0) {
       this.soldeImpaye.set(0);
       return;

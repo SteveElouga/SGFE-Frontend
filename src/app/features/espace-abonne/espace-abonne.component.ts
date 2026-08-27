@@ -144,6 +144,15 @@ export class EspaceAbonneComponent {
     return attente.length > 0 ? attente[0].facture.date_limite_paiement : null;
   });
 
+  /**
+   * Crédit disponible — ce que la régie doit à l'abonné.
+   *
+   * Il ne se soustrait pas du solde affiché : les deux montants répondent à des
+   * questions différentes, « combien je dois » et « combien j'ai d'avance », et
+   * les fondre en un seul chiffre rendrait l'un et l'autre incompréhensibles.
+   */
+  readonly avoir = computed(() => this.data()?.avoir ?? 0);
+
   /** Les trois régimes du bandeau. Le rouge est réservé au retard réel. */
   readonly regime = computed<'solde' | 'a-venir' | 'retard'>(() => {
     if (this.soldeTotal() <= 0) return 'solde';

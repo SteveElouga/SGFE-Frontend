@@ -154,6 +154,12 @@
             </span>
             <span class="anterieur__v anterieur__v--dette">{{ soldeAnterieur()!.totalDu | fcfa }}</span>
           </div>
+          @if (aUnAvoir()) {
+            <div class="anterieur__ligne">
+              <span class="anterieur__k">{{ 'FACTURATION.DETAIL.AVOIR_APPLIQUE' | translate }}</span>
+              <span class="anterieur__v anterieur__v--avoir">− {{ avoirImpute() | fcfa }}</span>
+            </div>
+          }
           <div class="anterieur__ligne anterieur__ligne--total">
             <span class="anterieur__k">{{ 'FACTURATION.DETAIL.TOTAL_A_PAYER' | translate }}</span>
             <span class="anterieur__v">{{ totalAPayer() | fcfa }}</span>
@@ -166,6 +172,26 @@
                  } }}
             </p>
           }
+        </div>
+      } @else if (aUnAvoir()) {
+        <!-- Pas de dette antérieure, mais un avoir : il doit se voir tout de
+             même. Sans lui, l'écran montre un « déjà réglé » que personne n'a
+             versé et un reste à payer inférieur à la consommation, sans
+             explication. -->
+        <div class="anterieur">
+          <div class="anterieur__ligne">
+            <span class="anterieur__k">{{ 'FACTURATION.DETAIL.CONSO_DU_MOIS' | translate }}</span>
+            <span class="anterieur__v">{{ f.montant | fcfa }}</span>
+          </div>
+          <div class="anterieur__ligne">
+            <span class="anterieur__k">{{ 'FACTURATION.DETAIL.AVOIR_APPLIQUE' | translate }}</span>
+            <span class="anterieur__v anterieur__v--avoir">− {{ avoirImpute() | fcfa }}</span>
+          </div>
+          <div class="anterieur__ligne anterieur__ligne--total">
+            <span class="anterieur__k">{{ 'FACTURATION.DETAIL.TOTAL_A_PAYER' | translate }}</span>
+            <span class="anterieur__v">{{ totalAPayer() | fcfa }}</span>
+          </div>
+          <p class="anterieur__note">{{ 'FACTURATION.DETAIL.AVOIR_ORIGINE' | translate }}</p>
         </div>
       }
 

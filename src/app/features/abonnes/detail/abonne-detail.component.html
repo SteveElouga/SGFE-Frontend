@@ -103,6 +103,16 @@
         <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SOLDE' | translate }}</div>
         <div class="abonne-kpi__value abonne-kpi__value--solde">{{ soldeFormate() }}</div>
         <div class="abonne-kpi__sub">{{ soldeSub() }}</div>
+        <!-- L'avoir est le symetrique du solde, et il se lit dans le meme geste :
+             encaisser sans savoir qu'il reste du credit, c'est faire payer deux
+             fois. Il n'apparait que s'il existe — une ligne « avoir : 0 » sur
+             chaque fiche userait l'attention pour rien. -->
+        @if (avoir() > 0) {
+          <div class="abonne-kpi__avoir">
+            <i class="pi pi-wallet" aria-hidden="true"></i>
+            {{ 'ABONNES.DETAIL.AVOIR_DISPONIBLE' | translate: { montant: avoirFormate() } }}
+          </div>
+        }
         <!-- Le geste est là où la dette se lit. Discret : constater un arriéré
              est rare, et l'action ne doit pas concurrencer le chiffre. -->
         <div class="abonne-kpi__actions">
@@ -507,6 +517,7 @@
   [abonneNom]="topbarTitle()"
   [soldes]="soldesOuverts()"
   [numerosParFacture]="numerosParFacture()"
+  [avoir]="avoir()"
   (close)="encaissementDialogVisible.set(false)"
   (saved)="onEncaissementSaved()"
 />

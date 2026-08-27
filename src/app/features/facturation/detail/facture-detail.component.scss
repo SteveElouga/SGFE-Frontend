@@ -855,10 +855,13 @@
 // Posé à côté de la bande de calcul, jamais dedans : celle-ci explique une
 // consommation, celui-ci constate une dette. Les confondre reviendrait à faire
 // croire que l'abonné a consommé ce qu'il traîne.
+// Ce bloc sert deux situations opposées : une dette antérieure, et un avoir.
+// La bordure reste neutre — la couleur est portée par les montants eux-mêmes,
+// qui savent, eux, de quel côté ils penchent.
 .anterieur {
   margin-top: var(--pas-4);
   background: var(--surface);
-  border: 1px solid var(--danger-trait);
+  border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
   padding: var(--pas-4) var(--pas-5);
   display: flex;
@@ -891,6 +894,10 @@
     // La dette porte l'encre du danger : elle ne doit pas se lire comme une
     // consommation ordinaire.
     &--dette { color: var(--danger-encre); font-weight: 700; }
+
+    // L'avoir est un crédit : vert, à l'opposé du rouge de la dette qui le
+    // précède parfois dans le même bloc.
+    &--avoir { color: var(--succes-encre); font-weight: 700; }
   }
 
   // L'âge pèse plus que le montant : c'est lui qui fait payer.

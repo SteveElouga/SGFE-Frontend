@@ -1,6 +1,11 @@
 import type { BadgeTone } from '../components/badge/badge.component';
 
-export type StatutFacture = 'IMPAYEE' | 'PARTIELLE' | 'PAYEE';
+/**
+ * `ANNULEE` n'est pas un quatrième état de paiement mais la sortie du circuit :
+ * la facture reste au journal avec son numéro, sa dette n'existe plus, et ce
+ * qui avait été versé dessus est revenu à l'avoir de l'abonné.
+ */
+export type StatutFacture = 'IMPAYEE' | 'PARTIELLE' | 'PAYEE' | 'ANNULEE';
 export type ModePaiement = 'ESPECES' | 'MOBILE_MONEY' | 'VIREMENT';
 
 /** Teinte de la puce de statut d'une facture (source unique pour tous les écrans). */
@@ -12,6 +17,11 @@ export function factureStatutTone(statut: StatutFacture): BadgeTone {
       return 'info';
     case 'IMPAYEE':
       return 'danger';
+    // Neutre à dessein : une facture annulée n'appelle aucune action et ne
+    // porte aucune urgence. Lui donner une couleur d'alerte la ferait
+    // ressortir d'une liste qu'elle n'a plus vocation à peupler.
+    case 'ANNULEE':
+      return 'neutral';
   }
 }
 
@@ -49,6 +59,14 @@ export interface SoldeFacture {
   statut: StatutFacture;
   abonneId: string;
   dateLimitePaiement: string;
+  /**
+   * Part du montant payé venue d'un avoir plutôt que d'un versement.
+   *
+   * Sans elle, l'écran montre un « déjà réglé » que l'abonné ne se souvient pas
+   * d'avoir versé — et un reste à payer inférieur à sa consommation sans rien
+   * qui l'explique.
+   */
+  avoirImpute?: number;
 }
 
 export interface Paiement {
@@ -124,4 +142,32 @@ export interface DetteAbonne {
 export interface PaiementAbonne {
   paiements: Paiement[];
   excedentEnAvoir: number;
+}
+
+/** Un mouvement du compte d'avoir d'un abonné. */
+export interface MouvementAvoir {
+  montant: number;
+  /**
+   * `TROP_PERCU` (versement supérieur à la dette) · `RECTIFICATION` (avoir
+   * accordé à la main) · `ANNULATION` (facture annulée sous un versement) ·
+   * `IMPUTATION` (avoir appliqué à une facture — un débit).
+   */
+  typeMouvement: string;
+  motif: string;
+  factureId: string;
+  creePar: string;
+  createdAt: string;
+}
+
+/**
+ * L'avoir d'un abonné : ce que la régie lui doit.
+ *
+ * C'est l'exact symétrique du solde impayé, et il se lit dans le même geste —
+ * un caissier qui encaisse doit savoir si l'abonné a déjà de l'argent chez
+ * nous, faute de quoi il le fait payer deux fois.
+ */
+export interface Avoir {
+  abonneId: string;
+  montant: number;
+  mouvements: MouvementAvoir[];
 }

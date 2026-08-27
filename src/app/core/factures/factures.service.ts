@@ -5,6 +5,7 @@ import {
   GET_FACTURES_PAR_CAMPAGNE,
   GET_FACTURES,
   GET_FACTURE,
+  GET_AVOIR_ABONNE,
   GET_SOLDE_FACTURE,
   GET_PAIEMENTS,
   GET_ENVOIS,
@@ -30,6 +31,7 @@ import {
   ENREGISTRER_PAIEMENT_ABONNE,
 } from '../../graphql/mutations/factures.mutations';
 import {
+  Avoir,
   Envoi,
   EnregistrerPaiementInput,
   Facture,
@@ -85,6 +87,24 @@ export class FacturesService {
       }),
     );
     return result.data!.facture;
+  }
+
+  /**
+   * Avoir disponible d'un abonné, avec son journal.
+   *
+   * Le serveur tient ce compte depuis le début — un versement supérieur à la
+   * dette y est porté, et il s'impute de lui-même sur la facture suivante. Rien
+   * ne l'affichait : l'abonné voyait un montant réduit qu'aucun écran
+   * n'expliquait, et le caissier encaissait sans savoir qu'il restait du crédit.
+   */
+  async getAvoirAbonne(abonneId: string): Promise<Avoir> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ avoirAbonne: Avoir }>({
+        query: GET_AVOIR_ABONNE,
+        variables: { abonneId },
+      }),
+    );
+    return result.data!.avoirAbonne;
   }
 
   async getSoldeFacture(factureId: string): Promise<SoldeFacture> {

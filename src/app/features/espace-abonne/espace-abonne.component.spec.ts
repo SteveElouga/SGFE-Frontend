@@ -304,3 +304,66 @@ describe('EspaceAbonneComponent · accord des libellés', () => {
     expect(c.pluriel('X', 0)).toBe('X_UN');
   });
 });
+
+describe('EspaceAbonneComponent · avoir', () => {
+  /**
+   * Le crédit ne se soustrait pas du solde affiché. Les deux montants répondent
+   * à des questions différentes — « combien je dois » et « combien j'ai
+   * d'avance » — et les fondre en un seul chiffre rendrait l'un et l'autre
+   * incompréhensibles.
+   */
+  function setup(avoir: number | undefined, soldeRestant = 10_000) {
+    const svc = {
+      getFactures: vi.fn().mockReturnValue(
+        of({
+          abonne_id: 'ab-1',
+          token_expiration: jours(30),
+          avoir,
+          factures: [
+            {
+              facture_id: 'f-1',
+              numero: 'FACT-2026-08-0001',
+              date_releve: jours(-10),
+              montant: 10_000,
+              statut: 'IMPAYEE',
+              date_limite_paiement: jours(5),
+              solde_restant: soldeRestant,
+              montant_paye: 0,
+            },
+          ],
+        }),
+      ),
+      pdfUrl: vi.fn(),
+    };
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'tok' } } } },
+      ],
+    });
+    return TestBed.createComponent(EspaceAbonneComponent).componentInstance;
+  }
+
+  it('expose l’avoir quand il y en a un', () => {
+    expect(setup(5_000).avoir()).toBe(5_000);
+  });
+
+  it('vaut zéro quand le serveur n’en renvoie pas', () => {
+    // Un serveur d’une version antérieure n’envoie pas le champ : zéro est le
+    // repli honnête, annoncer un crédit inexistant serait pire.
+    expect(setup(undefined).avoir()).toBe(0);
+  });
+
+  it('ne se retranche pas du solde dû', () => {
+    const c = setup(4_000, 10_000);
+    expect(c.soldeTotal()).toBe(10_000);
+    expect(c.avoir()).toBe(4_000);
+  });
+
+  it('un avoir n’empêche pas le régime « à venir » de s’appliquer', () => {
+    const c = setup(4_000, 10_000);
+    expect(c.regime()).toBe('a-venir');
+  });
+});

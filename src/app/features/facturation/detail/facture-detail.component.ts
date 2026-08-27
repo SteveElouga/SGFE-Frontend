@@ -91,11 +91,27 @@ export class FactureDetailComponent implements OnInit {
     return !Number.isNaN(echeance.getTime()) && echeance.getTime() < Date.now();
   });
 
-  /** Consommation du mois plus dette antérieure — ce que l'abonné doit régler. */
+  /**
+   * Part de cette facture réglée par un avoir plutôt que par un versement.
+   *
+   * Sans elle, l'écran affiche un « déjà réglé » que l'abonné ne se souvient
+   * pas d'avoir versé, et un reste à payer inférieur à sa consommation sans
+   * rien qui l'explique.
+   */
+  readonly avoirImpute = computed(() => this.solde()?.avoirImpute ?? 0);
+  readonly aUnAvoir = computed(() => this.avoirImpute() > 0);
+
+  /**
+   * Ce que l'abonné doit réellement régler : la consommation du mois, plus la
+   * dette antérieure, moins l'avoir déjà imputé.
+   *
+   * Le total ne descend jamais sous zéro — un avoir supérieur à la facture la
+   * solde, il ne la rend pas due par la régie.
+   */
   readonly totalAPayer = computed(() => {
     const f = this.facture();
     if (!f) return 0;
-    return f.montant + (this.soldeAnterieur()?.totalDu ?? 0);
+    return Math.max(0, f.montant + (this.soldeAnterieur()?.totalDu ?? 0) - this.avoirImpute());
   });
   readonly error = signal<string | null>(null);
   readonly pdfLoading = signal(false);

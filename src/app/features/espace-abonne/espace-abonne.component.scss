@@ -203,6 +203,21 @@
   &--retard &__val { color: var(--danger-encre); }
   &--retard &__sub { color: var(--danger-encre); font-weight: 600; }
 
+  // Une bonne nouvelle dans un bandeau qui parle surtout de dette.
+  &__avoir {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    margin: var(--pas-3) 0 0;
+    padding: var(--pas-2) var(--pas-3);
+    border-radius: var(--rayon-sm);
+    background: var(--succes-fond);
+    color: var(--succes-encre);
+    font-size: var(--texte-md);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
   &__expire {
     display: flex;
     align-items: center;

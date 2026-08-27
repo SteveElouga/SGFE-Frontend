@@ -84,6 +84,7 @@ export const GET_SOLDE_FACTURE = gql`
       statut
       abonneId
       dateLimitePaiement
+      avoirImpute
     }
   }
 `;
@@ -168,3 +169,29 @@ export const PAIEMENT_CREE_SUB = gql`
 // PENDING BACKEND: le type Envoi n'expose pas 'typeEnvoi' (contrairement à
 // ARCHITECTURE.md, obsolète). Le code couleur du journal (RAPPEL/AVERT) est donc
 // inactif — envoiClass() dégrade en '' tant que le backend n'ajoute pas ce champ.
+
+/**
+ * Avoir (crédit) d'un abonné et son journal.
+ *
+ * Le mécanisme existait de bout en bout côté serveur — trop-perçu porté au
+ * crédit, imputé de lui-même sur la facture suivante — mais aucun écran ne
+ * l'affichait. Un abonné pouvait avoir 5 000 FCFA d'avoir sans que le caissier
+ * ni lui ne le sachent, et découvrir à la facture suivante un montant réduit
+ * qu'aucun écran n'expliquait.
+ */
+export const GET_AVOIR_ABONNE = gql`
+  query GetAvoirAbonne($abonneId: String!) {
+    avoirAbonne(abonneId: $abonneId) {
+      abonneId
+      montant
+      mouvements {
+        montant
+        typeMouvement
+        motif
+        factureId
+        creePar
+        createdAt
+      }
+    }
+  }
+`;
