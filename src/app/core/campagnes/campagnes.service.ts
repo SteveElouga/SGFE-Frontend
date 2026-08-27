@@ -67,6 +67,14 @@ export class CampagnesService {
     });
   }
 
+  /** Lecture ponctuelle de toutes les campagnes (désambiguïsation des homonymes). */
+  async getCampagnes(): Promise<Campagne[]> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES }),
+    );
+    return result.data!.campagnes;
+  }
+
   async getCampagne(campagneId: string): Promise<Campagne> {
     const result = await firstValueFrom(
       this.apollo.query<{ campagne: Campagne }>({

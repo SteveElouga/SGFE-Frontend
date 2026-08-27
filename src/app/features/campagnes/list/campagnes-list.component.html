@@ -50,7 +50,7 @@
         @let prog = progressions().get(c.campagneId);
         @let cloturee = c.statut === 'CLOTUREE';
         <div class="campagne-cell">
-          <span class="campagne-cell__nom" [class.campagne-cell__nom--muted]="cloturee">{{ c.nom }}</span>
+          <span class="campagne-cell__nom" [class.campagne-cell__nom--muted]="cloturee">{{ nomAffichable(c) }}</span>
           <span class="campagne-cell__meta">
             @if (cloturee) {
               @if (prog) {
@@ -76,7 +76,7 @@
 
       <ng-template appCol="agents" let-c>
         <span class="campagnes-table__agents" [class.campagnes-table__muted]="c.statut === 'CLOTUREE'">
-          {{ formatAgents(c.agents) }}
+          {{ formatAgents(agentsDe(c)) }}
         </span>
       </ng-template>
 
@@ -116,7 +116,7 @@
             <i class="pi pi-calendar"></i>
           </span>
           <span class="ccard__info">
-            <span class="ccard__nom" [class.ccard__nom--muted]="cloturee">{{ c.nom }}</span>
+            <span class="ccard__nom" [class.ccard__nom--muted]="cloturee">{{ nomAffichable(c) }}</span>
             <span class="ccard__sub">
               @if (cloturee) {
                 @if (prog) {
