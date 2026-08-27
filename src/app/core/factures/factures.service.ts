@@ -15,6 +15,7 @@ import {
   GET_ALL_PAIEMENTS,
   GET_IMPAYES,
   GET_SUIVI_IMPAYE,
+  GET_DETTE_ABONNE,
 } from '../../graphql/queries/paiements.queries';
 import {
   ENREGISTRER_PAIEMENT,
@@ -25,6 +26,8 @@ import {
   RENVOYER_FACTURE_WHATSAPP,
   UPDATE_STATUT_FACTURE,
   UPDATE_TARIF,
+  CREER_REGULARISATION,
+  ENREGISTRER_PAIEMENT_ABONNE,
 } from '../../graphql/mutations/factures.mutations';
 import {
   Envoi,
@@ -35,6 +38,8 @@ import {
   StatutFacture,
   SuiviImpaye,
   Tarif,
+  DetteAbonne,
+  PaiementAbonne,
 } from '../../shared/models/facture.model';
 
 /**
@@ -224,7 +229,8 @@ export class FacturesService {
       this.apollo.query<{ suiviImpaye: SuiviImpaye }>({
         query: GET_SUIVI_IMPAYE,
         variables: { factureId },
-        fetchPolicy: 'cache-first',
+        // L'escalade des relances avance toute seule, par cron.
+        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.suiviImpaye;
@@ -254,6 +260,99 @@ export class FacturesService {
     const data = result.data!.factures;
     this.facturesCache = { key, data, ts: now };
     return data;
+  }
+
+  /** Ce qu'un abonné doit encore, hors une facture donnée. */
+  async getDetteAbonne(abonneId: string, horsFactureId?: string): Promise<DetteAbonne> {
+    const result = await firstValueFrom(
+      this.apollo.query<{ detteAbonne: DetteAbonne }>({
+        query: GET_DETTE_ABONNE,
+        variables: { abonneId, horsFactureId: horsFactureId ?? null },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data!.detteAbonne;
+  }
+
+  /**
+   * Constate une dette antérieure à la mise en service.
+   *
+   * Rafraîchit tout ce qui compte une dette : la liste des factures, les
+   * impayés et le tableau de bord. Sans cela, l'arriéré resterait invisible
+   * jusqu'à un rechargement — le défaut qu'on vient de corriger sur la
+   * création d'abonné.
+   */
+  async creerRegularisation(input: {
+    abonneId: string;
+    montant: number;
+    motif: string;
+    dateLimitePaiement?: string;
+  }): Promise<Facture> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ creerRegularisation: Facture }>({
+        mutation: CREER_REGULARISATION,
+        variables: { ...input, dateLimitePaiement: input.dateLimitePaiement ?? null },
+        refetchQueries: [{ query: GET_FACTURES, variables: { abonneId: input.abonneId } }],
+        awaitRefetchQueries: true,
+      }),
+    );
+    this.facturesCache = null;
+    const facture = result.data?.creerRegularisation;
+    if (!facture) throw new Error('Réponse invalide du serveur');
+    return facture;
+  }
+
+  /**
+   * Encaisse un versement au nom d'un abonné, imputé du plus ancien au plus récent.
+   *
+   * Retourne la ventilation réelle : une écriture par facture touchée. Le
+   * caissier doit voir ce qui s'est passé, pas seulement que ça s'est passé.
+   */
+  async enregistrerPaiementAbonne(input: {
+    abonneId: string;
+    montant: number;
+    datePaiement: string;
+    modePaiement: string;
+    referenceTransaction?: string;
+  }): Promise<PaiementAbonne> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ enregistrerPaiementAbonne: PaiementAbonne }>({
+        mutation: ENREGISTRER_PAIEMENT_ABONNE,
+        variables: { ...input, referenceTransaction: input.referenceTransaction ?? '' },
+      }),
+    );
+    this.facturesCache = null;
+    const res = result.data?.enregistrerPaiementAbonne;
+    if (!res) throw new Error('Réponse invalide du serveur');
+    return res;
+  }
+
+  /**
+   * Simule la ventilation d'un montant sans rien écrire.
+   *
+   * L'imputation automatique n'a de valeur que si le caissier voit ce qu'elle
+   * va faire avant de valider : elle lui évite de décider, elle ne doit pas lui
+   * cacher la décision. Le calcul reprend la règle du backend — le solde le
+   * plus anciennement exigible d'abord.
+   */
+  previsualiserImputation(
+    montant: number,
+    soldes: ReadonlyArray<{ factureId: string; numeroFacture: string; soldeRestant: number; dateLimitePaiement: string }>,
+  ): Array<{ factureId: string; numeroFacture: string; part: number; dateLimitePaiement: string }> {
+    const ordonnes = [...soldes]
+      .filter((s) => s.soldeRestant > 0)
+      // Une échéance absente passe en dernier plutôt que de faire tomber
+      // l'écran : mieux vaut une ventilation approximative qu'un plantage.
+      .sort((a, b) => (a.dateLimitePaiement || '9999').localeCompare(b.dateLimitePaiement || '9999'));
+    const parts: Array<{ factureId: string; numeroFacture: string; part: number; dateLimitePaiement: string }> = [];
+    let restant = montant;
+    for (const s of ordonnes) {
+      if (restant <= 0) break;
+      const part = Math.min(restant, s.soldeRestant);
+      parts.push({ factureId: s.factureId, numeroFacture: s.numeroFacture, part, dateLimitePaiement: s.dateLimitePaiement });
+      restant -= part;
+    }
+    return parts;
   }
 
   async getTarifActuel(): Promise<Tarif | null> {

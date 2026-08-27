@@ -154,7 +154,12 @@ $fp-chip-h: 44px;
     }
   }
 
-  .p-select:focus-visible { outline: none; }
+  // Retirer l'anneau sans rien mettre à la place rendait le filtre invisible
+  // au clavier — sur un composant qu'on atteint justement par tabulation.
+  .p-select:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--focus-anneau);
+    outline-offset: var(--focus-decalage);
+  }
 
   .p-select-label {
     padding: 0 var(--pas-3);

@@ -61,7 +61,8 @@
     "RESULTS_HERO_LABEL": "résultats",
     "RESULTS_HERO_OVER": "sur {{total}} au total",
     "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
-    "SKIP_TO_CONTENT": "Aller au contenu"
+    "SKIP_TO_CONTENT": "Aller au contenu",
+    "SAVING": "Enregistrement…"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -254,7 +255,22 @@
     },
     "CHIP_ACTIFS": "Actifs",
     "CHIP_SUSPENDUS": "Suspendus",
-    "CHIP_RESILIES": "Résiliés"
+    "CHIP_RESILIES": "Résiliés",
+    "ARRIERE": {
+      "TITRE": "Saisir un arriéré",
+      "DESC": "Constate une dette de {{nom}} antérieure à la mise en service.",
+      "MONTANT": "Montant dû",
+      "MONTANT_AIDE": "Le total que l'abonné devait avant l'application.",
+      "MOTIF": "Motif",
+      "MOTIF_EXEMPLE": "ex. Arriéré antérieur à la mise en service",
+      "MOTIF_AIDE": "Obligatoire : aucun relevé ne justifie ce montant, ce motif en est la seule trace.",
+      "RECAP_TITRE": "Ce qui va être créé",
+      "RECAP_FACTURE": "Une facture de régularisation de {{montant}}",
+      "RECAP_EXIGIBLE": "Exigible immédiatement — la dette date d'avant",
+      "RECAP_RELANCES": "Elle entre dans les impayés et les relances comme une facture ordinaire",
+      "VALIDER": "Créer la régularisation",
+      "SUCCES": "Arriéré enregistré — {{numero}}"
+    }
   },
   "UTILISATEURS": {
     "TITLE": "Utilisateurs",
@@ -617,7 +633,10 @@
       "EMAIL": "E-mail admin (Brevo)",
       "EMAIL_PLACEHOLDER": "admin@exemple.ci",
       "EMAIL_HINT": "Vide = notifications désactivées"
-    }
+    },
+    "WHATSAPP_ROMPU_TITRE": "Liaison WhatsApp rompue",
+    "WHATSAPP_ROMPU_DESC": "Aucune facture ne peut partir tant que le compte n'est pas relié. Cliquez sur Réessayer : un nouveau QR code apparaîtra dans la minute.",
+    "WHATSAPP_ROMPU_DEPUIS": "Hors service depuis {{ duree }}"
   },
   "PROFIL": {
     "TITLE": "Mon profil",
@@ -937,7 +956,11 @@
       "RESTE_LABEL": "Reste à percevoir",
       "BTN_CONFIRMER_CORRECTION": "Confirmer",
       "CONFIRMER_CORRECTION_MSG": "Le statut passera à « {{statut}} » sans qu'aucun paiement soit enregistré.",
-      "SOLDE_PAR": "Solde réglé"
+      "SOLDE_PAR": "Solde réglé",
+      "CONSO_DU_MOIS": "Consommation du mois",
+      "SOLDE_ANTERIEUR": "Solde antérieur · {{n}} facture(s)",
+      "TOTAL_A_PAYER": "Total à payer",
+      "DEPUIS": "dont {{montant}} dus depuis le {{date}}"
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",
@@ -982,7 +1005,21 @@
     "TOTAL_KPI_ARIA": "Total encaissé sur la période affichée",
     "TOTAL_KPI_HINT": "sur {{count}} transaction(s) affichée(s)",
     "ANNULE": "Annulé",
-    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés"
+    "TOTAL_HORS_ANNULES": "{{count}} paiement(s) annulé(s) exclu(s) — {{montant}} non encaissés",
+    "ENCAISSEMENT": {
+      "TITRE": "Encaisser un versement",
+      "DESC": "{{nom}} doit {{total}}. Le versement s'impute du plus ancien au plus récent.",
+      "MONTANT": "Montant reçu",
+      "MODE": "Mode de paiement",
+      "REFERENCE": "Référence de la transaction",
+      "REFERENCE_EXEMPLE": "ex. MP260827.1423.A12345",
+      "IMPUTATION_TITRE": "Ce versement sera imputé ainsi",
+      "RETARD": "dû depuis {{n}} jours",
+      "EXCEDENT": "{{montant}} en excédent — porté au crédit de l'abonné",
+      "VALIDER": "Encaisser",
+      "SUCCES": "Versement enregistré",
+      "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures"
+    }
   },
   "IMPAYES": {
     "TITLE": "Impayés",
@@ -1048,7 +1085,14 @@
     "CONFIG_ACTIVEE": "activée",
     "CONFIG_SUFFIX": "configurable dans Paramètres",
     "CHIP_ETAPE": "Étape {{ n }}",
-    "ACOMPTE_RECU": "acompte reçu"
+    "ACOMPTE_RECU": "acompte reçu",
+    "VUE": {
+      "LABEL": "Vue",
+      "ABONNE": "Par abonné",
+      "FACTURE": "Par facture",
+      "NB_FACTURES": "{{n}} facture(s)",
+      "RETARD": "{{n}} j de retard"
+    }
   },
   "RELANCES": {
     "BACK": "Impayés",
@@ -1275,7 +1319,7 @@
     "HEADING": "Vos factures",
     "LOADING": "Chargement de vos factures…",
     "SOLDE_TOTAL": "Solde total à régler",
-    "FACTURES_A_REGLER": "{{ n }} facture(s) avec un reste à payer",
+    "FACTURES_A_REGLER": "{{ n }} factures avec un reste à payer",
     "TOUT_PAYE": "Tout est réglé — merci !",
     "LIEN_VALIDE_JUSQU": "Lien valable jusqu'au {{ date }}",
     "FACTURE": "Facture",
@@ -1292,7 +1336,22 @@
     "ERR_SERVER_TITLE": "Service momentanément indisponible",
     "ERR_SERVER_DESC": "Vos factures n'ont pas pu être chargées. Merci de réessayer dans un instant.",
     "RETRY": "Réessayer",
-    "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau"
+    "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau",
+    "RIEN_ECHU": "Rien n'est encore en retard — à régler avant le {{ date }}",
+    "DONT_ECHU": "Dont {{ montant }} en retard depuis {{ n }} jours",
+    "REGULARISATION": "Régularisation",
+    "RETARD_DEPUIS": "En retard depuis {{ n }} jours",
+    "ECHEANCE_PROCHE": "À régler dans {{ n }} jours",
+    "BADGE": {
+      "REGLEE": "Réglée",
+      "PARTIELLE": "Partielle",
+      "EN_RETARD": "En retard",
+      "A_VENIR": "À régler"
+    },
+    "FACTURES_A_REGLER_UNE": "1 facture avec un reste à payer",
+    "DONT_ECHU_UN": "Dont {{ montant }} en retard depuis 1 jour",
+    "RETARD_DEPUIS_UN": "En retard depuis 1 jour",
+    "ECHEANCE_PROCHE_UN": "À régler demain"
   },
   "APP": {
     "NAME": "SGFE",

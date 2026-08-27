@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { WHATSAPP_STATUS_SUB } from '../../../graphql/queries/configuration.queries';
-import { WhatsappQr } from '../../../shared/models/configuration.model';
+import { PhaseWhatsapp, WhatsappQr } from '../../../shared/models/configuration.model';
 
 @Component({
   selector: 'app-whatsapp-link',
@@ -33,9 +33,34 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
   /** Numéro du compte lié (renseigné quand ready=true). */
   readonly number = signal('');
   readonly error = signal<string | null>(null);
+  readonly phase = signal<PhaseWhatsapp | string>('demarrage');
+  /** Millisecondes depuis la dernière connexion réussie (0 si jamais). */
+  readonly depuisMs = signal(0);
 
   // Le service tourne mais n'a pas encore de QR (démarrage / dégradation).
   readonly waiting = computed(() => !this.ready() && !this.qr() && !this.error());
+
+  /**
+   * La liaison est rompue et ne se rétablira pas d'elle-même.
+   *
+   * L'écran ne recevait qu'un booléen à faux, qui recouvrait aussi bien un
+   * service en train de démarrer qu'un service tombé. Il affichait donc
+   * « initialisation en cours, patientez » dans les deux cas — un message qui
+   * ne devient jamais faux quand c'est le second, et qui pousse à recharger
+   * encore et encore en attendant un QR qui ne viendra pas.
+   */
+  readonly rompu = computed(() => !this.ready() && this.phase() === 'rupture');
+
+  /** Ancienneté de la rupture, en heures et minutes — « depuis quand » se dit. */
+  readonly depuis = computed(() => {
+    const ms = this.depuisMs();
+    if (ms <= 0) return '';
+    const minutes = Math.floor(ms / 60_000);
+    if (minutes < 60) return `${minutes} min`;
+    const heures = Math.floor(minutes / 60);
+    const reste = minutes % 60;
+    return reste === 0 ? `${heures} h` : `${heures} h ${reste} min`;
+  });
 
   ngOnInit(): void {
     this.listen();
@@ -67,6 +92,8 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
           this.ready.set(status.ready ?? false);
           this.qr.set(status.qr ?? '');
           this.number.set(status.number ?? '');
+          this.phase.set(status.phase ?? (status.ready ? 'connecte' : 'demarrage'));
+          this.depuisMs.set(status.depuisMs ?? 0);
         },
         error: (err: unknown) => {
           const { message } = extractGqlError(err);
@@ -88,6 +115,8 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
     this.qr.set('');
     this.ready.set(false);
     this.number.set('');
+    this.phase.set('demarrage');
+    this.depuisMs.set(0);
     this.listen();
   }
 }

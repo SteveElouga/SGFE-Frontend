@@ -6,12 +6,13 @@ import {
   contentChild,
   contentChildren,
   effect,
+  inject,
   input,
   output,
   signal,
   untracked,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableCardDirective, DataTableCellDirective } from './data-table.directives';
@@ -96,6 +97,8 @@ export class DataTableComponent<T = unknown> {
   readonly sortChange = output<SortState | null>();
 
   // ── Templates projetés ──────────────────────────────────────────────────
+  private readonly router = inject(Router);
+
   private readonly cellDirectives = contentChildren(DataTableCellDirective);
   private readonly cardDirective = contentChild(DataTableCardDirective);
 
@@ -198,17 +201,51 @@ export class DataTableComponent<T = unknown> {
     return fn ? fn(row) : null;
   }
 
+  /**
+   * Une ligne qui mène quelque part se comporte comme telle.
+   *
+   * `rowLink` posait un vrai lien sur la première cellule — bon choix : il
+   * préserve le clic-milieu, l'ouverture dans un onglet et la copie de l'URL,
+   * qu'un gestionnaire de clic seul détruit. Mais ce lien était le seul chemin
+   * vers la fiche, et il ne se voyait pas : couleur héritée, soulignement
+   * uniquement au survol, donc rien du tout sur un écran tactile.
+   *
+   * Le reste de la ligne n'était pas cliquable pour autant — quatre écrans sur
+   * cinq ne déclaraient pas `rowClickable`. Résultat : une cible de la taille
+   * d'un numéro de facture, sans indice qu'elle en est une.
+   *
+   * Fournir `rowLink` suffit maintenant à rendre la ligne navigable. Un écran
+   * peut toujours passer `rowClickable` explicitement pour restreindre le
+   * comportement à certaines lignes.
+   */
   isRowClickable(row: T): boolean {
     const rc = this.rowClickable();
-    return typeof rc === 'function' ? rc(row) : rc;
+    if (typeof rc === 'function') return rc(row);
+    return rc || this.linkOf(row) !== null;
   }
 
   rowClasses(row: T): string | string[] | null {
     return this.rowClass()?.(row) ?? null;
   }
 
-  onRowClick(row: T): void {
-    if (this.isRowClickable(row)) this.rowClick.emit(row);
+  /**
+   * Navigue, sauf si le clic visait déjà quelque chose.
+   *
+   * Les colonnes d'actions portent leurs propres liens et boutons ; sans ce
+   * garde-fou, cliquer « Modifier » ouvrirait la fiche en lecture au lieu du
+   * formulaire. On laisse donc passer tout clic né à l'intérieur d'un élément
+   * interactif — c'est lui qui sait ce qu'il fait.
+   */
+  onRowClick(row: T, event?: Event): void {
+    if (!this.isRowClickable(row)) return;
+    const cible = event?.target as HTMLElement | null;
+    if (cible?.closest('a, button, input, select, textarea, [role="button"]')) return;
+
+    const href = this.linkOf(row);
+    if (href !== null) {
+      void this.router.navigate(Array.isArray(href) ? href : [href]);
+    }
+    this.rowClick.emit(row);
   }
 
   /**

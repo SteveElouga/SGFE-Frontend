@@ -26,6 +26,8 @@ export const GET_IMPAYES = gql`
       montantPaye
       soldeRestant
       statut
+      abonneId
+      dateLimitePaiement
     }
   }
 `;
@@ -39,6 +41,25 @@ export const GET_SUIVI_IMPAYE = gql`
       dateDepassement
       etapeActuelle
       resoluLe
+    }
+  }
+`;
+
+/**
+ * Ce qu'un abonné doit encore, toutes factures confondues.
+ *
+ * `horsFactureId` sert à l'affichage sur une facture : le « solde antérieur »
+ * est ce que l'abonné doit EN PLUS de celle qu'il consulte.
+ *
+ * `plusAncienneEcheance` porte l'âge de la dette — c'est lui qui fait payer,
+ * pas le montant.
+ */
+export const GET_DETTE_ABONNE = gql`
+  query GetDetteAbonne($abonneId: String!, $horsFactureId: String) {
+    detteAbonne(abonneId: $abonneId, horsFactureId: $horsFactureId) {
+      totalDu
+      nbFactures
+      plusAncienneEcheance
     }
   }
 `;

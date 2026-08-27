@@ -49,8 +49,8 @@
             [class]="rowClasses(row)"
             [class.dt__row--clickable]="isRowClickable(row)"
             [attr.tabindex]="isRowClickable(row) ? 0 : null"
-            (click)="onRowClick(row)"
-            (keydown.enter)="onRowClick(row)"
+            (click)="onRowClick(row, $event)"
+            (keydown.enter)="onRowClick(row, $event)"
           >
             @for (col of columns(); track col.key; let first = $first) {
               <td [class]="col.cellClass" [style.text-align]="col.align ?? 'left'">

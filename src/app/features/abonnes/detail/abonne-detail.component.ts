@@ -15,7 +15,7 @@ import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { Abonne, Compteur, HistoriqueCompteurEntry, StatutAbonne } from '../../../shared/models/abonne.model';
-import { Facture } from '../../../shared/models/facture.model';
+import { SoldeFacture, Facture } from '../../../shared/models/facture.model';
 import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ABONNE_DETAIL_UPDATED_SUB } from '../../../graphql/queries/abonnes.queries';
 import { CompteurPipe } from '../../../shared/pipes/compteur.pipe';
@@ -26,6 +26,8 @@ import { RemplacerCompteurSheetComponent } from './remplacer-compteur-sheet/remp
 import { ReactiverSheetComponent } from './reactiver-sheet/reactiver-sheet.component';
 import { ResilierSheetComponent } from './resilier-sheet/resilier-sheet.component';
 import { SuspendreSheetComponent } from './suspendre-sheet/suspendre-sheet.component';
+import { ArriereSheetComponent } from './arriere-sheet/arriere-sheet.component';
+import { EncaissementSheetComponent } from '../../../shared/components/encaissement-sheet/encaissement-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
@@ -45,6 +47,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     ReactiverSheetComponent,
     ResilierSheetComponent,
     SuspendreSheetComponent,
+    ArriereSheetComponent,
+    EncaissementSheetComponent,
     PageTopbarComponent,
   ],
   templateUrl: './abonne-detail.component.html',
@@ -63,7 +67,8 @@ export class AbonneDetailComponent {
   /** Deep-link keys pour les 5 onglets (mêmes indices que activeTab()). */
   private readonly TAB_KEYS = ['info', 'factures', 'conso', 'impayes', 'compteurs'] as const;
 
-  private readonly abonneId: string;
+  /** Lu par le gabarit pour alimenter les feuilles d'action. */
+  protected readonly abonneId: string;
   private readonly abonneQuery: QueryRef<{ abonne: Abonne }>;
 
   readonly abonne = signal<Abonne | null>(null);
@@ -111,6 +116,36 @@ export class AbonneDetailComponent {
    * prétend pas qu'un solde inconnu vaut zéro.
    */
   readonly soldeImpaye = signal<number | null>(null);
+
+  /** Feuille de saisie d'un arriéré antérieur à la mise en service. */
+  readonly arriereDialogVisible = signal(false);
+
+  /** Feuille d'encaissement — imputation automatique, ventilation annoncée. */
+  readonly encaissementDialogVisible = signal(false);
+
+  /**
+   * Soldes non éteints de l'abonné, source de la prévisualisation.
+   *
+   * Chargés en même temps que le solde total : la ventilation a besoin du
+   * détail par facture, que `detteAbonne` n'expose pas — il ne renvoie qu'un
+   * cumul.
+   */
+  readonly soldesOuverts = signal<SoldeFacture[]>([]);
+
+  /** Numéro lisible par identifiant de facture, pour nommer les parts. */
+  readonly numerosParFacture = computed(() =>
+    Object.fromEntries(this.factures().map((f) => [f.factureId, f.numeroFacture])),
+  );
+
+  /** Après création d'un arriéré : la dette et la liste des factures ont changé. */
+  async onArriereSaved(): Promise<void> {
+    await this.loadFactures();
+  }
+
+  /** Après encaissement : les soldes ont bougé, la dette aussi. */
+  async onEncaissementSaved(): Promise<void> {
+    await this.loadFactures();
+  }
 
   /** Conso moyenne sur les 6 dernières factures (m³), arrondie. */
   readonly consoMoyenne = computed(() => {
@@ -292,14 +327,14 @@ export class AbonneDetailComponent {
     }
     const soldes = await Promise.all(
       impayees.map((f) =>
-        this.facturesService
-          .getSoldeFacture(f.factureId)
-          .then((s) => s.soldeRestant ?? 0)
-          .catch(() => null),
+        this.facturesService.getSoldeFacture(f.factureId).catch(() => null),
       ),
     );
-    const connus = soldes.filter((v): v is number => v !== null);
-    this.soldeImpaye.set(connus.length > 0 ? connus.reduce((a, b) => a + b, 0) : null);
+    const connus = soldes.filter((s): s is SoldeFacture => s !== null);
+    this.soldesOuverts.set(connus.filter((s) => (s.soldeRestant ?? 0) > 0));
+    this.soldeImpaye.set(
+      connus.length > 0 ? connus.reduce((a, s) => a + (s.soldeRestant ?? 0), 0) : null,
+    );
   }
 
   periodeFacture(f: Facture): string {

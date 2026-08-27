@@ -80,7 +80,8 @@ export class CampagnesService {
       this.apollo.query<{ campagne: Campagne }>({
         query: GET_CAMPAGNE,
         variables: { campagneId },
-        fetchPolicy: 'cache-first',
+        // Statut, progression et affectations bougent pendant qu'on regarde.
+        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.campagne;
@@ -262,7 +263,8 @@ export class CampagnesService {
     const result = await firstValueFrom(
       this.apollo.query<{ agentsDisponibles: AgentDisponible[] }>({
         query: GET_AGENTS_DISPONIBLES,
-        fetchPolicy: 'cache-first',
+        // « Disponible » est un état, pas une propriété : il change sans nous.
+        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.agentsDisponibles;
@@ -273,7 +275,7 @@ export class CampagnesService {
     const result = await firstValueFrom(
       this.apollo.query<{ zonesDisponibles: ZoneDisponible[] }>({
         query: GET_ZONES_DISPONIBLES,
-        fetchPolicy: 'cache-first',
+        fetchPolicy: 'network-only',
       }),
     );
     return result.data!.zonesDisponibles;

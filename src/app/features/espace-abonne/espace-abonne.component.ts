@@ -6,11 +6,28 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import {
   EspaceAbonneData,
+  EspaceAbonneFacture,
   EspaceAbonneService,
 } from '../../core/espace-abonne/espace-abonne.service';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 
 type Etat = 'loading' | 'ready' | 'invalid' | 'error';
+
+/** Une facture enrichie de ce que l'abonné a besoin de savoir pour agir. */
+export interface LigneEspace {
+  facture: EspaceAbonneFacture;
+  /** Régularisation : dette déclarée, sans relevé — elle s'affiche autrement. */
+  regularisation: boolean;
+  /** Reste dû et échéance dépassée. */
+  echue: boolean;
+  /** Jours écoulés depuis l'échéance (0 si pas échue). */
+  joursDeRetard: number;
+  /** Jours restants avant l'échéance (0 si déjà échue ou soldée). */
+  joursRestants: number;
+  soldee: boolean;
+}
+
+const JOUR_MS = 86_400_000;
 
 /**
  * Écrans M-06 / MB-10 / 06 / 25 — Espace abonné PUBLIC (accès par lien WhatsApp
@@ -20,197 +37,42 @@ type Etat = 'loading' | 'ready' | 'invalid' | 'error';
  * voit ses factures, leur statut et son solde, et peut télécharger chaque PDF.
  * Le token du lien porte l'identité ; sa validation et l'anti-IDOR sur le PDF
  * sont côté gateway. Un token invalide/expiré → 401 → état « lien invalide ».
+ *
+ * ── Ce que l'abonné vient chercher ────────────────────────────────────────────
+ *
+ * Quelqu'un qui ouvre ce lien depuis WhatsApp pose trois questions, dans cet
+ * ordre : combien je dois, est-ce que je suis en retard, et sur quoi.
+ *
+ * L'écran ne répondait qu'à la première et à la troisième. Tout ce qui n'était
+ * pas payé portait le même rouge : une facture émise avant-hier et pas encore
+ * exigible ressemblait trait pour trait à un arriéré de deux mois. C'est la
+ * distinction la plus utile de la page — c'est elle qui dit s'il faut agir
+ * aujourd'hui — et c'était la seule absente.
+ *
+ * D'où trois régimes pour le bandeau : rien à payer, une dette dont rien n'est
+ * échu, une dette dont une partie l'est. Le rouge est réservé au dernier.
+ *
+ * ── L'ordre de la liste ───────────────────────────────────────────────────────
+ *
+ * Les factures sont triées par exigibilité, la plus ancienne d'abord — le même
+ * ordre que celui dans lequel un versement s'impute (FIFO côté paiement). Ce
+ * n'est pas cosmétique : ce que l'abonné lit en haut est ce que son argent
+ * éteindra en premier. Un tri par date d'émission ferait mentir l'écran.
+ *
+ * ── Les régularisations ───────────────────────────────────────────────────────
+ *
+ * Une régularisation est une dette antérieure à l'application, saisie à la main.
+ * Aucun index ne la justifie. Affichée comme les autres, elle donnait une facture
+ * d'eau à laquelle il manquait son relevé — un tiret là où l'abonné cherche des
+ * mètres cubes. Elle affiche donc son motif à la place, et le dit en toutes
+ * lettres.
  */
 @Component({
   selector: 'app-espace-abonne',
   standalone: true,
   imports: [TranslatePipe, FcfaPipe, DatePipe],
-  template: `
-    <div class="ea">
-      <header class="ea__topbar">
-        <div class="ea__brand">
-          <svg width="22" height="22" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-            <path d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z" fill="white" fill-opacity=".95"/>
-            <path d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z" fill="#0e9f6e" fill-opacity=".85"/>
-          </svg>
-          <span class="ea__brand-name">SGFE</span>
-          <span class="ea__brand-sub">· {{ 'ESPACE.TITLE' | translate }}</span>
-        </div>
-      </header>
-
-      <main class="ea__body">
-        @switch (etat()) {
-          @case ('loading') {
-            <div class="ea__state" role="status" aria-live="polite">
-              <i class="pi pi-spinner pi-spin ea__spinner" aria-hidden="true"></i>
-              <p class="ea__state-text">{{ 'ESPACE.LOADING' | translate }}</p>
-            </div>
-          }
-
-          @case ('invalid') {
-            <div class="ea__card ea__card--msg">
-              <div class="ea__icon ea__icon--danger"><i class="pi pi-lock" aria-hidden="true"></i></div>
-              <div class="ea__title">{{ 'ESPACE.ERR_TITLE' | translate }}</div>
-              <p class="ea__desc">{{ 'ESPACE.ERR_DESC' | translate }}</p>
-            </div>
-          }
-
-          @case ('error') {
-            <div class="ea__card ea__card--msg">
-              <div class="ea__icon ea__icon--warn"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></div>
-              <div class="ea__title">{{ 'ESPACE.ERR_SERVER_TITLE' | translate }}</div>
-              <p class="ea__desc">{{ 'ESPACE.ERR_SERVER_DESC' | translate }}</p>
-              <button type="button" class="ea__btn" (click)="charger()">
-                <i class="pi pi-refresh" aria-hidden="true"></i> {{ 'ESPACE.RETRY' | translate }}
-              </button>
-            </div>
-          }
-
-          @case ('ready') {
-            <div class="ea__content">
-              <section class="ea__summary">
-                <h1 class="ea__heading">{{ 'ESPACE.HEADING' | translate }}</h1>
-
-                @if (soldeTotal() > 0) {
-                  <div class="ea__solde ea__solde--due">
-                    <span class="ea__solde-label">{{ 'ESPACE.SOLDE_TOTAL' | translate }}</span>
-                    <span class="ea__solde-val">{{ soldeTotal() | fcfa }}</span>
-                    <span class="ea__solde-sub">{{ 'ESPACE.FACTURES_A_REGLER' | translate: { n: nbAPayer() } }}</span>
-                  </div>
-                } @else {
-                  <div class="ea__solde ea__solde--ok">
-                    <i class="pi pi-check-circle" aria-hidden="true"></i>
-                    <span>{{ 'ESPACE.TOUT_PAYE' | translate }}</span>
-                  </div>
-                }
-
-                @if (data()?.token_expiration) {
-                  <p class="ea__expire">
-                    <i class="pi pi-clock" aria-hidden="true"></i>
-                    {{ 'ESPACE.LIEN_VALIDE_JUSQU' | translate: { date: (data()!.token_expiration | date: 'dd/MM/yyyy') } }}
-                  </p>
-                }
-              </section>
-
-              @if ((data()?.factures ?? []).length === 0) {
-                <div class="ea__card ea__card--msg">
-                  <div class="ea__icon"><i class="pi pi-inbox" aria-hidden="true"></i></div>
-                  <div class="ea__title">{{ 'ESPACE.AUCUNE' | translate }}</div>
-                  <p class="ea__desc">{{ 'ESPACE.AUCUNE_DESC' | translate }}</p>
-                </div>
-              } @else {
-                <ul class="ea__list">
-                  @for (f of data()!.factures; track f.facture_id) {
-                    <li class="ea__fac">
-                      <div class="ea__fac-head">
-                        <span class="ea__fac-num">{{ f.numero || ('ESPACE.FACTURE' | translate) }}</span>
-                        <span class="ea__badge" [class]="statutClass(f.statut)">{{ statutKey(f.statut) | translate }}</span>
-                      </div>
-
-                      <div class="ea__fac-grid">
-                        <div class="ea__fac-cell">
-                          <span class="ea__fac-k">{{ 'ESPACE.LABEL_RELEVE' | translate }}</span>
-                          <span class="ea__fac-v">{{ f.date_releve ? (f.date_releve | date: 'dd/MM/yyyy') : '—' }}</span>
-                        </div>
-                        <div class="ea__fac-cell">
-                          <span class="ea__fac-k">{{ 'ESPACE.LABEL_MONTANT' | translate }}</span>
-                          <span class="ea__fac-v">{{ f.montant | fcfa }}</span>
-                        </div>
-                        @if (f.solde_restant > 0) {
-                          <div class="ea__fac-cell">
-                            <span class="ea__fac-k">{{ 'ESPACE.LABEL_SOLDE' | translate }}</span>
-                            <span class="ea__fac-v ea__fac-v--due">{{ f.solde_restant | fcfa }}</span>
-                          </div>
-                        }
-                        @if (f.montant_paye > 0) {
-                          <div class="ea__fac-cell">
-                            <span class="ea__fac-k">{{ 'ESPACE.LABEL_PAYE' | translate }}</span>
-                            <span class="ea__fac-v">{{ f.montant_paye | fcfa }}</span>
-                          </div>
-                        }
-                        @if (f.date_limite_paiement && f.solde_restant > 0) {
-                          <div class="ea__fac-cell">
-                            <span class="ea__fac-k">{{ 'ESPACE.LABEL_ECHEANCE' | translate }}</span>
-                            <span class="ea__fac-v">{{ f.date_limite_paiement | date: 'dd/MM/yyyy' }}</span>
-                          </div>
-                        }
-                      </div>
-
-                      <button type="button" class="ea__pdf" (click)="ouvrirPdf(f.facture_id)">
-                        <i class="pi pi-file-pdf" aria-hidden="true"></i> {{ 'ESPACE.PDF' | translate }}
-                      </button>
-                    </li>
-                  }
-                </ul>
-              }
-
-              <p class="ea__foot">{{ 'ESPACE.FOOTER' | translate }}</p>
-            </div>
-          }
-        }
-      </main>
-    </div>
-  `,
-  styles: [
-    `
-      :host { display: block; min-height: 100dvh; }
-      .ea { min-height: 100dvh; background: #f1f5f9; display: flex; flex-direction: column; }
-      .ea__topbar { height: 52px; background: #0f1c3d; padding: 0 20px; display: flex; align-items: center; position: sticky; top: 0; z-index: 5; }
-      .ea__brand { display: flex; align-items: center; gap: 9px; }
-      .ea__brand-name { font-size: 15px; font-weight: 700; color: #fff; }
-      .ea__brand-sub { font-size: 11px; color: rgba(255, 255, 255, 0.45); }
-      .ea__body { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 22px 16px 40px; }
-
-      /* États plein-écran (chargement / messages) */
-      .ea__state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; color: #64748b; padding: 60px 0; }
-      .ea__spinner { font-size: 30px; color: #1a56db; }
-      .ea__state-text { font-size: 14px; margin: 0; }
-      .ea__card { width: 440px; max-width: 100%; text-align: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 10px 40px rgba(15, 37, 87, 0.08); padding: 36px 32px; }
-      .ea__card--msg { margin: auto; }
-      .ea__icon { width: 64px; height: 64px; margin: 0 auto 16px; border-radius: 16px; background: #eff6ff; color: #1a56db; display: flex; align-items: center; justify-content: center; font-size: 28px; }
-      .ea__icon--danger { background: #fef2f2; color: #dc2626; }
-      .ea__icon--warn { background: #fffbeb; color: #d97706; }
-      .ea__title { font-size: 19px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-      .ea__desc { font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; }
-      .ea__btn { margin-top: 18px; display: inline-flex; align-items: center; gap: 8px; background: #1a56db; color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; }
-      .ea__btn:hover { background: #1e40af; }
-
-      /* Contenu (factures) */
-      .ea__content { width: 560px; max-width: 100%; }
-      .ea__summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 22px; box-shadow: 0 10px 40px rgba(15, 37, 87, 0.06); margin-bottom: 16px; }
-      .ea__heading { font-size: 17px; font-weight: 700; color: #0f172a; margin: 0 0 14px; }
-      .ea__solde { border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 2px; }
-      .ea__solde--due { background: #fef2f2; }
-      .ea__solde--ok { background: #ecfdf5; color: #047857; flex-direction: row; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; }
-      .ea__solde--ok .pi { font-size: 18px; }
-      .ea__solde-label { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #b91c1c; }
-      .ea__solde-val { font-size: 26px; font-weight: 800; color: #b91c1c; line-height: 1.1; }
-      .ea__solde-sub { font-size: 12px; color: #7f1d1d; }
-      .ea__expire { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; margin: 12px 0 0; }
-
-      .ea__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-      .ea__fac { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 18px; box-shadow: 0 4px 18px rgba(15, 37, 87, 0.05); }
-      .ea__fac-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
-      .ea__fac-num { font-size: 14px; font-weight: 700; color: #0f172a; }
-      .ea__badge { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
-      .ea__badge--ok { background: #ecfdf5; color: #047857; }
-      .ea__badge--warn { background: #fffbeb; color: #b45309; }
-      .ea__badge--danger { background: #fef2f2; color: #b91c1c; }
-      .ea__fac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
-      .ea__fac-cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-      .ea__fac-k { font-size: 11px; color: #94a3b8; }
-      .ea__fac-v { font-size: 14px; font-weight: 600; color: #1e293b; }
-      .ea__fac-v--due { color: #b91c1c; }
-      .ea__pdf { margin-top: 14px; width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #fff; color: #1a56db; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
-      .ea__pdf:hover { background: #eff6ff; }
-      .ea__foot { text-align: center; font-size: 11px; color: #94a3b8; margin: 20px 0 0; line-height: 1.6; }
-
-      @media (max-width: 420px) {
-        .ea__fac-grid { grid-template-columns: 1fr; }
-        .ea__solde-val { font-size: 23px; }
-      }
-    `,
-  ],
+  templateUrl: './espace-abonne.component.html',
+  styleUrl: './espace-abonne.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EspaceAbonneComponent {
@@ -222,14 +84,71 @@ export class EspaceAbonneComponent {
   readonly etat = signal<Etat>('loading');
   readonly data = signal<EspaceAbonneData | null>(null);
 
-  /** Solde total encore dû (somme des soldes restants) — pilote le bandeau résumé. */
+  /**
+   * Les factures, enrichies et remises dans l'ordre où l'argent les éteindra.
+   *
+   * Le jour de référence est arrêté une fois pour l'ensemble du calcul : sinon
+   * deux lignes évaluées de part et d'autre de minuit ne se compareraient pas.
+   */
+  readonly lignes = computed<LigneEspace[]>(() => {
+    const factures = this.data()?.factures ?? [];
+    const aujourdhui = this.debutDeJournee(new Date());
+
+    return factures
+      .map((f): LigneEspace => {
+        const reste = f.solde_restant ?? 0;
+        const soldee = reste <= 0;
+        const limite = this.dateOuNull(f.date_limite_paiement);
+        const ecart = limite ? Math.round((aujourdhui - limite) / JOUR_MS) : 0;
+        return {
+          facture: f,
+          regularisation: (f.nature ?? '') === 'REGULARISATION',
+          echue: !soldee && ecart > 0,
+          joursDeRetard: !soldee && ecart > 0 ? ecart : 0,
+          joursRestants: !soldee && ecart < 0 ? -ecart : 0,
+          soldee,
+        };
+      })
+      .sort((a, b) => {
+        // Ce qui reste dû passe devant ce qui est réglé : l'abonné vient pour
+        // ce qu'il doit, pas pour l'archive.
+        if (a.soldee !== b.soldee) return a.soldee ? 1 : -1;
+        const da = a.facture.date_limite_paiement || '9999-12-31';
+        const db = b.facture.date_limite_paiement || '9999-12-31';
+        return a.soldee ? db.localeCompare(da) : da.localeCompare(db);
+      });
+  });
+
+  /** Solde total encore dû — la première des trois questions. */
   readonly soldeTotal = computed(() =>
-    (this.data()?.factures ?? []).reduce((s, f) => s + (f.solde_restant ?? 0), 0),
+    this.lignes().reduce((s, l) => s + (l.facture.solde_restant ?? 0), 0),
   );
-  /** Nombre de factures avec un reste à payer. */
-  readonly nbAPayer = computed(() =>
-    (this.data()?.factures ?? []).filter((f) => (f.solde_restant ?? 0) > 0).length,
+
+  /** La part déjà exigible — la seule qui appelle une action aujourd'hui. */
+  readonly soldeEchu = computed(() =>
+    this.lignes()
+      .filter((l) => l.echue)
+      .reduce((s, l) => s + (l.facture.solde_restant ?? 0), 0),
   );
+
+  readonly nbAPayer = computed(() => this.lignes().filter((l) => !l.soldee).length);
+
+  /** Ancienneté de la dette échue : c'est elle qui déclenche les relances. */
+  readonly retardMax = computed(() =>
+    this.lignes().reduce((max, l) => Math.max(max, l.joursDeRetard), 0),
+  );
+
+  /** Prochaine échéance quand rien n'est encore échu — dit quand agir. */
+  readonly prochaineEcheance = computed(() => {
+    const attente = this.lignes().filter((l) => !l.soldee && !l.echue);
+    return attente.length > 0 ? attente[0].facture.date_limite_paiement : null;
+  });
+
+  /** Les trois régimes du bandeau. Le rouge est réservé au retard réel. */
+  readonly regime = computed<'solde' | 'a-venir' | 'retard'>(() => {
+    if (this.soldeTotal() <= 0) return 'solde';
+    return this.soldeEchu() > 0 ? 'retard' : 'a-venir';
+  });
 
   constructor() {
     this.charger();
@@ -256,19 +175,46 @@ export class EspaceAbonneComponent {
     window.open(this.svc.pdfUrl(this.token, factureId), '_blank', 'noopener');
   }
 
-  statutClass(statut: string): string {
-    switch (statut) {
-      case 'PAYEE':
-        return 'ea__badge--ok';
-      case 'PARTIELLE':
-        return 'ea__badge--warn';
-      default:
-        return 'ea__badge--danger';
-    }
+  /**
+   * Le badge dit l'état de la dette, pas seulement celui du statut.
+   *
+   * `IMPAYEE` recouvre deux situations opposées : une facture émise hier, et un
+   * arriéré de deux mois. Les peindre pareil, c'est effacer la seule chose que
+   * l'abonné a besoin de lire.
+   */
+  badge(l: LigneEspace): { cle: string; classe: string } {
+    if (l.soldee) return { cle: 'ESPACE.BADGE.REGLEE', classe: 'ea-badge--ok' };
+    if (l.echue) return { cle: 'ESPACE.BADGE.EN_RETARD', classe: 'ea-badge--danger' };
+    if ((l.facture.montant_paye ?? 0) > 0)
+      return { cle: 'ESPACE.BADGE.PARTIELLE', classe: 'ea-badge--warn' };
+    return { cle: 'ESPACE.BADGE.A_VENIR', classe: 'ea-badge--neutre' };
   }
 
-  /** Réutilise les libellés de statut de la facturation (IMPAYEE / PARTIELLE / PAYEE). */
-  statutKey(statut: string): string {
-    return `FACTURATION.STATUT.${statut}`;
+  /**
+   * Choisit entre la forme singulière et la forme plurielle d'un libellé.
+   *
+   * Le reste de l'application écrit « 3 jour(s) » : c'est bref, et le personnel
+   * qui lit ces écrans tous les jours n'y prête plus attention. Ici, le lecteur
+   * est un client qui reçoit un rappel de dette — la parenthèse lui donne le ton
+   * du formulaire administratif, exactement là où le message doit se lire comme
+   * une phrase adressée à lui.
+   *
+   * `suffixe` porte l'accord : `_UN` pour un masculin (jour), `_UNE` pour un
+   * féminin (facture).
+   */
+  pluriel(base: string, n: number, suffixe: '_UN' | '_UNE' = '_UN'): string {
+    return n <= 1 ? base + suffixe : base;
+  }
+
+  /** Minuit local : borne stable pour comparer des dates sans heure. */
+  private debutDeJournee(d: Date): number {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+
+  /** `null` plutôt qu'un `Invalid Date` qui contaminerait tous les calculs. */
+  private dateOuNull(iso: string | null | undefined): number | null {
+    if (!iso) return null;
+    const t = new Date(iso).getTime();
+    return Number.isNaN(t) ? null : this.debutDeJournee(new Date(t));
   }
 }

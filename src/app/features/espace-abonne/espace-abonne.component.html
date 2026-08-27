@@ -1,0 +1,192 @@
+<!-- ══ Espace abonné public — consultation par lien WhatsApp tokenisé ══ -->
+<div class="ea">
+  <header class="ea__topbar">
+    <div class="ea__brand">
+      <svg width="22" height="22" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+        <path d="M19 3C19 3 8 15.5 8 23C8 30.18 13.04 34 19 34C24.96 34 30 30.18 30 23C30 15.5 19 3 19 3Z" fill="white" fill-opacity=".95"/>
+        <path d="M19 16C19 16 14 21.5 14 25C14 27.76 16.24 30 19 30C21.76 30 24 27.76 24 25C24 21.5 19 16 19 16Z" fill="#0e9f6e" fill-opacity=".85"/>
+      </svg>
+      <span class="ea__brand-name">SGFE</span>
+      <span class="ea__brand-sub">· {{ 'ESPACE.TITLE' | translate }}</span>
+    </div>
+  </header>
+
+  <main class="ea__body">
+    @switch (etat()) {
+      @case ('loading') {
+        <div class="ea__state" role="status" aria-live="polite">
+          <i class="pi pi-spinner pi-spin ea__spinner" aria-hidden="true"></i>
+          <p class="ea__state-text">{{ 'ESPACE.LOADING' | translate }}</p>
+        </div>
+      }
+
+      @case ('invalid') {
+        <div class="ea-carte ea-carte--msg">
+          <div class="ea-icone ea-icone--danger"><i class="pi pi-lock" aria-hidden="true"></i></div>
+          <h1 class="ea-carte__titre">{{ 'ESPACE.ERR_TITLE' | translate }}</h1>
+          <p class="ea-carte__desc">{{ 'ESPACE.ERR_DESC' | translate }}</p>
+        </div>
+      }
+
+      @case ('error') {
+        <div class="ea-carte ea-carte--msg">
+          <div class="ea-icone ea-icone--warn"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></div>
+          <h1 class="ea-carte__titre">{{ 'ESPACE.ERR_SERVER_TITLE' | translate }}</h1>
+          <p class="ea-carte__desc">{{ 'ESPACE.ERR_SERVER_DESC' | translate }}</p>
+          <button type="button" class="ea-btn" (click)="charger()">
+            <i class="pi pi-refresh" aria-hidden="true"></i> {{ 'ESPACE.RETRY' | translate }}
+          </button>
+        </div>
+      }
+
+      @case ('ready') {
+        <div class="ea__content">
+
+          <!-- ── Ce qu'il doit, et s'il est en retard ────────────────────────
+               Trois régimes distincts. Le rouge est réservé au retard réel :
+               l'appliquer à une facture pas encore exigible userait le signal
+               exactement là où il doit encore porter. -->
+          <section class="ea-solde" [class]="'ea-solde--' + regime()" aria-live="polite">
+            @switch (regime()) {
+              @case ('solde') {
+                <p class="ea-solde__ok">
+                  <i class="pi pi-check-circle" aria-hidden="true"></i>
+                  <span>{{ 'ESPACE.TOUT_PAYE' | translate }}</span>
+                </p>
+              }
+
+              @case ('a-venir') {
+                <span class="ea-solde__label">{{ 'ESPACE.SOLDE_TOTAL' | translate }}</span>
+                <span class="ea-solde__val">{{ soldeTotal() | fcfa }}</span>
+                @if (prochaineEcheance()) {
+                  <span class="ea-solde__sub">
+                    {{ 'ESPACE.RIEN_ECHU' | translate: { date: (prochaineEcheance() | date: 'dd/MM/yyyy') } }}
+                  </span>
+                } @else {
+                  <span class="ea-solde__sub">
+                    {{ pluriel('ESPACE.FACTURES_A_REGLER', nbAPayer(), '_UNE') | translate: { n: nbAPayer() } }}
+                  </span>
+                }
+              }
+
+              @case ('retard') {
+                <span class="ea-solde__label">{{ 'ESPACE.SOLDE_TOTAL' | translate }}</span>
+                <span class="ea-solde__val">{{ soldeTotal() | fcfa }}</span>
+                <span class="ea-solde__sub">
+                  {{ pluriel('ESPACE.DONT_ECHU', retardMax()) | translate: { montant: (soldeEchu() | fcfa), n: retardMax() } }}
+                </span>
+              }
+            }
+
+            @if (data()?.token_expiration) {
+              <p class="ea-solde__expire">
+                <i class="pi pi-clock" aria-hidden="true"></i>
+                {{ 'ESPACE.LIEN_VALIDE_JUSQU' | translate: { date: (data()!.token_expiration | date: 'dd/MM/yyyy') } }}
+              </p>
+            }
+          </section>
+
+          @if (lignes().length === 0) {
+            <div class="ea-carte ea-carte--msg">
+              <div class="ea-icone"><i class="pi pi-inbox" aria-hidden="true"></i></div>
+              <h2 class="ea-carte__titre">{{ 'ESPACE.AUCUNE' | translate }}</h2>
+              <p class="ea-carte__desc">{{ 'ESPACE.AUCUNE_DESC' | translate }}</p>
+            </div>
+          } @else {
+            <h2 class="ea__heading">{{ 'ESPACE.HEADING' | translate }}</h2>
+
+            <!-- Triées par exigibilité : ce qui est en tête est ce qu'un
+                 versement éteindra en premier. -->
+            <ul class="ea-liste">
+              @for (l of lignes(); track l.facture.facture_id) {
+                <li class="ea-fac" [class.ea-fac--echue]="l.echue" [class.ea-fac--soldee]="l.soldee">
+                  <div class="ea-fac__head">
+                    <span class="ea-fac__num">
+                      {{ l.facture.numero || ('ESPACE.FACTURE' | translate) }}
+                    </span>
+                    <span class="ea-badge" [class]="badge(l).classe">
+                      {{ badge(l).cle | translate }}
+                    </span>
+                  </div>
+
+                  <!-- Une régularisation n'a pas de relevé : son motif prend
+                       la place que l'index occuperait. -->
+                  @if (l.regularisation) {
+                    <p class="ea-fac__motif">
+                      <i class="pi pi-info-circle" aria-hidden="true"></i>
+                      <span>
+                        <strong>{{ 'ESPACE.REGULARISATION' | translate }}</strong>
+                        @if (l.facture.motif) {
+                          <span class="ea-fac__motif-txt"> — {{ l.facture.motif }}</span>
+                        }
+                      </span>
+                    </p>
+                  }
+
+                  <div class="ea-fac__grid">
+                    @if (!l.regularisation) {
+                      <div class="ea-fac__cell">
+                        <span class="ea-fac__k">{{ 'ESPACE.LABEL_RELEVE' | translate }}</span>
+                        <span class="ea-fac__v">
+                          {{ l.facture.date_releve ? (l.facture.date_releve | date: 'dd/MM/yyyy') : '—' }}
+                        </span>
+                      </div>
+                    }
+
+                    <div class="ea-fac__cell">
+                      <span class="ea-fac__k">{{ 'ESPACE.LABEL_MONTANT' | translate }}</span>
+                      <span class="ea-fac__v">{{ l.facture.montant | fcfa }}</span>
+                    </div>
+
+                    @if (l.facture.solde_restant > 0) {
+                      <div class="ea-fac__cell">
+                        <span class="ea-fac__k">{{ 'ESPACE.LABEL_SOLDE' | translate }}</span>
+                        <span class="ea-fac__v" [class.ea-fac__v--due]="l.echue">
+                          {{ l.facture.solde_restant | fcfa }}
+                        </span>
+                      </div>
+                    }
+
+                    @if (l.facture.montant_paye > 0) {
+                      <div class="ea-fac__cell">
+                        <span class="ea-fac__k">{{ 'ESPACE.LABEL_PAYE' | translate }}</span>
+                        <span class="ea-fac__v">{{ l.facture.montant_paye | fcfa }}</span>
+                      </div>
+                    }
+
+                    @if (l.facture.date_limite_paiement && !l.soldee) {
+                      <div class="ea-fac__cell">
+                        <span class="ea-fac__k">{{ 'ESPACE.LABEL_ECHEANCE' | translate }}</span>
+                        <span class="ea-fac__v">
+                          {{ l.facture.date_limite_paiement | date: 'dd/MM/yyyy' }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- L'ancienneté est la raison d'être du rappel : elle se dit,
+                       elle ne se déduit pas d'une date. -->
+                  @if (l.joursDeRetard > 0) {
+                    <p class="ea-fac__retard">
+                      {{ pluriel('ESPACE.RETARD_DEPUIS', l.joursDeRetard) | translate: { n: l.joursDeRetard } }}
+                    </p>
+                  } @else if (l.joursRestants > 0 && l.joursRestants <= 7) {
+                    <p class="ea-fac__bientot">
+                      {{ pluriel('ESPACE.ECHEANCE_PROCHE', l.joursRestants) | translate: { n: l.joursRestants } }}
+                    </p>
+                  }
+
+                  <button type="button" class="ea-pdf" (click)="ouvrirPdf(l.facture.facture_id)">
+                    <i class="pi pi-file-pdf" aria-hidden="true"></i> {{ 'ESPACE.PDF' | translate }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+
+          <p class="ea__foot">{{ 'ESPACE.FOOTER' | translate }}</p>
+        </div>
+      }
+    }
+  </main>
+</div>

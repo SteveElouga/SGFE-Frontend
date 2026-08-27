@@ -48,8 +48,59 @@
     heroNounKey="IMPAYES.RESULTS_HERO"
   />
 
+  <!-- Bascule de vue. La question qu'on se pose devant un écran d'impayés est
+       « qui doit combien, depuis quand » — d'où le défaut par abonné. Le détail
+       par facture reste là : c'est lui qu'il faut pour agir sur une créance. -->
+  <div class="imp-vue" role="radiogroup" [attr.aria-label]="'IMPAYES.VUE.LABEL' | translate">
+    <button type="button" class="imp-vue__opt" [class.imp-vue__opt--actif]="vue() === 'abonne'"
+      role="radio" [attr.aria-checked]="vue() === 'abonne'" (click)="vue.set('abonne')">
+      {{ 'IMPAYES.VUE.ABONNE' | translate }}
+    </button>
+    <button type="button" class="imp-vue__opt" [class.imp-vue__opt--actif]="vue() === 'facture'"
+      role="radio" [attr.aria-checked]="vue() === 'facture'" (click)="vue.set('facture')">
+      {{ 'IMPAYES.VUE.FACTURE' | translate }}
+    </button>
+  </div>
+
+  @if (vue() === 'abonne') {
+    <ul class="imp-groupes">
+      @for (g of groupesAbonnes(); track g.abonneId) {
+        <li class="imp-groupe">
+          <div class="imp-groupe__tete">
+            <div class="imp-groupe__qui">
+              <a class="imp-groupe__nom" [routerLink]="['/abonnes', g.abonneId]">{{ g.abonneNom }}</a>
+              <span class="imp-groupe__ref">{{ g.numeroAbonne }}</span>
+            </div>
+            <div class="imp-groupe__chiffres">
+              <span class="imp-groupe__total">{{ formatMontant(g.totalDu) }}</span>
+              <span class="imp-groupe__meta">
+                {{ 'IMPAYES.VUE.NB_FACTURES' | translate: { n: g.nbFactures } }}
+                @if (g.retardMax > 0) {
+                  · <span class="imp-groupe__retard">{{ 'IMPAYES.VUE.RETARD' | translate: { n: g.retardMax } }}</span>
+                }
+              </span>
+            </div>
+          </div>
+          <ul class="imp-groupe__lignes">
+            @for (l of g.lignes; track l.factureId) {
+              <li class="imp-ligne">
+                <a class="imp-ligne__facture" [routerLink]="['/factures', l.factureId]">{{ l.numeroFacture }}</a>
+                <span class="imp-ligne__solde">{{ formatMontant(l.soldeRestant) }}</span>
+                @if (l.retardJours) {
+                  <span class="imp-ligne__age">{{ 'IMPAYES.VUE.RETARD' | translate: { n: l.retardJours } }}</span>
+                }
+              </li>
+            }
+          </ul>
+        </li>
+      } @empty {
+        <li class="imp-groupes__vide">{{ 'IMPAYES.EMPTY' | translate }}</li>
+      }
+    </ul>
+  }
+
   <!-- Table -->
-  <div class="table-wrap">
+  <div class="table-wrap" [hidden]="vue() !== 'facture'">
     <app-data-table
       [columns]="columns"
       [rows]="impayesFiltres()"

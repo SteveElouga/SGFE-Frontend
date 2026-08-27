@@ -82,6 +82,8 @@ export const GET_SOLDE_FACTURE = gql`
       montantPaye
       soldeRestant
       statut
+      abonneId
+      dateLimitePaiement
     }
   }
 `;

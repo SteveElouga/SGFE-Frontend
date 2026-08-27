@@ -186,8 +186,14 @@
   background: var(--toast-timer-bg, var(--succes-fond));
 }
 
+// La minuterie est la seule barre de l'application qui s'anime réellement image
+// par image, cinq secondes durant. Animer sa `width` faisait recalculer la mise
+// en page à chaque image ; `transform` s'exécute sur le compositeur et ne touche
+// à rien d'autre. L'origine à gauche reproduit le sens de vidage.
 .toast__timer-fill {
   height: 100%;
+  width: 100%;
+  transform-origin: left center;
   background: var(--toast-timer-fill, var(--succes));
   animation: timer-shrink 5s linear forwards;
 }
@@ -236,8 +242,8 @@
 }
 
 @keyframes timer-shrink {
-  from { width: 100%; }
-  to   { width: 0%; }
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
 }
 
 // ── Mobile — bottom of screen, dark navy ─────────────────────────────────────

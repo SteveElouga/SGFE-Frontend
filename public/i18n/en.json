@@ -61,7 +61,8 @@
     "RESULTS_HERO_LABEL": "results",
     "RESULTS_HERO_OVER": "of {{total}} total",
     "RESULTS_HERO_MULTI": "{{count}} active filters",
-    "SKIP_TO_CONTENT": "Skip to content"
+    "SKIP_TO_CONTENT": "Skip to content",
+    "SAVING": "Saving…"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -254,7 +255,22 @@
     },
     "CHIP_ACTIFS": "Active",
     "CHIP_SUSPENDUS": "Suspended",
-    "CHIP_RESILIES": "Terminated"
+    "CHIP_RESILIES": "Terminated",
+    "ARRIERE": {
+      "TITRE": "Record an arrear",
+      "DESC": "Records a debt {{nom}} owed before the system went live.",
+      "MONTANT": "Amount owed",
+      "MONTANT_AIDE": "The total the subscriber owed before the application.",
+      "MOTIF": "Reason",
+      "MOTIF_EXEMPLE": "e.g. Arrear predating go-live",
+      "MOTIF_AIDE": "Required: no meter reading justifies this amount — this reason is its only record.",
+      "RECAP_TITRE": "What will be created",
+      "RECAP_FACTURE": "An adjustment invoice of {{montant}}",
+      "RECAP_EXIGIBLE": "Due immediately — the debt predates the system",
+      "RECAP_RELANCES": "It enters arrears and reminders like any other invoice",
+      "VALIDER": "Create adjustment",
+      "SUCCES": "Arrear recorded — {{numero}}"
+    }
   },
   "UTILISATEURS": {
     "TITLE": "Users",
@@ -617,7 +633,10 @@
       "EMAIL": "Admin email (Brevo)",
       "EMAIL_PLACEHOLDER": "admin@example.com",
       "EMAIL_HINT": "Empty = notifications disabled"
-    }
+    },
+    "WHATSAPP_ROMPU_TITRE": "WhatsApp link is down",
+    "WHATSAPP_ROMPU_DESC": "No invoice can be sent until the account is linked again. Click Retry — a new QR code will appear within a minute.",
+    "WHATSAPP_ROMPU_DEPUIS": "Down for {{ duree }}"
   },
   "PROFIL": {
     "TITLE": "My profile",
@@ -937,7 +956,11 @@
       "RESTE_LABEL": "Remaining to collect",
       "BTN_CONFIRMER_CORRECTION": "Confirm",
       "CONFIRMER_CORRECTION_MSG": "The status will change to “{{statut}}” without recording any payment.",
-      "SOLDE_PAR": "Paid in full"
+      "SOLDE_PAR": "Paid in full",
+      "CONSO_DU_MOIS": "This month's consumption",
+      "SOLDE_ANTERIEUR": "Prior balance · {{n}} invoice(s)",
+      "TOTAL_A_PAYER": "Total due",
+      "DEPUIS": "including {{montant}} owed since {{date}}"
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",
@@ -982,7 +1005,21 @@
     "TOTAL_KPI_ARIA": "Total collected for the displayed period",
     "TOTAL_KPI_HINT": "across {{count}} displayed transaction(s)",
     "ANNULE": "Cancelled",
-    "TOTAL_HORS_ANNULES": "{{count}} cancelled payment(s) excluded — {{montant}} not collected"
+    "TOTAL_HORS_ANNULES": "{{count}} cancelled payment(s) excluded — {{montant}} not collected",
+    "ENCAISSEMENT": {
+      "TITRE": "Record a payment",
+      "DESC": "{{nom}} owes {{total}}. The payment is applied oldest first.",
+      "MONTANT": "Amount received",
+      "MODE": "Payment method",
+      "REFERENCE": "Transaction reference",
+      "REFERENCE_EXEMPLE": "e.g. MP260827.1423.A12345",
+      "IMPUTATION_TITRE": "This payment will be applied as follows",
+      "RETARD": "{{n}} days overdue",
+      "EXCEDENT": "{{montant}} left over — credited to the subscriber",
+      "VALIDER": "Record payment",
+      "SUCCES": "Payment recorded",
+      "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices"
+    }
   },
   "IMPAYES": {
     "TITLE": "Overdue",
@@ -1048,7 +1085,14 @@
     "CONFIG_ACTIVEE": "enabled",
     "CONFIG_SUFFIX": "configurable in Settings",
     "CHIP_ETAPE": "Step {{ n }}",
-    "ACOMPTE_RECU": "deposit received"
+    "ACOMPTE_RECU": "deposit received",
+    "VUE": {
+      "LABEL": "View",
+      "ABONNE": "By subscriber",
+      "FACTURE": "By invoice",
+      "NB_FACTURES": "{{n}} invoice(s)",
+      "RETARD": "{{n}} days overdue"
+    }
   },
   "RELANCES": {
     "BACK": "Overdue",
@@ -1275,7 +1319,7 @@
     "HEADING": "Your invoices",
     "LOADING": "Loading your invoices…",
     "SOLDE_TOTAL": "Total amount due",
-    "FACTURES_A_REGLER": "{{ n }} invoice(s) with a balance due",
+    "FACTURES_A_REGLER": "{{ n }} invoices with a balance due",
     "TOUT_PAYE": "Everything is paid — thank you!",
     "LIEN_VALIDE_JUSQU": "Link valid until {{ date }}",
     "FACTURE": "Invoice",
@@ -1292,7 +1336,22 @@
     "ERR_SERVER_TITLE": "Service temporarily unavailable",
     "ERR_SERVER_DESC": "Your invoices could not be loaded. Please try again in a moment.",
     "RETRY": "Retry",
-    "FOOTER": "SGFE · Secure access to your water invoices"
+    "FOOTER": "SGFE · Secure access to your water invoices",
+    "RIEN_ECHU": "Nothing overdue yet — due by {{ date }}",
+    "DONT_ECHU": "Including {{ montant }} overdue for {{ n }} days",
+    "REGULARISATION": "Adjustment",
+    "RETARD_DEPUIS": "Overdue for {{ n }} days",
+    "ECHEANCE_PROCHE": "Due in {{ n }} days",
+    "BADGE": {
+      "REGLEE": "Paid",
+      "PARTIELLE": "Partial",
+      "EN_RETARD": "Overdue",
+      "A_VENIR": "Due"
+    },
+    "FACTURES_A_REGLER_UNE": "1 invoice with a balance due",
+    "DONT_ECHU_UN": "Including {{ montant }} overdue for 1 day",
+    "RETARD_DEPUIS_UN": "Overdue for 1 day",
+    "ECHEANCE_PROCHE_UN": "Due tomorrow"
   },
   "APP": {
     "NAME": "SGFE",

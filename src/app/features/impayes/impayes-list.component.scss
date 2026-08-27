@@ -303,3 +303,133 @@
     .bilan-btn__label { display: none; }
   }
 }
+
+// ── Vue par abonné ──────────────────────────────────────────────────────────
+// La question devant un écran d'impayés est « qui doit combien, depuis quand ».
+// Le nom et le total dominent ; les factures qui composent la dette suivent en
+// retrait, parce qu'on n'y descend que pour agir.
+
+.imp-vue {
+  display: flex;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-4);
+}
+
+.imp-vue__opt {
+  min-height: 44px;                 // WCAG 2.5.5
+  padding: var(--pas-2) var(--pas-4);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-rond);
+  background: var(--surface);
+  color: var(--encre-2);
+  font-family: inherit;
+  font-size: var(--texte-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(.imp-vue__opt--actif) { background: var(--surface-douce); }
+  }
+
+  &--actif {
+    background: var(--navy-nuit);
+    border-color: var(--navy-nuit);
+    color: var(--encre-inverse);
+    font-weight: 600;
+  }
+
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
+}
+
+.imp-groupes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+
+  &__vide {
+    padding: var(--pas-7);
+    text-align: center;
+    color: var(--encre-3);
+  }
+}
+
+.imp-groupe {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  overflow: hidden;
+
+  &__tete {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--pas-4);
+    padding: var(--pas-4) var(--pas-5);
+    flex-wrap: wrap;
+  }
+
+  &__qui { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+  &__nom {
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+    text-decoration: none;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--action); text-decoration: underline; }
+    }
+    &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: var(--rayon-xs); }
+  }
+
+  &__ref { font-size: var(--texte-sm); color: var(--encre-3); font-variant-numeric: tabular-nums; }
+
+  &__chiffres { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+
+  &__total {
+    font-size: var(--texte-2xl);
+    font-weight: 800;
+    color: var(--danger-encre);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__meta { font-size: var(--texte-sm); color: var(--encre-3); }
+
+  // L'âge porte l'urgence : c'est lui qui déclenche la suspension.
+  &__retard { color: var(--danger-encre); font-weight: 600; }
+
+  &__lignes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--fond);
+  }
+}
+
+.imp-ligne {
+  display: flex;
+  align-items: baseline;
+  gap: var(--pas-4);
+  padding: var(--pas-3) var(--pas-5);
+  font-size: var(--texte-md);
+
+  & + & { border-top: 1px solid var(--fond); }
+
+  &__facture {
+    color: var(--action);
+    text-decoration: none;
+    font-variant-numeric: tabular-nums;
+    flex: 1;
+
+    @media (hover: hover) and (pointer: fine) { &:hover { text-decoration: underline; } }
+    &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; border-radius: var(--rayon-xs); }
+  }
+
+  &__solde { font-weight: 600; color: var(--encre); font-variant-numeric: tabular-nums; }
+
+  &__age { font-size: var(--texte-sm); color: var(--encre-3); }
+}

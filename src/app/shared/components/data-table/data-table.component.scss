@@ -185,8 +185,12 @@
 // ── Lien de ligne ─────────────────────────────────────────────────────────────
 // Il hérite de la couleur de la cellule : la ligne entière est déjà cliquable,
 // souligner le premier champ en bleu ferait croire à deux destinations.
+// Un lien qui ne se voit pas n'est pas un lien. Celui-ci héritait de la couleur
+// du texte et ne se soulignait qu'au survol : sur un écran tactile, où le survol
+// n'existe pas, rien n'indiquait jamais qu'on pouvait cliquer.
 .dt__lien {
-  color: inherit;
+  color: var(--action);
+  font-weight: 600;
   text-decoration: none;
   display: block;
 

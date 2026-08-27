@@ -1,0 +1,364 @@
+// Espace abonné public. Lu sur un téléphone, une fois par mois, depuis un lien
+// WhatsApp — souvent par quelqu'un qui n'ouvrira jamais le reste de
+// l'application. La page doit se comprendre sans rien avoir appris avant.
+
+:host { display: block; min-height: 100dvh; }
+
+.ea {
+  min-height: 100dvh;
+  background: var(--fond);
+  display: flex;
+  flex-direction: column;
+
+  &__topbar {
+    height: 52px;
+    background: var(--navy-nuit);
+    padding: 0 var(--pas-5);
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+
+  &__brand { display: flex; align-items: center; gap: var(--pas-2); }
+  &__brand-name { font-size: var(--texte-xl); font-weight: 700; color: var(--encre-inverse); }
+  &__brand-sub { font-size: var(--texte-xs); color: var(--encre-inverse-3); }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--pas-5) var(--pas-4) var(--pas-7);
+  }
+
+  &__content { width: 560px; max-width: 100%; }
+
+  &__heading {
+    font-size: var(--texte-md);
+    font-weight: 600;
+    letter-spacing: var(--badge-espace);
+    text-transform: uppercase;
+    color: var(--encre-3);
+    margin: var(--pas-5) 0 var(--pas-3);
+  }
+
+  &__state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pas-4);
+    color: var(--encre-3);
+    padding: var(--pas-7) 0;
+  }
+
+  &__spinner { font-size: 30px; color: var(--action); }
+  &__state-text { font-size: var(--texte-lg); margin: 0; }
+
+  &__foot {
+    text-align: center;
+    font-size: var(--texte-xs);
+    color: var(--encre-faible);
+    margin: var(--pas-5) 0 0;
+    line-height: 1.6;
+  }
+}
+
+// ── Cartes de message (lien invalide, incident, aucune facture) ──────────────
+.ea-carte {
+  width: 440px;
+  max-width: 100%;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-portee);
+  padding: var(--pas-6) var(--pas-5);
+
+  &--msg { margin: auto; }
+
+  &__titre {
+    font-size: var(--texte-2xl);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-2);
+  }
+
+  &__desc {
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+.ea-icone {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto var(--pas-4);
+  border-radius: var(--rayon-md);
+  background: var(--info-fond);
+  color: var(--action);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+
+  &--danger { background: var(--danger-fond); color: var(--danger-encre); }
+  &--warn { background: var(--attente-fond); color: var(--attente-encre); }
+}
+
+.ea-btn {
+  margin-top: var(--pas-4);
+  min-height: 44px;                       // WCAG 2.5.5
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  background: var(--action);
+  color: var(--sur-action);
+  border: none;
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-3) var(--pas-5);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--action-survol); }
+  }
+
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
+}
+
+// ── Le bandeau de solde ──────────────────────────────────────────────────────
+// Trois régimes. Le rouge ne sert qu'au retard réel : l'étendre à une facture
+// pas encore exigible userait le signal là où il doit encore porter.
+.ea-solde {
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  border: 1px solid transparent;
+
+  &--solde {
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+  }
+
+  &--a-venir {
+    background: var(--surface);
+    border-color: var(--filet);
+    box-shadow: var(--ombre-carte);
+  }
+
+  &--retard {
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+  }
+
+  &__ok {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    font-size: var(--texte-xl);
+    font-weight: 600;
+    color: var(--succes-encre);
+
+    .pi { font-size: 20px; }
+  }
+
+  &__label {
+    font-size: var(--badge-texte);
+    font-weight: var(--badge-poids);
+    letter-spacing: var(--badge-espace);
+    text-transform: var(--badge-casse);
+    color: var(--encre-3);
+  }
+
+  // Une somme ne se coupe pas : « 73 00 / 0 FCFA » sur deux lignes se lit mal
+  // et se lit faux. Plutôt que de la laisser se briser ou déborder, on la
+  // laisse rétrécir jusqu'à tenir — le chiffre reste d'un seul tenant à
+  // toutes les largeurs.
+  &__val {
+    font-size: clamp(var(--texte-xl), 7vw, var(--texte-3xl));
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--encre);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__sub { font-size: var(--texte-md); color: var(--encre-2); }
+
+  &--retard &__label { color: var(--danger-encre); }
+  &--retard &__val { color: var(--danger-encre); }
+  &--retard &__sub { color: var(--danger-encre); font-weight: 600; }
+
+  &__expire {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-1);
+    font-size: var(--texte-sm);
+    color: var(--encre-faible);
+    margin: var(--pas-3) 0 0;
+  }
+}
+
+// ── La liste des factures ────────────────────────────────────────────────────
+.ea-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+}
+
+.ea-fac {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
+  box-shadow: var(--ombre-carte);
+
+  // Le liseré fait lire l'urgence avant même le badge.
+  &--echue { border-left: 3px solid var(--danger); }
+
+  // Ce qui est réglé recule sans disparaître : l'abonné doit pouvoir le
+  // retrouver, pas le relire.
+  &--soldee { background: var(--surface-douce); box-shadow: none; }
+
+  // Le numéro peut être long et le badge ne se coupe pas : sans ces trois
+  // règles, l'en-tête pousse la carte hors de l'écran sur un petit téléphone.
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pas-2);
+    margin-bottom: var(--pas-3);
+    flex-wrap: wrap;
+  }
+
+  &__num {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    font-variant-numeric: tabular-nums;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  &__motif {
+    display: flex;
+    gap: var(--pas-2);
+    align-items: flex-start;
+    margin: 0 0 var(--pas-3);
+    padding: var(--pas-3);
+    background: var(--info-fond);
+    border-radius: var(--rayon-sm);
+    font-size: var(--texte-md);
+    color: var(--info-encre);
+    line-height: 1.5;
+    // Le motif est une phrase libre saisie par un agent : rien ne garantit
+    // qu'elle contienne un point de césure avant le bord de l'écran.
+    overflow-wrap: anywhere;
+    min-width: 0;
+
+    .pi { margin-top: 2px; flex-shrink: 0; }
+  }
+
+  &__motif-txt { font-weight: 400; }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--pas-3) var(--pas-4);
+  }
+
+  &__cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  &__k { font-size: var(--texte-sm); color: var(--encre-faible); }
+
+  &__v {
+    font-size: var(--texte-lg);
+    font-weight: 600;
+    color: var(--encre-2);
+    font-variant-numeric: tabular-nums;
+
+    &--due { color: var(--danger-encre); }
+  }
+
+  &__retard {
+    margin: var(--pas-3) 0 0;
+    font-size: var(--texte-md);
+    font-weight: 600;
+    color: var(--danger-encre);
+  }
+
+  &__bientot {
+    margin: var(--pas-3) 0 0;
+    font-size: var(--texte-md);
+    color: var(--attente-encre);
+  }
+}
+
+.ea-badge {
+  font-size: var(--badge-texte);
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-rond);
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &--ok { background: var(--succes-fond); color: var(--succes-encre); }
+  &--warn { background: var(--attente-fond); color: var(--attente-encre); }
+  &--danger { background: var(--danger-fond); color: var(--danger-encre); }
+  &--neutre { background: var(--surface-douce); color: var(--encre-3); }
+}
+
+.ea-pdf {
+  margin-top: var(--pas-4);
+  width: 100%;
+  min-height: 44px;                       // WCAG 2.5.5
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-2);
+  background: var(--surface);
+  color: var(--action);
+  border: 1px solid var(--action-trait);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-3);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--info-fond); }
+  }
+
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ea-btn, .ea-pdf { transition: none; }
+  .ea-btn:active, .ea-pdf:active { transform: none; }
+}
+
+@media (max-width: 420px) {
+  .ea-fac__grid { grid-template-columns: 1fr; }
+}

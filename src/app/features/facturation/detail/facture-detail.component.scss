@@ -210,7 +210,14 @@
     cursor: help;
     transition: color 0.12s;
 
-    &:hover, &:focus-visible { color: var(--action); outline: none; }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--action); }
+    }
+    &:focus-visible {
+      color: var(--action);
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
+    }
   }
 
   &__body {
@@ -842,4 +849,55 @@
   background: var(--succes-fond);
   border-color: var(--succes-trait);
   color: var(--succes-encre);
+}
+
+// ── Solde antérieur ─────────────────────────────────────────────────────────
+// Posé à côté de la bande de calcul, jamais dedans : celle-ci explique une
+// consommation, celui-ci constate une dette. Les confondre reviendrait à faire
+// croire que l'abonné a consommé ce qu'il traîne.
+.anterieur {
+  margin-top: var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4) var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+
+  &__ligne {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--pas-4);
+    font-size: var(--texte-lg);
+
+    &--total {
+      margin-top: var(--pas-2);
+      padding-top: var(--pas-3);
+      border-top: 1px solid var(--filet);
+      font-weight: 700;
+      font-size: var(--texte-xl);
+    }
+  }
+
+  &__k { color: var(--encre-2); }
+
+  &__v {
+    color: var(--encre);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+
+    // La dette porte l'encre du danger : elle ne doit pas se lire comme une
+    // consommation ordinaire.
+    &--dette { color: var(--danger-encre); font-weight: 700; }
+  }
+
+  // L'âge pèse plus que le montant : c'est lui qui fait payer.
+  &__note {
+    margin: 0;
+    text-align: right;
+    font-size: var(--texte-sm);
+    color: var(--danger-encre);
+  }
 }

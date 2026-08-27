@@ -29,7 +29,8 @@ export class ConfigurationService {
     const result = await firstValueFrom(
       this.apollo.query<{ infosSociete: InfosSociete }>({
         query: GET_INFOS_SOCIETE,
-        // cache-first par défaut (apollo.config.ts) — réseau seulement si absent du cache
+        // network-only par défaut (apollo.config.ts) : ces valeurs s'impriment sur
+        // les factures, une version périmée s'y retrouverait sans qu'on le voie.
       }),
     );
     return result.data!.infosSociete;
@@ -39,7 +40,7 @@ export class ConfigurationService {
     const result = await firstValueFrom(
       this.apollo.query<{ configs: ConfigParam[] }>({
         query: GET_CONFIGS,
-        // cache-first par défaut (apollo.config.ts)
+        // network-only par défaut (apollo.config.ts)
       }),
     );
     return result.data!.configs;

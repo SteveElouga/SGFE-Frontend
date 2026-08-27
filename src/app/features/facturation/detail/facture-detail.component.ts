@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
@@ -17,7 +17,7 @@ import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import { DetteAbonne, Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { Abonne } from '../../../shared/models/abonne.model';
 import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
@@ -32,6 +32,7 @@ import { ToastService } from '../../../shared/services/toast.service';
   imports: [
     FormsModule,
     DecimalPipe,
+    DatePipe,
     SelectModule,
     TranslatePipe,
     ErrorBannerComponent,
@@ -59,6 +60,43 @@ export class FactureDetailComponent implements OnInit {
   private readonly facturePdf = inject(FacturePdfService);
 
   readonly loading = signal(true);
+
+  /**
+   * Ce que l'abonné doit EN PLUS de cette facture.
+   *
+   * Le PDF l'imprime déjà ; l'écran l'ignorait. Un comptable qui consulte une
+   * facture à l'écran doit voir la même chose que l'abonné qui la reçoit —
+   * sinon les deux ne parlent pas du même montant à payer.
+   *
+   * `null` tant que rien n'est chargé, et masqué à zéro : une ligne
+   * « solde antérieur : 0 » sur la facture d'un abonné à jour est du bruit, et
+   * elle habituerait l'œil à l'ignorer le jour où elle porte un montant.
+   */
+  readonly soldeAnterieur = signal<DetteAbonne | null>(null);
+
+  readonly aUnSoldeAnterieur = computed(() => (this.soldeAnterieur()?.totalDu ?? 0) > 0);
+
+  /**
+   * La dette antérieure est-elle déjà exigible ?
+   *
+   * `plusAncienneEcheance` peut tomber dans le futur : une facture émise mais
+   * pas encore échue compte dans le solde sans être en retard. Écrire « dus
+   * depuis le 01/09 » pour une date à venir serait faux, et donnerait à un
+   * comptable un argument de relance qui n'existe pas.
+   */
+  readonly soldeAnterieurEchu = computed(() => {
+    const d = this.soldeAnterieur()?.plusAncienneEcheance;
+    if (!d) return false;
+    const echeance = new Date(d);
+    return !Number.isNaN(echeance.getTime()) && echeance.getTime() < Date.now();
+  });
+
+  /** Consommation du mois plus dette antérieure — ce que l'abonné doit régler. */
+  readonly totalAPayer = computed(() => {
+    const f = this.facture();
+    if (!f) return 0;
+    return f.montant + (this.soldeAnterieur()?.totalDu ?? 0);
+  });
   readonly error = signal<string | null>(null);
   readonly pdfLoading = signal(false);
 
@@ -177,6 +215,22 @@ export class FactureDetailComponent implements OnInit {
     void this.load(factureId);
   }
 
+  /**
+   * Charge la dette hors facture courante. Non bloquant : si Paiement est
+   * injoignable, l'écran s'affiche sans la ligne plutôt que d'échouer — même
+   * dégradation gracieuse que la génération du PDF.
+   */
+  private async loadSoldeAnterieur(facture: Facture): Promise<void> {
+    if (!facture.abonneId) return;
+    try {
+      this.soldeAnterieur.set(
+        await this.facturesService.getDetteAbonne(facture.abonneId, facture.factureId),
+      );
+    } catch {
+      this.soldeAnterieur.set(null);
+    }
+  }
+
   async load(factureId: string): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
@@ -195,6 +249,7 @@ export class FactureDetailComponent implements OnInit {
         this.showForm.set(true);
       }
       void this.loadRefs(facture);
+      void this.loadSoldeAnterieur(facture);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('FACTURATION.DETAIL.ERROR_LOAD'));

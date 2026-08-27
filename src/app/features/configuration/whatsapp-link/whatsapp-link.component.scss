@@ -36,6 +36,19 @@
     i { color: var(--action); }
   }
 
+  // Rupture : un état qui demande une action, pas une attente. Il porte donc
+  // le poids d'une alerte et non la discrétion d'un « pending ».
+  &--rompu {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pas-3);
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+
+    .wa-link__title { color: var(--danger-encre); }
+    .wa-link__desc { color: var(--danger-encre); opacity: 0.85; }
+  }
+
   &--qr {
     display: flex;
     align-items: center;
@@ -55,6 +68,21 @@
       background: var(--mint-tapis);
       border: 1px solid var(--succes-trait);
     }
+
+    &--alerte {
+      background: var(--surface);
+      border: 1px solid var(--danger-trait);
+      color: var(--danger-encre);
+      font-size: 18px;
+    }
+  }
+
+  &__depuis {
+    margin-top: var(--pas-2);
+    font-size: var(--texte-sm);
+    font-weight: 600;
+    color: var(--danger-encre);
+    font-variant-numeric: tabular-nums;
   }
 
   &__body { flex: 1; min-width: 0; }

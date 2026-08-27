@@ -107,7 +107,7 @@ export class AuthService {
       }
 
       // Repart d'un cache propre : sur un appareil partagé, empêche que les
-      // données normalisées d'une session précédente (fetchPolicy cache-first)
+      // données normalisées d'une session précédente (cache persisté)
       // soient servies au nouvel utilisateur. La persistance sera ré-estampillée
       // du nouveau userId à la prochaine sauvegarde.
       await this.resetStore();

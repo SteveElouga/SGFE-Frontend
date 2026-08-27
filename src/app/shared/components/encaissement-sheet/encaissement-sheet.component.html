@@ -1,0 +1,114 @@
+<!-- ══ Encaissement au nom d'un abonné, avec ventilation annoncée ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="encaissement-title" (close)="onClose()">
+  <div class="enc-body">
+
+    <div class="enc-header">
+      <h3 class="enc-header__title" id="encaissement-title">
+        {{ 'PAIEMENTS.ENCAISSEMENT.TITRE' | translate }}
+      </h3>
+      <p class="enc-header__desc">
+        {{ 'PAIEMENTS.ENCAISSEMENT.DESC' | translate: { nom: abonneNom(), total: totalDuFormate() } }}
+      </p>
+    </div>
+
+    <!-- Montant -->
+    <div class="enc-champ">
+      <label class="enc-champ__label" for="enc-montant">
+        {{ 'PAIEMENTS.ENCAISSEMENT.MONTANT' | translate }}
+      </label>
+      <div class="enc-champ__monnaie">
+        <input
+          id="enc-montant"
+          class="enc-champ__input"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          step="100"
+          [ngModel]="montant()"
+          (ngModelChange)="montant.set($event)"
+          placeholder="0"
+        />
+        <span class="enc-champ__unite" aria-hidden="true">FCFA</span>
+      </div>
+    </div>
+
+    <!-- Mode -->
+    <div class="enc-champ">
+      <span class="enc-champ__label" id="enc-mode-label">
+        {{ 'PAIEMENTS.ENCAISSEMENT.MODE' | translate }}
+      </span>
+      <div class="enc-modes" role="radiogroup" aria-labelledby="enc-mode-label">
+        @for (m of modeOptions; track m.value) {
+          <button
+            type="button"
+            class="enc-mode"
+            [class.enc-mode--actif]="mode() === m.value"
+            role="radio"
+            [attr.aria-checked]="mode() === m.value"
+            (click)="mode.set(m.value)"
+          >{{ m.cle | translate }}</button>
+        }
+      </div>
+    </div>
+
+    <!-- Référence : n'a de sens que pour une transaction tracée -->
+    @if (referenceRequise()) {
+      <div class="enc-champ">
+        <label class="enc-champ__label" for="enc-ref">
+          {{ 'PAIEMENTS.ENCAISSEMENT.REFERENCE' | translate }}
+        </label>
+        <input
+          id="enc-ref"
+          class="enc-champ__input"
+          type="text"
+          [ngModel]="reference()"
+          (ngModelChange)="reference.set($event)"
+          [placeholder]="'PAIEMENTS.ENCAISSEMENT.REFERENCE_EXEMPLE' | translate"
+        />
+      </div>
+    }
+
+    <!-- La ventilation, avant de valider. L'automatisme évite de décider ;
+         il ne doit pas cacher la décision. -->
+    @if (imputation().length > 0) {
+      <div class="enc-imput" role="status" aria-live="polite">
+        <span class="enc-imput__titre">
+          {{ 'PAIEMENTS.ENCAISSEMENT.IMPUTATION_TITRE' | translate }}
+        </span>
+        <ul class="enc-imput__liste">
+          @for (p of imputation(); track p.factureId) {
+            <li class="enc-imput__ligne">
+              <span class="enc-imput__part">{{ formater(p.part) }}</span>
+              <span class="enc-imput__fleche" aria-hidden="true">→</span>
+              <span class="enc-imput__facture">{{ p.numeroFacture }}</span>
+              @if (p.joursDeRetard > 0) {
+                <span class="enc-imput__age">
+                  {{ 'PAIEMENTS.ENCAISSEMENT.RETARD' | translate: { n: p.joursDeRetard } }}
+                </span>
+              }
+            </li>
+          }
+        </ul>
+        @if (excedent() > 0) {
+          <p class="enc-imput__excedent">
+            {{ 'PAIEMENTS.ENCAISSEMENT.EXCEDENT' | translate: { montant: formater(excedent()) } }}
+          </p>
+        }
+      </div>
+    }
+
+    <div class="enc-actions">
+      <button type="button" class="enc-btn enc-btn--annuler" (click)="onClose()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="enc-btn enc-btn--valider"
+        [disabled]="!formValide() || submitting()"
+        (click)="submit()"
+      >
+        {{ (submitting() ? 'COMMON.SAVING' : 'PAIEMENTS.ENCAISSEMENT.VALIDER') | translate }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

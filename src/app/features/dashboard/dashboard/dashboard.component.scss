@@ -309,9 +309,16 @@
     transition: opacity 0.12s;
     vertical-align: middle;
 
-    &:hover, &:focus-visible {
+    // Survol et focus ne disent pas la même chose : l'un décore, l'autre dit
+    // où l'on se trouve au clavier. Fondus dans une règle commune, l'anneau
+    // disparaissait au profit d'un simple changement d'opacité.
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { opacity: 1; }
+    }
+    &:focus-visible {
       opacity: 1;
-      outline: none;
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
     }
   }
 
@@ -599,9 +606,13 @@
     cursor: help;
     transition: color 0.12s;
 
-    &:hover, &:focus-visible {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { color: var(--succes-encre); }
+    }
+    &:focus-visible {
       color: var(--succes-encre);
-      outline: none;
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
     }
   }
 
