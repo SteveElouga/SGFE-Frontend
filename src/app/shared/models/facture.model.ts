@@ -49,6 +49,19 @@ export interface Facture {
   campagneNom?: string;
   campagnePeriodeMois?: number;
   campagnePeriodeAnnee?: number;
+  // ── Annulation ────────────────────────────────────────────────────────────
+  /** Motif obligatoire saisi à l'annulation — la seule trace de la raison. */
+  motifAnnulation?: string;
+  dateAnnulation?: string;
+  annuleePar?: string;
+  /** Facture émise en remplacement de celle-ci. */
+  remplaceeParId?: string;
+  /** Facture que celle-ci remplace. */
+  remplaceId?: string;
+  /** `CONSOMMATION` (issue d'un relevé) ou `REGULARISATION` (dette déclarée). */
+  nature?: string;
+  /** Justification d'une régularisation — remplace le relevé absent. */
+  motif?: string;
 }
 
 export interface SoldeFacture {
@@ -170,4 +183,10 @@ export interface Avoir {
   abonneId: string;
   montant: number;
   mouvements: MouvementAvoir[];
+}
+
+/** Les deux bouts d'une correction : ce qui a été annulé, et ce qui l'a remplacé. */
+export interface RegenerationFacture {
+  annulee: Facture;
+  nouvelle: Facture;
 }

@@ -164,3 +164,55 @@ export const ENREGISTRER_PAIEMENT_ABONNE = gql`
     }
   }
 `;
+
+/**
+ * Annule une facture sans l'effacer.
+ *
+ * Elle reste au journal avec son numéro, son motif et l'auteur de l'annulation :
+ * une numérotation comptable dont des numéros disparaissent n'est plus une
+ * numérotation. Ce que l'abonné avait versé revient à son avoir.
+ */
+export const ANNULER_FACTURE = gql`
+  mutation AnnulerFacture($factureId: String!, $motif: String!) {
+    annulerFacture(factureId: $factureId, motif: $motif) {
+      factureId
+      numeroFacture
+      statut
+      motifAnnulation
+      dateAnnulation
+      annuleePar
+      remplaceeParId
+    }
+  }
+`;
+
+/**
+ * Annule une facture et en émet une corrigée depuis le relevé actuel.
+ *
+ * Le relevé est relu et non recopié : corriger un index puis régénérer produit
+ * la facture juste, alors que recopier reproduirait l'erreur qu'on répare.
+ */
+export const REGENERER_FACTURE = gql`
+  mutation RegenererFacture($factureId: String!, $motif: String!) {
+    regenererFacture(factureId: $factureId, motif: $motif) {
+      annulee {
+        factureId
+        numeroFacture
+        statut
+        motifAnnulation
+        remplaceeParId
+      }
+      nouvelle {
+        factureId
+        numeroFacture
+        statut
+        montant
+        consommation
+        ancienIndex
+        nouveauIndex
+        dateLimitePaiement
+        remplaceId
+      }
+    }
+  }
+`;

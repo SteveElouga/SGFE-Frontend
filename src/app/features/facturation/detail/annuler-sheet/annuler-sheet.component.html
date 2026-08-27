@@ -1,0 +1,116 @@
+<!-- ══ Annuler une facture, avec ou sans régénération ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="annuler-titre" (close)="onClose()">
+  <div class="ann-body">
+
+    <div class="ann-header">
+      <div class="ann-header__icon" aria-hidden="true">
+        <i class="pi pi-exclamation-triangle"></i>
+      </div>
+      <div>
+        <h3 class="ann-header__titre" id="annuler-titre">
+          {{ 'FACTURATION.ANNULATION.TITRE' | translate }}
+        </h3>
+        @if (facture(); as f) {
+          <p class="ann-header__desc">
+            {{ 'FACTURATION.ANNULATION.DESC' | translate: { numero: f.numeroFacture } }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <!-- Déjà partie chez l'abonné. Pas un blocage : une erreur d'index se
+         découvre justement après l'envoi, quand le client conteste. Mais il
+         garde une facture périmée dans WhatsApp, et il faut le savoir. -->
+    @if (dejaEnvoyee()) {
+      <p class="ann-alerte" role="status">
+        <i class="pi pi-send" aria-hidden="true"></i>
+        <span>{{ 'FACTURATION.ANNULATION.DEJA_ENVOYEE' | translate }}</span>
+      </p>
+    }
+
+    <!-- Constater seulement, ou constater puis corriger. -->
+    @if (regenerationPossible()) {
+      <div class="ann-champ">
+        <span class="ann-champ__label" id="ann-mode-label">
+          {{ 'FACTURATION.ANNULATION.MODE' | translate }}
+        </span>
+        <div class="ann-modes" role="radiogroup" aria-labelledby="ann-mode-label">
+          <button
+            type="button"
+            class="ann-mode"
+            [class.ann-mode--actif]="mode() === 'annuler'"
+            role="radio"
+            [attr.aria-checked]="mode() === 'annuler'"
+            (click)="mode.set('annuler')"
+          >
+            <span class="ann-mode__titre">{{ 'FACTURATION.ANNULATION.MODE_SEUL' | translate }}</span>
+            <span class="ann-mode__desc">{{ 'FACTURATION.ANNULATION.MODE_SEUL_DESC' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            class="ann-mode"
+            [class.ann-mode--actif]="mode() === 'regenerer'"
+            role="radio"
+            [attr.aria-checked]="mode() === 'regenerer'"
+            (click)="mode.set('regenerer')"
+          >
+            <span class="ann-mode__titre">{{ 'FACTURATION.ANNULATION.MODE_REGEN' | translate }}</span>
+            <span class="ann-mode__desc">{{ 'FACTURATION.ANNULATION.MODE_REGEN_DESC' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Le motif : aucun index ne justifie la disparition d'une dette, cette
+         phrase est la seule trace de la raison. -->
+    <div class="ann-champ">
+      <label class="ann-champ__label" for="ann-motif">
+        {{ 'FACTURATION.ANNULATION.MOTIF' | translate }}
+      </label>
+      <input
+        id="ann-motif"
+        class="ann-champ__input"
+        type="text"
+        maxlength="255"
+        [ngModel]="motif()"
+        (ngModelChange)="motif.set($event)"
+        [placeholder]="'FACTURATION.ANNULATION.MOTIF_EXEMPLE' | translate"
+      />
+      <p class="ann-champ__aide">{{ 'FACTURATION.ANNULATION.MOTIF_AIDE' | translate }}</p>
+    </div>
+
+    <!-- Ce qui va se passer, avant que ça se passe. -->
+    <div class="ann-recap">
+      <span class="ann-recap__titre">{{ 'FACTURATION.ANNULATION.RECAP' | translate }}</span>
+      <ul class="ann-recap__liste">
+        <li>{{ 'FACTURATION.ANNULATION.RECAP_JOURNAL' | translate }}</li>
+        @if (dejaVerse() > 0) {
+          <li>
+            {{ 'FACTURATION.ANNULATION.RECAP_AVOIR' | translate: { montant: dejaVerseFormate() } }}
+          </li>
+        }
+        @if (mode() === 'regenerer') {
+          <li>{{ 'FACTURATION.ANNULATION.RECAP_REGEN' | translate }}</li>
+        } @else {
+          <li>{{ 'FACTURATION.ANNULATION.RECAP_SANS_REGEN' | translate }}</li>
+        }
+      </ul>
+    </div>
+
+    <div class="ann-actions">
+      <button type="button" class="ann-btn ann-btn--annuler" (click)="onClose()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="ann-btn ann-btn--valider"
+        [disabled]="!motifValide() || submitting()"
+        (click)="submit()"
+      >
+        {{ (submitting() ? 'COMMON.SAVING'
+            : mode() === 'regenerer' ? 'FACTURATION.ANNULATION.VALIDER_REGEN'
+            : 'FACTURATION.ANNULATION.VALIDER') | translate }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

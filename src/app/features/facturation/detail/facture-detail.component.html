@@ -81,10 +81,49 @@
             <button class="btn btn--dark" (click)="envoyerWhatsapp()">
               <i class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
             </button>
+            <!-- Discret et à part : effacer une dette est le geste le plus lourd
+                 de l'écran, il ne doit pas se trouver sous le doigt de qui
+                 voulait envoyer un PDF. Absent si la facture est déjà annulée —
+                 on n'annule pas deux fois. -->
+            @if (f.statut !== 'ANNULEE' && estAdmin()) {
+              <button class="btn btn--danger-ghost" (click)="annulerSheetVisible.set(true)">
+                <i class="pi pi-times-circle"></i>
+                {{ 'FACTURATION.ANNULATION.ACTION' | translate }}
+              </button>
+            }
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Une facture annulée le dit avant tout le reste : lire son montant sans
+         savoir qu'elle ne vaut plus rien est la pire des lectures possibles. -->
+    @if (f.statut === 'ANNULEE') {
+      <div class="carte annulee-bandeau" role="status">
+        <i class="pi pi-times-circle" aria-hidden="true"></i>
+        <div>
+          <div class="annulee-bandeau__titre">
+            {{ 'FACTURATION.ANNULATION.BANDEAU_TITRE' | translate }}
+          </div>
+          @if (f.motifAnnulation) {
+            <div class="annulee-bandeau__motif">{{ f.motifAnnulation }}</div>
+          }
+          <div class="annulee-bandeau__meta">
+            @if (f.annuleePar) {
+              {{ 'FACTURATION.ANNULATION.BANDEAU_PAR' | translate: { par: f.annuleePar } }}
+            }
+            @if (f.dateAnnulation) {
+              · {{ f.dateAnnulation | date: 'dd/MM/yyyy' }}
+            }
+          </div>
+          @if (f.remplaceeParId) {
+            <a class="annulee-bandeau__lien" [routerLink]="['/facturation', f.remplaceeParId]">
+              {{ 'FACTURATION.ANNULATION.BANDEAU_REMPLACEE' | translate }}
+            </a>
+          }
+        </div>
+      </div>
+    }
 
     <!-- Calculation card -->
     <div class="carte detail-card">
@@ -432,3 +471,12 @@
 
   }
 </div>
+
+<app-annuler-sheet
+  [open]="annulerSheetVisible()"
+  [facture]="facture()"
+  [solde]="solde()"
+  [envois]="envois()"
+  (close)="annulerSheetVisible.set(false)"
+  (done)="onAnnulationFaite($event)"
+/>

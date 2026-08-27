@@ -27,12 +27,15 @@ import {
   RENVOYER_FACTURE_WHATSAPP,
   UPDATE_STATUT_FACTURE,
   UPDATE_TARIF,
+  ANNULER_FACTURE,
   CREER_REGULARISATION,
+  REGENERER_FACTURE,
   ENREGISTRER_PAIEMENT_ABONNE,
 } from '../../graphql/mutations/factures.mutations';
 import {
   Avoir,
   Envoi,
+  RegenerationFacture,
   EnregistrerPaiementInput,
   Facture,
   Paiement,
@@ -105,6 +108,44 @@ export class FacturesService {
       }),
     );
     return result.data!.avoirAbonne;
+  }
+
+  /**
+   * Annule une facture sans l'effacer.
+   *
+   * Elle reste au journal avec son numéro : une numérotation comptable dont des
+   * numéros disparaissent n'est plus une numérotation, et le trou est
+   * précisément ce qui prouve qu'on a effacé quelque chose. Ce que l'abonné
+   * avait versé revient à son avoir, d'où il s'imputera sur la suite.
+   */
+  async annulerFacture(factureId: string, motif: string): Promise<Facture> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ annulerFacture: Facture }>({
+        mutation: ANNULER_FACTURE,
+        variables: { factureId, motif },
+      }),
+    );
+    this.invalidateFacturesCache();
+    return result.data!.annulerFacture;
+  }
+
+  /**
+   * Annule une facture et en émet une corrigée depuis le relevé actuel.
+   *
+   * Le relevé est relu côté serveur, jamais recopié : c'est ce qui permet à une
+   * correction d'index de produire la facture juste plutôt que de reproduire
+   * l'erreur. L'abonné retrouve son versement sans que personne ne le
+   * ressaisisse — il passe par l'avoir et revient sur la nouvelle facture.
+   */
+  async regenererFacture(factureId: string, motif: string): Promise<RegenerationFacture> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ regenererFacture: RegenerationFacture }>({
+        mutation: REGENERER_FACTURE,
+        variables: { factureId, motif },
+      }),
+    );
+    this.invalidateFacturesCache();
+    return result.data!.regenererFacture;
   }
 
   async getSoldeFacture(factureId: string): Promise<SoldeFacture> {
