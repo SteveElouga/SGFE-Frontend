@@ -106,13 +106,13 @@ export class RemplacerCompteurSheetComponent {
 
     this.loading.set(true);
     const input: RemplacerCompteurInput = {
-      numeroCompteur: n,
-      quartier: this.newQuartier(),
-      camp,
-      indexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
-      datePose: this.newDatePose(),
       // Index de fermeture de l'ancien compteur (« Dernier index conservé »).
       indexFermeture: this.dernierIndex() ?? 0,
+      nouveauNumeroCompteur: n,
+      nouveauQuartier: this.newQuartier(),
+      nouveauCamp: camp,
+      nouvelIndexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
+      dateRemplacement: this.newDatePose(),
     };
     try {
       const newCompteur = await this.abonnesService.remplacerCompteur(abonne.id, input);

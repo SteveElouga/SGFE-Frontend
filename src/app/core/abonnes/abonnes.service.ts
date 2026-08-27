@@ -24,14 +24,27 @@ import {
   StatutAbonne,
 } from '../../shared/models/abonne.model';
 
+/**
+ * Entrée de `remplacerCompteur`, alignée sur `RemplacerCompteurInput` de la
+ * gateway.
+ *
+ * Les noms portent tous le préfixe « nouveau » parce que la mutation en
+ * manipule deux : celui qu'on archive et celui qu'on pose. Sans ce préfixe,
+ * `numeroCompteur` ne dit pas duquel il parle — et c'est exactement l'erreur
+ * qu'a faite cette interface, qui décrivait un compteur générique là où le
+ * schéma en distingue deux. Cinq champs sur six ne correspondaient à rien
+ * côté serveur, et le remplacement échouait à chaque tentative.
+ */
 export interface RemplacerCompteurInput {
-  numeroCompteur: number;
-  quartier: string;
-  camp: number;
-  indexInitial: number;
-  datePose: string;
-  /** Dernier index relevé de l'ancien compteur (index de fermeture, archivé). */
+  /** Dernier index relevé de l'ancien compteur — il est archivé avec lui. */
   indexFermeture: number;
+  nouveauNumeroCompteur: number;
+  nouveauQuartier: string;
+  nouveauCamp: number;
+  nouvelIndexInitial: number;
+  dateRemplacement: string;
+  /** Motif du remplacement (ex. « Compteur défectueux »). Optionnel. */
+  motif?: string;
 }
 
 export interface CreateAbonneInput {
