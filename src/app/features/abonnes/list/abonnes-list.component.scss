@@ -106,11 +106,11 @@
   display: inline-flex;
   align-items: center;
   padding: var(--pas-1) var(--pas-2);
-  border-radius: var(--rayon-sm);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  border-radius: var(--badge-rayon);
+  font-size: var(--badge-texte);
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
   border: 1px solid transparent;
 
   &--actif {
