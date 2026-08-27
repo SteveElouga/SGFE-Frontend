@@ -170,20 +170,18 @@
               </div>
             </app-bottom-sheet>
 
-            <!-- Historique des tarifs (aucune API dédiée — lecture partielle) -->
-            <div class="hist-head">
-              {{ 'CONFIGURATION.TARIF_HISTORIQUE' | translate }}
-              <span class="coming-soon">{{ 'CONFIGURATION.COMING_SOON' | translate }}</span>
-            </div>
-            <div class="hist-list">
-              @if (tarifActuel(); as t) {
+            <!-- Le tarif en vigueur, sans promesse d'historique : la gateway
+                 n'expose pas d'API d'historique des tarifs. Annoncer une
+                 fonctionnalité absente sous un badge « À VENIR » est du décor
+                 dans un écran d'administration. -->
+            @if (tarifActuel(); as t) {
+              <div class="hist-list">
                 <div class="hist-row hist-row--active">
                   <span>{{ t.prixM3 | number:'1.0-0' }} FCFA/m³ — {{ 'CONFIGURATION.TARIF_ACTIF' | translate }}</span>
                   <span class="hist-row__meta">{{ 'CONFIGURATION.DEPUIS' | translate }} {{ t.dateEffet | date:'dd/MM/yyyy' }}</span>
                 </div>
-              }
-              <div class="hist-row hist-row--muted">{{ 'CONFIGURATION.TARIF_HISTORIQUE_EMPTY' | translate }}</div>
-            </div>
+              </div>
+            }
           </section>
         </div>
       }

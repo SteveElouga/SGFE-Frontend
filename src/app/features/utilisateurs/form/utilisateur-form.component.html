@@ -61,7 +61,7 @@
               [fluid]="true"
               autocomplete="tel"
               placeholder="612345678"
-              aria-label="Numéro de téléphone"
+              [attr.aria-label]="'SET_PASSWORD.CHAMP_TEL' | translate"
               inputmode="numeric"
               maxlength="9"
               [invalid]="phone().trim().length > 0 && !isPhoneValid()"

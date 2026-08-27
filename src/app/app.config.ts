@@ -9,7 +9,15 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { LOCALE_ID } from '@angular/core';
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
 import { provideTranslateService } from '@ngx-translate/core';
+
+// Sans locale enregistrée, les pipes `number`, `date` et `percent` formatent en
+// anglais : « 1,234.5 » là où l'application affiche des montants en FCFA et des
+// index de compteur. Le français est la langue de référence (PRODUCT.md § 4).
+registerLocaleData(localeFr, 'fr');
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { providePrimeNG } from 'primeng/config';
 
@@ -61,6 +69,7 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    { provide: LOCALE_ID, useValue: 'fr' },
     ...provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
     ...provideTranslateHttpLoader({ prefix: '/i18n/' }),
   ],

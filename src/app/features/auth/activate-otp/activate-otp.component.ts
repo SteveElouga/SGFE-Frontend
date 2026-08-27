@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
@@ -20,6 +21,7 @@ const OTP_VALIDITY_SECONDS = 600; // 10 minutes
 @Component({
   selector: 'app-activate-otp',
   imports: [
+    TranslatePipe,
     RouterLink,
     FormsModule,
     AuthBrandPanelComponent,

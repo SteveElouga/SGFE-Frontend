@@ -1,8 +1,8 @@
 <div class="auth-layout">
   <app-auth-brand-panel>
     <h1>
-      Vérifiez<br />
-      <strong>votre identité</strong>
+      {{ 'ACTIVATION.HERO_1' | translate }}<br />
+      <strong>{{ 'ACTIVATION.HERO_2' | translate }}</strong>
     </h1>
     <div class="auth-brand__divider"></div>
     <div class="otp-brand-card">
@@ -11,45 +11,45 @@
         <path d="M9 10c.5 3.2 3.2 5.9 6.4 6.4l1.6-1.6-2.4-1.6-1.3.6a7 7 0 01-2.3-2.3l.6-1.3L10 7.6 9 10z" fill="#0e9f6e"/>
       </svg>
       <div>
-        <div class="otp-brand-card__title">Code envoyé par WhatsApp</div>
-        <div class="otp-brand-card__desc">Nous avons envoyé un code à 6 chiffres sur le WhatsApp associé à votre compte. Il est valable 10 minutes.</div>
+        <div class="otp-brand-card__title">{{ 'ACTIVATION.CARTE_TITRE' | translate }}</div>
+        <div class="otp-brand-card__desc">{{ 'ACTIVATION.CARTE_DESC' | translate }}</div>
       </div>
     </div>
   </app-auth-brand-panel>
 
-  <app-auth-mobile-nav title="Activation du compte" backTo="/login" />
+  <app-auth-mobile-nav [title]="'ACTIVATION.NAV' | translate" backTo="/login" />
 
   <div class="auth-screen otp-screen">
     <div class="auth-screen__panel">
 
       @if (!submitted()) {
-        <a routerLink="/login" class="otp-back-link">Retour à la <span>connexion</span></a>
+        <a routerLink="/login" class="otp-back-link">{{ 'ACTIVATION.RETOUR' | translate }} <span>{{ 'ACTIVATION.RETOUR_CIBLE' | translate }}</span></a>
 
         <form class="auth-screen__form" (ngSubmit)="onSubmit()">
-          <h2>Activer votre compte</h2>
+          <h2>{{ 'ACTIVATION.TITRE' | translate }}</h2>
           <p class="auth-screen__subtitle">
             @if (hasPhoneParam) {
-              Saisissez le code reçu par WhatsApp au <strong>{{ maskedPhone() }}</strong>
+              {{ 'ACTIVATION.SOUS_TITRE_TEL' | translate }} <strong>{{ maskedPhone() }}</strong>
             } @else {
-              Entrez votre numéro WhatsApp et le code à 6 chiffres envoyé lors de la création de votre compte.
+              {{ 'ACTIVATION.SOUS_TITRE' | translate }}
             }
           </p>
 
           @if (!hasPhoneParam) {
-            <app-auth-field label="Numéro WhatsApp *">
+            <app-auth-field [label]="'ACTIVATION.CHAMP_TEL' | translate">
               <app-auth-phone-input inputId="activate-phone" [(value)]="phone" />
             </app-auth-field>
           }
 
-          <app-auth-field label="Code de vérification">
+          <app-auth-field [label]="'ACTIVATION.CHAMP_CODE' | translate">
             <app-auth-otp-code-input inputId="activate-otp" [(value)]="otpCode" />
           </app-auth-field>
 
           <app-auth-otp-resend
             [cooldownDisplay]="cooldownDisplay()"
             [loading]="loading()"
-            countdownPrefix="Code valable encore"
-            resendLabel="Renvoyer le code par WhatsApp"
+            [countdownPrefix]="'ACTIVATION.COMPTE_A_REBOURS' | translate"
+            [resendLabel]="'ACTIVATION.RENVOYER' | translate"
             (resend)="onResend()"
           />
 
@@ -63,7 +63,7 @@
           <app-auth-error-message [text]="errorMessage()" />
 
           <app-auth-submit-button
-            label="Activer mon compte"
+            [label]="'ACTIVATION.BOUTON' | translate"
             icon="pi pi-check"
             [loading]="loading()"
             [disabled]="!canSubmit()"
@@ -71,15 +71,14 @@
         </form>
       } @else {
         <div class="auth-screen__success">
-          <app-auth-success-header title="Compte activé !" />
+          <app-auth-success-header [title]="'ACTIVATION.SUCCES_TITRE' | translate" />
           <div class="auth-screen__success-box">
-            <p class="auth-screen__success-lead">Votre mot de passe a bien été défini.</p>
+            <p class="auth-screen__success-lead">{{ 'ACTIVATION.SUCCES_LEAD' | translate }}</p>
             <p class="auth-screen__success-detail">
-              Vous pouvez maintenant vous connecter avec votre identifiant et votre nouveau mot de
-              passe.
+              {{ 'ACTIVATION.SUCCES_DETAIL' | translate }}
             </p>
             <div class="auth-screen__success-actions">
-              <a class="auth-screen__gmail-btn" routerLink="/login">Se connecter</a>
+              <a class="auth-screen__gmail-btn" routerLink="/login">{{ 'AUTH.SUBMIT' | translate }}</a>
             </div>
           </div>
         </div>

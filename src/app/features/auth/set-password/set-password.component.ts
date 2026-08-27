@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,6 +27,7 @@ const ROLE_META: Record<string, RoleMeta> = {
 
 @Component({
   imports: [
+    TranslatePipe,
     FormsModule,
     RouterLink,
     InputTextModule,

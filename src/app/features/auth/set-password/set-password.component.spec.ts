@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideTranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { of, throwError } from 'rxjs';
@@ -11,6 +12,7 @@ describe('SetPasswordComponent', () => {
     TestBed.configureTestingModule({
       imports: [SetPasswordComponent],
       providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         provideRouter([]),
         { provide: Apollo, useValue: { mutate: mutateSpy } },
         {

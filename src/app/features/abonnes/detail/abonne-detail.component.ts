@@ -8,7 +8,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { QueryRef } from 'apollo-angular';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -32,6 +32,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 
 @Component({
   imports: [
+    DecimalPipe,
     NomAbonnePipe,
     DatePipe,
     TranslatePipe,
