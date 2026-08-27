@@ -12,6 +12,14 @@ export interface EspaceAbonneFacture {
   date_limite_paiement: string;
   solde_restant: number;
   montant_paye: number;
+  /**
+   * `CONSOMMATION` (issue d'un relevé) ou `REGULARISATION` (dette déclarée à
+   * la main, antérieure à l'application). Sans elle, une régularisation
+   * s'affiche comme une facture d'eau à qui il manquerait son index.
+   */
+  nature?: string;
+  /** Justification d'une régularisation — remplace le relevé absent. */
+  motif?: string;
 }
 
 /** Réponse de `GET /espace-abonne/<token>/`. */

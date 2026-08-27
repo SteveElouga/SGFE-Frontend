@@ -1333,7 +1333,18 @@
     "ERR_SERVER_TITLE": "Service temporarily unavailable",
     "ERR_SERVER_DESC": "Your invoices could not be loaded. Please try again in a moment.",
     "RETRY": "Retry",
-    "FOOTER": "SGFE · Secure access to your water invoices"
+    "FOOTER": "SGFE · Secure access to your water invoices",
+    "RIEN_ECHU": "Nothing overdue yet — due by {{ date }}",
+    "DONT_ECHU": "Including {{ montant }} overdue for {{ n }} day(s)",
+    "REGULARISATION": "Adjustment",
+    "RETARD_DEPUIS": "Overdue for {{ n }} day(s)",
+    "ECHEANCE_PROCHE": "Due in {{ n }} day(s)",
+    "BADGE": {
+      "REGLEE": "Paid",
+      "PARTIELLE": "Partial",
+      "EN_RETARD": "Overdue",
+      "A_VENIR": "Due"
+    }
   },
   "APP": {
     "NAME": "SGFE",

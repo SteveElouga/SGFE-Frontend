@@ -1333,7 +1333,18 @@
     "ERR_SERVER_TITLE": "Service momentanément indisponible",
     "ERR_SERVER_DESC": "Vos factures n'ont pas pu être chargées. Merci de réessayer dans un instant.",
     "RETRY": "Réessayer",
-    "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau"
+    "FOOTER": "SGFE · Consultation sécurisée de vos factures d'eau",
+    "RIEN_ECHU": "Rien n'est encore en retard — à régler avant le {{ date }}",
+    "DONT_ECHU": "Dont {{ montant }} en retard depuis {{ n }} jour(s)",
+    "REGULARISATION": "Régularisation",
+    "RETARD_DEPUIS": "En retard depuis {{ n }} jour(s)",
+    "ECHEANCE_PROCHE": "À régler dans {{ n }} jour(s)",
+    "BADGE": {
+      "REGLEE": "Réglée",
+      "PARTIELLE": "Partielle",
+      "EN_RETARD": "En retard",
+      "A_VENIR": "À régler"
+    }
   },
   "APP": {
     "NAME": "SGFE",
