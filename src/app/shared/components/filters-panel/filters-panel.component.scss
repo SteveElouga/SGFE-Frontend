@@ -351,3 +351,16 @@ $fp-chip-h: 44px;
 
   i { font-size: 12px; }
 }
+
+// Nom du groupe de chips — repère, pas titre : il se lit sans concurrencer
+// les pastilles. Affiché seulement quand plusieurs groupes coexistent.
+.fp__chipset-nom {
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: var(--pas-1);
+}

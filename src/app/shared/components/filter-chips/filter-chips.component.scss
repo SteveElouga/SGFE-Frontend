@@ -67,3 +67,22 @@
 
   .fchips__count { font-size: 11px; }
 }
+
+// ── Groupe nommé ────────────────────────────────────────────────────────────
+// L'étiquette se lit sans effort mais ne concurrence pas les pastilles : c'est
+// un repère, pas un titre.
+.fchips-groupe {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-3);
+  flex-wrap: wrap;
+}
+
+.fchips__legende {
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--encre-3);
+  flex-shrink: 0;
+}

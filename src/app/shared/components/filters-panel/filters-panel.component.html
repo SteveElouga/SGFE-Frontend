@@ -62,6 +62,14 @@
       @for (f of chipFilters(); track f.key) {
         <div class="fp__chipset" [class]="visibilityClass(f)"
              role="radiogroup" [attr.aria-label]="f.label | translate">
+          <!-- Le nom du groupe n'apparaît que si plusieurs rangées coexistent.
+               Sur /utilisateurs, l'une filtre le rôle et l'autre le statut :
+               elles s'ouvraient sur deux pastilles « Tous » identiques, sans
+               rien pour les distinguer à l'œil. Le lecteur d'écran, lui, avait
+               déjà le nom par l'aria-label du radiogroup. -->
+          @if (chipFilters().length > 1) {
+            <span class="fp__chipset-nom" aria-hidden="true">{{ f.label | translate }}</span>
+          }
           @if (f.clearable !== false) {
             <button
               type="button"

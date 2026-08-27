@@ -29,7 +29,16 @@ export interface FilterChip {
   imports: [TranslatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="fchips" role="tablist">
+    <div class="fchips-groupe">
+      @if (groupLabel()) {
+        <span class="fchips__legende" [id]="legendeId">{{ groupLabel()! | translate }}</span>
+      }
+      <div
+        class="fchips"
+        role="tablist"
+        [attr.aria-labelledby]="groupLabel() ? legendeId : null"
+        [attr.aria-label]="groupLabel() ? null : (allLabel() | translate)"
+      >
       <button
         type="button"
         class="fchips__chip"
@@ -59,6 +68,7 @@ export interface FilterChip {
           }
         </button>
       }
+      </div>
     </div>
   `,
   styleUrl: './filter-chips.component.scss',
@@ -70,6 +80,24 @@ export class FilterChipsComponent {
   readonly value = input<string | null>(null);
   /** Compteur de la pilule « Tous » (`null` pour le masquer). */
   readonly total = input<number | null>(null);
+  /**
+   * Nom du groupe de filtres — clé de traduction.
+   *
+   * Sans lui, deux rangées de chips empilées sont indiscernables : sur
+   * `/utilisateurs`, l'une filtre le rôle et l'autre le statut, et toutes deux
+   * s'ouvraient sur une pastille « Tous » identique. Rien ne le disait, ni à
+   * l'œil, ni au lecteur d'écran — le `role="tablist"` n'avait aucun nom
+   * accessible.
+   *
+   * L'étiquette est rendue visible ET rattachée au groupe par
+   * `aria-labelledby`. Elle reste facultative : un écran à une seule rangée
+   * n'a rien à nommer.
+   */
+  readonly groupLabel = input<string | null>(null);
+
+  /** Identifiant stable pour lier l'étiquette au groupe. */
+  private static compteur = 0;
+  protected readonly legendeId = `fchips-${(FilterChipsComponent.compteur += 1)}`;
   /** Clé i18n du libellé « Tous ». */
   readonly allLabel = input('COMMON.ALL');
   /** Traiter `opt.label` comme des clés i18n. */

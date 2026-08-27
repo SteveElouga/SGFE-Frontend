@@ -273,7 +273,7 @@
     "DESACTIVER_CONFIRM": "The user will no longer be able to log in. This action is reversible.",
     "SUCCESS_DESACTIVATION": "Account deactivated",
     "SUCCESS_DESACTIVATION_DETAIL": "{{ username }} can no longer log in.",
-    "FILTRE_ROLE": "Filter by role",
+    "FILTRE_ROLE": "Role",
     "STATUT": {
       "TOUS": "All statuses",
       "ACTIF": "Active",
