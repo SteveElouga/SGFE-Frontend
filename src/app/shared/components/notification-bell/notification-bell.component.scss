@@ -65,26 +65,36 @@
   box-shadow: var(--ombre-portee);
   overflow: hidden;
 
-  // État fermé : décalé vers la droite + transparent, glisse à l'ouverture.
+  // Le panneau glissait depuis la droite avec un `transform-origin: top right`
+  // déclaré juste en dessous — une origine INERTE : une translation ne la
+  // regarde pas. Le panneau semblait donc arriver d'ailleurs plutôt que de
+  // naître de la cloche qui l'a appelé.
+  //
+  // Il grandit maintenant depuis son déclencheur, coin haut-droit. Et pas
+  // depuis `scale(0)` : rien dans le monde réel n'apparaît à partir de rien.
+  //
+  // La durée passe de 300 à 200 ms. Un panneau de notifications s'ouvre des
+  // dizaines de fois par jour ; à cette fréquence la règle est de réduire, et
+  // 300 ms se sentent comme une attente dès le troisième clic.
   opacity: 0;
   visibility: hidden;
-  transform: translateX(20px);
+  transform: scale(0.96);
   transform-origin: top right;
   pointer-events: none;
   will-change: transform, opacity;
   transition:
-    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.22s ease,
-    visibility 0s linear 0.3s;
+    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.16s ease,
+    visibility 0s linear 0.2s;
 
   &--open {
     opacity: 1;
     visibility: visible;
-    transform: translateX(0);
+    transform: scale(1);
     pointer-events: auto;
     transition:
-      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.22s ease,
+      transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.16s ease,
       visibility 0s;
   }
 }
