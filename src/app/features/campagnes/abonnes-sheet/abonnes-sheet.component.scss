@@ -99,7 +99,7 @@
   }
 
   &__count {
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 700;
     color: var(--encre-3);
     background: var(--fond);

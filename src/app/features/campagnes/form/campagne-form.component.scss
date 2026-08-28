@@ -115,7 +115,7 @@
 }
 
 .form-field__hint {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
 }
 
@@ -214,7 +214,7 @@
 .agent-assign__label {
   display: block;
   margin: var(--pas-2) 0 var(--pas-2);
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.4px;
   text-transform: uppercase;

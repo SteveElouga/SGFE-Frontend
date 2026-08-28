@@ -507,7 +507,7 @@
     background: linear-gradient(180deg, var(--bleu-riviere-clair), var(--action));  // Bleu Rivière Clair → Rivière
     border-radius: 4px 4px 0 0;
   }
-  &__label { font-size: 10px; color: var(--encre-3); margin-top: var(--pas-2); text-transform: capitalize; }
+  &__label { font-size: var(--texte-xs); color: var(--encre-3); margin-top: var(--pas-2); text-transform: capitalize; }
 }
 
 // ── Placeholder onglets ───────────────────────────────────────────────────────
@@ -579,7 +579,7 @@
 }
 
 .hist-current__label {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -587,7 +587,7 @@
 }
 
 .hist-current__badge {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-xs);
@@ -653,7 +653,7 @@
 .hist-section-count {
   background: var(--filet);
   color: var(--encre-2);
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   padding: 1px var(--pas-2);
   border-radius: var(--rayon-md);
@@ -742,7 +742,7 @@
 }
 
 .hist-meter__tag {
-  font-size: 10px;                                      // micro token DESIGN.md
+  font-size: var(--texte-xs);                                      // micro token DESIGN.md
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -766,7 +766,7 @@
 }
 
 .hist-meter__sub {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   font-variant-numeric: tabular-nums;
 }

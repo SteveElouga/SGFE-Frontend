@@ -205,7 +205,7 @@
   text-overflow: ellipsis;
 }
 .agent-sub {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   margin-top: 1px;
 }

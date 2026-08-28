@@ -214,7 +214,7 @@
   }
 
   &__label {
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
     color: var(--encre-3);

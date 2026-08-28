@@ -261,7 +261,7 @@
   }
   &__id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
   &__nom { font-size: 13px; font-weight: 700; color: var(--encre); }
-  &__ref { margin-top: 1px; font-size: 10px; color: var(--encre-3); }
+  &__ref { margin-top: 1px; font-size: var(--texte-xs); color: var(--encre-3); }
   &__solde { font-size: 16px; font-weight: 800; color: var(--danger-encre); flex-shrink: 0; }
 
   // Pied : badge d'étape + bouton « + Paiement » outline bleu

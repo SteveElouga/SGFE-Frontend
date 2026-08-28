@@ -151,7 +151,7 @@
   padding: var(--pas-3) var(--pas-3);
 
   &__label {
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     color: var(--encre-3);
     letter-spacing: 0.4px;
@@ -582,7 +582,7 @@
   }
 
   // MB-05 : table de calcul plus compacte sur mobile
-  .calc-table__head > div { padding: var(--pas-2) var(--pas-2); font-size: 10px; }   // 9→10 (ramp `micro`)
+  .calc-table__head > div { padding: var(--pas-2) var(--pas-2); font-size: var(--texte-xs); }   // 9→10 (ramp `micro`)
   .calc-val { padding: var(--pas-2) var(--pas-2); }
 }
 
@@ -606,7 +606,7 @@
     &--paid { border-color: var(--succes); box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.08); }
 
     &__label {
-      font-size: 10px;
+      font-size: var(--texte-xs);
       font-weight: 500;
       color: var(--encre-3);
       text-transform: uppercase;
@@ -700,7 +700,7 @@
 
     &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     &__mode { font-size: 12px; font-weight: 600; color: var(--encre); }
-    &__meta { font-size: 10px; color: var(--encre-3); }
+    &__meta { font-size: var(--texte-xs); color: var(--encre-3); }
     &__montant { font-size: 13px; font-weight: 700; color: var(--succes-encre); flex-shrink: 0; }
 
     &__reste {

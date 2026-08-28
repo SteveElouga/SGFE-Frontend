@@ -179,7 +179,7 @@
 }
 
 .uedit-role-badge {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   border-radius: var(--rayon-lg);
   padding: var(--pas-1) var(--pas-2);
@@ -217,7 +217,7 @@
   }
 
   &__note {
-    font-size: 10px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     margin-top: var(--pas-1);
   }
