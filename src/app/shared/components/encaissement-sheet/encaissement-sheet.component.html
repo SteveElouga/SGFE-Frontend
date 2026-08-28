@@ -93,7 +93,7 @@
               <span class="enc-imput__facture">{{ p.numeroFacture }}</span>
               @if (p.joursDeRetard > 0) {
                 <span class="enc-imput__age">
-                  {{ 'PAIEMENTS.ENCAISSEMENT.RETARD' | translate: { n: p.joursDeRetard } }}
+                  {{ 'PAIEMENTS.ENCAISSEMENT.RETARD' | pluriel:p.joursDeRetard:{ n: p.joursDeRetard } }}
                 </span>
               }
             </li>

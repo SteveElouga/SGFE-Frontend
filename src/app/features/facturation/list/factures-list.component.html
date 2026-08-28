@@ -196,7 +196,7 @@
         </div>
         <div>
           <h3 id="wa-bulk-sheet-title" class="wa-bulk-body__title">
-            {{ 'FACTURATION.WA_BULK_TITLE' | translate:{ count: facturesAEnvoyer().length } }}
+            {{ 'FACTURATION.WA_BULK_TITLE' | pluriel:facturesAEnvoyer().length:{ count: facturesAEnvoyer().length } }}
           </h3>
           <p class="wa-bulk-body__desc">{{ 'FACTURATION.WA_BULK_DESC' | translate }}</p>
         </div>
@@ -239,7 +239,7 @@
           } @else {
             <i class="pi pi-whatsapp" aria-hidden="true"></i>
           }
-          {{ 'FACTURATION.WA_BULK_CONFIRM' | translate:{ count: facturesAEnvoyer().length } }}
+          {{ 'FACTURATION.WA_BULK_CONFIRM' | pluriel:facturesAEnvoyer().length:{ count: facturesAEnvoyer().length } }}
         </button>
       </div>
     </div>

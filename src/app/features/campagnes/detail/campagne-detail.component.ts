@@ -42,10 +42,11 @@ import { AbonnesSheetComponent } from '../abonnes-sheet/abonnes-sheet.component'
 import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
 
 @Component({
   selector: 'app-campagne-detail',
-  imports: [
+  imports: [PlurielPipe, 
     DatePipe,
     DecimalPipe,
     LowerCasePipe,
