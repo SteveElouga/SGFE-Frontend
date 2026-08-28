@@ -15,7 +15,7 @@
 
   @if (loading()) {
     <div class="detail-loading">
-      <i class="pi pi-spin pi-spinner"></i>
+      <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
     </div>
   } @else if (facture(); as f) {
 
@@ -57,7 +57,7 @@
           </div>
           @if (f.numeroMobileMoney) {
             <div class="detail-card__mm">
-              <i class="pi pi-mobile"></i>
+              <i aria-hidden="true" class="pi pi-mobile"></i>
               {{ 'FACTURATION.DETAIL.MOBILE_MONEY' | translate }} : {{ f.numeroMobileMoney }}
             </div>
           }
@@ -72,14 +72,14 @@
               [disabled]="pdfLoading()"
             >
               @if (pdfLoading()) {
-                <i class="pi pi-spin pi-spinner"></i>
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
               } @else {
-                <i class="pi pi-file-pdf"></i>
+                <i aria-hidden="true" class="pi pi-file-pdf"></i>
               }
               {{ 'FACTURATION.DETAIL.BTN_PDF' | translate }}
             </button>
             <button class="btn btn--dark" (click)="envoyerWhatsapp()">
-              <i class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
+              <i aria-hidden="true" class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
             </button>
             <!-- Discret et à part : effacer une dette est le geste le plus lourd
                  de l'écran, il ne doit pas se trouver sous le doigt de qui
@@ -87,7 +87,7 @@
                  on n'annule pas deux fois. -->
             @if (f.statut !== 'ANNULEE' && estAdmin()) {
               <button class="btn btn--danger-ghost" (click)="annulerSheetVisible.set(true)">
-                <i class="pi pi-times-circle"></i>
+                <i aria-hidden="true" class="pi pi-times-circle"></i>
                 {{ 'FACTURATION.ANNULATION.ACTION' | translate }}
               </button>
             }
@@ -154,7 +154,7 @@
           <div class="calc-op-head" aria-hidden="true"></div>
           <div class="calc-table__head-help">
             {{ 'FACTURATION.DETAIL.TARIF' | translate }}
-            <i
+            <i aria-hidden="true"
               class="pi pi-info-circle calc-help"
               [appTooltip]="'FACTURATION.DETAIL.TARIF_TOOLTIP' | translate"
               tabindex="0"
@@ -288,7 +288,7 @@
         <div class="mpaiements">
           @for (p of paiements(); track p.paiementId) {
             <div class="mpaiements__row">
-              <span class="mpaiements__check" aria-hidden="true"><i class="pi pi-check"></i></span>
+              <span class="mpaiements__check" aria-hidden="true"><i aria-hidden="true" class="pi pi-check"></i></span>
               <span class="mpaiements__body">
                 <span class="mpaiements__mode">{{ 'FACTURATION.MODE.' + p.modePaiement | translate }}</span>
                 <span class="mpaiements__meta">
@@ -371,7 +371,7 @@
         [disabled]="pdfLoading()"
         [attr.aria-label]="'FACTURATION.DETAIL.BTN_PDF' | translate"
       >
-        @if (pdfLoading()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-file-pdf"></i> }
+        @if (pdfLoading()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> } @else { <i aria-hidden="true" class="pi pi-file-pdf"></i> }
       </button>
       <button
         type="button"
@@ -379,7 +379,7 @@
         (click)="envoyerWhatsapp()"
         [attr.aria-label]="waButtonLabel()"
       >
-        <i class="pi pi-whatsapp"></i>
+        <i aria-hidden="true" class="pi pi-whatsapp"></i>
       </button>
     </div>
 
@@ -390,7 +390,7 @@
          ni à se déclencher d'un seul clic. -->
     <details class="carte detail-card detail-card--correction correction">
       <summary class="correction-summary">
-        <span class="correction-head__icon" aria-hidden="true"><i class="pi pi-pencil"></i></span>
+        <span class="correction-head__icon" aria-hidden="true"><i aria-hidden="true" class="pi pi-pencil"></i></span>
         <span class="correction-summary__label">
           {{ 'FACTURATION.DETAIL.CORRIGER_STATUT_TITLE' | translate }}
         </span>
@@ -416,9 +416,9 @@
           [disabled]="!newStatut() || newStatut() === f.statut || changingStatut() || statutCorrectionIncoherent()"
           (click)="corrigerStatut()"
         >
-          @if (changingStatut()) { <i class="pi pi-spin pi-spinner"></i> }
-          @else if (confirmationCorrection()) { <i class="pi pi-exclamation-triangle"></i> }
-          @else { <i class="pi pi-check"></i> }
+          @if (changingStatut()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
+          @else if (confirmationCorrection()) { <i aria-hidden="true" class="pi pi-exclamation-triangle"></i> }
+          @else { <i aria-hidden="true" class="pi pi-check"></i> }
           {{ (confirmationCorrection()
                 ? 'FACTURATION.DETAIL.BTN_CONFIRMER_CORRECTION'
                 : 'FACTURATION.DETAIL.BTN_CORRIGER_STATUT') | translate }}
@@ -434,7 +434,7 @@
       }
       @if (statutCorrectionIncoherent()) {
         <p class="correction-warning">
-          <i class="pi pi-exclamation-triangle"></i>
+          <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
           {{ statutIncoherentMsg() }}
         </p>
       }
@@ -455,7 +455,7 @@
                   }
                   @if (e.erreur) {
                     <button type="button" class="journal-entry__retry" (click)="rejouerEnvoi(e.envoiId)">
-                      <i class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
+                      <i aria-hidden="true" class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
                     </button>
                   }
                 </span>

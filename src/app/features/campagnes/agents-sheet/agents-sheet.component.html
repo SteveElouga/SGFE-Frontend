@@ -20,18 +20,22 @@
   </div>
 
   <div class="agents-search">
-    <i class="pi pi-search"></i>
+    <i aria-hidden="true" class="pi pi-search"></i>
+    <!-- Un placeholder n'est pas une étiquette : il disparaît dès la première
+         frappe, et les lecteurs d'écran ne le traitent pas tous de la même
+         façon. Le champ porte donc son nom, en plus de son indication. -->
     <input
-      type="text"
+      type="search"
       [ngModel]="search()"
       (ngModelChange)="onSearch($event)"
       [placeholder]="'CAMPAGNES.AGENTS_SHEET.SEARCH' | translate"
+      [attr.aria-label]="'CAMPAGNES.AGENTS_SHEET.SEARCH' | translate"
     />
   </div>
 
   <div class="agents-list">
     @if (loading()) {
-      <div class="agents-loading"><i class="pi pi-spin pi-spinner"></i></div>
+      <div class="agents-loading"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
     } @else {
       @for (a of filtered(); track a.id) {
         <button
@@ -57,7 +61,7 @@
             </span>
           </span>
           <span class="agent-check" [class.agent-check--on]="isSelected(a)">
-            @if (isSelected(a)) { <i class="pi pi-check"></i> }
+            @if (isSelected(a)) { <i aria-hidden="true" class="pi pi-check"></i> }
           </span>
         </button>
       } @empty {
@@ -67,7 +71,7 @@
   </div>
 
   <button type="button" class="agents-save" [disabled]="saving()" (click)="onSave()">
-    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    @if (saving()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
     {{ 'CAMPAGNES.AGENTS_SHEET.SAVE' | translate }}
   </button>
   <button type="button" class="agents-cancel" (click)="onClose()">

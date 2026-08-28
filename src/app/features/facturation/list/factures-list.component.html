@@ -7,9 +7,9 @@
       (click)="ouvrirConfirmationWhatsapp()"
     >
       @if (sendingWhatsapp()) {
-        <i class="pi pi-spin pi-spinner"></i>
+        <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
       } @else {
-        <i class="pi pi-whatsapp"></i>
+        <i aria-hidden="true" class="pi pi-whatsapp"></i>
       }
       {{ 'FACTURATION.BTN_WHATSAPP_TOUS' | translate }}
     </button>
@@ -26,7 +26,7 @@
   @if (campagne()?.genererFacturesAuto === false && factures().length === 0 && !loading()) {
     <div class="generate-banner">
       <div class="generate-banner__left">
-        <i class="pi pi-info-circle generate-banner__icon"></i>
+        <i aria-hidden="true" class="pi pi-info-circle generate-banner__icon"></i>
         <div>
           <div class="generate-banner__title">{{ 'FACTURATION.BANNER_GENERER_TITLE' | translate }}</div>
           <div class="generate-banner__sub">{{ 'FACTURATION.BANNER_GENERER_SUB' | translate }}</div>
@@ -37,7 +37,7 @@
         [disabled]="generatingFactures()"
         (click)="genererFactures()"
       >
-        @if (generatingFactures()) { <i class="pi pi-spin pi-spinner"></i> }
+        @if (generatingFactures()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
         {{ 'FACTURATION.BTN_GENERER' | translate }}
       </button>
     </div>
@@ -107,7 +107,7 @@
             <span class="solde-zero">{{ formatNumber(0) }}</span>
           } @else if (f.statut === 'IMPAYEE') {
             <span class="solde-red">{{ formatNumber(solde) }}</span>
-            <i
+            <i aria-hidden="true"
               class="pi pi-question-circle solde-estimated"
               [appTooltip]="'FACTURATION.SOLDE_ESTIMATED_TOOLTIP' | translate"
               tabindex="0"
@@ -138,12 +138,16 @@
             </button>
           }
           @if (f.statut === 'IMPAYEE') {
+            <!-- Bouton à icône seule : son nom accessible ne peut venir que
+                 d'un attribut. `title` en tenait lieu, mais en français codé en
+                 dur — invisible aux traductions — et il ne s'affiche pas au
+                 doigt. L'infobulle donne le nom aux deux publics à la fois. -->
             <button
               class="btn-action btn-action--icon"
-              title="Envoyer par WhatsApp"
+              [appTooltip]="'FACTURATION.LIST.ENVOYER_WHATSAPP' | translate"
               (click)="envoyerWhatsapp(f.factureId, $event)"
             >
-              <i class="pi pi-mobile"></i>
+              <i aria-hidden="true" class="pi pi-mobile"></i>
             </button>
           }
         </div>
@@ -188,7 +192,7 @@
     <div class="wa-bulk-body">
       <div class="wa-bulk-body__head">
         <div class="wa-bulk-body__icon" aria-hidden="true">
-          <i class="pi pi-whatsapp"></i>
+          <i aria-hidden="true" class="pi pi-whatsapp"></i>
         </div>
         <div>
           <h3 id="wa-bulk-sheet-title" class="wa-bulk-body__title">

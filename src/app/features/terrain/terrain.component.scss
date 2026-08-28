@@ -185,7 +185,10 @@
   &__sub { font-size: 11px; color: var(--attente-encre); margin-top: var(--pas-1); line-height: 1.4; }   // var(--ambre-attente) → var(--attente-encre) (meilleur contraste + adouci)
   &__body { flex: 1; min-width: 0; }
   &__retry {
-    min-height: 36px;                 // 26 → 36 (tap AAA-adjacent)
+    // 44 px, pas 36. C'est le bouton qu'un agent presse quand ses relevés ne
+    // sont pas partis — debout, dehors, souvent d'une main. « Presque » la
+    // bonne taille est exactement là où l'on rate sa cible.
+    min-height: 44px;                 // WCAG 2.5.5
     border: 1.5px solid var(--ambre-attente);
     background: var(--surface);
     border-radius: var(--rayon-md);
@@ -325,7 +328,7 @@
 .row-badge {
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -375,7 +378,7 @@
 
   &__value { font-size: 30px; font-weight: 700; line-height: 1; color: var(--encre-2); }   // var(--encre-faible) (1.9:1) → var(--encre-2) (7.1:1 sur var(--surface-douce) — critique)
   &__unit { font-size: 14px; font-weight: 500; color: var(--encre-3); &--new { font-size: 16px; font-weight: 600; color: var(--encre-2); } }  // var(--encre-faible) → var(--encre-3)
-  &__tag { margin-left: auto; font-size: 10px; font-weight: 500; color: var(--encre-2); background: var(--filet); padding: var(--pas-1) var(--pas-2); border-radius: var(--rayon-xs); align-self: center; }  // var(--encre-faible) → var(--encre-2)
+  &__tag { margin-left: auto; font-size: var(--texte-xs); font-weight: 500; color: var(--encre-2); background: var(--filet); padding: var(--pas-1) var(--pas-2); border-radius: var(--rayon-xs); align-self: center; }  // var(--encre-faible) → var(--encre-2)
   &__input {
     flex: 1;
     min-width: 0;
@@ -545,7 +548,7 @@
   padding: var(--pas-3) var(--pas-3);
   margin-bottom: var(--pas-3);
 
-  &__label { font-size: 10px; font-weight: 600; color: var(--encre-3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: var(--pas-1); }  // var(--encre-faible) → var(--encre-3)
+  &__label { font-size: var(--texte-xs); font-weight: 600; color: var(--encre-3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: var(--pas-1); }  // var(--encre-faible) → var(--encre-3)
   &__name { font-size: 14px; font-weight: 700; color: var(--encre); margin-bottom: var(--pas-1); }
   &__sub { font-size: 12px; color: var(--encre-3); }  // 11 → 12
 }

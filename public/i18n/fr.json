@@ -999,6 +999,9 @@
       "BANDEAU_TITRE": "Cette facture a été annulée",
       "BANDEAU_PAR": "par {{ par }}",
       "BANDEAU_REMPLACEE": "Voir la facture qui la remplace"
+    },
+    "LIST": {
+      "ENVOYER_WHATSAPP": "Envoyer par WhatsApp"
     }
   },
   "PAIEMENTS": {
@@ -1315,7 +1318,9 @@
     "AUJOURDHUI": "Aujourd'hui",
     "HIER": "Hier",
     "DESTINATAIRE_INCONNU": "Destinataire inconnu",
-    "FILTRE_ARIA": "Filtrer par statut"
+    "FILTRE_ARIA": "Filtrer par statut",
+    "FILTRE_LABEL": "Statut",
+    "RESULTS_HERO": "envoi"
   },
   "RAPPORTS": {
     "TITLE": "Rapports",
@@ -1469,5 +1474,14 @@
     "NOUVEAU_MDP": "Nouveau mot de passe",
     "CONFIRMER_MDP": "Confirmer le mot de passe",
     "CHAMP_TEL": "Numéro de téléphone"
+  },
+  "A11Y": {
+    "QR_WHATSAPP": "QR code de liaison WhatsApp",
+    "NAV_PRINCIPALE": "Navigation principale",
+    "FERMER_MENU": "Fermer le menu",
+    "OUVRIR_MENU": "Ouvrir le menu",
+    "CODE_OTP": "Code de vérification à six chiffres",
+    "NOTIFICATIONS": "Notifications",
+    "FERMER_NOTIFICATION": "Fermer la notification"
   }
 }

@@ -42,7 +42,7 @@ $sidebar-width:          220px;
 
 .sidebar__logo-tagline {
   display: block;
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 400;
   color: var(--encre-inverse-3);
   letter-spacing: 0.5px;
@@ -91,7 +91,7 @@ $sidebar-width:          220px;
 }
 
 .sidebar__campaign-label {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--encre-inverse-3);
   letter-spacing: 0.8px;
@@ -121,7 +121,7 @@ $sidebar-width:          220px;
 }
 
 .sidebar__campaign-stats {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-inverse-3);
   margin: var(--pas-1) 0 0;
@@ -209,7 +209,7 @@ $sidebar-width:          220px;
   height: 18px;
   background: rgba(239, 68, 68, 0.25);
   color: var(--danger-trait);
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   border-radius: var(--rayon-md);
   display: flex;
@@ -265,7 +265,7 @@ $sidebar-width:          220px;
 
 .sidebar__user-role {
   display: block;
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-inverse-3);
   margin-top: var(--pas-1);

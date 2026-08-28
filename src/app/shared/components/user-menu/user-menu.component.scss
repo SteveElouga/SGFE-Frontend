@@ -64,7 +64,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-trigger__role {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: $text-muted;
   margin-top: var(--pas-1);
@@ -73,7 +73,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-trigger__chevron {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   color: $text-muted;
   flex-shrink: 0;
   transition: transform 0.2s ease;

@@ -185,6 +185,7 @@ export class AuthService {
     );
   }
 
+  /** Même règle que pour la réinitialisation : le serveur a révoqué l'avant. */
   async activateAccount(token: string, password: string): Promise<void> {
     await firstValueFrom(
       this.apolloClient.mutate<{ activateAccount: boolean }>({
@@ -192,8 +193,18 @@ export class AuthService {
         variables: { token, password },
       }),
     );
+    this.clearSession();
   }
 
+  /**
+   * Réinitialise le mot de passe depuis un lien, puis ferme la session locale.
+   *
+   * Le serveur révoque tous les jetons émis avant le changement — c'est ce
+   * qu'attend quelqu'un qui réinitialise parce qu'il pense son compte
+   * compromis. Garder le jeton et le cache ici laisserait une application qui a
+   * l'air connectée et dont chaque requête va échouer, ce qui se lit comme une
+   * panne plutôt que comme une déconnexion.
+   */
   async resetPassword(token: string, password: string): Promise<void> {
     await firstValueFrom(
       this.apolloClient.mutate<{ resetPassword: boolean }>({
@@ -201,6 +212,7 @@ export class AuthService {
         variables: { token, password },
       }),
     );
+    this.clearSession();
   }
 
   private clearSession(): void {

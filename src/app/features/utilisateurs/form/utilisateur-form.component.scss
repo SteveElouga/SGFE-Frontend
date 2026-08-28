@@ -144,7 +144,7 @@
 .user-form__cancel {
   display: flex;
   align-items: center;
-  height: 40px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   border: 1px solid var(--filet);
@@ -166,7 +166,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  height: 40px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-5);
   background: $color-primary;
   color: var(--surface);

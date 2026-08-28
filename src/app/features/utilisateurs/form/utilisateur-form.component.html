@@ -23,7 +23,7 @@
 
     @if (loadingUser()) {
       <div class="user-form-page__loading">
-        <i class="pi pi-spinner pi-spin"></i>
+        <i aria-hidden="true" class="pi pi-spinner pi-spin"></i>
         {{ 'UTILISATEURS.FORM.LOADING' | translate }}
       </div>
     } @else {
@@ -38,7 +38,6 @@
               [fluid]="true"
               autocomplete="off"
               placeholder="jean.dupont"
-              aria-label="Nom d'utilisateur"
               [ngModel]="username()"
               (ngModelChange)="username.set($event)"
               name="username"
@@ -85,7 +84,6 @@
             optionValue="value"
             [fluid]="true"
             [placeholder]="'UTILISATEURS.FORM.ROLE_PLACEHOLDER' | translate"
-            aria-label="Rôle"
             [ngModel]="role()"
             (ngModelChange)="role.set($event)"
             name="role"
@@ -101,7 +99,6 @@
               [fluid]="true"
               autocomplete="email"
               placeholder="admin@regie.ci"
-              aria-label="Email"
               [ngModel]="email()"
               (ngModelChange)="email.set($event)"
               name="email"
@@ -111,7 +108,7 @@
 
         @if (errorMessage()) {
           <div class="user-form__error">
-            <i class="pi pi-exclamation-circle"></i>
+            <i aria-hidden="true" class="pi pi-exclamation-circle"></i>
             {{ errorMessage() }}
           </div>
         }
@@ -124,9 +121,9 @@
             [disabled]="!isFormValid()"
           >
             @if (loading()) {
-              <i class="pi pi-spinner pi-spin"></i>
+              <i aria-hidden="true" class="pi pi-spinner pi-spin"></i>
             } @else {
-              <i class="pi pi-check"></i>
+              <i aria-hidden="true" class="pi pi-check"></i>
             }
             {{ mode() === 'create' ? ('UTILISATEURS.FORM.SUBMIT_CREATE' | translate) : ('UTILISATEURS.FORM.SUBMIT_EDIT' | translate) }}
           </button>

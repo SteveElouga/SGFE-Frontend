@@ -10,7 +10,7 @@
     aria-haspopup="true"
     [attr.aria-expanded]="open()"
   >
-    <i class="pi pi-bell"></i>
+    <i aria-hidden="true" class="pi pi-bell"></i>
     @if (unreadCount() > 0) {
       <span class="nb__count">{{ unreadCount() }}</span>
     }
@@ -43,7 +43,7 @@
             [attr.aria-label]="'COMMON.CLOSE' | translate"
             (click)="close()"
           >
-            <i class="pi pi-times"></i>
+            <i aria-hidden="true" class="pi pi-times"></i>
           </button>
         </div>
       </div>
@@ -73,7 +73,7 @@
             [class.nb__item--unread]="!n.read"
             (click)="onItemClick(n.id)"
           >
-            <span class="nb__icon nb__icon--{{ n.tone }}"><i class="pi {{ n.icon }}"></i></span>
+            <span class="nb__icon nb__icon--{{ n.tone }}"><i aria-hidden="true" class="pi {{ n.icon }}"></i></span>
             <span class="nb__body">
               <span class="nb__item-title">{{ n.title }}</span>
               <span class="nb__item-msg">{{ n.message }}</span>

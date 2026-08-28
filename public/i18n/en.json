@@ -999,6 +999,9 @@
       "BANDEAU_TITRE": "This invoice has been cancelled",
       "BANDEAU_PAR": "by {{ par }}",
       "BANDEAU_REMPLACEE": "See the invoice that replaces it"
+    },
+    "LIST": {
+      "ENVOYER_WHATSAPP": "Send via WhatsApp"
     }
   },
   "PAIEMENTS": {
@@ -1315,7 +1318,9 @@
     "AUJOURDHUI": "Today",
     "HIER": "Yesterday",
     "DESTINATAIRE_INCONNU": "Unknown recipient",
-    "FILTRE_ARIA": "Filter by status"
+    "FILTRE_ARIA": "Filter by status",
+    "FILTRE_LABEL": "Status",
+    "RESULTS_HERO": "message"
   },
   "RAPPORTS": {
     "TITLE": "Reports",
@@ -1469,5 +1474,14 @@
     "NOUVEAU_MDP": "New password",
     "CONFIRMER_MDP": "Confirm the password",
     "CHAMP_TEL": "Phone number"
+  },
+  "A11Y": {
+    "QR_WHATSAPP": "WhatsApp pairing QR code",
+    "NAV_PRINCIPALE": "Main navigation",
+    "FERMER_MENU": "Close menu",
+    "OUVRIR_MENU": "Open menu",
+    "CODE_OTP": "Six-digit verification code",
+    "NOTIFICATIONS": "Notifications",
+    "FERMER_NOTIFICATION": "Dismiss notification"
   }
 }

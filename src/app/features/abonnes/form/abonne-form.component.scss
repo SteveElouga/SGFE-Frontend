@@ -121,13 +121,13 @@
 }
 
 .af-label__sub {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 400;
   color: var(--encre-3);
 }
 
 .af-field__hint {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   margin-top: 1px;
 }
@@ -219,7 +219,7 @@
 }
 
 .af-readonly__badge {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-3);
   background: var(--fond);

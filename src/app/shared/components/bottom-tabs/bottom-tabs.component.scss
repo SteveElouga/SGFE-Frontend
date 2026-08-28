@@ -53,7 +53,7 @@
 .tabs__icon { font-size: 19px; }
 
 .tabs__label {
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   max-width: 100%;
   white-space: nowrap;
@@ -67,13 +67,16 @@
   position: absolute;
   top: -2px;
   right: 6px;
-  min-width: 16px;
-  height: 16px;
+  // La pastille grandit avec son chiffre : à 9 px, un compteur de notifications
+  // se devine plus qu'il ne se lit, et c'est le seul endroit de la barre où un
+  // nombre porte une information qu'on doit pouvoir saisir d'un coup d'œil.
+  min-width: 18px;
+  height: 18px;
   padding: 0 var(--pas-1);
   border-radius: var(--rayon-md);
   background: var(--danger);
   color: var(--surface);
-  font-size: 9px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   display: flex;
   align-items: center;

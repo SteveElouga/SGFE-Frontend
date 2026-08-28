@@ -73,7 +73,7 @@
             [appTooltip]="('COMMON.EDIT' | translate) + ' ' + user.username"
             (click)="editUser(user)"
           >
-            <i class="pi pi-pencil"></i>
+            <i aria-hidden="true" class="pi pi-pencil"></i>
           </button>
           @if (user.isActive) {
             <button
@@ -83,7 +83,7 @@
               [tooltipPosition]="'left'"
               (click)="confirmDeactivate(user)"
             >
-              <i class="pi pi-ban"></i>
+              <i aria-hidden="true" class="pi pi-ban"></i>
             </button>
           } @else {
             <button
@@ -93,7 +93,7 @@
               [tooltipPosition]="'left'"
               (click)="reactivate(user)"
             >
-              <i class="pi pi-refresh"></i>
+              <i aria-hidden="true" class="pi pi-refresh"></i>
             </button>
           }
         </div>

@@ -73,7 +73,7 @@
 
   &__ghost { opacity: 0.35; }
 
-  i { font-size: 10px; }
+  i { font-size: var(--texte-xs); }
 }
 
 .dt__row {

@@ -16,7 +16,7 @@
     <!-- ── 1. Identification ─────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
-        <i class="pi pi-file-edit"></i>
+        <i aria-hidden="true" class="pi pi-file-edit"></i>
         {{ 'CAMPAGNES.FORM.SECTION_IDENTIFICATION' | translate }}
       </div>
 
@@ -61,7 +61,7 @@
     <!-- ── 2. Agents assignés ─────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
-        <i class="pi pi-users"></i>
+        <i aria-hidden="true" class="pi pi-users"></i>
         {{ 'CAMPAGNES.FORM.SECTION_AGENTS' | translate }} *
       </div>
 
@@ -125,7 +125,7 @@
     <!-- ── 3. Sélection des abonnés ───────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
-        <i class="pi pi-id-card"></i>
+        <i aria-hidden="true" class="pi pi-id-card"></i>
         {{ 'CAMPAGNES.FORM.SECTION_ABONNES' | translate }}
       </div>
 
@@ -197,19 +197,19 @@
       <!-- Bannières résultat -->
       @if (selectionMode() === 'TOUS' && nbAbonnesActifs() !== null) {
         <div class="abonnes-info">
-          <i class="pi pi-check-circle"></i>
+          <i aria-hidden="true" class="pi pi-check-circle"></i>
           {{ nbAbonnesActifs() }} {{ 'CAMPAGNES.FORM.ABONNES_INFO' | translate }}
         </div>
       }
       @if (selectionMode() === 'FILTRE' && selectedZones().size > 0) {
         <div class="abonnes-info">
-          <i class="pi pi-check-circle"></i>
+          <i aria-hidden="true" class="pi pi-check-circle"></i>
           {{ nbAbonnesFiltres() }} {{ 'CAMPAGNES.FORM.ABONNES_FILTRE_INFO' | translate }}
         </div>
       }
       @if (selectionMode() === 'FILTRE' && selectedZones().size === 0 && zonesDisponibles().length > 0) {
         <div class="abonnes-info abonnes-info--warn">
-          <i class="pi pi-exclamation-triangle"></i>
+          <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
           {{ 'CAMPAGNES.FORM.ZONES_REQUIRED' | translate }}
         </div>
       }
@@ -218,7 +218,7 @@
     <!-- ── 4. Mobile Money ───────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
-        <i class="pi pi-mobile"></i>
+        <i aria-hidden="true" class="pi pi-mobile"></i>
         {{ 'CAMPAGNES.FORM.SECTION_MOBILE_MONEY' | translate }}
       </div>
       <div class="form-field">
@@ -250,7 +250,7 @@
     <!-- ── 5. Options ─────────────────────────────────────────────────────── -->
     <div class="form-section">
       <div class="form-section__header">
-        <i class="pi pi-cog"></i>
+        <i aria-hidden="true" class="pi pi-cog"></i>
         {{ 'CAMPAGNES.FORM.SECTION_OPTIONS' | translate }}
       </div>
 
@@ -318,7 +318,7 @@
         (click)="submit()"
       >
         @if (submitting()) {
-          <i class="pi pi-spin pi-spinner"></i>
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
         }
         {{ submitLabel() }}
       </button>

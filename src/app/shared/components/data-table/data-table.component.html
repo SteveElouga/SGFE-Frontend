@@ -1,6 +1,6 @@
 @if (loading()) {
   <div class="dt__loading">
-    <i class="pi pi-spin pi-spinner"></i>
+    <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
   </div>
 } @else {
   <div class="dt" [class.dt--has-cards]="!!cardTemplate()">
@@ -114,7 +114,7 @@
             (click)="goPage(safePage() - 1)"
             [attr.aria-label]="'COMMON.PREV_PAGE' | translate"
           >
-            <i class="pi pi-chevron-left"></i>
+            <i aria-hidden="true" class="pi pi-chevron-left"></i>
           </button>
           @for (p of visiblePages(); track p) {
             <button
@@ -131,7 +131,7 @@
             (click)="goPage(safePage() + 1)"
             [attr.aria-label]="'COMMON.NEXT_PAGE' | translate"
           >
-            <i class="pi pi-chevron-right"></i>
+            <i aria-hidden="true" class="pi pi-chevron-right"></i>
           </button>
         </div>
       </div>

@@ -1,7 +1,7 @@
 <app-page-topbar [title]="'NOTIFICATIONS.TITLE' | translate" [subtitle]="subtitle()" [showBell]="false">
   @if (unreadCount() > 0) {
     <button type="button" class="mark-all" (click)="markAllRead()" [attr.aria-label]="'NOTIFICATIONS.MARK_ALL_READ' | translate">
-      <i class="pi pi-check"></i>
+      <i aria-hidden="true" class="pi pi-check"></i>
       <span class="mark-all__label">{{ 'NOTIFICATIONS.MARK_ALL_READ' | translate }}</span>
     </button>
   }
@@ -30,7 +30,7 @@
 <div class="notif-feed">
   @if (isEmpty()) {
     <div class="notif-empty">
-      <i class="pi pi-bell-slash"></i>
+      <i aria-hidden="true" class="pi pi-bell-slash"></i>
       <span>{{ 'NOTIFICATIONS.EMPTY' | translate }}</span>
     </div>
   }
@@ -45,7 +45,7 @@
           (click)="onItemClick(n)"
         >
           <span class="notif-item__icon notif-item__icon--{{ n.tone }}">
-            <i class="pi {{ n.icon }}"></i>
+            <i aria-hidden="true" class="pi {{ n.icon }}"></i>
           </span>
           <div class="notif-item__body">
             <div class="notif-item__title" [class.notif-item__title--read]="n.read">{{ n.title }}</div>

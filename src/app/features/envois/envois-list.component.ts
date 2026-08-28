@@ -1,13 +1,16 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SelectModule } from 'primeng/select';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { Envoi } from '../../shared/models/facture.model';
 import { BadgeComponent, BadgeTone } from '../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import {
+  FilterDefinition,
+  FilterValues,
+  FiltersPanelComponent,
+} from '../../shared/components/filters-panel/filters-panel.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { NotificationsService } from '../../core/notifications/notifications.service';
 
@@ -39,7 +42,7 @@ interface EnvoiGroupe {
 @Component({
   selector: 'app-envois-list',
   standalone: true,
-  imports: [FormsModule, SelectModule, TranslatePipe, BadgeComponent, ErrorBannerComponent, PageTopbarComponent],
+  imports: [TranslatePipe, BadgeComponent, ErrorBannerComponent, PageTopbarComponent, FiltersPanelComponent],
   templateUrl: './envois-list.component.html',
   styleUrl: './envois-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,15 +59,45 @@ export class EnvoisListComponent implements OnInit {
   readonly resending = signal<string | null>(null);
   readonly filtre = signal<'TOUS' | StatutEnvoi>('TOUS');
 
-  readonly filtreOptions = computed((): Array<{ label: string; value: 'TOUS' | StatutEnvoi }> => {
+  /**
+   * Le filtre, dans le panneau partagé plutôt qu'en liste déroulante nue.
+   *
+   * Cet écran était le dernier à fabriquer son propre filtre. Le dropdown n'avait
+   * pas d'étiquette visible — un `ariaLabel` couvrait le lecteur d'écran, mais
+   * quelqu'un qui regarde voyait une liste sans savoir ce qu'elle filtre.
+   *
+   * Les compteurs sont l'apport principal : le support vient ici pour trouver
+   * des échecs, et il devait ouvrir le filtre pour découvrir s'il y en avait.
+   * Le nombre se lit maintenant à côté de l'option.
+   */
+  readonly filtersConfig = computed((): FilterDefinition[] => {
     const lang = this.translate.currentLang() ?? undefined;
+    const tous = this.envois();
+    const compte = (s: StatutEnvoi) => tous.filter((e) => e.statut === s).length;
     return [
-      { label: this.translate.instant('ENVOIS.FILTRE_TOUS', {}, lang), value: 'TOUS' },
-      { label: this.translate.instant('ENVOIS.STATUT.ENVOYE', {}, lang), value: 'ENVOYE' },
-      { label: this.translate.instant('ENVOIS.STATUT.ECHEC', {}, lang), value: 'ECHEC' },
-      { label: this.translate.instant('ENVOIS.STATUT.EN_ATTENTE', {}, lang), value: 'EN_ATTENTE' },
+      {
+        key: 'statut',
+        label: 'ENVOIS.FILTRE_LABEL',
+        options: [
+          { label: this.translate.instant('ENVOIS.STATUT.ENVOYE', {}, lang), value: 'ENVOYE', count: compte('ENVOYE') },
+          { label: this.translate.instant('ENVOIS.STATUT.ECHEC', {}, lang), value: 'ECHEC', count: compte('ECHEC') },
+          { label: this.translate.instant('ENVOIS.STATUT.EN_ATTENTE', {}, lang), value: 'EN_ATTENTE', count: compte('EN_ATTENTE') },
+        ],
+      },
     ];
   });
+
+  /** Valeurs courantes, au format du panneau partagé. */
+  readonly filterValues = computed((): FilterValues => {
+    const f = this.filtre();
+    return f === 'TOUS' ? {} : { statut: f };
+  });
+
+  onFiltersChange(values: FilterValues): void {
+    // Le panneau rend `null` quand on efface un filtre ; ici l'absence de
+    // statut veut dire « tous », ce que le reste de l'écran attend.
+    this.filtre.set((values['statut'] as StatutEnvoi | null) ?? 'TOUS');
+  }
 
   /** factureId → libellés enrichis portés par la facture. */
   private readonly facturesIndex = signal<Map<string, { numeroFacture: string; nom: string; numero: string }>>(

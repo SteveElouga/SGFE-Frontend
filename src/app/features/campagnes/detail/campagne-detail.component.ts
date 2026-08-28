@@ -14,7 +14,8 @@ import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { QueryRef } from 'apollo-angular';
+import { Apollo, QueryRef } from 'apollo-angular';
+import { PROGRESSION_UPDATED_SUB } from '../../../graphql/queries/campagnes.queries';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
@@ -77,6 +78,8 @@ export class CampagneDetailComponent implements OnInit {
   /** Exposés au template pour la teinte des puces de statut. */
   protected readonly campagneStatutTone = campagneStatutTone;
   protected readonly releveStatutTone = releveStatutTone;
+
+  private readonly apollo = inject(Apollo);
 
   private readonly service = inject(CampagnesService);
   private readonly abonnesService = inject(AbonnesService);
@@ -392,6 +395,35 @@ export class CampagneDetailComponent implements OnInit {
           const { message } = extractGqlError(err);
           this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
           this.loading.set(false);
+        },
+      });
+
+    // ── La progression, en direct ─────────────────────────────────────────
+    //
+    // Elle était chargée une fois et ne bougeait plus. Or c'est le seul chiffre
+    // de cet écran qu'on regarde *pendant* qu'il change : un responsable ouvre
+    // la fiche d'une campagne en cours précisément pour voir les relevés
+    // arriver. Sans cela, il rafraîchit la page à la main pour savoir si son
+    // équipe avance — ou pire, il conclut qu'elle n'avance pas.
+    //
+    // Le flux existait des deux côtés depuis le début ; personne ne s'y était
+    // abonné.
+    this.apollo
+      .subscribe<{ progressionUpdated: Progression }>({
+        query: PROGRESSION_UPDATED_SUB,
+        variables: { campagneId: this.campagneId },
+        // Échec silencieux : une progression figée reste lisible, alors qu'un
+        // bandeau d'erreur sur un flux d'agrément couvrirait l'écran pour rien.
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const p = data?.progressionUpdated;
+          if (p) this.progression.set(p);
+        },
+        error: () => {
+          /* temps réel indisponible — l'écran garde la valeur chargée */
         },
       });
 

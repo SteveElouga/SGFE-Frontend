@@ -1,4 +1,4 @@
-<nav class="tabs" aria-label="Navigation principale">
+<nav class="tabs" [attr.aria-label]="'A11Y.NAV_PRINCIPALE' | translate">
   @for (item of nav.tabItems(); track item.route) {
     <a
       class="tabs__tab"
@@ -6,7 +6,7 @@
       routerLinkActive="tabs__tab--active"
     >
       <span class="tabs__icon-wrap">
-        <i class="pi {{ item.icon }} tabs__icon"></i>
+        <i aria-hidden="true" class="pi {{ item.icon }} tabs__icon"></i>
         @if (nav.badgeFor(item); as badge) {
           <span class="tabs__badge">{{ badge }}</span>
         } @else if (nav.dotFor(item)) {

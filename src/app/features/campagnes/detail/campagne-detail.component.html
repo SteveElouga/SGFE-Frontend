@@ -49,17 +49,17 @@
       @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
         <div class="detail-header__actions">
           <button class="btn btn--outline" (click)="openAbonnesSheet()">
-            <i class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
+            <i aria-hidden="true" class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
           </button>
           @if (c.statut === 'PLANIFIEE') {
             <button class="btn btn--primary" (click)="demarrer()" [disabled]="demarrant()">
-              @if (demarrant()) { <i class="pi pi-spin pi-spinner"></i> }
-              <i class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
+              @if (demarrant()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
+              <i aria-hidden="true" class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
             </button>
           }
           @if (c.statut === 'EN_COURS') {
             <button class="btn btn--danger" (click)="openClotureModal()">
-              <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
+              <i aria-hidden="true" class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
             </button>
           }
         </div>
@@ -144,7 +144,7 @@
         <div class="agents-section__head">
           <h2 class="agents-section__title">{{ 'CAMPAGNES.AGENTS_TITLE' | translate }}</h2>
           <button type="button" class="agents-section__add" (click)="openAgentsSheet()">
-            <i class="pi pi-plus"></i> {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
+            <i aria-hidden="true" class="pi pi-plus"></i> {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
           </button>
         </div>
 
@@ -179,7 +179,7 @@
                     (click)="openZonesSheet({ id: a.id, username: a.username })"
                     [attr.aria-label]="'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate"
                   >
-                    <i class="pi pi-pencil"></i>
+                    <i aria-hidden="true" class="pi pi-pencil"></i>
                     <span>{{ 'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate }}</span>
                   </button>
                 </div>
@@ -206,7 +206,7 @@
           </div>
         } @else {
           <div class="agents-pending">
-            <i class="pi pi-users"></i>
+            <i aria-hidden="true" class="pi pi-users"></i>
             <span>{{ 'CAMPAGNES.AGENTS_EMPTY' | translate }}</span>
           </div>
         }
@@ -359,7 +359,7 @@
             @if (relevesFiltres().length === 0) {
               <tr>
                 <td colspan="6" class="releves-empty-row">
-                  <i class="pi pi-list"></i>
+                  <i aria-hidden="true" class="pi pi-list"></i>
                   {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
                 </td>
               </tr>
@@ -391,7 +391,7 @@
           </div>
         } @empty {
           <div class="releves-mobile__empty">
-            <i class="pi pi-list"></i>
+            <i aria-hidden="true" class="pi pi-list"></i>
             {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
           </div>
         }
@@ -402,17 +402,17 @@
     @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
       <div class="mactions">
         <button type="button" class="mactions__btn mactions__btn--outline" (click)="openAbonnesSheet()">
-          <i class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
+          <i aria-hidden="true" class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
         </button>
         @if (c.statut === 'PLANIFIEE') {
           <button type="button" class="mactions__btn mactions__btn--primary" (click)="demarrer()" [disabled]="demarrant()">
-            @if (demarrant()) { <i class="pi pi-spin pi-spinner"></i> }
-            <i class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
+            @if (demarrant()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
+            <i aria-hidden="true" class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
           </button>
         }
         @if (c.statut === 'EN_COURS') {
           <button type="button" class="mactions__btn mactions__btn--dark" (click)="openClotureModal()">
-            <i class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
+            <i aria-hidden="true" class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
           </button>
         }
       </div>
@@ -456,7 +456,7 @@
   >
     <div class="cloture-body">
       <div class="cloture-body__head">
-        <div class="cloture-body__icon" aria-hidden="true"><i class="pi pi-lock"></i></div>
+        <div class="cloture-body__icon" aria-hidden="true"><i aria-hidden="true" class="pi pi-lock"></i></div>
         <div>
           <h3 id="cloture-sheet-title" class="cloture-body__title">{{ 'CAMPAGNES.CLOTURE.TITLE' | translate:{ nom: periode() } }}</h3>
           <p class="cloture-body__desc">

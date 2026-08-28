@@ -78,7 +78,7 @@
 .btn {
   @include btn-reset;
   gap: var(--pas-2);
-  height: 40px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-5);
   border-radius: var(--rayon-md);
   font-size: 14px;
@@ -156,7 +156,7 @@
   text-align: center;
 
   &__n { display: block; font-size: 20px; font-weight: 800; }
-  &__l { display: block; font-size: 10px; font-weight: 500; margin-top: var(--pas-1); }
+  &__l { display: block; font-size: var(--texte-xs); font-weight: 500; margin-top: var(--pas-1); }
 
   &--ok   { background: var(--succes-fond); border-color: var(--succes-trait); .cloture-stat__n, .cloture-stat__l { color: var(--succes-encre); } }
   &--est  { background: var(--attente-fond); border-color: var(--attente-trait); .cloture-stat__n, .cloture-stat__l { color: var(--ambre-attente); } }
@@ -401,7 +401,7 @@
   }
 
   &__label {
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
   }
@@ -625,12 +625,12 @@
   }
   &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
   &__nom { font-size: 13px; font-weight: 600; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  &__sub { font-size: 10px; color: var(--encre-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__sub { font-size: var(--texte-xs); color: var(--encre-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   // Statut en texte coloré (MB-02), à la place d'un badge
   &__statut {
     flex-shrink: 0;
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     color: var(--encre-3);
 
@@ -750,7 +750,7 @@
     border-top: 1px solid var(--fond);
     padding-top: var(--pas-3);
   }
-  &__sync { font-size: 10px; color: var(--encre-3); }
+  &__sync { font-size: var(--texte-xs); color: var(--encre-3); }
   &__tournee { font-size: 11px; font-weight: 600; color: var(--action); text-decoration: none; cursor: pointer; &:hover { text-decoration: underline; } }
 }
 
@@ -786,7 +786,7 @@
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s;
 
-  i { font-size: 10px; }
+  i { font-size: var(--texte-xs); }
   @media (hover: hover) and (pointer: fine) {
     &:hover { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
   }
@@ -798,7 +798,7 @@
   gap: var(--pas-1);
   border-radius: var(--rayon-lg);
   padding: var(--pas-1) var(--pas-2);
-  font-size: 10px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
@@ -889,7 +889,7 @@
     border-radius: 50%;
     background: linear-gradient(135deg, var(--succes), var(--action));
     color: var(--surface);
-    font-size: 10px;
+    font-size: var(--texte-xs);
     font-weight: 700;
     display: flex;
     align-items: center;

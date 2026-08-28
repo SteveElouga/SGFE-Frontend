@@ -7,7 +7,7 @@
 
   <div class="zs-list">
     @if (loading()) {
-      <div class="zs-loading"><i class="pi pi-spin pi-spinner"></i></div>
+      <div class="zs-loading"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
     } @else if (loadError()) {
       <div class="zs-empty">{{ 'CAMPAGNES.ZONES_SHEET.LOAD_ERROR' | translate }}</div>
     } @else {
@@ -31,7 +31,7 @@
             </span>
           </span>
           <span class="zs-check" [class.zs-check--on]="isSelected(z)">
-            @if (isSelected(z)) { <i class="pi pi-check"></i> }
+            @if (isSelected(z)) { <i aria-hidden="true" class="pi pi-check"></i> }
           </span>
         </button>
       } @empty {
@@ -41,7 +41,7 @@
   </div>
 
   <button type="button" class="zs-save" [disabled]="saving() || loading() || loadError()" (click)="onSave()">
-    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    @if (saving()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
     {{ 'CAMPAGNES.ZONES_SHEET.SAVE' | translate }}
   </button>
   <button type="button" class="zs-cancel" (click)="onClose()">

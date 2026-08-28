@@ -5,7 +5,7 @@
   </div>
 
   @if (loading()) {
-    <div class="as-loading"><i class="pi pi-spin pi-spinner"></i></div>
+    <div class="as-loading"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
   } @else if (loadError()) {
     <div class="as-empty">{{ 'CAMPAGNES.ABONNES_SHEET.LOAD_ERROR' | translate }}</div>
   } @else {
@@ -53,7 +53,7 @@
     [disabled]="saving() || loadError() || count() === 0"
     (click)="onSave()"
   >
-    @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+    @if (saving()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
     {{ 'CAMPAGNES.ABONNES_SHEET.SAVE' | translate: { n: count() } }}
   </button>
   <button type="button" class="as-cancel" (click)="onClose()">
