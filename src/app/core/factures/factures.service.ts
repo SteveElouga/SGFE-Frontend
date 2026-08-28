@@ -31,6 +31,8 @@ import {
   CREER_REGULARISATION,
   REGENERER_FACTURE,
   ENREGISTRER_PAIEMENT_ABONNE,
+  ANNULER_PAIEMENT,
+  CREDITER_AVOIR,
 } from '../../graphql/mutations/factures.mutations';
 import {
   Avoir,
@@ -127,6 +129,51 @@ export class FacturesService {
     );
     this.invalidateFacturesCache();
     return result.data!.annulerFacture;
+  }
+
+  /**
+   * Annule un paiement saisi par erreur — le solde de la facture est rétabli.
+   *
+   * Annulation douce : le paiement reste en base, marqué annulé avec qui, quand
+   * et pourquoi. C'est la règle comptable, pas une limite technique — on ne
+   * retouche pas une écriture enregistrée, on la contre-passe.
+   *
+   * Il n'existe donc **pas** de `modifierPaiement`, et il ne doit pas en
+   * exister : corriger un montant se fait en annulant puis en ressaisissant.
+   *
+   * Le backend refuse une seconde annulation du même paiement — inutile de
+   * s'en prémunir ici, l'erreur remonte avec son message.
+   */
+  async annulerPaiement(paiementId: string, motif: string): Promise<Paiement> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ annulerPaiement: Paiement }>({
+        mutation: ANNULER_PAIEMENT,
+        variables: { paiementId, motif },
+      }),
+    );
+    this.invalidateFacturesCache();
+    return result.data!.annulerPaiement;
+  }
+
+  /**
+   * Émet un avoir manuel sur le compte d'un abonné (note de rectification).
+   *
+   * Pour une facture corrigée à la baisse, une erreur d'index constatée après
+   * paiement, ou un geste commercial. L'avoir s'impute automatiquement sur les
+   * prochaines factures de l'abonné.
+   *
+   * À ne pas confondre avec le trop-perçu, qui alimente le même avoir sans
+   * aucun geste : verser plus que le solde restant suffit.
+   */
+  async crediterAvoir(abonneId: string, montant: number, motif: string): Promise<Avoir> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<{ crediterAvoir: Avoir }>({
+        mutation: CREDITER_AVOIR,
+        variables: { abonneId, montant, motif },
+      }),
+    );
+    this.invalidateFacturesCache();
+    return result.data!.crediterAvoir;
   }
 
   /**

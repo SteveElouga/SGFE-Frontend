@@ -883,11 +883,11 @@
     "ACTION_PDF": "PDF",
     "PANEL_TITLE": "Record a payment",
     "PANEL_SOLDE": "Balance",
-    "PANEL_MONTANT": "Amount received (FCFA) *",
-    "PANEL_MONTANT_MAX": "The amount cannot exceed the remaining balance ({{montant}} FCFA).",
-    "PANEL_MODE": "Payment method *",
+    "PANEL_MONTANT": "Amount received (FCFA)",
+    "PANEL_MONTANT_EXCEDENT": "{{montant}} FCFA in excess will be carried over to the next invoice.",
+    "PANEL_MODE": "Payment method",
     "PANEL_MODE_TOOLTIP": "Cash: direct handoff, no bank trail. Mobile Money: Orange/MTN/etc. — operation number required. Bank transfer: account-to-account — bank reference required.",
-    "PANEL_DATE": "Date *",
+    "PANEL_DATE": "Date",
     "PANEL_REF": "Transaction reference",
     "PANEL_REF_TOOLTIP": "Required for Mobile Money and Bank transfer (financial trail — used to locate the transaction in case of dispute). Optional for cash.",
     "PANEL_CONFIRM": "Confirm payment — {{montant}} FCFA",
@@ -1017,7 +1017,20 @@
     "WA_BULK_TITLE_ZERO": "No invoice to send",
     "WA_BULK_CONFIRM_SINGULAR": "Send the message",
     "WA_BULK_CONFIRM_PLURAL": "Send the {{count}} messages",
-    "WA_BULK_CONFIRM_ZERO": "Send"
+    "WA_BULK_CONFIRM_ZERO": "Send",
+    "ANNUL_PAIEMENT": {
+      "TITRE": "Cancel this payment",
+      "DESC": "Payment of {{montant}}",
+      "NOTE": "The payment will not be deleted: it stays visible, marked cancelled, with its reason. The invoice balance will be restored. To correct an amount, cancel then re-enter it.",
+      "MOTIF": "Reason for cancellation",
+      "MOTIF_PLACEHOLDER": "Wrong amount, duplicate, payment applied to the wrong invoice…",
+      "MOTIF_AIDE": "Three characters minimum. This reason is kept in the history.",
+      "CONFIRMER": "Cancel the payment",
+      "SUCCES": "Payment cancelled — the invoice balance has been restored.",
+      "ANNULE": "Cancelled",
+      "ACTION": "Cancel",
+      "ARIA": "Cancel the payment of {{montant}}"
+    }
   },
   "PAIEMENTS": {
     "TITLE": "Payments",

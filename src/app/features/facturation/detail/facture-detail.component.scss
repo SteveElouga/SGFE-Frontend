@@ -316,6 +316,24 @@
     font-size: var(--texte-xs);
     color: var(--encre-3);
   }
+
+  // Le badge et l'action d'annulation partagent la colonne de droite : le
+  // statut se lit d'abord, le geste correctif reste discret à côté.
+  &__aside {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    flex-shrink: 0;
+  }
+
+  // Discret par défaut : annuler un paiement est rare, et une ligne
+  // d'historique ne doit pas ressembler à un appel à l'action.
+  &__annuler {
+    @include action-ligne;
+    @include action-ligne-danger;
+    gap: var(--pas-2);
+    font-size: var(--texte-sm);
+  }
 }
 
 .paiement-badge {
@@ -327,6 +345,15 @@
   font-weight: 600;
   color: var(--succes-encre);
   white-space: nowrap;
+
+  // Un paiement annulé reste dans la liste — c'est la trace de la correction.
+  // Ton neutre : ni succès, ni alerte, il ne compte simplement plus.
+  &--annule {
+    background: var(--surface-douce);
+    border-color: var(--filet);
+    color: var(--encre-3);
+    text-decoration: line-through;
+  }
 }
 
 .progress-bar {

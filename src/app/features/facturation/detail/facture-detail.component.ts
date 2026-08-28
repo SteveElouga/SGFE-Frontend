@@ -18,6 +18,7 @@ import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { RouterLink } from '@angular/router';
 import { AnnulerSheetComponent } from './annuler-sheet/annuler-sheet.component';
+import { AnnulerPaiementSheetComponent } from './annuler-paiement-sheet/annuler-paiement-sheet.component';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { DetteAbonne, Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
@@ -44,6 +45,7 @@ import { ToastService } from '../../../shared/services/toast.service';
     FcfaPipe,
     RouterLink,
     AnnulerSheetComponent,
+    AnnulerPaiementSheetComponent,
     BadgeComponent,
   ],
   templateUrl: './facture-detail.component.html',
@@ -132,6 +134,16 @@ export class FactureDetailComponent implements OnInit {
   /** Feuille d'annulation. Réservée à ADMIN : effacer une dette est le geste
    *  le plus lourd de l'application, plus lourd que d'en créer une. */
   readonly annulerSheetVisible = signal(false);
+
+  // ── Annulation d'un paiement ────────────────────────────────────────────
+  // La mutation est réservée à ADMIN et COMPTABLE côté gateway. On reflète la
+  // règle ici plutôt que de laisser un agent découvrir l'interdit au clic.
+  readonly annulPaiementOuverte = signal(false);
+  readonly paiementAAnnuler = signal<Paiement | null>(null);
+  readonly peutAnnulerPaiement = computed(
+    () => this.auth.isAdmin() || this.auth.isComptable(),
+  );
+
   readonly estAdmin = computed(() => this.auth.isAdmin());
 
   readonly showForm = signal(false);
@@ -304,6 +316,26 @@ export class FactureDetailComponent implements OnInit {
       );
     }
     await Promise.allSettled(tasks);
+  }
+
+  ouvrirAnnulationPaiement(p: Paiement): void {
+    this.paiementAAnnuler.set(p);
+    this.annulPaiementOuverte.set(true);
+  }
+
+  fermerAnnulationPaiement(): void {
+    this.annulPaiementOuverte.set(false);
+    this.paiementAAnnuler.set(null);
+  }
+
+  /**
+   * Le solde et le statut de la facture changent avec l'annulation : on
+   * recharge plutôt que de recalculer localement, pour que l'écran reflète
+   * exactement ce que le serveur a écrit.
+   */
+  async onPaiementAnnule(): Promise<void> {
+    this.fermerAnnulationPaiement();
+    await this.reload();
   }
 
   async reload(): Promise<void> {
