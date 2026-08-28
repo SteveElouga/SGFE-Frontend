@@ -24,6 +24,7 @@ import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
+import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 
 @Component({
@@ -34,6 +35,7 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
     DataTableComponent,
     DataTableCellDirective,
     DataTableCardDirective,
+    BadgeComponent,
     ConfirmDialogModule,
     ErrorBannerComponent,
     PageTopbarComponent,

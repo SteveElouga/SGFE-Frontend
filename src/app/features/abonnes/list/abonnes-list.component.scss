@@ -140,38 +140,9 @@
 }
 
 .abonnes-table__action-btn {
-  border: 1px solid var(--filet);
-  border-radius: var(--rayon-sm);
-  padding: var(--pas-1) var(--pas-2);
-  background: var(--surface);
-  font-size: var(--texte-xs);
-  font-weight: 500;
-  color: var(--encre-3);
-  cursor: pointer;
-  white-space: nowrap;
-  transition: border-color 0.12s, color 0.12s, background 0.12s;
+  @include action-ligne;
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      border-color: $color-primary;
-      color: var(--action);
-      background: var(--action-lueur);
-    }
-  }
-
-  &--reactiver {
-    background: var(--succes-fond);
-    border-color: var(--succes-trait);
-    color: var(--succes-encre);
-
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        background: var(--mint-tapis);
-        border-color: var(--succes-trait);
-        color: var(--vert-profond);
-      }
-    }
-  }
+  &--reactiver { @include action-ligne-succes; }
 }
 
 // ── État vide ─────────────────────────────────────────────────────────────────

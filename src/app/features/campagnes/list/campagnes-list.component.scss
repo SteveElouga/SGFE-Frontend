@@ -241,48 +241,9 @@
 // ── Boutons d'action ──────────────────────────────────────────────────────────
 
 .btn-action {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--pas-1);
-  padding: var(--pas-1) var(--pas-2);
-  border-radius: var(--rayon-sm);
-  font-size: var(--texte-xs);
-  font-weight: 500;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background 0.15s;
+  @include action-ligne;
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  &--voir {
-    border: 1px solid var(--filet);
-    background: var(--surface);
-    color: var(--encre-3);
-    transition: border-color 0.12s, color 0.12s, background 0.12s;
-    @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { border-color: $color-primary; color: var(--action); background: var(--action-lueur); }
-    }
-  }
-
-  &--cloturer {
-    border: 1px solid var(--danger-trait);
-    background: var(--surface);
-    color: var(--danger-encre);
-    transition: border-color 0.12s, color 0.12s, background 0.12s;
-    @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { background: var(--danger-fond); border-color: var(--danger-trait); }
-    }
-  }
-
-  &--demarrer {
-    border: 1px solid var(--action-trait);
-    background: var(--surface);
-    color: var(--action);
-    transition: border-color 0.12s, color 0.12s, background 0.12s;
-    @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { background: var(--action-lueur); border-color: var(--bleu-riviere-clair); }
-    }
-  }
+  &--demarrer { @include action-ligne-succes; }
 }
 
 // ── Boutons dialog ────────────────────────────────────────────────────────────

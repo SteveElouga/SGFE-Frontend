@@ -146,7 +146,7 @@
 
       <ng-template appCol="actions" let-c>
         <div class="campagnes-table__actions">
-          <a class="btn-action btn-action--voir" [routerLink]="['/campagnes', c.campagneId]">
+          <a class="btn-action" [routerLink]="['/campagnes', c.campagneId]">
             {{ 'COMMON.SEE' | translate }}
           </a>
           @if (c.statut === 'PLANIFIEE' && canCreate()) {

@@ -59,41 +59,45 @@
       <ng-template appCol="createdAt" let-user><span class="users-table__date">{{ user.createdAt | date:'dd/MM/yyyy' }}</span></ng-template>
 
       <ng-template appCol="statut" let-user>
-        <span class="statut-dot" [class.statut-dot--off]="!user.isActive">
-          <span class="statut-dot__mark"></span>
-          {{ (user.isActive ? 'UTILISATEURS.ACTIF' : 'UTILISATEURS.INACTIF') | translate }}
-        </span>
+        <!-- Un point vert suivi d'un mot ici, une pastille en capitales sur
+             /abonnes : deux façons d'écrire un statut dans deux tableaux qui se
+             ressemblent en tout point. La pastille partagée gagne — c'est elle
+             que porte le système de design (`--badge-*`). -->
+        <app-badge
+          [label]="(user.isActive ? 'UTILISATEURS.ACTIF' : 'UTILISATEURS.INACTIF') | translate"
+          [tone]="user.isActive ? 'success' : 'neutral'"
+        />
       </ng-template>
 
       <ng-template appCol="actions" let-user>
         <div class="users-table__actions">
-          <button
-            type="button"
+          <!-- Ces trois actions étaient des icônes seules — pinceau, interdiction,
+               coche — quand les quatre autres listes de l'application nomment les
+               leurs. Une icône de crayon veut dire « modifier » pour qui l'a déjà
+               rencontrée ; le mot le dit à tout le monde, et se lit sans survol. -->
+          <a
             class="users-table__action-btn"
-            [appTooltip]="('COMMON.EDIT' | translate) + ' ' + user.username"
-            (click)="editUser(user)"
+            [routerLink]="['/utilisateurs', user.id]"
+            [attr.aria-label]="('COMMON.SEE' | translate) + ' ' + user.username"
+            >{{ 'COMMON.SEE' | translate }}</a
           >
-            <i aria-hidden="true" class="pi pi-pencil"></i>
-          </button>
           @if (user.isActive) {
             <button
               type="button"
               class="users-table__action-btn users-table__action-btn--danger"
-              [appTooltip]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
-              [tooltipPosition]="'left'"
+              [attr.aria-label]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
               (click)="confirmDeactivate(user)"
             >
-              <i aria-hidden="true" class="pi pi-ban"></i>
+              {{ 'UTILISATEURS.DESACTIVER' | translate }}
             </button>
           } @else {
             <button
               type="button"
               class="users-table__action-btn users-table__action-btn--success"
-              [appTooltip]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
-              [tooltipPosition]="'left'"
+              [attr.aria-label]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
               (click)="reactivate(user)"
             >
-              <i aria-hidden="true" class="pi pi-refresh"></i>
+              {{ 'UTILISATEURS.REACTIVER' | translate }}
             </button>
           }
         </div>
