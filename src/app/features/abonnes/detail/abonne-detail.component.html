@@ -315,7 +315,7 @@
       @if (activeTab() === 1) {
         <div role="tabpanel" id="abonneTabPanel-1" aria-labelledby="abonneTab-1" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
-            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+            <div class="abonne-tab-placeholder"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
           } @else {
             <table class="abonne-invoices__table">
               <thead>
@@ -351,7 +351,7 @@
       @if (activeTab() === 2) {
         <div role="tabpanel" id="abonneTabPanel-2" aria-labelledby="abonneTab-2" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
-            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+            <div class="abonne-tab-placeholder"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
           } @else if (consoBars().length === 0) {
             <div class="abonne-tab-placeholder"><span>{{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}</span></div>
           } @else {
@@ -372,7 +372,7 @@
       @if (activeTab() === 3) {
         <div role="tabpanel" id="abonneTabPanel-3" aria-labelledby="abonneTab-3" tabindex="0" class="abonne-tab-pane">
           @if (facturesLoading()) {
-            <div class="abonne-tab-placeholder"><i class="pi pi-spin pi-spinner"></i></div>
+            <div class="abonne-tab-placeholder"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
           } @else if (facturesImpayees().length === 0) {
             <div class="abonne-tab-placeholder">
               <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true">

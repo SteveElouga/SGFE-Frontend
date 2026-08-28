@@ -999,6 +999,9 @@
       "BANDEAU_TITRE": "Cette facture a été annulée",
       "BANDEAU_PAR": "par {{ par }}",
       "BANDEAU_REMPLACEE": "Voir la facture qui la remplace"
+    },
+    "LIST": {
+      "ENVOYER_WHATSAPP": "Envoyer par WhatsApp"
     }
   },
   "PAIEMENTS": {

@@ -7,7 +7,7 @@
   }
 
   @if (loading()) {
-    <div class="rap__loading"><i class="pi pi-spin pi-spinner"></i></div>
+    <div class="rap__loading"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
   } @else if (stats(); as s) {
 
     <!-- KPI -->
@@ -50,45 +50,45 @@
     <section class="rap-exports">
       <!-- Factures CSV (par campagne) -->
       <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportFactures()">
-        <span class="export-card__icon export-card__icon--blue"><i class="pi pi-file"></i></span>
+        <span class="export-card__icon export-card__icon--blue"><i aria-hidden="true" class="pi pi-file"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_FACTURES' | translate }}</span>
           <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
         </span>
-        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'factures'"
+        <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'factures'"
            [class.pi-spinner]="exporting() === 'factures'" [class.pi-download]="exporting() !== 'factures'"></i>
       </button>
 
       <!-- Paiements CSV (par campagne) -->
       <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportPaiements()">
-        <span class="export-card__icon export-card__icon--green"><i class="pi pi-credit-card"></i></span>
+        <span class="export-card__icon export-card__icon--green"><i aria-hidden="true" class="pi pi-credit-card"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_PAIEMENTS' | translate }}</span>
           <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
         </span>
-        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'paiements'"
+        <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'paiements'"
            [class.pi-spinner]="exporting() === 'paiements'" [class.pi-download]="exporting() !== 'paiements'"></i>
       </button>
 
       <!-- Synthèse PDF (par campagne) -->
       <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportSynthese()">
-        <span class="export-card__icon export-card__icon--violet"><i class="pi pi-chart-bar"></i></span>
+        <span class="export-card__icon export-card__icon--violet"><i aria-hidden="true" class="pi pi-chart-bar"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_SYNTHESE' | translate }}</span>
           <span class="export-card__sub">PDF · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
         </span>
-        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'synthese'"
+        <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'synthese'"
            [class.pi-spinner]="exporting() === 'synthese'" [class.pi-download]="exporting() !== 'synthese'"></i>
       </button>
 
       <!-- Bilan des impayés PDF (global) -->
       <button type="button" class="export-card" [disabled]="!!exporting()" (click)="exportBilan()">
-        <span class="export-card__icon export-card__icon--red"><i class="pi pi-exclamation-triangle"></i></span>
+        <span class="export-card__icon export-card__icon--red"><i aria-hidden="true" class="pi pi-exclamation-triangle"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_IMPAYES' | translate }}</span>
           <span class="export-card__sub">PDF · {{ 'RAPPORTS.GLOBAL' | translate }}</span>
         </span>
-        <i class="pi export-card__dl" [class.pi-spin]="exporting() === 'bilan'"
+        <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'bilan'"
            [class.pi-spinner]="exporting() === 'bilan'" [class.pi-download]="exporting() !== 'bilan'"></i>
       </button>
     </section>

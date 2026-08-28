@@ -25,7 +25,7 @@
   <div class="pf-field">
     <label class="pf-label pf-label--help" [attr.for]="modeId()">
       {{ 'FACTURATION.PANEL_MODE' | translate }}
-      <i
+      <i aria-hidden="true"
         class="pi pi-info-circle pf-help"
         [appTooltip]="'FACTURATION.PANEL_MODE_TOOLTIP' | translate"
         tabindex="0"
@@ -59,7 +59,7 @@
     <label class="pf-label pf-label--help" [attr.for]="refId()">
       {{ 'FACTURATION.PANEL_REF' | translate }}
       @if (refRequired()) { <span class="pf-required" aria-hidden="true">*</span> }
-      <i
+      <i aria-hidden="true"
         class="pi pi-info-circle pf-help"
         [appTooltip]="'FACTURATION.PANEL_REF_TOOLTIP' | translate"
         tabindex="0"

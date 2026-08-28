@@ -7,7 +7,7 @@
       <span class="um-trigger__role">{{ u.role }}</span>
     </div>
   }
-  <i class="pi pi-chevron-down um-trigger__chevron" [class.um-trigger__chevron--open]="isOpen()"></i>
+  <i aria-hidden="true" class="pi pi-chevron-down um-trigger__chevron" [class.um-trigger__chevron--open]="isOpen()"></i>
 </button>
 
 <!-- Panneau overlay -->
@@ -36,7 +36,7 @@
       routerLinkActive="um-item--active"
       (click)="close()"
     >
-      <i class="pi pi-user um-item__icon"></i>
+      <i aria-hidden="true" class="pi pi-user um-item__icon"></i>
       <span>{{ 'USER_MENU.PROFILE' | translate }}</span>
     </a>
 
@@ -47,7 +47,7 @@
         routerLinkActive="um-item--active"
         (click)="close()"
       >
-        <i class="pi pi-users um-item__icon"></i>
+        <i aria-hidden="true" class="pi pi-users um-item__icon"></i>
         <span>{{ 'USER_MENU.USERS' | translate }}</span>
       </a>
     }
@@ -57,7 +57,7 @@
 
   <!-- Langue -->
   <div class="um-lang">
-    <i class="pi pi-globe um-lang__icon"></i>
+    <i aria-hidden="true" class="pi pi-globe um-lang__icon"></i>
     <span class="um-lang__label">{{ 'USER_MENU.LANG' | translate }}</span>
     <div class="um-lang__toggle">
       <button
@@ -79,7 +79,7 @@
 
   <!-- Déconnexion -->
   <button class="um-item um-item--logout" type="button" (click)="logout()">
-    <i class="pi pi-sign-out um-item__icon"></i>
+    <i aria-hidden="true" class="pi pi-sign-out um-item__icon"></i>
     <span>{{ 'USER_MENU.LOGOUT' | translate }}</span>
   </button>
 

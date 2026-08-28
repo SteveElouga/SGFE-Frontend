@@ -43,9 +43,9 @@
       @if (activeTab() !== 2) {
         <button class="btn btn--primary config-save" [disabled]="!dirty() || saving()" (click)="saveAll()">
           @if (saving()) {
-            <i class="pi pi-spin pi-spinner"></i> {{ 'CONFIGURATION.SAVING' | translate }}
+            <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> {{ 'CONFIGURATION.SAVING' | translate }}
           } @else {
-            <i class="pi pi-check"></i> {{ 'CONFIGURATION.SAVE_ALL' | translate }}
+            <i aria-hidden="true" class="pi pi-check"></i> {{ 'CONFIGURATION.SAVE_ALL' | translate }}
           }
         </button>
       }
@@ -64,7 +64,7 @@
 
             <div class="societe-top">
               <div class="logo-drop" [title]="societeLogoPath() || ('CONFIGURATION.LOGO_PATH' | translate)">
-                <i class="pi pi-image"></i>
+                <i aria-hidden="true" class="pi pi-image"></i>
                 <span>{{ 'CONFIGURATION.LOGO_PNG' | translate }}</span>
               </div>
               <div class="societe-top__fields">
@@ -91,7 +91,7 @@
 
             @if (infosSociete()?.updatedAt) {
               <p class="config-card__updated">
-                <i class="pi pi-clock"></i>
+                <i aria-hidden="true" class="pi pi-clock"></i>
                 {{ 'CONFIGURATION.UPDATED_AT' | translate }} {{ infosSociete()!.updatedAt | date:'dd/MM/yyyy HH:mm' }}
               </p>
             }
@@ -120,7 +120,7 @@
             <app-bottom-sheet [open]="editingTarif()" labelledBy="tarif-modal-title" (close)="resetTarif()">
               <div class="tarif-modal">
                 <div class="tarif-modal__header">
-                  <div class="tarif-modal__icon" aria-hidden="true"><i class="pi pi-dollar"></i></div>
+                  <div class="tarif-modal__icon" aria-hidden="true"><i aria-hidden="true" class="pi pi-dollar"></i></div>
                   <div>
                     <h3 class="tarif-modal__title" id="tarif-modal-title">{{ 'CONFIGURATION.TARIF_MODAL_TITLE' | translate }}</h3>
                     <p class="tarif-modal__sub">{{ 'CONFIGURATION.TARIF_MODAL_SUB' | translate }}</p>
@@ -135,7 +135,7 @@
                       <small>FCFA/m³</small>
                     </span>
                   </div>
-                  <div class="tarif-modal__arrow" aria-hidden="true"><i class="pi pi-arrow-right"></i></div>
+                  <div class="tarif-modal__arrow" aria-hidden="true"><i aria-hidden="true" class="pi pi-arrow-right"></i></div>
                   <div class="tarif-modal__col tarif-modal__col--new">
                     <span class="tarif-modal__col-label">{{ 'CONFIGURATION.TARIF_NOUVEAU_LABEL' | translate }}</span>
                     <span class="tarif-modal__col-value">
@@ -163,7 +163,7 @@
                 <div class="tarif-modal__actions">
                   <button class="btn btn--ghost" [disabled]="tarifSaving()" (click)="resetTarif()">{{ 'COMMON.CANCEL' | translate }}</button>
                   <button class="btn btn--primary" [disabled]="!tarifDirty() || tarifSaving()" (click)="saveTarif()">
-                    @if (tarifSaving()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-check"></i> }
+                    @if (tarifSaving()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> } @else { <i aria-hidden="true" class="pi pi-check"></i> }
                     {{ 'CONFIGURATION.SAVE_TARIF' | translate }}
                   </button>
                 </div>
@@ -295,7 +295,7 @@
             <div class="config-card__title">{{ 'CONFIGURATION.TAB_UTILISATEURS' | translate }}</div>
             <div class="config-card__sub">{{ 'CONFIGURATION.UTILISATEURS_HINT' | translate }}</div>
             <a class="btn btn--primary users-link" routerLink="/utilisateurs">
-              <i class="pi pi-users"></i> {{ 'CONFIGURATION.UTILISATEURS_MANAGE' | translate }}
+              <i aria-hidden="true" class="pi pi-users"></i> {{ 'CONFIGURATION.UTILISATEURS_MANAGE' | translate }}
             </a>
           </section>
         </div>
@@ -330,13 +330,13 @@
                 [disabled]="!waTestPhone().trim() || waTesting()"
                 (click)="testWhatsapp()"
               >
-                @if (waTesting()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-send"></i> }
+                @if (waTesting()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> } @else { <i aria-hidden="true" class="pi pi-send"></i> }
                 {{ 'CONFIGURATION.WHATSAPP_TEST' | translate }}
               </button>
             </div>
             @if (waTestResult(); as r) {
               <div class="test-result" [class.test-result--ok]="r.success" [class.test-result--ko]="!r.success">
-                <i class="pi" [class.pi-check-circle]="r.success" [class.pi-times-circle]="!r.success"></i>
+                <i aria-hidden="true" class="pi" [class.pi-check-circle]="r.success" [class.pi-times-circle]="!r.success"></i>
                 <span>{{ r.message }}</span>
               </div>
             }
@@ -378,7 +378,7 @@
             <!-- Révocation en masse des tokens (mutation revoquerTousTokensAbonnes, ADMIN) -->
             <div class="revoke-row">
               <span class="revoke-row__label">
-                <i class="pi pi-ban"></i>
+                <i aria-hidden="true" class="pi pi-ban"></i>
                 {{ 'CONFIGURATION.TOKEN_REVOKE' | translate }}
               </span>
               <button
@@ -386,7 +386,7 @@
                 [disabled]="revoking()"
                 (click)="confirmRevokeTokens()"
               >
-                @if (revoking()) { <i class="pi pi-spin pi-spinner"></i> } @else { <i class="pi pi-trash"></i> }
+                @if (revoking()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> } @else { <i aria-hidden="true" class="pi pi-trash"></i> }
                 {{ 'CONFIGURATION.TOKEN_REVOKE_BTN' | translate }}
               </button>
             </div>

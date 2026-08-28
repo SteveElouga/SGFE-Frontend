@@ -24,7 +24,7 @@
   <!-- ── Section : Informations du compte ─────────────────────────────────── -->
   <section class="carte profil-section">
     <div class="profil-section__header">
-      <span class="profil-section__icon"><i class="pi pi-user"></i></span>
+      <span class="profil-section__icon"><i aria-hidden="true" class="pi pi-user"></i></span>
       {{ 'PROFIL.SECTION_INFOS' | translate }}
     </div>
 
@@ -69,7 +69,7 @@
   <!-- ── Section : Mot de passe (lien de réinitialisation) ─────────────────── -->
   <section class="carte profil-section">
     <div class="profil-section__header">
-      <span class="profil-section__icon"><i class="pi pi-lock"></i></span>
+      <span class="profil-section__icon"><i aria-hidden="true" class="pi pi-lock"></i></span>
       {{ 'PROFIL.SECTION_PASSWORD' | translate }}
     </div>
 
@@ -77,7 +77,7 @@
       <p class="profil-reset-desc">{{ 'PROFIL.RESET_DESC' | translate }}</p>
       @if (resetSent()) {
         <div class="profil-reset-done">
-          <i class="pi pi-check-circle"></i>
+          <i aria-hidden="true" class="pi pi-check-circle"></i>
           {{ 'PROFIL.RESET_SENT' | translate }}
         </div>
       }
@@ -90,10 +90,10 @@
         (click)="requestPasswordReset()"
       >
         @if (resetSending()) {
-          <i class="pi pi-spin pi-spinner"></i>
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
           {{ 'COMMON.LOADING' | translate }}
         } @else {
-          <i class="pi pi-envelope"></i>
+          <i aria-hidden="true" class="pi pi-envelope"></i>
           {{ 'PROFIL.RESET_BTN' | translate }}
         }
       </button>
@@ -106,13 +106,13 @@
   <!-- ── Section : Session ─────────────────────────────────────────────────── -->
   <section class="carte profil-section">
     <div class="profil-section__header">
-      <span class="profil-section__icon profil-section__icon--danger"><i class="pi pi-sign-out"></i></span>
+      <span class="profil-section__icon profil-section__icon--danger"><i aria-hidden="true" class="pi pi-sign-out"></i></span>
       {{ 'PROFIL.SECTION_SESSION' | translate }}
     </div>
 
     <div class="profil-section__body">
       <button class="btn btn--danger" (click)="logout()">
-        <i class="pi pi-sign-out"></i>
+        <i aria-hidden="true" class="pi pi-sign-out"></i>
         {{ 'PROFIL.LOGOUT' | translate }}
       </button>
     </div>

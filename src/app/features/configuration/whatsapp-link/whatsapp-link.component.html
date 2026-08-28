@@ -35,7 +35,7 @@
 <!-- Chargement initial -->
 @else if (loading()) {
   <div class="wa-link wa-link--pending">
-    <i class="pi pi-spin pi-spinner"></i>
+    <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
     {{ 'CONFIGURATION.WHATSAPP_QR_LOADING' | translate }}
   </div>
 }
@@ -61,7 +61,7 @@
 @else if (rompu()) {
   <div class="wa-link wa-link--rompu" role="alert">
     <div class="wa-link__icon wa-link__icon--alerte" aria-hidden="true">
-      <i class="pi pi-exclamation-triangle"></i>
+      <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
     </div>
     <div class="wa-link__body">
       <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_ROMPU_TITRE' | translate }}</div>
@@ -81,7 +81,7 @@
 <!-- Service en cours de démarrage (pas encore de QR) -->
 @else {
   <div class="wa-link wa-link--pending">
-    <i class="pi pi-spin pi-spinner"></i>
+    <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
     {{ 'CONFIGURATION.WHATSAPP_QR_WAITING' | translate }}
   </div>
 }

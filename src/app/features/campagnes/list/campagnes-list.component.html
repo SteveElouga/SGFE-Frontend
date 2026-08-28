@@ -113,7 +113,7 @@
         @let cloturee = c.statut === 'CLOTUREE';
         <button type="button" class="ccard" (click)="voirCampagne(c.campagneId)">
           <span class="ccard__icon ccard__icon--{{ c.statut.toLowerCase() }}" aria-hidden="true">
-            <i class="pi pi-calendar"></i>
+            <i aria-hidden="true" class="pi pi-calendar"></i>
           </span>
           <span class="ccard__info">
             <span class="ccard__nom" [class.ccard__nom--muted]="cloturee">{{ nomAffichable(c) }}</span>
@@ -156,7 +156,7 @@
               (click)="demarrer(c.campagneId)"
             >
               @if (demarrantId() === c.campagneId) {
-                <i class="pi pi-spin pi-spinner"></i>
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
               }
               {{ 'CAMPAGNES.DEMARRER' | translate }}
             </button>
@@ -168,7 +168,7 @@
               (click)="cloturer(c.campagneId)"
             >
               @if (cloturantId() === c.campagneId) {
-                <i class="pi pi-spin pi-spinner"></i>
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
               }
               {{ 'CAMPAGNES.CLOTURER' | translate }}
             </button>

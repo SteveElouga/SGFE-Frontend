@@ -999,6 +999,9 @@
       "BANDEAU_TITRE": "This invoice has been cancelled",
       "BANDEAU_PAR": "by {{ par }}",
       "BANDEAU_REMPLACEE": "See the invoice that replaces it"
+    },
+    "LIST": {
+      "ENVOYER_WHATSAPP": "Send via WhatsApp"
     }
   },
   "PAIEMENTS": {
