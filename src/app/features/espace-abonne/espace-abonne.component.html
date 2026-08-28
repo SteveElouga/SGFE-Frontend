@@ -78,6 +78,16 @@
               }
             }
 
+            <!-- L'avoir se montre à côté de la dette, jamais soustrait d'elle :
+                 « combien je dois » et « combien j'ai d'avance » sont deux
+                 questions, et un seul chiffre ne répond bien à aucune. -->
+            @if (avoir() > 0) {
+              <p class="ea-solde__avoir">
+                <i class="pi pi-wallet" aria-hidden="true"></i>
+                {{ 'ESPACE.AVOIR' | translate: { montant: (avoir() | fcfa) } }}
+              </p>
+            }
+
             @if (data()?.token_expiration) {
               <p class="ea-solde__expire">
                 <i class="pi pi-clock" aria-hidden="true"></i>

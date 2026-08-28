@@ -855,10 +855,13 @@
 // Posé à côté de la bande de calcul, jamais dedans : celle-ci explique une
 // consommation, celui-ci constate une dette. Les confondre reviendrait à faire
 // croire que l'abonné a consommé ce qu'il traîne.
+// Ce bloc sert deux situations opposées : une dette antérieure, et un avoir.
+// La bordure reste neutre — la couleur est portée par les montants eux-mêmes,
+// qui savent, eux, de quel côté ils penchent.
 .anterieur {
   margin-top: var(--pas-4);
   background: var(--surface);
-  border: 1px solid var(--danger-trait);
+  border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
   padding: var(--pas-4) var(--pas-5);
   display: flex;
@@ -891,6 +894,10 @@
     // La dette porte l'encre du danger : elle ne doit pas se lire comme une
     // consommation ordinaire.
     &--dette { color: var(--danger-encre); font-weight: 700; }
+
+    // L'avoir est un crédit : vert, à l'opposé du rouge de la dette qui le
+    // précède parfois dans le même bloc.
+    &--avoir { color: var(--succes-encre); font-weight: 700; }
   }
 
   // L'âge pèse plus que le montant : c'est lui qui fait payer.
@@ -899,5 +906,72 @@
     text-align: right;
     font-size: var(--texte-sm);
     color: var(--danger-encre);
+  }
+}
+
+// ── Facture annulée ─────────────────────────────────────────────────────────
+// Le bandeau passe avant le montant : lire une somme sans savoir qu'elle ne
+// vaut plus rien est la pire des lectures possibles.
+.annulee-bandeau {
+  display: flex;
+  gap: var(--pas-4);
+  align-items: flex-start;
+  border-left: 3px solid var(--encre-3);
+  background: var(--surface-douce);
+
+  > .pi {
+    font-size: 20px;
+    color: var(--encre-3);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  &__titre {
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre-2);
+  }
+
+  &__motif {
+    margin-top: var(--pas-1);
+    font-size: var(--texte-lg);
+    color: var(--encre);
+  }
+
+  &__meta {
+    margin-top: var(--pas-1);
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  }
+
+  &__lien {
+    display: inline-block;
+    margin-top: var(--pas-3);
+    color: var(--action);
+    font-size: var(--texte-md);
+    font-weight: 600;
+    text-decoration: none;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { text-decoration: underline; text-underline-offset: 3px; }
+    }
+
+    &:focus-visible {
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
+      border-radius: var(--rayon-xs);
+    }
+  }
+}
+
+// Le geste qui efface une dette : rouge, mais fantôme. Il doit se trouver
+// quand on le cherche, sans attirer l'œil de qui voulait envoyer un PDF.
+.btn--danger-ghost {
+  background: var(--surface);
+  border: 1px solid var(--danger-trait);
+  color: var(--danger-encre);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--danger-fond); }
   }
 }

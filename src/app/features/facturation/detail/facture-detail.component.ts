@@ -16,7 +16,9 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
-import { extractGqlError } from '../../../core/auth/auth.service';
+import { RouterLink } from '@angular/router';
+import { AnnulerSheetComponent } from './annuler-sheet/annuler-sheet.component';
+import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { DetteAbonne, Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { Abonne } from '../../../shared/models/abonne.model';
@@ -40,6 +42,8 @@ import { ToastService } from '../../../shared/services/toast.service';
     PaiementFormComponent,
     TooltipDirective,
     FcfaPipe,
+    RouterLink,
+    AnnulerSheetComponent,
     BadgeComponent,
   ],
   templateUrl: './facture-detail.component.html',
@@ -49,6 +53,8 @@ import { ToastService } from '../../../shared/services/toast.service';
 export class FactureDetailComponent implements OnInit {
   /** Exposé au template pour la teinte de la puce de statut. */
   protected readonly factureStatutTone = factureStatutTone;
+
+  private readonly auth = inject(AuthService);
 
   private readonly facturesService = inject(FacturesService);
   private readonly abonnesService = inject(AbonnesService);
@@ -91,11 +97,27 @@ export class FactureDetailComponent implements OnInit {
     return !Number.isNaN(echeance.getTime()) && echeance.getTime() < Date.now();
   });
 
-  /** Consommation du mois plus dette antérieure — ce que l'abonné doit régler. */
+  /**
+   * Part de cette facture réglée par un avoir plutôt que par un versement.
+   *
+   * Sans elle, l'écran affiche un « déjà réglé » que l'abonné ne se souvient
+   * pas d'avoir versé, et un reste à payer inférieur à sa consommation sans
+   * rien qui l'explique.
+   */
+  readonly avoirImpute = computed(() => this.solde()?.avoirImpute ?? 0);
+  readonly aUnAvoir = computed(() => this.avoirImpute() > 0);
+
+  /**
+   * Ce que l'abonné doit réellement régler : la consommation du mois, plus la
+   * dette antérieure, moins l'avoir déjà imputé.
+   *
+   * Le total ne descend jamais sous zéro — un avoir supérieur à la facture la
+   * solde, il ne la rend pas due par la régie.
+   */
   readonly totalAPayer = computed(() => {
     const f = this.facture();
     if (!f) return 0;
-    return f.montant + (this.soldeAnterieur()?.totalDu ?? 0);
+    return Math.max(0, f.montant + (this.soldeAnterieur()?.totalDu ?? 0) - this.avoirImpute());
   });
   readonly error = signal<string | null>(null);
   readonly pdfLoading = signal(false);
@@ -106,6 +128,11 @@ export class FactureDetailComponent implements OnInit {
   readonly envois = signal<Envoi[]>([]);
   readonly abonne = signal<Abonne | null>(null);
   readonly campagne = signal<Campagne | null>(null);
+
+  /** Feuille d'annulation. Réservée à ADMIN : effacer une dette est le geste
+   *  le plus lourd de l'application, plus lourd que d'en créer une. */
+  readonly annulerSheetVisible = signal(false);
+  readonly estAdmin = computed(() => this.auth.isAdmin());
 
   readonly showForm = signal(false);
   readonly changingStatut = signal(false);
@@ -426,4 +453,21 @@ export class FactureDetailComponent implements OnInit {
     const sansUrl = erreur.replace(/\s*\(?https?:\/\/\S*\)?/g, '').replace(/\s{2,}/g, ' ').trim();
     return sansUrl.length > 120 ? `${sansUrl.slice(0, 119)}…` : sansUrl;
   }
+
+  /**
+   * Après une annulation.
+   *
+   * Avec régénération, on suit la nouvelle facture : rester sur une facture
+   * annulée alors qu'une corrigée vient de naître oblige à la chercher, et
+   * c'est elle qu'on voulait voir. Sans régénération, on recharge sur place —
+   * la facture existe encore, elle a seulement changé d'état.
+   */
+  async onAnnulationFaite(nouvelle: Facture | null): Promise<void> {
+    if (nouvelle) {
+      await this.router.navigate(['/facturation', nouvelle.factureId]);
+      return;
+    }
+    await this.reload();
+  }
+
 }

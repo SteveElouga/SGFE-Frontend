@@ -819,6 +819,22 @@
 
 // Deux gestes dans la carte de solde : encaisser (courant, donc en avant) et
 // saisir un arriéré (rare, donc en retrait). Le poids visuel dit la fréquence.
+// L'avoir est une bonne nouvelle dans une carte qui en donne rarement : il
+// prend le vert du crédit, pas le rouge de la dette qui l'entoure.
+.abonne-kpi__avoir {
+  margin-top: var(--pas-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  background: var(--succes-fond);
+  color: var(--succes-encre);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .abonne-kpi__actions {
   margin-top: var(--pas-2);
   display: flex;

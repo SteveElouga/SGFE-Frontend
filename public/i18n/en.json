@@ -205,7 +205,9 @@
       "METER_INFO_NOTE": "The next reading will use the new meter's initial index. History from the old meter remains viewable in the subscriber file.",
       "METER_CONFIRMER": "Confirm replacement",
       "PDF": "PDF",
-      "PDF_ERROR": "Could not open the PDF. Please try again."
+      "PDF_ERROR": "Could not open the PDF. Please try again.",
+      "AVOIR_DISPONIBLE": "Credit available: {{ montant }}",
+      "AVOIR_EXPLICATION": "This credit will be applied automatically to the next invoice."
     },
     "FORM": {
       "CREATE_TITLE": "New subscriber",
@@ -960,7 +962,9 @@
       "CONSO_DU_MOIS": "This month's consumption",
       "SOLDE_ANTERIEUR": "Prior balance · {{n}} invoice(s)",
       "TOTAL_A_PAYER": "Total due",
-      "DEPUIS": "including {{montant}} owed since {{date}}"
+      "DEPUIS": "including {{montant}} owed since {{date}}",
+      "AVOIR_APPLIQUE": "Credit applied",
+      "AVOIR_ORIGINE": "This credit comes from an overpayment or a cancelled invoice."
     },
     "SUCCESS_STATUT": "Invoice status updated",
     "FILTER_CAMPAGNE": "Campaign",
@@ -969,7 +973,33 @@
     "CHIP_TOUTES": "All",
     "CHIP_IMPAYEES": "Unpaid",
     "CHIP_PARTIELLES": "Partial",
-    "CHIP_PAYEES": "Paid"
+    "CHIP_PAYEES": "Paid",
+    "ANNULATION": {
+      "TITRE": "Cancel this invoice?",
+      "DESC": "Invoice {{ numero }}",
+      "DEJA_ENVOYEE": "This invoice has already been sent to the subscriber. They still have a copy in WhatsApp — remember to send them the new one.",
+      "MODE": "What do you want to do?",
+      "MODE_SEUL": "Cancel only",
+      "MODE_SEUL_DESC": "The debt disappears; no invoice replaces it.",
+      "MODE_REGEN": "Cancel and reissue",
+      "MODE_REGEN_DESC": "A corrected invoice is issued from the current reading. Fix the index first if that is the problem.",
+      "MOTIF": "Reason for cancelling *",
+      "MOTIF_EXEMPLE": "Reading taken from the wrong meter",
+      "MOTIF_AIDE": "No index justifies a debt disappearing: this sentence is the only record of why.",
+      "RECAP": "What will happen",
+      "RECAP_JOURNAL": "The invoice stays in the ledger with its number, marked cancelled.",
+      "RECAP_AVOIR": "The {{ montant }} already paid returns to the subscriber's credit.",
+      "RECAP_REGEN": "A corrected invoice is issued, and the credit applies to it at once.",
+      "RECAP_SANS_REGEN": "No replacement invoice is issued.",
+      "VALIDER": "Cancel invoice",
+      "VALIDER_REGEN": "Cancel and reissue",
+      "SUCCES": "Invoice {{ numero }} cancelled",
+      "SUCCES_REGENERE": "{{ ancien }} cancelled, {{ nouveau }} issued",
+      "ACTION": "Cancel invoice",
+      "BANDEAU_TITRE": "This invoice has been cancelled",
+      "BANDEAU_PAR": "by {{ par }}",
+      "BANDEAU_REMPLACEE": "See the invoice that replaces it"
+    }
   },
   "PAIEMENTS": {
     "TITLE": "Payments",
@@ -1018,7 +1048,8 @@
       "EXCEDENT": "{{montant}} left over — credited to the subscriber",
       "VALIDER": "Record payment",
       "SUCCES": "Payment recorded",
-      "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices"
+      "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices",
+      "AVOIR": "{{ montant }} already credited to this subscriber — will apply to their next invoice."
     }
   },
   "IMPAYES": {
@@ -1351,7 +1382,8 @@
     "FACTURES_A_REGLER_UNE": "1 invoice with a balance due",
     "DONT_ECHU_UN": "Including {{ montant }} overdue for 1 day",
     "RETARD_DEPUIS_UN": "Overdue for 1 day",
-    "ECHEANCE_PROCHE_UN": "Due tomorrow"
+    "ECHEANCE_PROCHE_UN": "Due tomorrow",
+    "AVOIR": "{{ montant }} in credit — deducted from your next invoice"
   },
   "APP": {
     "NAME": "SGFE",

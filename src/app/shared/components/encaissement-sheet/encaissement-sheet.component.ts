@@ -58,6 +58,15 @@ export class EncaissementSheetComponent {
   readonly soldes = input<readonly SoldeFacture[]>([]);
   /** Numéro de facture par identifiant, pour nommer les parts lisiblement. */
   readonly numerosParFacture = input<Record<string, string>>({});
+  /**
+   * Avoir disponible de l'abonné.
+   *
+   * Il ne participe pas au calcul — le serveur l'impute de lui-même à la
+   * création de la facture suivante. Mais il doit se voir ici : un caissier qui
+   * encaisse sans savoir qu'il reste du crédit fait payer deux fois quelqu'un
+   * qui a déjà donné.
+   */
+  readonly avoir = input(0);
 
   readonly close = output<void>();
   readonly saved = output<void>();
@@ -87,6 +96,7 @@ export class EncaissementSheetComponent {
   );
 
   readonly totalDuFormate = computed(() => formatFcfa(this.totalDu()));
+  readonly avoirFormate = computed(() => formatFcfa(this.avoir()));
 
   /**
    * Ce que le versement va faire, avant de le faire.

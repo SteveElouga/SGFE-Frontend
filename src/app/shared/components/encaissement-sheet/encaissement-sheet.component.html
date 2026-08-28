@@ -11,6 +11,16 @@
       </p>
     </div>
 
+    <!-- L'avoir déjà au crédit de l'abonné. Il ne se déduit pas ici — le
+         serveur l'impute à la facture suivante — mais l'ignorer conduit à faire
+         payer deux fois quelqu'un qui a déjà donné. -->
+    @if (avoir() > 0) {
+      <p class="enc-avoir">
+        <i class="pi pi-wallet" aria-hidden="true"></i>
+        <span>{{ 'PAIEMENTS.ENCAISSEMENT.AVOIR' | translate: { montant: avoirFormate() } }}</span>
+      </p>
+    }
+
     <!-- Montant -->
     <div class="enc-champ">
       <label class="enc-champ__label" for="enc-montant">

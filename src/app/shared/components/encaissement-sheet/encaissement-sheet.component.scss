@@ -66,6 +66,22 @@
   &__monnaie &__input { padding-right: 58px; }
 }
 
+// L'avoir : une bonne nouvelle dans un écran qui parle de dette. Le vert du
+// crédit, pas le rouge du dû.
+.enc-avoir {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
+  border-radius: var(--rayon-sm);
+  color: var(--succes-encre);
+  font-size: var(--texte-md);
+  font-weight: 500;
+}
+
 // Contrôle segmenté : les modes s'excluent, la forme doit le dire.
 .enc-modes { display: flex; gap: var(--pas-2); flex-wrap: wrap; }
 

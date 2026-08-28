@@ -205,7 +205,9 @@
       "METER_INFO_NOTE": "Le prochain relevé utilisera l'index initial du nouveau compteur. L'historique de l'ancien compteur reste consultable dans la fiche abonné.",
       "METER_CONFIRMER": "Confirmer le remplacement",
       "PDF": "PDF",
-      "PDF_ERROR": "Impossible d'ouvrir le PDF. Réessayez."
+      "PDF_ERROR": "Impossible d'ouvrir le PDF. Réessayez.",
+      "AVOIR_DISPONIBLE": "Avoir disponible : {{ montant }}",
+      "AVOIR_EXPLICATION": "Ce crédit s'imputera automatiquement sur la prochaine facture."
     },
     "FORM": {
       "CREATE_TITLE": "Nouvel abonné",
@@ -960,7 +962,9 @@
       "CONSO_DU_MOIS": "Consommation du mois",
       "SOLDE_ANTERIEUR": "Solde antérieur · {{n}} facture(s)",
       "TOTAL_A_PAYER": "Total à payer",
-      "DEPUIS": "dont {{montant}} dus depuis le {{date}}"
+      "DEPUIS": "dont {{montant}} dus depuis le {{date}}",
+      "AVOIR_APPLIQUE": "Avoir appliqué",
+      "AVOIR_ORIGINE": "Cet avoir provient d'un trop-perçu ou d'une facture annulée."
     },
     "SUCCESS_STATUT": "Statut de la facture mis à jour",
     "FILTER_CAMPAGNE": "Campagne",
@@ -969,7 +973,33 @@
     "CHIP_TOUTES": "Toutes",
     "CHIP_IMPAYEES": "Impayées",
     "CHIP_PARTIELLES": "Partielles",
-    "CHIP_PAYEES": "Payées"
+    "CHIP_PAYEES": "Payées",
+    "ANNULATION": {
+      "TITRE": "Annuler cette facture ?",
+      "DESC": "Facture {{ numero }}",
+      "DEJA_ENVOYEE": "Cette facture a déjà été envoyée à l'abonné. Il en garde une copie dans WhatsApp — pensez à lui envoyer la nouvelle.",
+      "MODE": "Que voulez-vous faire ?",
+      "MODE_SEUL": "Annuler seulement",
+      "MODE_SEUL_DESC": "La dette disparaît, aucune facture ne la remplace.",
+      "MODE_REGEN": "Annuler et régénérer",
+      "MODE_REGEN_DESC": "Une facture corrigée est émise depuis le relevé actuel. Corrigez l'index avant, si c'est lui qui est en cause.",
+      "MOTIF": "Motif de l'annulation *",
+      "MOTIF_EXEMPLE": "Index relevé sur le mauvais compteur",
+      "MOTIF_AIDE": "Aucun index ne justifie la disparition d'une dette : cette phrase en est la seule trace.",
+      "RECAP": "Ce qui va se passer",
+      "RECAP_JOURNAL": "La facture reste au journal avec son numéro, marquée annulée.",
+      "RECAP_AVOIR": "Les {{ montant }} déjà versés reviennent au crédit de l'abonné.",
+      "RECAP_REGEN": "Une facture corrigée est émise, et le crédit s'y impute aussitôt.",
+      "RECAP_SANS_REGEN": "Aucune facture de remplacement n'est émise.",
+      "VALIDER": "Annuler la facture",
+      "VALIDER_REGEN": "Annuler et régénérer",
+      "SUCCES": "Facture {{ numero }} annulée",
+      "SUCCES_REGENERE": "{{ ancien }} annulée, {{ nouveau }} émise",
+      "ACTION": "Annuler la facture",
+      "BANDEAU_TITRE": "Cette facture a été annulée",
+      "BANDEAU_PAR": "par {{ par }}",
+      "BANDEAU_REMPLACEE": "Voir la facture qui la remplace"
+    }
   },
   "PAIEMENTS": {
     "TITLE": "Paiements",
@@ -1018,7 +1048,8 @@
       "EXCEDENT": "{{montant}} en excédent — porté au crédit de l'abonné",
       "VALIDER": "Encaisser",
       "SUCCES": "Versement enregistré",
-      "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures"
+      "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures",
+      "AVOIR": "{{ montant }} déjà au crédit de cet abonné — s'imputera sur sa prochaine facture."
     }
   },
   "IMPAYES": {
@@ -1351,7 +1382,8 @@
     "FACTURES_A_REGLER_UNE": "1 facture avec un reste à payer",
     "DONT_ECHU_UN": "Dont {{ montant }} en retard depuis 1 jour",
     "RETARD_DEPUIS_UN": "En retard depuis 1 jour",
-    "ECHEANCE_PROCHE_UN": "À régler demain"
+    "ECHEANCE_PROCHE_UN": "À régler demain",
+    "AVOIR": "{{ montant }} à votre crédit — déduits de votre prochaine facture"
   },
   "APP": {
     "NAME": "SGFE",

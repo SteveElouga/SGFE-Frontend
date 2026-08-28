@@ -1,0 +1,221 @@
+// Annulation d'une facture. Le geste efface une dette : le ton est sérieux sans
+// être alarmiste — on corrige une erreur, on ne commet pas une faute.
+
+.ann-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-5);
+  padding: var(--pas-5);
+}
+
+.ann-header {
+  display: flex;
+  gap: var(--pas-4);
+  align-items: flex-start;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rayon-md);
+    background: var(--attente-fond);
+    color: var(--attente-encre);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  &__titre {
+    margin: 0;
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+  }
+
+  &__desc {
+    margin: var(--pas-1) 0 0;
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// Un avertissement, pas un blocage : la couleur informe sans interdire.
+.ann-alerte {
+  margin: 0;
+  display: flex;
+  gap: var(--pas-2);
+  align-items: flex-start;
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--info-fond);
+  border: 1px solid var(--info-trait);
+  border-radius: var(--rayon-sm);
+  font-size: var(--texte-md);
+  color: var(--info-encre);
+  line-height: 1.5;
+
+  .pi { margin-top: 2px; flex-shrink: 0; }
+}
+
+.ann-champ {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+
+  &__label {
+    font-size: var(--texte-sm);
+    font-weight: 600;
+    color: var(--encre-2);
+  }
+
+  &__input {
+    min-height: 44px;                       // WCAG 2.5.5
+    padding: var(--pas-3) var(--pas-4);
+    border: 1px solid var(--filet);
+    border-radius: var(--rayon-sm);
+    background: var(--surface);
+    color: var(--encre);
+    font-family: inherit;
+    font-size: var(--texte-lg);
+    width: 100%;
+
+    &:focus-visible {
+      outline: var(--focus-epaisseur) solid var(--action);
+      outline-offset: 1px;
+      border-color: var(--action);
+    }
+  }
+
+  &__aide {
+    margin: 0;
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  }
+}
+
+// Les deux modes s'excluent : la forme doit le dire, et chacun porte son
+// explication — « régénérer » n'est pas devinable depuis son seul nom.
+.ann-modes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.ann-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  min-height: 44px;
+  padding: var(--pas-3) var(--pas-4);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--surface);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    border-color var(--duree-courte) var(--ease-out);
+
+  &__titre { font-size: var(--texte-lg); font-weight: 600; color: var(--encre); }
+  &__desc { font-size: var(--texte-sm); color: var(--encre-3); line-height: 1.4; }
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(&--actif) { background: var(--surface-douce); }
+  }
+
+  &--actif {
+    border-color: var(--action);
+    background: var(--info-fond);
+
+    .ann-mode__titre { color: var(--action-survol); }
+  }
+
+  &:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--action);
+    outline-offset: var(--focus-decalage);
+  }
+}
+
+// Ce qui va se passer, avant que ça se passe.
+.ann-recap {
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+
+  &__titre {
+    font-size: var(--badge-texte);
+    font-weight: var(--badge-poids);
+    letter-spacing: var(--badge-espace);
+    text-transform: var(--badge-casse);
+    color: var(--encre-3);
+  }
+
+  &__liste {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-1);
+    font-size: var(--texte-md);
+    color: var(--encre-2);
+    line-height: 1.5;
+  }
+}
+
+.ann-actions {
+  display: flex;
+  gap: var(--pas-3);
+  justify-content: flex-end;
+}
+
+.ann-btn {
+  min-height: 44px;
+  padding: var(--pas-3) var(--pas-5);
+  border-radius: var(--rayon-sm);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  &--annuler {
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    color: var(--encre-2);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { background: var(--surface-douce); }
+    }
+  }
+
+  // Rouge : le geste retire une dette, et il ne se défait pas.
+  &--valider {
+    background: var(--danger);
+    border: 1px solid var(--danger);
+    color: var(--encre-inverse);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { filter: brightness(0.92); }
+    }
+
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  &:active:not(:disabled) { transform: scale(0.97); }
+
+  &:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--action);
+    outline-offset: var(--focus-decalage);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ann-mode, .ann-btn { transition: none; }
+  .ann-btn:active { transform: none; }
+}
