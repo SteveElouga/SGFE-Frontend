@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host {
   display: block;
@@ -285,38 +286,24 @@
 }
 
 .btn-action {
-  border: 1px solid var(--filet);
-  border-radius: var(--rayon-sm);
-  padding: var(--pas-1) var(--pas-2);
-  font-size: var(--texte-xs);
-  font-weight: 500;
-  color: var(--encre-3);
-  background: var(--surface);
-  cursor: pointer;
-  transition: background 0.12s, border-color 0.12s;
-  white-space: nowrap;
+  @include action-ligne;
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-douce); border-color: var(--filet-pale); }
+  // Le renvoi WhatsApp n'a pas de mot assez court pour tenir en bout de
+  // ligne : c'est la seule action iconique de l'application.
+  &--icon {
+    @include action-ligne-icone;
+    i { font-size: var(--icone-xs); }
   }
 
+  // L'action principale d'une ligne impayée : encaisser.
   &--primary {
-    background: $color-primary;
+    background: var(--action);
+    border-color: var(--action);
     color: var(--surface);
-    border-color: $color-primary;
-    font-weight: 600;
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        background: color.adjust($color-primary, $lightness: -8%);
-        border-color: color.adjust($color-primary, $lightness: -8%);
-      }
+      &:hover { background: var(--action-survol); border-color: var(--action-survol); color: var(--surface); }
     }
-  }
-
-  &--icon {
-    padding: var(--pas-1) var(--pas-2);
-    i { font-size: var(--icone-xs); }
   }
 }
 

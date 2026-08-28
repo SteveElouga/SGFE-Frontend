@@ -61,6 +61,12 @@
   margin: 0;
   color: inherit;
   font: inherit;
+  // `font` ne couvre ni la casse ni l'interlettrage, et le bouton remet la
+  // casse à `none`. Sans ces deux lignes, l'en-tête d'une colonne triable
+  // s'affichait en casse normale et celui d'une colonne non triable en
+  // capitales — sur la même ligne. La casse dépendait de la sortabilité.
+  text-transform: inherit;
+  letter-spacing: inherit;
   cursor: pointer;
   transition: color 0.12s;
 

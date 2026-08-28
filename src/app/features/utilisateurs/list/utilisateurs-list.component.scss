@@ -1,5 +1,6 @@
 @use 'sass:color';
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -120,45 +121,10 @@
 }
 
 .users-table__action-btn {
-  min-width: 44px;
-  min-height: 44px;                 // WCAG 2.5.5 — était 32×32
-  width: 32px;
-  height: 32px;
-  border-radius: var(--rayon-sm);
-  border: 1px solid var(--filet);
-  background: var(--surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--encre-2);
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  @include action-ligne;
 
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      background: var(--surface-douce);
-      color: var(--action);
-      border-color: $color-primary;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    &--danger:hover {
-      background: var(--danger-fond);
-      color: var(--danger-encre);
-      border-color: var(--danger-trait);
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    &--success:hover {
-      background: var(--succes-fond);
-      color: var(--succes-encre);
-      border-color: var(--succes-trait);
-    }
-  }
-
-  i { font-size: var(--icone-xs); }
+  &--danger  { @include action-ligne-danger; }
+  &--success { @include action-ligne-succes; }
 }
 
 .users-table__empty {

@@ -42,3 +42,85 @@
     }
   }
 }
+
+// ── Action de ligne de tableau ───────────────────────────────────────────────
+// Il en existait quatre conventions : icônes seules sur /utilisateurs, deux
+// boutons texte sur /abonnes, un bouton encadré seul sur /campagnes, un bouton
+// plein plus un bouton contour sur /impayes. Un lecteur qui passe d'un écran à
+// l'autre devait réapprendre où cliquer à chaque fois.
+//
+// Une seule apparence, deux formes : texte pour une action nommée, carré pour
+// une icône. La cible tactile fait 44 px dans les deux cas (WCAG 2.5.5), même
+// quand le dessin n'en fait que 32.
+@mixin action-ligne-base {
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--surface);
+  color: var(--encre-3);
+  font-size: var(--texte-xs);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      border-color: var(--action);
+      color: var(--action);
+      background: var(--action-lueur);
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--anneau);
+  }
+}
+
+/** Action nommée : « Voir », « Modifier », « Relances ». */
+@mixin action-ligne {
+  @include action-ligne-base;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: var(--pas-1) var(--pas-3);
+}
+
+/** Action iconique : crayon, interdiction. Dessin 32 px, cible 44 px. */
+@mixin action-ligne-icone {
+  @include action-ligne-base;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+}
+
+/** Variantes teintées — réservées à ce qui change l'état de la ligne. */
+@mixin action-ligne-succes {
+  background: var(--succes-fond);
+  border-color: var(--succes-trait);
+  color: var(--succes-encre);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--mint-tapis);
+      border-color: var(--succes-trait);
+      color: var(--vert-profond);
+    }
+  }
+}
+
+@mixin action-ligne-danger {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--danger-fond);
+      border-color: var(--danger-trait);
+      color: var(--danger-encre);
+    }
+  }
+}
