@@ -39,8 +39,12 @@
 .t-body {
   @media (min-width: 640px) {
     width: 100%;
-    max-width: 1120px;
-    margin-inline: auto;
+    // La colonne de lecture était plafonnée à 1 120 px et centrée : sur un
+    // écran large, le corps se retrouvait à 490 px du bord pendant que le
+    // bandeau, lui, restait aligné à 220. Deux règles d'alignement sur le même
+    // écran — et /terrain était le seul des treize à se centrer ainsi, tous les
+    // autres occupant la largeur disponible (mesuré : 1 517 px sur /abonnes).
+    // Un écran de relevés est une liste : il se compose comme les autres.
     padding-inline: var(--pas-5);
   }
 }
@@ -50,7 +54,16 @@
 .t-empty {
   display: flex;
   flex-direction: column;
+  // `align-items: center` centrait le contenu DANS le bloc, mais le bloc
+  // lui-même n'occupait qu'une CELLULE de `.rows` — une grille en
+  // `repeat(auto-fill, minmax(320px, 1fr))`, soit quatre colonnes de 374 px sur
+  // un écran large. L'état vide se retrouvait donc dans la première, posé à
+  // gauche d'une zone de 1 580. Il traverse la grille : un état vide se centre
+  // dans tout l'espace qu'on lui laisse, pas dans le quart qui lui échoit.
+  width: 100%;
+  grid-column: 1 / -1;
   align-items: center;
+  justify-content: center;
   gap: var(--pas-3);
   padding: 56px var(--pas-4);
   color: var(--encre-3);                     // était var(--encre-faible) (2.9:1) → 4.5:1
@@ -104,7 +117,11 @@
 
   @media (min-width: 1024px) {
     padding: 0 var(--pas-5) var(--pas-4);
-    max-width: 420px;
+    // Le plafond de 420 px était une règle propre au desktop — et c'est elle
+    // qui posait problème : une barre de 372 px dans un bandeau de 1 580,
+    // avec 1 160 px de vide à sa droite. Mesuré. En mobile le bloc court d'un
+    // bord à l'autre et se lit très bien ; il n'y avait pas de raison de le
+    // brider ici. Il suit la largeur du bandeau, sous le titre qu'il complète.
   }
 }
 
