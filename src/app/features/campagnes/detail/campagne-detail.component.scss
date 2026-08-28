@@ -936,3 +936,13 @@
 @media (max-width: 1023px) {
   .detail-header { display: none; }
 }
+
+// Légende de la grappe de zones : « quartier · camp », dite une fois.
+.agent-card__zones-legende {
+  flex-basis: 100%;
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--pas-1);
+}

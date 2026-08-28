@@ -145,3 +145,40 @@
   &--superviseur { background: var(--role-cyan-lueur); color: var(--role-cyan); }
   &--off         { background: var(--fond); color: var(--encre-3); }
 }
+
+// ── Puce de filtre ───────────────────────────────────────────────────────────
+// Cinquième forme relevée au parcours : /notifications avait sa propre `.chip`,
+// rectangle arrondi à 12 px et compteur en opacité 0,6, quand les quatre autres
+// écrans passent par la pilule du panneau partagé. Un filtre doit se
+// reconnaître d'un écran à l'autre — c'est tout l'intérêt d'en avoir un.
+@mixin puce-filtre {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  min-height: 44px;
+  padding: 0 var(--pas-3);
+  border-radius: 999px;
+  background: var(--surface-douce);
+  border: 1px solid var(--filet);
+  color: var(--encre-2);
+  font-size: var(--texte-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(&--active) {
+      background: var(--fond);
+      border-color: var(--filet-pale);
+    }
+  }
+
+  &:focus-visible { outline: none; box-shadow: var(--anneau); }
+
+  &--active {
+    background: var(--navy-nuit);
+    border-color: var(--navy-nuit);
+    color: var(--surface);
+    font-weight: 600;
+  }
+}

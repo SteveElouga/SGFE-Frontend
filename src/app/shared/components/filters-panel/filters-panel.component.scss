@@ -41,7 +41,11 @@ $fp-chip-h: 44px;
 // faire bouger la rangée quand les données changent. Elle se retire du flux
 // d'interaction, pas de l'écran.
 .fp .fp__chip--empty {
-  opacity: 0.55;
+  // L'opacité était à 0,55 : la puce ne ressemblait plus à un filtre, elle
+  // ressemblait à un bug d'affichage. Or « Résiliés (0) » est une réponse —
+  // c'est même la seule façon de savoir qu'il n'y en a aucun. Elle se retire
+  // du flux d'interaction, pas de l'écran : encre atténuée, pleine opacité.
+  color: var(--encre-3);
   cursor: default;
   pointer-events: none;
 }

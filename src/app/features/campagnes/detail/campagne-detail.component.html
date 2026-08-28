@@ -168,9 +168,21 @@
                   }
                 </div>
 
+                <!-- Quatorze pastilles empilées, dont « Bastos · 1 » et
+                     « Bastos · 5 » : rien ne disait que le second nombre est le
+                     camp. Le tableau « Répartition par zone », plus bas, porte
+                     l'en-tête « ZONE · CAMP » et l'explique — mais il faut y
+                     descendre. La légende monte ici, une fois, au-dessus de la
+                     grappe, et chaque pastille le dit aussi à qui l'écoute. -->
                 <div class="agent-card__zones">
+                  @if (a.zones.length > 0) {
+                    <span class="agent-card__zones-legende">{{ 'CAMPAGNES.ZONE_CAMP_LEGENDE' | translate }}</span>
+                  }
                   @for (z of a.zones; track z.nom) {
-                    <span class="agent-zone-tag">{{ z.nom }} · {{ z.camp }}</span>
+                    <span
+                      class="agent-zone-tag"
+                      [attr.aria-label]="('CAMPAGNES.COL_ZONE' | translate) + ' ' + z.nom + ', ' + ('CAMPAGNES.CAMP' | translate) + ' ' + z.camp"
+                    >{{ z.nom }} · {{ z.camp }}</span>
                   } @empty {
                     <span class="agent-zone-tag agent-zone-tag--empty">
                       {{ 'CAMPAGNES.ZONES_SHEET.NONE' | translate }}

@@ -1,4 +1,5 @@
 @use '../../../styles/variables' as *;
+@use '../../../styles/buttons' as *;
 
 :host {
   display: flex;
@@ -53,27 +54,15 @@
 }
 
 .chip {
-  border: none;
-  background: var(--fond);
-  color: var(--encre-2);
-  border-radius: var(--rayon-lg);
-  padding: var(--pas-2) var(--pas-3);
-  font-size: var(--texte-xs);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  @include puce-filtre;
 
-  &--active { background: var(--navy-nuit); color: var(--surface); font-weight: 600; }
-  @media (hover: hover) and (pointer: fine) {
-    &:hover:not(&--active) { background: var(--filet); }
-  }
-
+  // Le compteur suit le texte comme sur les autres écrans, sans opacité qui
+  // le rendrait moins lisible que le libellé qu'il complète.
   &__count {
-    margin-left: var(--pas-2);
-    opacity: 0.6;
-    &--alert { color: var(--danger-encre); font-weight: 700; opacity: 1; }
+    color: var(--encre-3);
+
+    &--alert { color: var(--danger-encre); font-weight: 700; }
   }
-  &--active &__count { opacity: 0.6; color: inherit; }
 }
 
 // ── Fil ─────────────────────────────────────────────────────────────────────

@@ -647,7 +647,10 @@
     },
     "WHATSAPP_ROMPU_TITRE": "Liaison WhatsApp rompue",
     "WHATSAPP_ROMPU_DESC": "Aucune facture ne peut partir tant que le compte n'est pas relié. Cliquez sur Réessayer : un nouveau QR code apparaîtra dans la minute.",
-    "WHATSAPP_ROMPU_DEPUIS": "Hors service depuis {{ duree }}"
+    "WHATSAPP_ROMPU_DEPUIS": "Hors service depuis {{ duree }}",
+    "ADRESSE_PLACEHOLDER": "ex. Quartier Bastos, BP 1234, Yaoundé",
+    "ADRESSE_HINT": "Adresse postale de la régie — elle est imprimée sur chaque facture PDF.",
+    "NOM_PLACEHOLDER": "ex. Régie des Eaux de Yaoundé"
   },
   "PROFIL": {
     "TITLE": "Mon profil",
@@ -863,7 +866,9 @@
     "AGENTS_EMPTY": "Aucun agent affecté à cette campagne.",
     "CHIP_PLANIFIEES": "Planifiées",
     "CHIP_EN_COURS": "En cours",
-    "CHIP_CLOTUREES": "Clôturées"
+    "CHIP_CLOTUREES": "Clôturées",
+    "ZONE_CAMP_LEGENDE": "Quartier · camp",
+    "CAMP": "camp"
   },
   "FACTURATION": {
     "TITLE": "Factures",

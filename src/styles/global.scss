@@ -246,6 +246,15 @@ textarea,
   min-width: 44px;
 }
 
+// Deux chevrons voisins, deux traitements : celui du select est transparent,
+// celui du datepicker arrivait avec un fond rempli — mesuré rgb(241,245,249)
+// contre transparent. Côte à côte dans la même rangée de filtres, l'un semblait
+// être un bouton à part et l'autre une partie du champ. Le champ gagne : un
+// chevron n'est pas une action séparée, c'est l'indication que le champ s'ouvre.
+.p-datepicker-dropdown {
+  background: transparent;
+}
+
 // Filet de sécurité : un <button> est une cible tactile. Les traquer un par un
 // dans 68 feuilles laissait toujours passer les sélecteurs imbriqués ; la règle
 // vaut donc par défaut, et se lève explicitement là où le bouton n'est pas une
