@@ -117,7 +117,11 @@
 
   @media (min-width: 1024px) {
     padding: 0 var(--pas-5) var(--pas-4);
-    max-width: 420px;
+    // Le plafond de 420 px était une règle propre au desktop — et c'est elle
+    // qui posait problème : une barre de 372 px dans un bandeau de 1 580,
+    // avec 1 160 px de vide à sa droite. Mesuré. En mobile le bloc court d'un
+    // bord à l'autre et se lit très bien ; il n'y avait pas de raison de le
+    // brider ici. Il suit la largeur du bandeau, sous le titre qu'il complète.
   }
 }
 
