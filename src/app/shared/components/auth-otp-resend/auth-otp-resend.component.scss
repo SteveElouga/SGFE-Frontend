@@ -6,7 +6,7 @@
 }
 
 .auth-otp-resend__countdown {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
 }
 
@@ -14,7 +14,7 @@
   background: none;
   border: none;
   color: var(--succes-encre);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   padding: 0;

@@ -8,7 +8,7 @@
   background: var(--danger-fond);
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--danger-encre);
 
   &__icon { flex-shrink: 0; }
@@ -21,7 +21,7 @@
     border: 1px solid var(--danger-trait);
     border-radius: var(--rayon-sm);
     padding: var(--pas-1) var(--pas-2);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 500;
     color: var(--danger-encre);
     cursor: pointer;

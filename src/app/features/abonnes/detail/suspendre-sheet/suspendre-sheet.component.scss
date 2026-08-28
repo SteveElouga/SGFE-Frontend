@@ -25,7 +25,7 @@
   }
 
   &__title {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-1);
@@ -33,7 +33,7 @@
   }
 
   &__desc {
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre-3);
     margin: 0;
     line-height: 1.5;
@@ -55,7 +55,7 @@
   }
 
   &__key {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-3);
     padding: var(--pas-2) var(--pas-3);
@@ -64,7 +64,7 @@
   }
 
   &__val {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: var(--ambre-attente);                     // Ambre Attente
     padding: var(--pas-2) var(--pas-3);
@@ -83,7 +83,7 @@
   background: var(--surface-douce);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-2);
   line-height: 1.5;
 
@@ -105,7 +105,7 @@
   height: 44px;                         // WCAG 2.5.5
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s, transform 160ms var(--ease-out);
@@ -126,7 +126,7 @@
   &--warning {
     @include btn-variant(
       linear-gradient(135deg, var(--ambre-attente), var(--attente-encre)), var(--surface),
-      $shadow: 0 2px 8px rgba(180, 83, 9, 0.28), $hover-opacity: 0.9
+      $shadow: var(--ombre-action-avert), $hover-opacity: 0.9
     );
     &:focus-visible { outline: 2px solid var(--ambre-attente); outline-offset: 2px; }
   }

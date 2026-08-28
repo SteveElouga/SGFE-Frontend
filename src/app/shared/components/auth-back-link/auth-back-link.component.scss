@@ -7,7 +7,7 @@
   gap: var(--pas-2);
   color: var(--encre-3);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--texte-md);
 }
 
 :host(.auth-back-link--desktop-only) {

@@ -150,15 +150,31 @@
   // échelle — et la cause directe des badges de statut rendus à trois tailles
   // différentes selon l'écran.
   //
-  // Sept crans suffisent. Le plancher est à 11 px : sous cette taille, un écran
-  // de terrain tenu à bout de bras en plein soleil ne se lit plus.
+  // Dix crans. Le plancher est à 11 px : sous cette taille, un écran de terrain
+  // tenu à bout de bras en plein soleil ne se lit plus. Le plafond à 42 px est le
+  // compteur du tableau de bord — au-delà, on décore.
   --texte-xs:   11px;   // badge, étiquette de colonne, méta
   --texte-sm:   12px;   // aide sous un champ, sous-titre de ligne
   --texte-md:   13px;   // texte de tableau, corps dense
   --texte-lg:   14px;   // corps courant
   --texte-xl:   16px;   // sous-titre de section
-  --texte-2xl:  20px;   // titre d'écran
-  --texte-3xl:  30px;   // chiffre de KPI
+  --texte-2xl:  18px;   // titre de carte
+  --texte-3xl:  20px;   // titre d'écran
+  --texte-4xl:  24px;   // nombre mis en avant dans une carte
+  --texte-5xl:  30px;   // chiffre de KPI
+  --texte-6xl:  42px;   // affichage : compteur de tableau de bord
+
+  // ── 4bis. Taille des icônes ───────────────────────────────────────────────
+  // Les icônes PrimeIcons se dimensionnent en `font-size`, mais ce ne sont pas
+  // du texte : les faire passer par l'échelle typographique liait la taille
+  // d'un pictogramme à celle d'un paragraphe. Mesuré avant : 14 valeurs
+  // distinctes de 11 à 42 px, dont 11/12/13 px pour la même fonction.
+  --icone-xs:   12px;   // icône inline dans une ligne de méta
+  --icone-sm:   14px;   // icône d'un bouton, d'un champ
+  --icone-md:   16px;   // icône de navigation, d'en-tête
+  --icone-lg:   20px;   // icône d'action isolée
+  --icone-xl:   28px;   // icône d'un état vide
+  --icone-2xl:  40px;   // pictogramme d'illustration
 
   // ── 4ter. Badge de statut ──────────────────────────────────────────────────
   // Un seul badge, partout. Mesuré avant : 10 / 10,5 / 11 px, rayons 4 / 6 /
@@ -174,6 +190,24 @@
   --ombre-carte:   0 1px 2px rgba(15, 28, 61, 0.05);
   --ombre-portee:  0 8px 24px rgba(15, 28, 61, 0.12);
   --ombre-action:  0 2px 8px rgba(26, 86, 219, 0.24);
+  // Corollaire de la règle : un CTA d'avertissement, de succès ou de danger
+  // porte l'ombre de sa propre teinte, pas celle de l'action principale.
+  --ombre-action-avert:  0 2px 8px rgba(180, 83, 9, 0.26);
+  --ombre-action-succes: 0 2px 8px rgba(22, 101, 52, 0.26);
+  --ombre-action-danger: 0 2px 8px rgba(220, 38, 38, 0.26);
+  // Un panneau qui monte du bas est éclairé par le dessous, pas par le dessus.
+  --ombre-panneau: 0 -8px 24px rgba(15, 28, 61, 0.12);
+  // Le tiroir de navigation porte son ombre de côté, pas vers le bas.
+  --ombre-tiroir:  4px 0 24px rgba(15, 28, 61, 0.25);
+
+  // ── 5bis. Anneau de focus ─────────────────────────────────────────────────
+  // Ce ne sont pas des ombres : ce sont les seuls indicateurs de focus au
+  // clavier. Ils étaient écrits en dur 35 fois, en 2 et 3 px, à sept opacités
+  // différentes — une épaisseur qui varie d'un champ à l'autre se lit comme un
+  // bug, et la plus fine ne se voyait pas.
+  --anneau:        0 0 0 3px rgba(26, 86, 219, 0.18);
+  --anneau-danger: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  --anneau-succes: 0 0 0 3px rgba(21, 128, 61, 0.18);
 
   // ── 6. Mouvement ──────────────────────────────────────────────────────────
   --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);

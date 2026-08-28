@@ -38,7 +38,7 @@
   &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 
-  i { font-size: 13px; }
+  i { font-size: var(--icone-xs); }
 }
 
 // ── Page layout ───────────────────────────────────────────────────────────────
@@ -65,7 +65,7 @@
   gap: var(--pas-1);
 
   &__label {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -73,7 +73,7 @@
   }
 
   &__value {
-    font-size: 30px;                  // metric-md
+    font-size: var(--texte-5xl);                  // metric-md
     font-weight: 800;                 // Chiffre Fort
     line-height: 1;
     color: var(--vert-profond);                   // Vert Profond
@@ -81,14 +81,14 @@
   }
 
   &__unit {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 500;
     color: var(--encre-2);
     margin-left: var(--pas-1);
   }
 
   &__hint {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 500;
     color: var(--encre-3);
     margin-top: var(--pas-1);
@@ -98,13 +98,13 @@
   // somme brute des lignes affichées.
   &__annule {
     margin-top: var(--pas-2);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
     color: var(--ambre-attente);
   }
 
   @media (max-width: 1023px) {
-    &__value { font-size: 24px; }     // metric compact mobile
+    &__value { font-size: var(--texte-4xl); }     // metric compact mobile
   }
 }
 
@@ -138,7 +138,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-2);
 }
 
@@ -159,14 +159,14 @@
   overflow: hidden;
 }
 
-.col-date { color: var(--encre-3); white-space: nowrap; font-size: 12px; }
-.col-abonne .abonne-nom { font-weight: 600; font-size: 13px; color: var(--encre); }
-.col-facture { font-size: 11px; color: var(--encre-3); }
-.col-montant { font-weight: 700; font-size: 14px; color: var(--encre); }
+.col-date { color: var(--encre-3); white-space: nowrap; font-size: var(--texte-sm); }
+.col-abonne .abonne-nom { font-weight: 600; font-size: var(--texte-md); color: var(--encre); }
+.col-facture { font-size: var(--texte-xs); color: var(--encre-3); }
+.col-montant { font-weight: 700; font-size: var(--texte-lg); color: var(--encre); }
 
 // ── Référence transaction (Principe #2 : donnée obligatoire pour MM/virement) ──
 .col-reference {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-2);
   font-variant-numeric: tabular-nums;   // alignement des références numériques
   max-width: 180px;
@@ -222,12 +222,12 @@
 
   &__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--pas-2); }
   &__id { min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
-  &__abonne { font-size: 13px; font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__abonne { font-size: var(--texte-md); font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   &__ref { font-size: var(--texte-xs); color: var(--encre-3); }
-  &__montant { font-size: 15px; font-weight: 700; color: var(--encre); white-space: nowrap; flex-shrink: 0; &.montant--partiel { color: var(--action); } }
+  &__montant { font-size: var(--texte-lg); font-weight: 700; color: var(--encre); white-space: nowrap; flex-shrink: 0; &.montant--partiel { color: var(--action); } }
   &__bottom { display: flex; align-items: center; gap: var(--pas-2); flex-wrap: wrap; }
   &__reference {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-2);
     font-variant-numeric: tabular-nums;
     max-width: 140px;

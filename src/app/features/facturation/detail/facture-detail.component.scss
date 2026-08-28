@@ -22,7 +22,7 @@
   align-items: center;
   padding: 80px;
   color: var(--action);
-  font-size: 24px;
+  font-size: var(--texte-4xl);
 }
 
 // ── Cards ─────────────────────────────────────────────────────────────────────
@@ -47,14 +47,14 @@
 }
 
 .detail-card__numero {
-  font-size: 20px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--encre);
   margin-bottom: var(--pas-1);
 }
 
 .detail-card__meta {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
   margin-bottom: var(--pas-1);
 }
@@ -64,7 +64,7 @@
   align-items: center;
   gap: var(--pas-2);
   margin-top: var(--pas-1);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   color: var(--succes-encre);
   background: var(--succes-fond);
@@ -72,7 +72,7 @@
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
 
-  .pi { font-size: 11px; }
+  .pi { font-size: var(--icone-xs); }
 }
 
 .detail-card__actions-col {
@@ -97,7 +97,7 @@
   gap: var(--pas-1);
   padding: var(--pas-2) var(--pas-3);
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   transition: background 0.15s, opacity 0.15s;
 
@@ -114,18 +114,18 @@
   &--primary {
     @include btn-variant(
       $color-primary, var(--surface),
-      $shadow: 0 3px 10px rgba($color-primary, 0.3),
+      $shadow: var(--ombre-action),
       $hover-bg: color.adjust($color-primary, $lightness: -8%)
     );
   }
 
-  &--full { width: 100%; height: 44px; justify-content: center; font-size: 13px; font-weight: 700; }
+  &--full { width: 100%; height: 44px; justify-content: center; font-size: var(--texte-md); font-weight: 700; }
 }
 
 // ── Calculation card ──────────────────────────────────────────────────────────
 
 .calc-title {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   color: var(--encre);
 }
@@ -160,7 +160,7 @@
   }
 
   &__value {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-2);
   }
@@ -182,7 +182,7 @@
 
     > div {
       padding: var(--pas-2) var(--pas-3);
-      font-size: 11px;
+      font-size: var(--texte-xs);
       font-weight: 600;
       color: var(--encre-3);
       letter-spacing: 0.3px;
@@ -205,7 +205,7 @@
   // Icône d'aide contextuelle (H10 Nielsen) sur en-tête TARIF — hover pour
   // tooltip explicatif, tabbable pour clavier + screen-reader.
   .calc-help {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     cursor: help;
     transition: color 0.12s;
@@ -235,7 +235,7 @@
   }
 
   &__total-label {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: rgba(255, 255, 255, 0.7);
     letter-spacing: 0.5px;
@@ -243,7 +243,7 @@
   }
 
   &__total-value {
-    font-size: 24px;
+    font-size: var(--texte-4xl);
     font-weight: 800;
     color: var(--surface);
   }
@@ -251,14 +251,14 @@
 
 .calc-val {
   padding: var(--pas-3) var(--pas-3);
-  font-size: 20px;
+  font-size: var(--texte-3xl);
   font-weight: 600;
 
   &--old  { color: var(--encre-3); }
   &--new  { color: var(--encre); font-weight: 700; }
   &--conso { color: var(--encre); font-weight: 800; }
   &--tarif {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-2);
     display: flex;
@@ -273,7 +273,7 @@
 .calc-op {
   align-self: center;
   padding: 0 var(--pas-2);
-  font-size: 22px;
+  font-size: var(--texte-3xl);
   font-weight: 400;
   color: var(--encre-3);                 // Ardoise (AA 5.6:1 sur blanc)
   line-height: 1;
@@ -284,7 +284,7 @@
 // ── Payment history ───────────────────────────────────────────────────────────
 
 .empty-hint {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-3);
   text-align: center;
   padding: var(--pas-4) 0;
@@ -306,14 +306,14 @@
   gap: var(--pas-3);
 
   &__amount {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin-bottom: var(--pas-1);
   }
 
   &__meta {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
   }
 }
@@ -323,7 +323,7 @@
   border: 1px solid var(--succes-trait);
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--succes-encre);
   white-space: nowrap;
@@ -356,7 +356,7 @@
   &__labels {
     display: flex;
     justify-content: space-between;
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
   }
 
@@ -415,7 +415,7 @@
   }
 
   &__text {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-2);
     min-width: 0;
   }
@@ -428,7 +428,7 @@
   }
 
   &__date {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     white-space: nowrap;
   }
@@ -442,7 +442,7 @@
     color: var(--danger-encre);
     border-radius: var(--rayon-sm);
     padding: var(--pas-1) var(--pas-2);
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -450,14 +450,14 @@
     @media (hover: hover) and (pointer: fine) {
       &:hover { background: var(--danger-fond); }
     }
-    i { font-size: 11px; }
+    i { font-size: var(--icone-xs); }
   }
 
   // Détail technique de l'erreur : petit, tronqué à 2 lignes (message complet
   // au survol via `title`), les URLs longues cassées proprement.
   &__err {
     color: var(--danger-encre);
-    font-size: 10.5px;
+    font-size: var(--texte-xs);
     line-height: 1.45;
     overflow-wrap: anywhere;
     display: -webkit-box;
@@ -493,7 +493,7 @@
     border-radius: var(--rayon-md);                 // rounded.md — aligné ramp DESIGN.md
     background: var(--attente-fond);
     color: var(--ambre-attente);
-    font-size: 14px;
+    font-size: var(--texte-lg);
     flex-shrink: 0;
   }
 
@@ -502,7 +502,7 @@
 
 .correction-desc {
   margin: var(--pas-1) 0 0;
-  font-size: 12px;
+  font-size: var(--texte-sm);
   line-height: 1.5;
   color: var(--encre-3);
 }
@@ -539,7 +539,7 @@
   background: var(--attente-fond);
   border: 1px solid var(--attente-trait);
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   line-height: 1.5;
   color: var(--attente-encre);
 
@@ -570,7 +570,7 @@
     margin: 0;
     max-height: 88vh;
     overflow-y: auto;
-    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--ombre-panneau);
   }
   .paiement-form__grip {
     display: block;
@@ -599,11 +599,11 @@
     background: var(--surface);
     border: 2px solid var(--action);
     border-radius: var(--rayon-lg);
-    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.08);
+    box-shadow: var(--anneau);
     padding: var(--pas-4);
     text-align: center;
 
-    &--paid { border-color: var(--succes); box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.08); }
+    &--paid { border-color: var(--succes); box-shadow: var(--anneau); }
 
     &__label {
       font-size: var(--texte-xs);
@@ -615,7 +615,7 @@
     }
 
     &__value {
-      font-size: 30px;
+      font-size: var(--texte-5xl);
       font-weight: 800;
       color: var(--danger-encre);
       line-height: 1.1;
@@ -632,13 +632,13 @@
     }
 
     &__value-hint {
-      font-size: 13px;
+      font-size: var(--texte-md);
       font-weight: 500;
       color: var(--encre-3);
       line-height: 1.2;
     }
 
-    &__devise { font-size: 14px; font-weight: 600; }
+    &__devise { font-size: var(--texte-lg); font-weight: 600; }
   }
 }
 
@@ -662,11 +662,11 @@
         border-bottom: none;
 
         .mrows__k { font-weight: 700; color: var(--encre); }
-        .mrows__v { font-size: 13px; }
+        .mrows__v { font-size: var(--texte-md); }
       }
     }
-    &__k { font-size: 12px; color: var(--encre-3); }
-    &__v { font-size: 12px; font-weight: 600; color: var(--encre); white-space: nowrap; }
+    &__k { font-size: var(--texte-sm); color: var(--encre-3); }
+    &__v { font-size: var(--texte-sm); font-weight: 600; color: var(--encre); white-space: nowrap; }
   }
 }
 
@@ -694,24 +694,24 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: var(--texte-xs);
       flex-shrink: 0;
     }
 
     &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    &__mode { font-size: 12px; font-weight: 600; color: var(--encre); }
+    &__mode { font-size: var(--texte-sm); font-weight: 600; color: var(--encre); }
     &__meta { font-size: var(--texte-xs); color: var(--encre-3); }
-    &__montant { font-size: 13px; font-weight: 700; color: var(--succes-encre); flex-shrink: 0; }
+    &__montant { font-size: var(--texte-md); font-weight: 700; color: var(--succes-encre); flex-shrink: 0; }
 
     &__reste {
       display: flex;
       justify-content: space-between;
       padding-top: var(--pas-2);
-      font-size: 11px;
+      font-size: var(--texte-xs);
       font-weight: 500;
       color: var(--encre-3);
     }
-    &__reste-montant { font-size: 12px; font-weight: 700; color: var(--danger-encre); }
+    &__reste-montant { font-size: var(--texte-sm); font-weight: 700; color: var(--danger-encre); }
   }
 }
 
@@ -731,10 +731,10 @@
     color: var(--surface);
     border: none;
     border-radius: var(--rayon-lg);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
+    box-shadow: var(--ombre-action);
   }
 
   .mactions__icon {
@@ -743,7 +743,7 @@
     background: var(--surface);
     border: 1px solid var(--filet);
     border-radius: var(--rayon-lg);
-    font-size: 17px;
+    font-size: var(--texte-xl);
     color: var(--encre-2);
     cursor: pointer;
     display: flex;
@@ -786,7 +786,7 @@
   gap: var(--pas-2);
   cursor: pointer;
   list-style: none;
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 600;
   color: var(--encre-2);
 
@@ -801,7 +801,7 @@
   &__label { flex: 1; }
 
   &__chevron {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     transition: transform var(--duree-courte) var(--ease-out);
   }
@@ -820,13 +820,13 @@
   gap: var(--pas-2);
   flex-wrap: wrap;
   margin: var(--pas-3) 0 0;
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--danger-encre);
 }
 
 .correction-annuler {
   font: inherit;
-  font-size: 13px;
+  font-size: var(--texte-md);
   background: none;
   border: 0;
   padding: 0;
@@ -920,7 +920,7 @@
   background: var(--surface-douce);
 
   > .pi {
-    font-size: 20px;
+    font-size: var(--icone-lg);
     color: var(--encre-3);
     flex-shrink: 0;
     margin-top: 2px;

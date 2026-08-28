@@ -40,7 +40,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   color: $text-white;
   text-transform: uppercase;
@@ -55,7 +55,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-trigger__name {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   color: $text-white;
   white-space: nowrap;
@@ -100,7 +100,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--texte-xl);
   font-weight: 700;
   color: var(--surface);
   text-transform: uppercase;
@@ -114,7 +114,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-header__name {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   color: var(--encre);
   white-space: nowrap;
@@ -123,7 +123,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-header__sub {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   margin-top: 1px;
   white-space: nowrap;
@@ -151,7 +151,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   align-items: center;
   gap: var(--pas-2);
   padding: var(--pas-2) var(--pas-4);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--encre-2);
   text-decoration: none;
@@ -192,7 +192,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 }
 
 .um-item__icon {
-  font-size: 14px;
+  font-size: var(--icone-sm);
   width: 16px;
   flex-shrink: 0;
 }
@@ -204,12 +204,12 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   align-items: center;
   gap: var(--pas-2);
   padding: var(--pas-2) var(--pas-4);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--encre-2);
 
   &__icon {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     width: 16px;
     flex-shrink: 0;
     color: var(--encre-3);
@@ -232,7 +232,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
     border: none;
     border-radius: var(--rayon-xs);
     padding: var(--pas-1) var(--pas-2);
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     color: var(--encre-3);
     cursor: pointer;
@@ -249,7 +249,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
     &--active {
       background: var(--surface);
       color: var(--action);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      box-shadow: var(--ombre-carte);
     }
   }
 }

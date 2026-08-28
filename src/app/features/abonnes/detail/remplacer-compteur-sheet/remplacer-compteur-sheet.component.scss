@@ -25,14 +25,14 @@
   }
 
   &__title {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-1);
   }
 
   &__sub {
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre-3);
     margin: 0;
   }
@@ -67,12 +67,12 @@
   }
 
   &__key {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
   }
 
   &__val {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: var(--encre-2);
 
@@ -112,7 +112,7 @@
   gap: var(--pas-3);
 
   &__title {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -122,7 +122,7 @@
 }
 
 .meter-location-reprise {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-2);
   background: var(--surface-douce);
   border-radius: var(--rayon-sm);
@@ -138,7 +138,7 @@
   border: 1px solid var(--action-trait);
   border-radius: var(--rayon-md);
   padding: var(--pas-3) var(--pas-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   line-height: 1.6;
   color: var(--action-survol);
 
@@ -171,7 +171,7 @@
 }
 
 .edit-label {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--encre-2);
 }
@@ -182,7 +182,7 @@
   min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -196,7 +196,7 @@
   &--primary {
     @include btn-variant(
       linear-gradient(135deg, var(--action), var(--action-survol)), var(--surface),
-      $shadow: 0 2px 8px rgba(26, 86, 219, 0.3), $hover-opacity: 0.9
+      $shadow: var(--ombre-action), $hover-opacity: 0.9
     );
   }
 }

@@ -13,13 +13,13 @@
   border-radius: var(--rayon-md);
   background: var(--danger-fond);
   color: var(--danger-encre);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.12s;
 
-  i { font-size: 12px; }
+  i { font-size: var(--icone-xs); }
   @media (hover: hover) and (pointer: fine) {
     &:hover { background: var(--danger-trait); }
   }
@@ -66,18 +66,18 @@
   &--accent-red { background: var(--danger-fond); border-color: var(--danger-trait); }
 
   &__value {
-    font-size: 24px;
+    font-size: var(--texte-4xl);
     font-weight: 800;
     line-height: 1.1;
     color: var(--encre);
 
-    &--red { font-size: 22px; color: var(--danger-encre); }
+    &--red { font-size: var(--texte-3xl); color: var(--danger-encre); }
     &--warn { color: var(--ambre-attente); }
     &--dark { color: var(--rouge-braise); }
   }
 
   &__unit {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 500;
     color: var(--encre-3);
     margin-left: var(--pas-1);
@@ -85,14 +85,14 @@
 
   &__label {
     margin-top: var(--pas-1);
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
   }
 
   &__hint {
     margin-top: var(--pas-2);
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
     display: flex;
@@ -102,7 +102,7 @@
     &--danger {
       color: var(--danger-encre);
       font-weight: 600;
-      i { font-size: 12px; }
+      i { font-size: var(--icone-xs); }
     }
   }
 }
@@ -126,7 +126,7 @@
 
 .col-abonne {
   &__nom {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: var(--encre);
 
@@ -134,7 +134,7 @@
   }
   &__ref {
     margin-top: 1px;
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
   }
 }
@@ -147,7 +147,7 @@
   &--green { color: var(--succes-encre); font-weight: 600; }
 }
 
-.col-solde { font-weight: 700; font-size: 14px; color: var(--danger-encre); }
+.col-solde { font-weight: 700; font-size: var(--texte-lg); color: var(--danger-encre); }
 
 .col-retard {
   font-weight: 700;
@@ -188,7 +188,7 @@
 .act {
   padding: var(--pas-1) var(--pas-3);
   border-radius: var(--rayon-sm);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -223,10 +223,10 @@
   border: 1px dashed var(--filet-pale);
   border-radius: var(--rayon-md);
   padding: var(--pas-3) var(--pas-4);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
 
-  i { color: var(--encre-3); font-size: 14px; flex-shrink: 0; }
+  i { color: var(--encre-3); font-size: var(--icone-sm); flex-shrink: 0; }
 
   &__text { line-height: 1.5; }
 
@@ -260,9 +260,9 @@
     cursor: pointer;
   }
   &__id { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  &__nom { font-size: 13px; font-weight: 700; color: var(--encre); }
+  &__nom { font-size: var(--texte-md); font-weight: 700; color: var(--encre); }
   &__ref { margin-top: 1px; font-size: var(--texte-xs); color: var(--encre-3); }
-  &__solde { font-size: 16px; font-weight: 800; color: var(--danger-encre); flex-shrink: 0; }
+  &__solde { font-size: var(--texte-xl); font-weight: 800; color: var(--danger-encre); flex-shrink: 0; }
 
   // Pied : badge d'étape + bouton « + Paiement » outline bleu
   &__foot {
@@ -276,7 +276,7 @@
     border-radius: var(--rayon-md);                 // rounded.md — était 7px hors ramp
     padding: var(--pas-1) var(--pas-3);
     background: none;
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     color: var(--action);
     cursor: pointer;
@@ -391,7 +391,7 @@
   &__chiffres { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
 
   &__total {
-    font-size: var(--texte-2xl);
+    font-size: var(--texte-3xl);
     font-weight: 800;
     color: var(--danger-encre);
     font-variant-numeric: tabular-nums;

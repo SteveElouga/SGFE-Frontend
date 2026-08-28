@@ -16,7 +16,7 @@
   display: flex;
   background: var(--surface);
   border-top: 1px solid var(--filet);
-  box-shadow: 0 -4px 20px rgba(15, 37, 87, 0.06);
+  box-shadow: var(--ombre-panneau);
   padding: 8px 4px calc(10px + env(safe-area-inset-bottom, 0px));
 }
 
@@ -50,7 +50,7 @@
 
 .tabs__tab--active .tabs__icon-wrap { background: var(--action-lueur); }
 
-.tabs__icon { font-size: 19px; }
+.tabs__icon { font-size: var(--icone-md); }
 
 .tabs__label {
   font-size: var(--texte-xs);

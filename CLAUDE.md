@@ -462,7 +462,7 @@ après avoir cherché le gaspillage plutôt que de déplacer le seuil.
 | Budget | Alerte | Erreur | Mesuré ce jour-là |
 |---|---|---|---|
 | `initial` | 680 kB | 800 kB | **652,68 kB** (165,14 kB transférés) |
-| `anyComponentStyle` | 20 kB | 26 kB | **19,48 kB** (`campagne-detail`) |
+| `anyComponentStyle` | 21 kB | 26 kB | **20,10 kB** (`campagne-detail`) |
 
 **Pourquoi 680 et non 500.** Le bundle initial est à 96 % du framework :
 Angular 282 kB (core, router, common), Apollo + GraphQL 152 kB, runtime PrimeNG
@@ -476,6 +476,16 @@ jamais rendus (voir `core/theme/aquabill-preset.ts`).
 de composants est fausse : mesurée, elle est de **6,3 %**. Déduplication
 complète, la pire feuille passerait de 23,4 à 21,8 kB — toujours au-dessus de
 12. Ces écrans ont simplement beaucoup de styles distincts.
+
+**Pourquoi 21 et non 20, le 28 août 2026.** L'échelle typographique et les jetons
+d'ombre ont remplacé 704 tailles et 83 ombres écrites en dur. Un jeton coûte plus
+de caractères que la valeur qu'il remplace — `var(--texte-md)` contre `13px` — et
+les noms de variables CSS ne se minifient pas. Sur `campagne-detail`, 57
+déclarations converties pèsent **+523 octets** de source, soit +620 octets de CSS
+compilé : 19,48 → 20,10 kB. Le gaspillage a été cherché avant de toucher au
+seuil, comme la règle ci-dessous l'exige : 938 lignes, une seule répétition de
+quatre déclarations, aucune duplication à retirer. Le dépassement est le prix
+exact de la migration, pas une dérive.
 
 Un budget sert de fil de détente contre les régressions, pas de vœu pieux : ces
 seuils laissent ~4 % de marge sur le mesuré, donc toute dérive réelle les fait

@@ -21,14 +21,14 @@
   }
 
   &__title {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: var(--surface);
     margin-bottom: var(--pas-1);
   }
 
   &__desc {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     line-height: 1.6;
     color: rgba(255, 255, 255, 0.6);
   }
@@ -44,7 +44,7 @@
   position: absolute;
   top: 28px;
   right: 36px;
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-3);
   text-decoration: none;
 

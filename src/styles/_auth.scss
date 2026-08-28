@@ -43,14 +43,14 @@
 }
 
 .auth-screen__subtitle {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--encre-3);
   line-height: 1.6;
   margin: 0 0 var(--pas-6);
 }
 
 .auth-screen__hint {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   margin-top: $spacing-xs;
 
   &--error {
@@ -71,14 +71,14 @@
 }
 
 .auth-screen__success-lead {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 500;
   color: var(--vert-profond);
   margin: 0 0 var(--pas-2);
 }
 
 .auth-screen__success-detail {
-  font-size: 13px;
+  font-size: var(--texte-md);
   line-height: 1.6;
   color: var(--succes-encre);
   margin: 0 0 var(--pas-3);
@@ -93,7 +93,7 @@
   flex: 1;
   height: 38px;
   border-radius: var(--rayon-sm);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   text-align: center;
   display: flex;
@@ -122,7 +122,7 @@
 
 .auth-brand__pitch {
   h1 {
-    font-size: 38px;
+    font-size: var(--texte-6xl);
     font-weight: 300;
     line-height: 1.25;
     margin: 0 0 var(--pas-2);
@@ -135,7 +135,7 @@
   }
 
   > p {
-    font-size: 15px;
+    font-size: var(--texte-lg);
     line-height: 1.65;
     color: rgba(255, 255, 255, 0.65);
     margin: 0 0 36px;

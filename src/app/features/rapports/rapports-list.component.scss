@@ -16,11 +16,11 @@
   justify-content: center;
   padding: 60px;
   color: var(--action);
-  font-size: 24px;
+  font-size: var(--texte-4xl);
 }
 
 .rap__section-title {
-  font-size: 15px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   color: var(--encre);
   margin: var(--pas-1) 0 0;
@@ -45,7 +45,7 @@
   &--accent-green { background: var(--succes-fond); }
 
   &__value {
-    font-size: 22px;
+    font-size: var(--texte-3xl);
     font-weight: 800;
     color: var(--encre);
     line-height: 1.15;
@@ -54,7 +54,7 @@
   }
   &__label {
     margin-top: var(--pas-1);
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
   }
@@ -68,7 +68,7 @@
   flex-wrap: wrap;
 
   &__label {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
     color: var(--encre-2);
   }
@@ -108,7 +108,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    font-size: 17px;
+    font-size: var(--texte-xl);
 
     &--blue { background: var(--action-lueur); color: var(--action); }
     &--green { background: var(--succes-fond); color: var(--succes-encre); }
@@ -116,9 +116,9 @@
     &--red { background: var(--danger-fond); color: var(--danger-encre); }
   }
   &__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  &__title { font-size: 13px; font-weight: 600; color: var(--encre); }
-  &__sub { font-size: 10.5px; color: var(--encre-3); margin-top: 1px; }
-  &__dl { color: var(--encre-3); font-size: 14px; }
+  &__title { font-size: var(--texte-md); font-weight: 600; color: var(--encre); }
+  &__sub { font-size: var(--texte-xs); color: var(--encre-3); margin-top: 1px; }
+  &__dl { color: var(--encre-3); font-size: var(--texte-lg); }
 }
 
 // ── Historique ──────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@
   thead > tr > th {
     padding: var(--pas-3) var(--pas-4);
     text-align: left;
-    font-size: 10.5px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -149,7 +149,7 @@
   tbody > tr > td {
     padding: var(--pas-3) var(--pas-4);
     border-bottom: 1px solid var(--fond);
-    font-size: 12.5px;
+    font-size: var(--texte-sm);
     color: var(--encre);
   }
   tbody > tr:last-child > td { border-bottom: none; }

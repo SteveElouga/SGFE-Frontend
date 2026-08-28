@@ -21,7 +21,7 @@ $fp-chip-h: 44px;
 // ── Ligne de résultat ────────────────────────────────────────────────────────
 .fp__resultat {
   margin: 0 0 var(--pas-3);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-2);
 
   b {
@@ -92,14 +92,14 @@ $fp-chip-h: 44px;
     border: 1px solid var(--filet);
     border-radius: var(--rayon-md);
     padding: 0 var(--pas-3) 0 36px;
-    font-size: 14px;
+    font-size: var(--texte-lg);
     transition: border-color 0.15s, box-shadow 0.15s;
 
     &:hover:not(:focus) { border-color: var(--filet-pale); }
     &:focus, &:focus-visible {
       outline: none;
       border-color: $color-primary;
-      box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+      box-shadow: var(--anneau);
     }
   }
 
@@ -109,7 +109,7 @@ $fp-chip-h: 44px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--encre-3);
-    font-size: 14px;
+    font-size: var(--texte-lg);
     pointer-events: none;
     z-index: 1;
   }
@@ -150,7 +150,7 @@ $fp-chip-h: 44px;
     &:hover:not(:focus-within) { border-color: var(--filet-pale); }
     &:focus-within {
       border-color: $color-primary;
-      box-shadow: 0 0 0 3px rgba($color-primary, 0.12);
+      box-shadow: var(--anneau);
     }
   }
 
@@ -163,7 +163,7 @@ $fp-chip-h: 44px;
 
   .p-select-label {
     padding: 0 var(--pas-3);
-    font-size: 14px;
+    font-size: var(--texte-lg);
     line-height: $fp-input-h;
     color: var(--encre);
   }
@@ -209,7 +209,7 @@ $fp-chip-h: 44px;
   background: var(--surface-douce);
   border: 1px solid var(--filet);
   color: var(--encre-2);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -286,7 +286,7 @@ $fp-chip-h: 44px;
   background: var(--fond);
   border: 1px solid var(--filet);
   color: var(--encre-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   line-height: 1;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 120ms var(--ease-out, ease-out);
@@ -336,7 +336,7 @@ $fp-chip-h: 44px;
   background: none;
   border: 1px solid var(--filet);
   color: var(--encre-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s, transform 120ms var(--ease-out, ease-out);
@@ -354,7 +354,7 @@ $fp-chip-h: 44px;
     outline-offset: 2px;
   }
 
-  i { font-size: 12px; }
+  i { font-size: var(--icone-xs); }
 }
 
 // Nom du groupe de chips — repère, pas titre : il se lit sans concurrencer

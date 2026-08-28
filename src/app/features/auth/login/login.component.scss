@@ -56,12 +56,12 @@
 }
 
 .login__logo-name {
-  font-size: 20px;
+  font-size: var(--texte-3xl);
   font-weight: 800;
 }
 
 .login__logo-tagline {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -72,7 +72,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: rgba(255, 255, 255, 0.8);
 
   li {
@@ -111,7 +111,7 @@
   display: none;
   color: var(--encre-3);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--texte-md);
 
   @include desktop {
     display: block;
@@ -124,7 +124,7 @@
 .login__version {
   display: none;
   color: var(--encre-3);
-  font-size: 11px;
+  font-size: var(--texte-xs);
 
   @include desktop {
     display: block;
@@ -142,7 +142,7 @@
   gap: var(--pas-4);
 
   h2 {
-    font-size: 32px;
+    font-size: var(--texte-5xl);
     font-weight: 700;
     line-height: 1.2;
     margin: 0 0 $spacing-xs;
@@ -158,7 +158,7 @@
 .login__forgot {
   color: var(--action);
   text-decoration: none;
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 400;
 }
 
@@ -172,7 +172,7 @@
 
 .login__field-hint {
   display: block;
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--danger-encre);
   margin-top: $spacing-xs;
 }
@@ -185,7 +185,7 @@
 
   > span {
     display: block;
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     margin-bottom: $spacing-sm;
   }
@@ -200,7 +200,7 @@
 .login__role {
   border-radius: var(--rayon-lg);
   padding: var(--pas-1) var(--pas-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
 
   &--admin {

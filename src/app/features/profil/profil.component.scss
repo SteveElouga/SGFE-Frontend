@@ -48,7 +48,7 @@
 }
 
 .profil-avatar__initials {
-  font-size: 26px;
+  font-size: var(--texte-4xl);
   font-weight: 700;
   color: var(--surface);
   line-height: 1;
@@ -62,7 +62,7 @@
 }
 
 .profil-identity__username {
-  font-size: 20px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--encre);
 }
@@ -81,14 +81,14 @@
   background: var(--encre);
   color: var(--surface);
   border-radius: var(--rayon-xs);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
 
 .profil-identity__phone {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-2);
   font-variant-numeric: tabular-nums;
 }
@@ -106,7 +106,7 @@
   padding: var(--pas-3) var(--pas-5);
   border-bottom: 1px solid var(--fond);
   background: var(--surface-douce);
-  font-size: 15px;
+  font-size: var(--texte-lg);
   font-weight: 600;
   color: var(--encre);
 }
@@ -120,7 +120,7 @@
   background: var(--action-lueur);
   border-radius: var(--rayon-md);
   color: var(--action-survol);
-  font-size: 14px;
+  font-size: var(--texte-lg);
 
   &--danger {
     background: var(--danger-trait);
@@ -137,7 +137,7 @@
 
 .profil-reset-desc {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--texte-md);
   line-height: 1.5;
   color: var(--encre-3);
 }
@@ -146,15 +146,15 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--succes-encre);
 
-  i { font-size: 15px; }
+  i { font-size: var(--icone-sm); }
 }
 
 .profil-reset-hint {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
 }
 
@@ -171,7 +171,7 @@
 }
 
 .profil-field__label {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
   color: var(--encre-2);
 }
@@ -181,7 +181,7 @@
   padding: 0 var(--pas-3);
   border: 1.5px solid var(--filet);
   border-radius: var(--rayon-sm);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--encre);
   background: var(--surface);
   outline: none;
@@ -205,12 +205,12 @@
   border: 1.5px solid var(--filet);
   border-radius: var(--rayon-sm);
   background: var(--surface);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--encre-2);
 }
 
 .profil-field__badge {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-2);
   background: var(--fond);
   padding: var(--pas-1) var(--pas-2);
@@ -221,7 +221,7 @@
 }
 
 .profil-field__hint {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   display: flex;
   align-items: center;
   gap: var(--pas-1);
@@ -236,7 +236,7 @@
   align-items: center;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-xs);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -255,7 +255,7 @@
   min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   transition: background 0.15s, opacity 0.15s;
 
@@ -281,8 +281,8 @@
   // Carte avatar plus compacte
   .profil-avatar-card { padding: var(--pas-4); gap: var(--pas-3); }
   .profil-avatar { width: 56px; height: 56px; }
-  .profil-avatar__initials { font-size: 22px; }
-  .profil-identity__username { font-size: 18px; }
+  .profil-avatar__initials { font-size: var(--texte-3xl); }
+  .profil-identity__username { font-size: var(--texte-2xl); }
 
   // En-têtes / corps de section resserrés
   .profil-section__header { padding: var(--pas-3) var(--pas-4); }
@@ -316,13 +316,13 @@
   &:last-child { border-bottom: 0; }
 
   dt {
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre-3);
   }
 
   dd {
     margin: 0;
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 600;
     color: var(--encre);
   }
@@ -341,6 +341,6 @@
 
 .profil-note {
   margin: var(--pas-4) 0 0;
-  font-size: 12.5px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
 }

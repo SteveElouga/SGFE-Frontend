@@ -10,7 +10,7 @@
 
   &:focus-within {
     border-color: $color-primary;
-    box-shadow: 0 0 0 2px rgba($color-primary, 0.15);
+    box-shadow: var(--anneau);
   }
 
   &--valid {
@@ -18,7 +18,7 @@
 
     &:focus-within {
       border-color: $color-accent;
-      box-shadow: 0 0 0 2px rgba($color-accent, 0.15);
+      box-shadow: var(--anneau);
     }
   }
 
@@ -27,7 +27,7 @@
 
     &:focus-within {
       border-color: $color-error;
-      box-shadow: 0 0 0 2px rgba($color-error, 0.12);
+      box-shadow: var(--anneau-danger);
     }
   }
 
@@ -45,7 +45,7 @@
   padding: 0 var(--pas-2);
   background: var(--surface-douce);
   border-right: 1px solid var(--filet-pale);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   color: var(--encre-2);
   white-space: nowrap;

@@ -40,7 +40,7 @@
   background: var(--danger-fond);
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--danger-encre);
 }
 
@@ -49,7 +49,7 @@
   background: none;
   border: 1px solid var(--danger);
   color: var(--danger-encre);
-  font-size: 13px;
+  font-size: var(--texte-md);
   padding: var(--pas-1) var(--pas-3);
   border-radius: var(--rayon-sm);
   cursor: pointer;
@@ -79,7 +79,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--surface);
   flex-shrink: 0;
@@ -98,13 +98,13 @@
 }
 
 .abonne-header-card__name {
-  font-size: 18px;
+  font-size: var(--texte-2xl);
   font-weight: 700;
   color: var(--encre);
 }
 
 .abonne-header-card__sub {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
   white-space: nowrap;
   overflow: hidden;
@@ -126,7 +126,7 @@
   align-items: center;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-sm);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -158,7 +158,7 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
   color: var(--encre-2);
   background: var(--surface);
@@ -251,7 +251,7 @@
 }
 
 .abonne-kpi__label {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--encre-3);
   letter-spacing: 0.4px;
@@ -260,14 +260,14 @@
 }
 
 .abonne-kpi__value {
-  font-size: 22px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--encre);
   line-height: 1;
 }
 
 .abonne-kpi__sub {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   margin-top: var(--pas-1);
   min-height: 14px;
@@ -293,7 +293,7 @@
 
 .abonne-tabs__tab {
   padding: var(--pas-3) var(--pas-4);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--encre-3);
   background: none;
@@ -333,7 +333,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   color: var(--encre);
   margin-bottom: var(--pas-3);
@@ -346,7 +346,7 @@
   gap: var(--pas-2);
   padding: var(--pas-5) 0;
   color: var(--encre-3);
-  font-size: 13px;
+  font-size: var(--texte-md);
 }
 
 .abonne-info-rows {
@@ -362,13 +362,13 @@
   gap: var(--pas-2);
 
   &__label {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     flex-shrink: 0;
   }
 
   &__value {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 500;
     color: var(--encre);
     text-align: right;
@@ -393,7 +393,7 @@
 }
 
 .abonne-invoices__title {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 700;
   color: var(--encre);
   margin-bottom: var(--pas-2);
@@ -410,7 +410,7 @@
   th {
     padding: var(--pas-2) var(--pas-3);
     text-align: left;
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     color: var(--encre-3);
     letter-spacing: 0.4px;
@@ -422,7 +422,7 @@
   td {
     padding: var(--pas-2) var(--pas-3);
     border-top: 1px solid var(--fond);
-    font-size: 12px;
+    font-size: var(--texte-sm);
 
     &.text-right { text-align: left; }
   }
@@ -430,7 +430,7 @@
 
 .abonne-invoices__empty {
   color: var(--encre-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   text-align: center !important;
   padding: var(--pas-5) var(--pas-3) !important;
 }
@@ -440,7 +440,7 @@
   margin: 8px 0 0 auto;
   border: none;
   background: none;
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--action);
   cursor: pointer;
@@ -457,7 +457,7 @@
   cursor: pointer;
   font-family: inherit;
   color: var(--action);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   text-decoration: none;
 
@@ -472,7 +472,7 @@
   display: inline-block;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-sm);                                   // sm token DESIGN.md
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   border: 1px solid;
 
@@ -499,7 +499,7 @@
   align-items: center;
   height: 100%;
 
-  &__value { font-size: 11px; font-weight: 600; color: var(--encre-3); margin-bottom: var(--pas-1); }
+  &__value { font-size: var(--texte-xs); font-weight: 600; color: var(--encre-3); margin-bottom: var(--pas-1); }
   &__track { flex: 1; width: 100%; max-width: 46px; display: flex; align-items: flex-end; }
   &__fill {
     width: 100%;
@@ -520,7 +520,7 @@
   gap: var(--pas-3);
   padding: var(--pas-7) 0;
   color: var(--encre-3);
-  font-size: 13px;
+  font-size: var(--texte-md);
 }
 
 // ── Formulaires modals ────────────────────────────────────────────────────────
@@ -559,7 +559,7 @@
   background: var(--danger-fond);
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--danger-encre);
 }
 
@@ -598,7 +598,7 @@
 }
 
 .hist-current__number {
-  font-size: 22px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--encre);
   font-variant-numeric: tabular-nums;
@@ -614,7 +614,7 @@
 .hist-current__row {
   display: flex;
   gap: var(--pas-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
 }
 
 .hist-current__key {
@@ -635,7 +635,7 @@
   gap: var(--pas-2);
   padding: 36px var(--pas-5);
   color: var(--encre-3);
-  font-size: 13px;
+  font-size: var(--texte-md);
 }
 
 // Titre section
@@ -643,7 +643,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -685,7 +685,7 @@
   border-radius: 50%;
   background: $color-primary;
   border: 2px solid var(--surface);
-  box-shadow: 0 0 0 2px rgba($color-primary, 0.2);
+  box-shadow: var(--anneau);
 }
 
 .hist-entry__body {
@@ -698,7 +698,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   color: var(--encre);
 }
@@ -752,7 +752,7 @@
 }
 
 .hist-meter__num {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 
@@ -761,7 +761,7 @@
 }
 
 .hist-meter__loc {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
 }
 
