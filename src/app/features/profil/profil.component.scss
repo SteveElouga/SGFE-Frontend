@@ -74,18 +74,7 @@
   flex-wrap: wrap;
 }
 
-.profil-identity__role {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--pas-1) var(--pas-2);
-  background: var(--encre);
-  color: var(--surface);
-  border-radius: var(--rayon-xs);
-  font-size: var(--texte-xs);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
+
 
 .profil-identity__phone {
   font-size: var(--texte-md);
@@ -231,21 +220,7 @@
 
 // ── Role badge ────────────────────────────────────────────────────────────────
 
-.profil-role-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: var(--pas-1) var(--pas-2);
-  border-radius: var(--rayon-xs);
-  font-size: var(--texte-xs);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
 
-  &--admin     { background: var(--encre); color: var(--surface); }
-  &--agent     { background: var(--mint-tapis); color: var(--vert-profond); }
-  &--comptable { background: var(--role-violet-lueur); color: var(--role-violet); }
-  &--superviseur { background: var(--attente-fond); color: var(--attente-encre); }
-}
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
@@ -344,3 +319,5 @@
   font-size: var(--texte-sm);
   color: var(--encre-3);
 }
+
+.role-pill { @include pastille-role; }

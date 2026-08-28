@@ -86,7 +86,10 @@
               <span class="u-desktop">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</span>
               <span class="u-mobile">{{ 'CAMPAGNES.COL_PROGRESSION' | translate }}</span>
             </span>
-            <span class="progress-pct-label">{{ pourcentageAffiche() }}%</span>
+            <!-- Le pourcentage était écrit deux fois dans la même carte : en
+                 grand à gauche, et ici en petit au bout du libellé. La barre
+                 en donne déjà la proportion à l'œil, et le chiffre exact est à
+                 quinze centimètres. Un seul suffit — le grand. -->
           </div>
           <div class="progress-bar">
             <div

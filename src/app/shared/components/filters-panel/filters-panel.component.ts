@@ -231,6 +231,12 @@ export class FiltersPanelComponent {
     const lang = this.translate.currentLang() ?? undefined;
     return this.filters()
       .filter((f) => f.clearable !== false)                       // non-clearable = pas de tag
+      // Un tag sert à montrer un filtre dont on ne voit PAS le contrôle. Sur
+      // /paiements, le sélecteur affichait « Facturation Juillet 2026 » et le
+      // tag répétait « Campagne : Facturation Juill… » quarante pixels plus
+      // bas — deux fois la même information, et deux façons de l'effacer.
+      // Seul un filtre masqué au point de rupture courant mérite son tag.
+      .filter((f) => f.visibility !== undefined && f.visibility !== 'both')
       .filter((f) => v[f.key] !== null && v[f.key] !== undefined && v[f.key] !== '')
       .map((f) => {
         const value = v[f.key]!;
