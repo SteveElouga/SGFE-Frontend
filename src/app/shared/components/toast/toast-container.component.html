@@ -2,6 +2,7 @@
   @for (toast of toasts(); track toast.id) {
     <div
       class="toast toast--{{ toast.type }}"
+      [attr.data-toast-id]="toast.id"
       [attr.role]="toast.type === 'error' ? 'alert' : 'status'"
       [attr.aria-live]="toast.type === 'error' ? 'assertive' : 'polite'"
     >
