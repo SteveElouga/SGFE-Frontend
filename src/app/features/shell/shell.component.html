@@ -3,7 +3,17 @@
 <div class="shell" [class.shell--menu-open]="layout.menuOpen()">
   <app-sidebar class="shell__sidebar" />
   <div class="shell__scrim" (click)="layout.closeMenu()" aria-hidden="true"></div>
-  <main class="shell__content" id="contenu" tabindex="-1">
+  <!-- Tiroir ouvert : le contenu derrière devient inerte. Sans cela, la
+       tabulation s'enfonce dans un écran que le voile recouvre, et le lecteur
+       d'écran continue d'annoncer des éléments qu'on ne voit plus. `inert` fait
+       le focus, le clic et l'annonce d'un seul attribut — un piège de focus
+       écrit à la main n'en couvrirait que le premier. -->
+  <main
+    class="shell__content"
+    id="contenu"
+    tabindex="-1"
+    [attr.inert]="layout.menuOpen() ? '' : null"
+  >
     <router-outlet />
   </main>
   <app-bottom-tabs />

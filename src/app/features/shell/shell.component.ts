@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  inject,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -15,9 +22,15 @@ import { LayoutService } from '../../shared/services/layout.service';
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'onEscape()',
+  },
 })
 export class ShellComponent {
   readonly layout = inject(LayoutService);
+
+  private readonly hote: ElementRef<HTMLElement> = inject(ElementRef);
+  private readonly injecteur = inject(Injector);
 
   constructor() {
     inject(AbonnesService).startCacheSync();
@@ -25,12 +38,52 @@ export class ShellComponent {
     // compose une fois par session, sans bloquer l'affichage.
     void inject(NotificationsService).load();
 
-    // Referme le tiroir mobile à chaque navigation.
+    let premiere = true;
+
     inject(Router)
       .events.pipe(
         filter((e) => e instanceof NavigationEnd),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.layout.closeMenu());
+      .subscribe(() => {
+        // Referme le tiroir mobile à chaque navigation.
+        this.layout.closeMenu();
+
+        // ── Le focus suit la navigation ───────────────────────────────────
+        //
+        // Dans une application d'une seule page, changer d'écran ne déplace
+        // rien : le focus reste où il était, sur un bouton qui n'existe plus.
+        // Quelqu'un au lecteur d'écran n'entend donc rien annoncer le nouvel
+        // écran, et la tabulation suivante repart d'un endroit qui n'a plus de
+        // sens.
+        //
+        // Le premier affichage est laissé tranquille : personne n'a encore
+        // navigué, et voler le focus au chargement empêcherait de commencer
+        // par le lien d'évitement.
+        if (premiere) {
+          premiere = false;
+          return;
+        }
+        afterNextRender(
+          () => {
+            const contenu = this.hote.nativeElement.querySelector<HTMLElement>('#contenu');
+            // `preventScroll` : la navigation gère déjà la position de la page,
+            // et un saut supplémentaire se lit comme un défaut d'affichage.
+            contenu?.focus({ preventScroll: true });
+          },
+          { injector: this.injecteur },
+        );
+      });
+  }
+
+  /**
+   * Échap referme le tiroir.
+   *
+   * Le voile qui l'entoure est `aria-hidden` et ne se ferme qu'au clic : sans
+   * cette touche, quelqu'un qui navigue au clavier n'avait aucun moyen de
+   * sortir du tiroir autrement qu'en le traversant en entier.
+   */
+  onEscape(): void {
+    if (this.layout.menuOpen()) this.layout.closeMenu();
   }
 }
