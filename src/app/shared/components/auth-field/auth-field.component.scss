@@ -14,3 +14,9 @@
   justify-content: space-between;
   align-items: baseline;
 }
+
+// L'astérisque d'obligation — même teinte que les erreurs, sans en être une.
+.auth-field__requis {
+  color: var(--danger-encre);
+  font-weight: 600;
+}

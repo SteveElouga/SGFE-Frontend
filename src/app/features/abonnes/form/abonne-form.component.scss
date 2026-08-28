@@ -94,6 +94,12 @@
   gap: var(--pas-3);
 }
 
+// En création, le champ « Statut » n'existe pas : la grille recevait trois
+// éléments sur deux colonnes et « Prénom » se retrouvait seul, moitié droite
+// vide. Le numéro d'abonné — qui n'est pas encore attribué et qu'on ne saisit
+// pas — prend la ligne entière, et le nom retrouve son prénom.
+.af-field--pleine-ligne { grid-column: 1 / -1; }
+
 // ── Champs de formulaire ──────────────────────────────────────────────────────
 
 .af-field {

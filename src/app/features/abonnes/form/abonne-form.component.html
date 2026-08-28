@@ -51,7 +51,7 @@
         <div class="af-grid-2">
 
           <!-- N° Abonné (readonly) -->
-          <div class="af-field">
+          <div class="af-field" [class.af-field--pleine-ligne]="mode !== 'edit'">
             <span class="af-label">{{ 'ABONNES.NUMERO' | translate }}</span>
             <div class="af-readonly">
               <span class="af-readonly__value">
@@ -330,11 +330,13 @@
 
           <!-- Index initial -->
           <div class="af-field">
+            <!-- L'aide vivait dans le libellé (« à la création »), une troisième
+                 forme après celle du libellé d'Adresse et celle, sous le champ,
+                 du téléphone. Une seule gagne : sous le champ, reliée par
+                 aria-describedby, là où un lecteur d'écran l'annonce au moment
+                 où l'on entre dans le champ. -->
             <label class="af-label" for="afIndex">
               {{ 'ABONNES.FORM.INDEX_INITIAL' | translate }}
-              @if (mode === 'create') {
-                <span class="af-label__sub">{{ 'ABONNES.FORM.CREATION_ONLY' | translate }}</span>
-              }
             </label>
             @if (mode === 'create') {
               <input
@@ -347,7 +349,9 @@
                 [ngModel]="indexInitial()"
                 (ngModelChange)="indexInitial.set($event)"
                 name="afIndex"
+                aria-describedby="afIndex-hint"
               />
+              <span id="afIndex-hint" class="af-field__hint">{{ 'ABONNES.FORM.CREATION_ONLY' | translate }}</span>
             } @else {
               <div class="af-readonly af-readonly--disabled">
                 <span class="af-readonly__value af-readonly__value--muted">{{ 'ABONNES.FORM.INDEX_READONLY' | translate }}</span>

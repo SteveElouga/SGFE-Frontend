@@ -62,7 +62,8 @@
     "RESULTS_HERO_OVER": "sur {{total}} au total",
     "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
     "SKIP_TO_CONTENT": "Aller au contenu",
-    "SAVING": "Enregistrement…"
+    "SAVING": "Enregistrement…",
+    "CHAMPS_REQUIS": "Les champs * sont obligatoires"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -215,7 +216,7 @@
       "NOM": "Nom",
       "PRENOM": "Prénom",
       "TELEPHONE": "Téléphone WhatsApp",
-      "ADRESSE": "Adresse (optionnel)",
+      "ADRESSE": "Adresse",
       "SECTION_COMPTEUR": "Compteur actuel",
       "NUMERO_COMPTEUR": "N° compteur",
       "QUARTIER": "Quartier",
@@ -238,7 +239,7 @@
       "PHONE_HINT_FULL": "Format Cameroun · +237 ajouté automatiquement",
       "DATE_SOUSCRIPTION": "Date de souscription",
       "INDEX_READONLY": "Non modifiable après création",
-      "CREATION_ONLY": "à la création",
+      "CREATION_ONLY": "Saisissable seulement à la création",
       "AUTO_BADGE": "auto",
       "SAVING": "Enregistrement…",
       "SUBMIT_SAVE": "Enregistrer les modifications",
@@ -1061,7 +1062,8 @@
       "SUCCES": "Versement enregistré",
       "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures",
       "AVOIR": "{{ montant }} déjà au crédit de cet abonné — s'imputera sur sa prochaine facture."
-    }
+    },
+    "FILTER_PERIODE": "Période"
   },
   "IMPAYES": {
     "TITLE": "Impayés",

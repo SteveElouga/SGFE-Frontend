@@ -62,7 +62,8 @@
     "RESULTS_HERO_OVER": "of {{total}} total",
     "RESULTS_HERO_MULTI": "{{count}} active filters",
     "SKIP_TO_CONTENT": "Skip to content",
-    "SAVING": "Saving…"
+    "SAVING": "Saving…",
+    "CHAMPS_REQUIS": "Fields marked * are required"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -215,7 +216,7 @@
       "NOM": "Last name",
       "PRENOM": "First name",
       "TELEPHONE": "WhatsApp phone",
-      "ADRESSE": "Address (optional)",
+      "ADRESSE": "Address",
       "SECTION_COMPTEUR": "Meter",
       "NUMERO_COMPTEUR": "Meter #",
       "QUARTIER": "Area",
@@ -238,7 +239,7 @@
       "PHONE_HINT_FULL": "Cameroon format · +237 added automatically",
       "DATE_SOUSCRIPTION": "Subscription date",
       "INDEX_READONLY": "Cannot be changed after creation",
-      "CREATION_ONLY": "at creation",
+      "CREATION_ONLY": "Editable at creation only",
       "AUTO_BADGE": "auto",
       "SAVING": "Saving…",
       "SUBMIT_SAVE": "Save changes",
@@ -1061,7 +1062,8 @@
       "SUCCES": "Payment recorded",
       "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices",
       "AVOIR": "{{ montant }} already credited to this subscriber — will apply to their next invoice."
-    }
+    },
+    "FILTER_PERIODE": "Date range"
   },
   "IMPAYES": {
     "TITLE": "Overdue",
