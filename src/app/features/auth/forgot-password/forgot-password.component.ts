@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
@@ -55,6 +55,7 @@ function maskEmail(email: string): string {
 })
 export class ForgotPasswordComponent implements OnDestroy {
   private readonly auth = inject(AuthService);
+  private readonly translate = inject(TranslateService);
   private readonly cooldown = createCooldown(600);
 
   // ── Tab ──────────────────────────────────────────────────────────────────
@@ -112,11 +113,20 @@ export class ForgotPasswordComponent implements OnDestroy {
     return 1;
   });
 
-  readonly stepsForCard: StepDef[] = [
-    { label: 'Entrez votre numéro WhatsApp' },
-    { label: 'Vérifiez le code OTP reçu' },
-    { label: 'Définissez votre nouveau mot de passe' },
-  ];
+  /**
+   * Les trois étapes étaient écrites en français en dur, hors traduction — et
+   * la première répétait mot pour mot la consigne déjà donnée deux fois sur la
+   * page : dans le panneau de gauche et sous le titre du formulaire. Une liste
+   * d'étapes se lit comme une check-list, au nom, pas à l'impératif.
+   */
+  readonly stepsForCard = computed<StepDef[]>(() => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return [
+      { label: this.translate.instant('FORGOT.ETAPE_TEL', {}, lang) },
+      { label: this.translate.instant('FORGOT.ETAPE_CODE', {}, lang) },
+      { label: this.translate.instant('FORGOT.ETAPE_MDP', {}, lang) },
+    ];
+  });
 
   readonly canSubmitPhone = computed(
     () => this.phone().trim().length > 0 && !this.loading(),
