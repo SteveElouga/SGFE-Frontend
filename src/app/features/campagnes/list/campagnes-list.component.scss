@@ -275,7 +275,7 @@
   &:disabled { opacity: 0.5; }
 
   &--primary {
-    @include btn-variant($color-primary, var(--surface), $hover-bg: color.adjust($color-primary, $lightness: -8%));
+    @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
   }
 
   &--ghost {
@@ -288,14 +288,14 @@
 .create-form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: var(--pas-4);
   padding: var(--pas-1) 0 var(--pas-2);
 }
 
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: $spacing-md;
+  gap: var(--pas-4);
 }
 
 .form-field {

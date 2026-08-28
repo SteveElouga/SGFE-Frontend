@@ -78,12 +78,12 @@
   &--active {
     color: var(--action);
     font-weight: 600;
-    border-bottom-color: $color-primary;
+    border-bottom-color: var(--action);
   }
 }
 
 .config-save {
-  margin: 7px 0 7px auto;
+  margin: var(--pas-2) 0 var(--pas-2) auto;
   box-shadow: var(--ombre-action);
 }
 
@@ -204,7 +204,7 @@
 
   &__label { font-size: var(--texte-xs); color: var(--encre-3); margin-bottom: var(--pas-1); }
   &__box {
-    border: 1.5px solid $color-primary;
+    border: 1.5px solid var(--action);
     border-radius: var(--rayon-md);
     height: 44px;
     padding: 0 var(--pas-3);
@@ -231,7 +231,7 @@
   width: 40px;
   height: 40px;
   border-radius: var(--rayon-md);
-  background: rgba(26, 86, 219, 0.1);
+  background: color-mix(in oklab, var(--action) 10%, transparent);
   color: var(--action);
   display: flex;
   align-items: center;
@@ -412,7 +412,7 @@
   padding: 0 var(--pas-2) 0 var(--pas-3);
   background: var(--surface);
 
-  &:focus-within { border-color: $color-primary; box-shadow: var(--anneau); }
+  &:focus-within { border-color: var(--action); box-shadow: var(--anneau); }
   &--disabled { opacity: 0.55; }
 
   &__prefix { font-size: var(--texte-md); font-weight: 700; color: var(--encre); }
@@ -465,7 +465,7 @@
   padding: 0 var(--pas-2);
   background: var(--surface);
 
-  &:focus-within { border-color: $color-primary; box-shadow: var(--anneau); }
+  &:focus-within { border-color: var(--action); box-shadow: var(--anneau); }
   &--disabled { opacity: 0.55; }
 
   &__input {
@@ -554,7 +554,7 @@
     color: var(--encre);
     padding: 0;
 
-    &:focus { border-bottom: 1.5px solid $color-primary; }
+    &:focus { border-bottom: 1.5px solid var(--action); }
   }
   &__unit { font-size: var(--texte-xs); font-weight: 500; color: var(--encre-3); }
 }
@@ -591,7 +591,7 @@
   &:disabled { opacity: 0.5; }
 
   &--primary {
-    @include btn-variant($color-primary, var(--surface), $hover-bg: color.adjust($color-primary, $lightness: -8%));
+    @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
   }
 
   &--ghost {

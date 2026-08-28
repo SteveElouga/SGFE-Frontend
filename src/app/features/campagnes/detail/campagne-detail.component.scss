@@ -12,7 +12,7 @@
 }
 
 .detail-page {
-  padding: 0 $spacing-xl $spacing-xl;
+  padding: 0 var(--pas-6) var(--pas-6);
   max-width: 1100px;
   margin: 0 auto;
 }
@@ -30,7 +30,7 @@
   }
   .releves-section { order: 3; }
   .mactions { order: 4; }
-  .agents-section { order: 5; margin-top: $spacing-md; }
+  .agents-section { order: 5; margin-top: var(--pas-4); }
   .zone-section { order: 6; }
 }
 
@@ -40,12 +40,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: $spacing-md;
+  gap: var(--pas-4);
   background: var(--surface);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
-  padding: $spacing-lg $spacing-xl;
-  margin-bottom: $spacing-md;
+  padding: var(--pas-5) var(--pas-6);
+  margin-bottom: var(--pas-4);
 }
 
 .detail-header__title-row {
@@ -90,9 +90,9 @@
 
   &--primary {
     @include btn-variant(
-      $color-primary, var(--surface),
+      var(--action), var(--surface),
       $shadow: var(--ombre-action),
-      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+      $hover-bg: var(--action-survol)
     );
   }
 
@@ -209,7 +209,7 @@
   font-weight: 500;
   color: var(--encre-2);
 
-  input { width: 17px; height: 17px; accent-color: $color-primary; flex-shrink: 0; cursor: pointer; }
+  input { width: 17px; height: 17px; accent-color: var(--action); flex-shrink: 0; cursor: pointer; }
 }
 
 .cloture-actions {
@@ -236,7 +236,7 @@
   background: var(--surface);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
-  margin-bottom: $spacing-md;
+  margin-bottom: var(--pas-4);
   overflow: hidden;
   align-items: stretch;
 
@@ -245,7 +245,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: $spacing-xl;
+    padding: var(--pas-6);
     min-width: 160px;
     flex-shrink: 0;
     border-right: 1px solid var(--fond);
@@ -287,7 +287,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--pas-3);
-    padding: $spacing-lg $spacing-xl;
+    padding: var(--pas-5) var(--pas-6);
     min-width: 0;
     justify-content: center;
   }
@@ -351,7 +351,7 @@
 
   &__fill {
     height: 100%;
-    background: $color-primary;
+    background: var(--action);
     border-radius: 999px;
     // Seule barre conservée en `width`, et c'est délibéré : son `border-radius:
     // 999px` fait d'elle une pilule, et un `scaleX` écraserait ses extrémités
@@ -359,7 +359,7 @@
     // par chargement est moindre que ce défaut de forme, visible en permanence.
     transition: width 0.4s ease;
 
-    &--complete { background: $color-accent; }
+    &--complete { background: var(--succes); }
   }
 
   // MB-02 : piste claire + remplissage dégradé bleu
@@ -583,7 +583,7 @@
 .detail-skeleton {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: var(--pas-4);
 }
 
 // ── Relevés en cartes (mobile · MB-02) ────────────────────────────────────────
@@ -600,7 +600,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--pas-2);
-  padding: 40px var(--pas-4);
+  padding: var(--pas-7) var(--pas-4);
   color: var(--encre-3);
   font-size: var(--texte-md);
   .pi { font-size: var(--icone-lg); }
@@ -674,7 +674,7 @@
   &:disabled { opacity: 0.5; cursor: not-allowed; }
 
   &--dark { background: var(--navy-nuit); color: var(--surface); }
-  &--primary { background: $color-primary; color: var(--surface); }
+  &--primary { background: var(--action); color: var(--surface); }
   &--outline { background: var(--surface); color: var(--encre-2); border: 1px solid var(--filet); }
 }
 
@@ -684,7 +684,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
-  margin-bottom: $spacing-md;
+  margin-bottom: var(--pas-4);
 
   &__head { display: flex; align-items: center; justify-content: space-between; }
   &__title { font-size: var(--texte-lg); font-weight: 700; color: var(--encre); margin: 0; }
@@ -835,7 +835,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--pas-2);
-  margin-bottom: $spacing-md;
+  margin-bottom: var(--pas-4);
 
   &__title { font-size: var(--texte-lg); font-weight: 700; color: var(--encre); margin: 0; }
 }

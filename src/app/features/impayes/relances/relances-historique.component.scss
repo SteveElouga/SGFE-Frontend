@@ -14,7 +14,7 @@
 .relances-loading {
   display: flex;
   justify-content: center;
-  padding: 60px;
+  padding: var(--pas-7);
   color: var(--action);
   font-size: var(--texte-4xl);
 }

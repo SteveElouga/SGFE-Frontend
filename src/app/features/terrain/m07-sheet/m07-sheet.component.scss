@@ -39,12 +39,12 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(&--selected) { border-color: var(--filet-pale); background: var(--surface-douce); }
   }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
 
   &--selected {
-    border-color: $color-primary;
+    border-color: var(--action);
     box-shadow: var(--anneau);
-    .m07-opt__radio { border: 6px solid $color-primary; }
+    .m07-opt__radio { border: 6px solid var(--action); }
     .m07-opt__icon { color: var(--action); }
   }
 
@@ -83,7 +83,7 @@
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-  &:focus, &:focus-visible { border-color: $color-primary; box-shadow: var(--anneau); }
+  &:focus, &:focus-visible { border-color: var(--action); box-shadow: var(--anneau); }
   &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
 }
 
@@ -139,6 +139,6 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover { background: var(--surface-douce); }
   }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }

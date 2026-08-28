@@ -55,7 +55,7 @@
   color: var(--info-encre);
   line-height: 1.5;
 
-  .pi { margin-top: 2px; flex-shrink: 0; }
+  .pi { margin-top: var(--pas-0); flex-shrink: 0; }
 }
 
 .ann-champ {
@@ -105,7 +105,7 @@
 .ann-mode {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--pas-0);
   text-align: left;
   min-height: 44px;
   padding: var(--pas-3) var(--pas-4);

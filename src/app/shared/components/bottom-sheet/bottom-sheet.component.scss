@@ -4,7 +4,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--voile);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -80,7 +80,7 @@
     height: 4px;
     background: var(--filet);
     border-radius: var(--rayon-xs);
-    margin: 6px auto 0;
+    margin: var(--pas-2) auto 0;
     flex-shrink: 0;
   }
 

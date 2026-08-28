@@ -7,7 +7,7 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--voile);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -70,7 +70,7 @@
     height: 4px;
     background: var(--filet);
     border-radius: var(--rayon-xs);
-    margin: 0 auto 14px;
+    margin: 0 auto var(--pas-4);
 
     @media (min-width: 1024px) { display: none; }
   }
@@ -163,7 +163,7 @@
   }
 
   &--selected {
-    border: 1.5px solid $color-primary;
+    border: 1.5px solid var(--action);
     background: var(--surface-douce);
     box-shadow: var(--anneau);
   }
@@ -224,8 +224,8 @@
   i { font-size: var(--icone-xs); color: var(--surface); }
 
   &--on {
-    background: $color-primary;
-    border-color: $color-primary;
+    background: var(--action);
+    border-color: var(--action);
   }
 }
 

@@ -122,7 +122,7 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: $color-accent;
+    background: var(--succes);
   }
 
   // ── Vue QR ────────────────────────────────────────────────────────────────
@@ -152,7 +152,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: $color-primary;
+    background: var(--action);
     flex-shrink: 0;
     animation: wa-pulse 1.4s ease-in-out infinite;
   }

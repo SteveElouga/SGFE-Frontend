@@ -92,6 +92,19 @@
   --encre-inverse-2:     rgba(255, 255, 255, 0.72);   //  8,9:1 — texte secondaire
   --encre-inverse-3:     rgba(255, 255, 255, 0.58);   //  6,3:1 — étiquette, méta
 
+  // ── 3ter. Surfaces sur fond sombre ────────────────────────────────────────
+  // L'échelle de TEXTE sur sombre existait déjà au-dessus — et personne ne
+  // l'appelait : mesuré, 22 alphas différents de blanc écrits à la main, de
+  // 0,05 à 0,95. Le versant surface manquait, ce qui expliquait le reste : un
+  // fond de survol ou un filet n'avait aucun jeton où se ranger.
+  --surface-inverse-voile: rgba(255, 255, 255, 0.07);   // fond à peine posé
+  --surface-inverse-fond:  rgba(255, 255, 255, 0.12);   // survol, carte creuse
+  --surface-inverse-fort:  rgba(255, 255, 255, 0.22);   // état actif, pastille
+  --filet-inverse:         rgba(255, 255, 255, 0.12);   // séparateur sur sombre
+
+  // Le voile qui assombrit la page derrière un tiroir ou une modale.
+  --voile:                 rgba(15, 23, 42, 0.5);
+
   // Action.
   --action:              var(--bleu-riviere);
   --action-survol:       var(--bleu-riviere-fonce);
@@ -128,6 +141,9 @@
 
   // ── 3. Espacement — grille de 4 px, six pas ───────────────────────────────
   // Avant : 20 valeurs distinctes, dont 3, 5, 7, 9, 11, 13, 18 et 22 px.
+  // Sous le plancher : l'écart entre deux lignes de texte d'un même bloc, là où
+  // 4 px les décollerait trop. Sept usages mesurés, tous de cette nature.
+  --pas-0:   2px;
   --pas-1:   4px;
   --pas-2:   8px;
   --pas-3:  12px;
@@ -135,6 +151,11 @@
   --pas-5:  24px;
   --pas-6:  32px;
   --pas-7:  48px;
+  --pas-8:  64px;   // rembourrage d'un panneau d'authentification en desktop
+
+  // Dimension de composant, pas un cran d'espacement — mais elle sert de
+  // repère à la coquille pour dégager le bas des pages en mobile.
+  --hauteur-onglets: 64px;
 
   // ── 4. Formes — quatre rayons ─────────────────────────────────────────────
   // Avant : 12 rayons, de 2 à 20 px.

@@ -73,7 +73,7 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover { color: var(--action); }
   }
-  &:focus-visible { outline: 2px solid rgba($color-primary, 0.4); outline-offset: 2px; border-radius: var(--rayon-xs); }
+  &:focus-visible { outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent); outline-offset: 2px; border-radius: var(--rayon-xs); }
 
   &--active { color: var(--action); }
 
@@ -88,7 +88,7 @@
     @media (hover: hover) and (pointer: fine) {
       &:hover > td { background: var(--surface-douce); }
     }
-    &:focus-visible { outline: 2px solid rgba($color-primary, 0.4); outline-offset: -2px; }
+    &:focus-visible { outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent); outline-offset: -2px; }
   }
 
   // Ligne active/sélectionnée (ex : facture dont le panneau de paiement est ouvert)
@@ -168,18 +168,18 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
       background: var(--surface-douce);
-      border-color: $color-primary;
+      border-color: var(--action);
       color: var(--action);
     }
   }
 
   &--active {
-    background: $color-primary;
-    border-color: $color-primary;
+    background: var(--action);
+    border-color: var(--action);
     color: var(--surface);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { background: $color-primary; color: var(--surface); }
+      &:hover { background: var(--action); color: var(--surface); }
     }
   }
 

@@ -11,8 +11,8 @@
   display: flex;
   gap: var(--pas-3);
   align-items: flex-start;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-inverse-voile);
+  border: 1px solid var(--filet-inverse);
   border-radius: var(--rayon-lg);
   padding: var(--pas-4);
 
@@ -30,7 +30,7 @@
   &__desc {
     font-size: var(--texte-sm);
     line-height: 1.6;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--encre-inverse-3);
   }
 }
 

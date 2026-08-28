@@ -3,7 +3,7 @@
 
 .payment-panel {
   background: var(--surface);
-  border: 1.5px solid $color-primary;
+  border: 1.5px solid var(--action);
   border-radius: var(--rayon-lg);
   padding: var(--pas-5);
   box-shadow: var(--anneau);

@@ -9,24 +9,24 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
-    border-color: $color-primary;
+    border-color: var(--action);
     box-shadow: var(--anneau);
   }
 
   &--valid {
-    border-color: $color-accent;
+    border-color: var(--succes);
 
     &:focus-within {
-      border-color: $color-accent;
+      border-color: var(--succes);
       box-shadow: var(--anneau);
     }
   }
 
   &--invalid {
-    border-color: $color-error;
+    border-color: var(--danger);
 
     &:focus-within {
-      border-color: $color-error;
+      border-color: var(--danger);
       box-shadow: var(--anneau-danger);
     }
   }

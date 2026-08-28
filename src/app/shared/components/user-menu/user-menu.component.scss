@@ -3,8 +3,8 @@
 
 // Variables locales alignées sur le thème sidebar
 $sidebar-bg:       var(--navy-nuit);
-$sidebar-border:   rgba(255, 255, 255, 0.07);
-$sidebar-hover-bg: rgba(255, 255, 255, 0.06);
+$sidebar-border:   var(--filet-inverse);
+$sidebar-hover-bg: var(--surface-inverse-voile);
 $text-white:       var(--surface);
 $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 3,17)
 
@@ -36,7 +36,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $color-primary, $color-accent);
+  background: linear-gradient(135deg, var(--action), var(--succes));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,15 +88,15 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   align-items: center;
   gap: var(--pas-2);
   padding: var(--pas-3) var(--pas-4);
-  background: linear-gradient(135deg, rgba(26, 86, 219, 0.08), rgba(14, 159, 110, 0.06));
-  border-bottom: 1px solid rgba($color-primary, 0.12);
+  background: linear-gradient(135deg, color-mix(in oklab, var(--action) 8%, transparent), color-mix(in oklab, var(--succes) 6%, transparent));
+  border-bottom: 1px solid color-mix(in oklab, var(--action) 12%, transparent);
 }
 
 .um-header__avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, $color-primary, $color-accent);
+  background: linear-gradient(135deg, var(--action), var(--succes));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,16 +165,16 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      background: rgba($color-primary, 0.06);
+      background: color-mix(in oklab, var(--action) 6%, transparent);
       color: var(--action);
     }
   }
 
   &--active {
-    border-left-color: $color-primary;
+    border-left-color: var(--action);
     color: var(--action);
     font-weight: 600;
-    background: rgba($color-primary, 0.06);
+    background: color-mix(in oklab, var(--action) 6%, transparent);
   }
 
   &--logout {
@@ -184,8 +184,8 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
-        background: rgba($color-error, 0.06);
-        color: color.adjust($color-error, $lightness: -8%);
+        background: color-mix(in oklab, var(--danger) 6%, transparent);
+        color: var(--danger-encre);
       }
     }
   }

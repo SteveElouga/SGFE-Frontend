@@ -20,7 +20,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 80px;
+  padding: var(--pas-7);
   color: var(--action);
   font-size: var(--texte-4xl);
 }
@@ -113,9 +113,9 @@
 
   &--primary {
     @include btn-variant(
-      $color-primary, var(--surface),
+      var(--action), var(--surface),
       $shadow: var(--ombre-action),
-      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+      $hover-bg: var(--action-survol)
     );
   }
 
@@ -237,7 +237,7 @@
   &__total-label {
     font-size: var(--texte-md);
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--encre-inverse-2);
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
@@ -339,11 +339,11 @@
   }
 
   &__fill {
-    background: linear-gradient(90deg, $color-primary, color.adjust($color-primary, $lightness: 20%));
+    background: linear-gradient(90deg, var(--action), var(--action-survol));
 
     // Soldée : le Vert Nappe est la couleur de ce que l'application confirme.
     &--solde {
-      background: linear-gradient(90deg, $color-accent, color.adjust($color-accent, $lightness: 18%));
+      background: linear-gradient(90deg, var(--succes), var(--vert-profond));
     }
     height: 100%;
     border-radius: var(--rayon-xs);
@@ -555,7 +555,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--voile);
     z-index: 99;
   }
   .paiement-form {
@@ -566,7 +566,7 @@
     z-index: 100;
     background: var(--surface);
     border-radius: 24px 24px 0 0;       // rounded.sheet — conforme signature mobile bottom-sheet
-    padding: 10px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+    padding: var(--pas-3) var(--pas-4) calc(var(--pas-5) + env(safe-area-inset-bottom, 0px));
     margin: 0;
     max-height: 88vh;
     overflow-y: auto;
@@ -578,7 +578,7 @@
     height: 4px;
     background: var(--filet);
     border-radius: var(--rayon-xs);
-    margin: 0 auto 14px;
+    margin: 0 auto var(--pas-4);
   }
 
   // MB-05 : table de calcul plus compacte sur mobile
@@ -923,7 +923,7 @@
     font-size: var(--icone-lg);
     color: var(--encre-3);
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: var(--pas-0);
   }
 
   &__titre {

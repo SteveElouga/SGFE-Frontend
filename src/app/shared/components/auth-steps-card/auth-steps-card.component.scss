@@ -1,17 +1,17 @@
 @use '../../../../styles/variables' as *;
 
 .auth-steps-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-inverse-voile);
+  border: 1px solid var(--filet-inverse);
   border-radius: var(--rayon-md);
-  padding: $spacing-md;
+  padding: var(--pas-4);
 }
 
 .auth-steps-card__title {
   font-size: var(--texte-md);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: $spacing-sm;
+  color: var(--encre-inverse);
+  margin-bottom: var(--pas-2);
 }
 
 .auth-steps-card__list {
@@ -20,23 +20,23 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: var(--pas-2);
   font-size: var(--texte-md);
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--encre-inverse-2);
 
   li {
     display: flex;
     align-items: center;
-    gap: $spacing-sm;
+    gap: var(--pas-2);
     transition: color 0.25s ease;
 
     &.auth-steps-card__item--active {
-      color: rgba(255, 255, 255, 0.95);
+      color: var(--encre-inverse);
       font-weight: 500;
     }
 
     &.auth-steps-card__item--done {
-      color: rgba(255, 255, 255, 0.75);
+      color: var(--encre-inverse-2);
     }
 
     &:not(.auth-steps-card__item--active):not(.auth-steps-card__item--done) {
@@ -59,14 +59,14 @@
   transition: background 0.25s ease;
 
   &--active {
-    background: $color-primary;
+    background: var(--action);
   }
 
   &--done {
-    background: $color-accent;
+    background: var(--succes);
   }
 
   &--pending {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--surface-inverse-fort);
   }
 }

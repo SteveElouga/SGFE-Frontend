@@ -57,7 +57,7 @@
   }
 
   &--on {
-    border: 1.5px solid $color-primary;
+    border: 1.5px solid var(--action);
     background: var(--surface-douce);
     color: var(--action);
     box-shadow: var(--anneau);
@@ -93,7 +93,7 @@
   }
 
   &--on {
-    border: 1.5px solid $color-primary;
+    border: 1.5px solid var(--action);
     background: var(--surface-douce);
     box-shadow: var(--anneau);
   }
