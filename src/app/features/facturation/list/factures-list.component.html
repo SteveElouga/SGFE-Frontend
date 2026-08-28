@@ -106,13 +106,8 @@
           } @else if (solde === 0) {
             <span class="solde-zero">{{ formatNumber(0) }}</span>
           } @else if (f.statut === 'IMPAYEE') {
+            <!-- Plus d'icône « estimation » : le chiffre vient du backend. -->
             <span class="solde-red">{{ formatNumber(solde) }}</span>
-            <i aria-hidden="true"
-              class="pi pi-question-circle solde-estimated"
-              [appTooltip]="'FACTURATION.SOLDE_ESTIMATED_TOOLTIP' | translate"
-              tabindex="0"
-              [attr.aria-label]="'FACTURATION.SOLDE_ESTIMATED_TOOLTIP' | translate"
-            ></i>
           } @else {
             <span class="solde-blue">{{ formatNumber(solde) }}</span>
           }

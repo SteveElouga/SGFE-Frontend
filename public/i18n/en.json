@@ -918,7 +918,6 @@
     "WA_BULK_CAMPAGNE": "Campaign",
     "WA_BULK_WARN": "This action is immediate. Already-paid invoices will not receive a message.",
     "WA_BULK_CONFIRM": "Send {{count}} messages",
-    "SOLDE_ESTIMATED_TOOLTIP": "Balance estimated from status. The real amount due will be verified when opening the payment panel (authoritative backend source).",
     "ACCUEIL_SUB": "Select a campaign to manage its invoices",
     "ACCUEIL_EMPTY": "No campaigns available",
     "BTN_VOIR_FACTURES": "View invoices",

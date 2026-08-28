@@ -918,7 +918,6 @@
     "WA_BULK_CAMPAGNE": "Campagne",
     "WA_BULK_WARN": "L'action est immédiate. Les factures déjà payées ne recevront pas de message.",
     "WA_BULK_CONFIRM": "Envoyer les {{count}} messages",
-    "SOLDE_ESTIMATED_TOOLTIP": "Solde estimé à partir du statut. Le montant réel dû sera vérifié à l'ouverture du panneau de paiement (source backend autoritaire).",
     "ACCUEIL_SUB": "Sélectionnez une campagne pour consulter ses factures",
     "ACCUEIL_EMPTY": "Aucune campagne disponible",
     "BTN_VOIR_FACTURES": "Voir les factures",

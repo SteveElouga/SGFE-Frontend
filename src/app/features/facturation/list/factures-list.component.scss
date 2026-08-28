@@ -255,28 +255,6 @@
 .solde-blue { color: var(--action); font-weight: 700; font-size: var(--texte-lg); }
 .solde-loading { color: var(--encre-3); }
 
-// Indicateur "solde estimé" (P1 batch 8 list) : honnêteté visuelle sur les
-// IMPAYEE dont le solde n'a pas été vérifié backend. Discret pour ne pas
-// perturber la lecture des chiffres réels.
-.solde-estimated {
-  font-size: var(--texte-sm);
-  color: var(--encre-3);                                       // slate 400 (icon, non-texte)
-  cursor: help;
-  transition: color 0.12s;
-
-  // Survol et focus ne disent pas la même chose : l'un décore, l'autre dit où
-  // l'on se trouve au clavier. Les fondre dans une règle commune faisait
-  // disparaître l'anneau au profit d'un simple changement de couleur.
-  @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--encre-3); }
-  }
-  &:focus-visible {
-    color: var(--encre-3);
-    outline: var(--focus-epaisseur) solid var(--focus-anneau);
-    outline-offset: var(--focus-decalage);
-  }
-}
-
 // ── Row actions ───────────────────────────────────────────────────────────────
 
 .row-actions {
