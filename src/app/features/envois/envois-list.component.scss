@@ -8,24 +8,6 @@
   margin: 0 auto;
 }
 
-.envois__toolbar {
-  display: flex;
-  align-items: center;
-  gap: var(--pas-3);
-  margin-bottom: var(--pas-3);
-}
-
-.envois__filter { min-width: 180px; }
-
-.envois__count {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--encre-3);
-  background: var(--fond);
-  border-radius: 999px;
-  padding: var(--pas-1) var(--pas-3);
-}
-
 .envois__loading {
   display: flex;
   justify-content: center;
@@ -157,8 +139,13 @@
   color: var(--encre-3);
 }
 
+// Le compte d'échecs quitte la barre d'outils pour devenir une ligne à part :
+// c'est la seule chose que le support cherche en arrivant, et elle ne doit pas
+// se disputer la place avec un filtre.
 .envois__echecs {
-  font-size: 12px;
+  display: inline-block;
+  margin: 0 0 var(--pas-3);
+  font-size: var(--texte-sm);
   font-weight: 700;
   color: var(--danger-encre);
   background: var(--danger-fond);

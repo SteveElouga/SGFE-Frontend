@@ -5,25 +5,25 @@
 }
 
 <div class="envois">
-  <div class="envois__toolbar">
-    <p-select
-      [options]="filtreOptions()"
-      [ngModel]="filtre()"
-      (ngModelChange)="filtre.set($event)"
-      optionLabel="label"
-      optionValue="value"
-      styleClass="envois__filter"
-      [ariaLabel]="'ENVOIS.FILTRE_ARIA' | translate"
-    />
-    <span class="envois__count">
-      {{ 'ENVOIS.COUNT' | translate: { count: rows().length } }}
-    </span>
-    @if (nbEchecs() > 0) {
-      <span class="envois__echecs">
-        {{ 'ENVOIS.NB_ECHECS' | translate: { count: nbEchecs() } }}
-      </span>
-    }
-  </div>
+  <!-- Le panneau partagé plutôt qu'une liste déroulante nue : il porte une
+       étiquette visible, les compteurs par statut, et le même geste que sur les
+       six autres écrans de liste. Le support vient ici chercher des échecs — il
+       devait ouvrir le filtre pour savoir s'il y en avait. -->
+  <app-filters-panel
+    [showSearch]="false"
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [resultCount]="rows().length"
+    [totalCount]="envois().length"
+    heroNounKey="ENVOIS.RESULTS_HERO"
+  />
+
+  @if (nbEchecs() > 0) {
+    <p class="envois__echecs" role="status">
+      {{ 'ENVOIS.NB_ECHECS' | translate: { count: nbEchecs() } }}
+    </p>
+  }
 
   @if (loading()) {
     <div class="envois__loading" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">

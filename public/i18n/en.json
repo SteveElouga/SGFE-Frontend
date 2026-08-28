@@ -1315,7 +1315,9 @@
     "AUJOURDHUI": "Today",
     "HIER": "Yesterday",
     "DESTINATAIRE_INCONNU": "Unknown recipient",
-    "FILTRE_ARIA": "Filter by status"
+    "FILTRE_ARIA": "Filter by status",
+    "FILTRE_LABEL": "Status",
+    "RESULTS_HERO": "message"
   },
   "RAPPORTS": {
     "TITLE": "Reports",
