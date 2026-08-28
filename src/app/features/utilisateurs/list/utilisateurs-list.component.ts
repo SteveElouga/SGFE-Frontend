@@ -21,7 +21,6 @@ import { Role, User } from '../../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
-import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
@@ -40,7 +39,6 @@ import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/
     ErrorBannerComponent,
     PageTopbarComponent,
     FiltersPanelComponent,
-    TooltipDirective,
     TranslatePipe,
   ],
   providers: [ConfirmationService],

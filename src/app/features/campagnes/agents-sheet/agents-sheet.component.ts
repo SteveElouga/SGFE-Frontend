@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -31,7 +32,7 @@ interface AgentRow {
 @Component({
   selector: 'app-agents-sheet',
   standalone: true,
-  imports: [FormsModule, TranslatePipe],
+  imports: [BottomSheetComponent, FormsModule, TranslatePipe],
   templateUrl: './agents-sheet.component.html',
   styleUrl: './agents-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -65,6 +66,18 @@ export class AgentsSheetComponent {
   });
 
   readonly selectedCount = computed(() => this.selectedIds().size);
+
+  /**
+   * « 1 agents affectés » : le libellé était accordé en dur au pluriel. Un
+   * compteur qui peut valoir un doit avoir sa forme au singulier — et zéro
+   * mérite mieux qu'un « 0 agents », qui se lit comme un décompte alors que
+   * c'est un état.
+   */
+  readonly sousTitreCle = computed(() => {
+    const n = this.selectedCount();
+    if (n === 0) return 'CAMPAGNES.AGENTS_SHEET.SUBTITLE_ZERO';
+    return n === 1 ? 'CAMPAGNES.AGENTS_SHEET.SUBTITLE_SINGULAR' : 'CAMPAGNES.AGENTS_SHEET.SUBTITLE_PLURAL';
+  });
 
   constructor() {
     // Charge / réinitialise la sélection à chaque ouverture (writes déférés

@@ -272,48 +272,6 @@ describe('EspaceAbonneComponent', () => {
   });
 });
 
-describe('EspaceAbonneComponent · accord des libellés', () => {
-  /**
-   * Le reste de l'application écrit « 3 jour(s) ». C'est bref, et le personnel
-   * qui lit ces écrans tous les jours n'y prête plus attention. Ici le lecteur
-   * est un client qui reçoit un rappel de dette : la parenthèse lui donne le ton
-   * du formulaire administratif, exactement là où le message doit se lire comme
-   * une phrase adressée à lui.
-   */
-  function composant() {
-    TestBed.configureTestingModule({
-      imports: [EspaceAbonneComponent],
-      providers: [
-        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
-        {
-          provide: EspaceAbonneService,
-          useValue: { getFactures: vi.fn().mockReturnValue(of({ abonne_id: '', token_expiration: '', factures: [] })), pdfUrl: vi.fn() },
-        },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 't' } } } },
-      ],
-    });
-    return TestBed.createComponent(EspaceAbonneComponent).componentInstance;
-  }
-
-  it('passe au singulier à un, au pluriel au-delà', () => {
-    const c = composant();
-    expect(c.pluriel('X', 1)).toBe('X_UN');
-    expect(c.pluriel('X', 2)).toBe('X');
-    expect(c.pluriel('X', 62)).toBe('X');
-  });
-
-  it('accorde au féminin quand le nom l’exige', () => {
-    const c = composant();
-    expect(c.pluriel('X', 1, '_UNE')).toBe('X_UNE');
-    expect(c.pluriel('X', 3, '_UNE')).toBe('X');
-  });
-
-  it('zéro retombe sur la forme singulière — « 0 jours » ne se dit pas', () => {
-    const c = composant();
-    expect(c.pluriel('X', 0)).toBe('X_UN');
-  });
-});
-
 describe('EspaceAbonneComponent · avoir', () => {
   /**
    * Le crédit ne se soustrait pas du solde affiché. Les deux montants répondent

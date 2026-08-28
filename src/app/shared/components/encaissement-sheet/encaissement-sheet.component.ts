@@ -15,6 +15,7 @@ import { ModePaiement, SoldeFacture } from '../../models/facture.model';
 import { BottomSheetComponent } from '../bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../services/toast.service';
 import { formatFcfa } from '../../pipes/fcfa.pipe';
+import { PlurielPipe } from '../../pipes/pluriel.pipe';
 
 /** Une part du versement, telle qu'elle sera imputée. */
 export interface PartImputee {
@@ -45,7 +46,7 @@ export interface PartImputee {
  */
 @Component({
   selector: 'app-encaissement-sheet',
-  imports: [FormsModule, TranslatePipe, BottomSheetComponent],
+  imports: [PlurielPipe, FormsModule, TranslatePipe, BottomSheetComponent],
   templateUrl: './encaissement-sheet.component.html',
   styleUrl: './encaissement-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

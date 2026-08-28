@@ -1,22 +1,13 @@
-<div
-  class="agents-overlay"
-  [class.agents-overlay--open]="open()"
-  (click)="onClose()"
-  aria-hidden="true"
-></div>
-
-<div
-  class="agents-sheet"
-  [class.agents-sheet--open]="open()"
-  role="dialog"
-  aria-modal="true"
-  [attr.aria-hidden]="!open()"
->
-  <div class="agents-sheet__handle"></div>
-
-  <div class="agents-sheet__title">{{ 'CAMPAGNES.AGENTS_SHEET.TITLE' | translate }}</div>
+<!-- Cette feuille refaisait sa propre chrome : voile, panneau, poignée,
+     et 268 lignes de style qui recopiaient celles du composant partagé.
+     Elle en avait donc l'apparence et l'animation — mais ni le geste de
+     glissement, ni la touche Échap, ni le piège à focus. La poignée
+     promettait un geste qui n'existait pas : une affordance qui ment coûte
+     plus cher que pas d'affordance du tout. -->
+<app-bottom-sheet [open]="open()" labelledBy="agents-sheet-title" (close)="onClose()">
+  <div class="agents-sheet__title" id="agents-sheet-title">{{ 'CAMPAGNES.AGENTS_SHEET.TITLE' | translate }}</div>
   <div class="agents-sheet__subtitle">
-    {{ 'CAMPAGNES.AGENTS_SHEET.SUBTITLE' | translate:{ n: selectedCount() } }}
+    {{ sousTitreCle() | translate:{ n: selectedCount() } }}
   </div>
 
   <div class="agents-search">
@@ -77,4 +68,4 @@
   <button type="button" class="agents-cancel" (click)="onClose()">
     {{ 'COMMON.CANCEL' | translate }}
   </button>
-</div>
+</app-bottom-sheet>

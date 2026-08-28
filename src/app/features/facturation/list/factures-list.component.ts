@@ -28,6 +28,7 @@ import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bo
 import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
+import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
 
 interface AbonneInfo {
   nom: string;
@@ -40,8 +41,13 @@ interface CampagneOption {
   value: string;
 }
 
+/** Suffixe de forme d'un libellé compté — même convention que le pipe `pluriel`. */
+function forme(n: number): '_ZERO' | '_SINGULAR' | '_PLURAL' {
+  return n === 0 ? '_ZERO' : n === 1 ? '_SINGULAR' : '_PLURAL';
+}
+
 @Component({
-  imports: [
+  imports: [PlurielPipe, 
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
@@ -188,8 +194,11 @@ export class FacturesListComponent implements OnInit {
     const nom = this.campagneNom();
     const lang = this.translate.currentLang() ?? undefined;
     return nom
-      ? this.translate.instant('FACTURATION.SUBTITLE_CAMPAGNE', { nom, count }, lang)
-      : this.translate.instant('FACTURATION.SUBTITLE', { count }, lang);
+      // « 1 factures » : ces deux libellés étaient accordés en dur au pluriel.
+      // Le suffixe suit le compteur, comme le fait désormais le pipe `pluriel`
+      // dans les gabarits.
+      ? this.translate.instant(`FACTURATION.SUBTITLE_CAMPAGNE${forme(count)}`, { nom, count }, lang)
+      : this.translate.instant(`FACTURATION.SUBTITLE${forme(count)}`, { count }, lang);
   });
 
   ngOnInit(): void {

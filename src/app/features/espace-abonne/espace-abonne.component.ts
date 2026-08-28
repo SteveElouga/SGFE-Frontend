@@ -10,6 +10,7 @@ import {
   EspaceAbonneService,
 } from '../../core/espace-abonne/espace-abonne.service';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
+import { PlurielPipe } from '../../shared/pipes/pluriel.pipe';
 
 type Etat = 'loading' | 'ready' | 'invalid' | 'error';
 
@@ -70,7 +71,7 @@ const JOUR_MS = 86_400_000;
 @Component({
   selector: 'app-espace-abonne',
   standalone: true,
-  imports: [TranslatePipe, FcfaPipe, DatePipe],
+  imports: [PlurielPipe, TranslatePipe, FcfaPipe, DatePipe],
   templateUrl: './espace-abonne.component.html',
   styleUrl: './espace-abonne.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -199,21 +200,6 @@ export class EspaceAbonneComponent {
     return { cle: 'ESPACE.BADGE.A_VENIR', classe: 'ea-badge--neutre' };
   }
 
-  /**
-   * Choisit entre la forme singulière et la forme plurielle d'un libellé.
-   *
-   * Le reste de l'application écrit « 3 jour(s) » : c'est bref, et le personnel
-   * qui lit ces écrans tous les jours n'y prête plus attention. Ici, le lecteur
-   * est un client qui reçoit un rappel de dette — la parenthèse lui donne le ton
-   * du formulaire administratif, exactement là où le message doit se lire comme
-   * une phrase adressée à lui.
-   *
-   * `suffixe` porte l'accord : `_UN` pour un masculin (jour), `_UNE` pour un
-   * féminin (facture).
-   */
-  pluriel(base: string, n: number, suffixe: '_UN' | '_UNE' = '_UN'): string {
-    return n <= 1 ? base + suffixe : base;
-  }
 
   /** Minuit local : borne stable pour comparer des dates sans heure. */
   private debutDeJournee(d: Date): number {

@@ -63,7 +63,13 @@
     "RESULTS_HERO_MULTI": "{{count}} filtres actifs",
     "SKIP_TO_CONTENT": "Aller au contenu",
     "SAVING": "Enregistrement…",
-    "CHAMPS_REQUIS": "Les champs * sont obligatoires"
+    "CHAMPS_REQUIS": "Les champs * sont obligatoires",
+    "RESULTS_HERO_MULTI_SINGULAR": "Un filtre actif",
+    "RESULTS_HERO_MULTI_PLURAL": "{{count}} filtres actifs",
+    "RESULTS_HERO_MULTI_ZERO": "Aucun filtre actif",
+    "RESULTS_TOTAL_SINGULAR": "Un résultat",
+    "RESULTS_TOTAL_PLURAL": "{{count}} résultats",
+    "RESULTS_TOTAL_ZERO": "Aucun résultat"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -542,7 +548,10 @@
       "FACTURE": "facturés",
       "ENCAISSE": "encaissés",
       "TITRE": "{{mois}} en chiffres"
-    }
+    },
+    "KPI_FACTURE_HINT_SINGULAR": "FCFA · une facture",
+    "KPI_FACTURE_HINT_PLURAL": "FCFA · {{ count }} factures",
+    "KPI_FACTURE_HINT_ZERO": "FCFA · aucune facture"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -800,7 +809,10 @@
       "DISABLED": "Compte désactivé — indisponible",
       "ALREADY": "Déjà affecté",
       "AGENT": "Agent",
-      "EMPTY": "Aucun agent disponible"
+      "EMPTY": "Aucun agent disponible",
+      "SUBTITLE_SINGULAR": "Un agent affecté à cette campagne",
+      "SUBTITLE_PLURAL": "{{n}} agents affectés à cette campagne",
+      "SUBTITLE_ZERO": "Aucun agent affecté à cette campagne"
     },
     "ZONES_SHEET": {
       "TRIGGER": "Zones",
@@ -841,7 +853,10 @@
       "ACTIVE": "Activé",
       "INACTIVE": "Désactivé",
       "CONFIRM": "Je confirme la clôture définitive de la campagne {{nom}}",
-      "CONFIRM_BTN": "Clôturer et générer {{n}} factures"
+      "CONFIRM_BTN": "Clôturer et générer {{n}} factures",
+      "CONFIRM_BTN_SINGULAR": "Clôturer et générer une facture",
+      "CONFIRM_BTN_PLURAL": "Clôturer et générer {{n}} factures",
+      "CONFIRM_BTN_ZERO": "Clôturer sans générer de facture"
     },
     "REPARTITION_TITLE": "Répartition par zone",
     "COL_ZONE": "Zone · Camp",
@@ -1016,7 +1031,19 @@
     },
     "LIST": {
       "ENVOYER_WHATSAPP": "Envoyer par WhatsApp"
-    }
+    },
+    "SUBTITLE_SINGULAR": "Une facture",
+    "SUBTITLE_PLURAL": "{{count}} factures",
+    "SUBTITLE_ZERO": "Aucune facture",
+    "SUBTITLE_CAMPAGNE_SINGULAR": "{{nom}} · une facture",
+    "SUBTITLE_CAMPAGNE_PLURAL": "{{nom}} · {{count}} factures",
+    "SUBTITLE_CAMPAGNE_ZERO": "{{nom}} · aucune facture",
+    "WA_BULK_TITLE_SINGULAR": "Envoyer une facture par WhatsApp ?",
+    "WA_BULK_TITLE_PLURAL": "Envoyer {{count}} factures par WhatsApp ?",
+    "WA_BULK_TITLE_ZERO": "Aucune facture à envoyer",
+    "WA_BULK_CONFIRM_SINGULAR": "Envoyer le message",
+    "WA_BULK_CONFIRM_PLURAL": "Envoyer les {{count}} messages",
+    "WA_BULK_CONFIRM_ZERO": "Envoyer"
   },
   "PAIEMENTS": {
     "TITLE": "Paiements",
@@ -1066,9 +1093,18 @@
       "VALIDER": "Encaisser",
       "SUCCES": "Versement enregistré",
       "SUCCES_MULTIPLE": "Versement enregistré — réparti sur {{n}} factures",
-      "AVOIR": "{{ montant }} déjà au crédit de cet abonné — s'imputera sur sa prochaine facture."
+      "AVOIR": "{{ montant }} déjà au crédit de cet abonné — s'imputera sur sa prochaine facture.",
+      "RETARD_SINGULAR": "dû depuis un jour",
+      "RETARD_PLURAL": "dû depuis {{n}} jours",
+      "RETARD_ZERO": "dû aujourd’hui",
+      "SUCCES_MULTIPLE_SINGULAR": "Versement enregistré — imputé sur une facture",
+      "SUCCES_MULTIPLE_PLURAL": "Versement enregistré — réparti sur {{n}} factures",
+      "SUCCES_MULTIPLE_ZERO": "Versement enregistré"
     },
-    "FILTER_PERIODE": "Période"
+    "FILTER_PERIODE": "Période",
+    "SUBTITLE_SINGULAR": "Un paiement",
+    "SUBTITLE_PLURAL": "{{count}} paiements",
+    "SUBTITLE_ZERO": "Aucun paiement"
   },
   "IMPAYES": {
     "TITLE": "Impayés",
@@ -1141,7 +1177,13 @@
       "FACTURE": "Par facture",
       "NB_FACTURES": "{{n}} facture(s)",
       "RETARD": "{{n}} j de retard"
-    }
+    },
+    "SUBTITLE_SINGULAR": "Un impayé",
+    "SUBTITLE_PLURAL": "{{count}} impayés",
+    "SUBTITLE_ZERO": "Aucun impayé",
+    "SUBTITLE_FULL_SINGULAR": "Un abonné · {{solde}} de solde",
+    "SUBTITLE_FULL_PLURAL": "{{count}} abonnés · {{solde}} de solde",
+    "SUBTITLE_FULL_ZERO": "Aucun impayé"
   },
   "RELANCES": {
     "BACK": "Impayés",
@@ -1363,7 +1405,10 @@
     "COL_CAMPAGNE": "Campagne",
     "COL_RELEVES": "Relevés",
     "COL_CONSO": "Consommation",
-    "COL_PROGRESSION": "Progression"
+    "COL_PROGRESSION": "Progression",
+    "EXPORT_OK_SINGULAR": "Une ligne exportée",
+    "EXPORT_OK_PLURAL": "{{n}} lignes exportées",
+    "EXPORT_OK_ZERO": "Aucune ligne à exporter"
   },
   "ESPACE": {
     "TITLE": "Espace Abonné",
@@ -1403,7 +1448,19 @@
     "DONT_ECHU_UN": "Dont {{ montant }} en retard depuis 1 jour",
     "RETARD_DEPUIS_UN": "En retard depuis 1 jour",
     "ECHEANCE_PROCHE_UN": "À régler demain",
-    "AVOIR": "{{ montant }} à votre crédit — déduits de votre prochaine facture"
+    "AVOIR": "{{ montant }} à votre crédit — déduits de votre prochaine facture",
+    "FACTURES_A_REGLER_SINGULAR": "Une facture avec un reste à payer",
+    "FACTURES_A_REGLER_PLURAL": "{{ n }} factures avec un reste à payer",
+    "FACTURES_A_REGLER_ZERO": "Aucune facture à régler",
+    "RETARD_DEPUIS_SINGULAR": "En retard depuis un jour",
+    "RETARD_DEPUIS_PLURAL": "En retard depuis {{ n }} jours",
+    "RETARD_DEPUIS_ZERO": "En retard depuis aujourd’hui",
+    "ECHEANCE_PROCHE_SINGULAR": "À régler demain",
+    "ECHEANCE_PROCHE_PLURAL": "À régler dans {{ n }} jours",
+    "ECHEANCE_PROCHE_ZERO": "À régler aujourd’hui",
+    "DONT_ECHU_SINGULAR": "Dont {{ montant }} en retard depuis un jour",
+    "DONT_ECHU_PLURAL": "Dont {{ montant }} en retard depuis {{ n }} jours",
+    "DONT_ECHU_ZERO": "Dont {{ montant }} en retard"
   },
   "APP": {
     "NAME": "SGFE",

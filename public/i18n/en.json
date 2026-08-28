@@ -63,7 +63,13 @@
     "RESULTS_HERO_MULTI": "{{count}} active filters",
     "SKIP_TO_CONTENT": "Skip to content",
     "SAVING": "Saving…",
-    "CHAMPS_REQUIS": "Fields marked * are required"
+    "CHAMPS_REQUIS": "Fields marked * are required",
+    "RESULTS_HERO_MULTI_SINGULAR": "One active filter",
+    "RESULTS_HERO_MULTI_PLURAL": "{{count}} active filters",
+    "RESULTS_HERO_MULTI_ZERO": "No active filter",
+    "RESULTS_TOTAL_SINGULAR": "One result",
+    "RESULTS_TOTAL_PLURAL": "{{count}} results",
+    "RESULTS_TOTAL_ZERO": "No result"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -542,7 +548,10 @@
       "FACTURE": "invoiced",
       "ENCAISSE": "collected",
       "TITRE": "{{mois}} at a glance"
-    }
+    },
+    "KPI_FACTURE_HINT_SINGULAR": "FCFA · one invoice",
+    "KPI_FACTURE_HINT_PLURAL": "FCFA · {{ count }} invoices",
+    "KPI_FACTURE_HINT_ZERO": "FCFA · no invoice"
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -800,7 +809,10 @@
       "DISABLED": "Disabled account — unavailable",
       "ALREADY": "Already assigned",
       "AGENT": "Agent",
-      "EMPTY": "No agent available"
+      "EMPTY": "No agent available",
+      "SUBTITLE_SINGULAR": "One agent assigned to this campaign",
+      "SUBTITLE_PLURAL": "{{n}} agents assigned to this campaign",
+      "SUBTITLE_ZERO": "No agent assigned to this campaign"
     },
     "ZONES_SHEET": {
       "TRIGGER": "Zones",
@@ -841,7 +853,10 @@
       "ACTIVE": "Enabled",
       "INACTIVE": "Disabled",
       "CONFIRM": "I confirm the final closure of the {{nom}} campaign",
-      "CONFIRM_BTN": "Close and generate {{n}} invoices"
+      "CONFIRM_BTN": "Close and generate {{n}} invoices",
+      "CONFIRM_BTN_SINGULAR": "Close and generate one invoice",
+      "CONFIRM_BTN_PLURAL": "Close and generate {{n}} invoices",
+      "CONFIRM_BTN_ZERO": "Close without generating invoices"
     },
     "REPARTITION_TITLE": "Breakdown by zone",
     "COL_ZONE": "Zone · Camp",
@@ -1016,7 +1031,19 @@
     },
     "LIST": {
       "ENVOYER_WHATSAPP": "Send via WhatsApp"
-    }
+    },
+    "SUBTITLE_SINGULAR": "One invoice",
+    "SUBTITLE_PLURAL": "{{count}} invoices",
+    "SUBTITLE_ZERO": "No invoice",
+    "SUBTITLE_CAMPAGNE_SINGULAR": "{{nom}} · one invoice",
+    "SUBTITLE_CAMPAGNE_PLURAL": "{{nom}} · {{count}} invoices",
+    "SUBTITLE_CAMPAGNE_ZERO": "{{nom}} · no invoice",
+    "WA_BULK_TITLE_SINGULAR": "Send one invoice over WhatsApp?",
+    "WA_BULK_TITLE_PLURAL": "Send {{count}} invoices over WhatsApp?",
+    "WA_BULK_TITLE_ZERO": "No invoice to send",
+    "WA_BULK_CONFIRM_SINGULAR": "Send the message",
+    "WA_BULK_CONFIRM_PLURAL": "Send the {{count}} messages",
+    "WA_BULK_CONFIRM_ZERO": "Send"
   },
   "PAIEMENTS": {
     "TITLE": "Payments",
@@ -1066,9 +1093,18 @@
       "VALIDER": "Record payment",
       "SUCCES": "Payment recorded",
       "SUCCES_MULTIPLE": "Payment recorded — split across {{n}} invoices",
-      "AVOIR": "{{ montant }} already credited to this subscriber — will apply to their next invoice."
+      "AVOIR": "{{ montant }} already credited to this subscriber — will apply to their next invoice.",
+      "RETARD_SINGULAR": "overdue by one day",
+      "RETARD_PLURAL": "overdue by {{n}} days",
+      "RETARD_ZERO": "due today",
+      "SUCCES_MULTIPLE_SINGULAR": "Payment recorded — applied to one invoice",
+      "SUCCES_MULTIPLE_PLURAL": "Payment recorded — split across {{n}} invoices",
+      "SUCCES_MULTIPLE_ZERO": "Payment recorded"
     },
-    "FILTER_PERIODE": "Date range"
+    "FILTER_PERIODE": "Date range",
+    "SUBTITLE_SINGULAR": "One payment",
+    "SUBTITLE_PLURAL": "{{count}} payments",
+    "SUBTITLE_ZERO": "No payment"
   },
   "IMPAYES": {
     "TITLE": "Overdue",
@@ -1141,7 +1177,13 @@
       "FACTURE": "By invoice",
       "NB_FACTURES": "{{n}} invoice(s)",
       "RETARD": "{{n}} days overdue"
-    }
+    },
+    "SUBTITLE_SINGULAR": "One unpaid invoice",
+    "SUBTITLE_PLURAL": "{{count}} unpaid invoices",
+    "SUBTITLE_ZERO": "No unpaid invoice",
+    "SUBTITLE_FULL_SINGULAR": "One subscriber · {{solde}} outstanding",
+    "SUBTITLE_FULL_PLURAL": "{{count}} subscribers · {{solde}} outstanding",
+    "SUBTITLE_FULL_ZERO": "Nothing outstanding"
   },
   "RELANCES": {
     "BACK": "Overdue",
@@ -1363,7 +1405,10 @@
     "COL_CAMPAGNE": "Campaign",
     "COL_RELEVES": "Readings",
     "COL_CONSO": "Consumption",
-    "COL_PROGRESSION": "Progress"
+    "COL_PROGRESSION": "Progress",
+    "EXPORT_OK_SINGULAR": "One row exported",
+    "EXPORT_OK_PLURAL": "{{n}} rows exported",
+    "EXPORT_OK_ZERO": "No row to export"
   },
   "ESPACE": {
     "TITLE": "Subscriber Area",
@@ -1403,7 +1448,19 @@
     "DONT_ECHU_UN": "Including {{ montant }} overdue for 1 day",
     "RETARD_DEPUIS_UN": "Overdue for 1 day",
     "ECHEANCE_PROCHE_UN": "Due tomorrow",
-    "AVOIR": "{{ montant }} in credit — deducted from your next invoice"
+    "AVOIR": "{{ montant }} in credit — deducted from your next invoice",
+    "FACTURES_A_REGLER_SINGULAR": "One invoice with an outstanding balance",
+    "FACTURES_A_REGLER_PLURAL": "{{ n }} invoices with an outstanding balance",
+    "FACTURES_A_REGLER_ZERO": "No invoice to settle",
+    "RETARD_DEPUIS_SINGULAR": "Overdue by one day",
+    "RETARD_DEPUIS_PLURAL": "Overdue by {{ n }} days",
+    "RETARD_DEPUIS_ZERO": "Overdue today",
+    "ECHEANCE_PROCHE_SINGULAR": "Due tomorrow",
+    "ECHEANCE_PROCHE_PLURAL": "Due in {{ n }} days",
+    "ECHEANCE_PROCHE_ZERO": "Due today",
+    "DONT_ECHU_SINGULAR": "Including {{ montant }} overdue by one day",
+    "DONT_ECHU_PLURAL": "Including {{ montant }} overdue by {{ n }} days",
+    "DONT_ECHU_ZERO": "Including {{ montant }} overdue"
   },
   "APP": {
     "NAME": "SGFE",

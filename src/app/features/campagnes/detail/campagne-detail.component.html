@@ -548,7 +548,7 @@
           (click)="cloturer()"
         >
           @if (cloturant()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
-          <i class="pi pi-lock" aria-hidden="true"></i> {{ 'CAMPAGNES.CLOTURE.CONFIRM_BTN' | translate:{ n: facturesAGenerer() } }}
+          <i class="pi pi-lock" aria-hidden="true"></i> {{ 'CAMPAGNES.CLOTURE.CONFIRM_BTN' | pluriel:facturesAGenerer():{ n: facturesAGenerer() } }}
         </button>
       </div>
     </div>

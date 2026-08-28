@@ -3,92 +3,28 @@
 :host { display: contents; }
 
 // ── Overlay ─────────────────────────────────────────────────────────────────
-.agents-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background: var(--voile);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
 
-  &--open {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transition: opacity 0.25s ease, visibility 0s;
-  }
-}
 
 // ── Bottom sheet ────────────────────────────────────────────────────────────
-.agents-sheet {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  z-index: 1001;
-  width: 100%;
-  max-width: 440px;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border-radius: 24px 24px 0 0;
-  padding: var(--pas-2) var(--pas-5) var(--pas-5);
-  box-shadow: var(--ombre-panneau);
 
-  transform: translate(-50%, 100%);
-  visibility: hidden;
-  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.32s;
-  will-change: transform;
-
-  &--open {
-    transform: translate(-50%, 0);
-    visibility: visible;
-    transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s;
-  }
-
-  // Desktop : sheet centrée façon dialog
-  @media (min-width: 1024px) {
-    bottom: auto;
-    top: 50%;
-    border-radius: var(--rayon-lg);
-    transform: translate(-50%, calc(-50% + 24px));
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease,
-      visibility 0s linear 0.28s;
-    opacity: 0;
-
-    &--open {
-      transform: translate(-50%, -50%);
-      opacity: 1;
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, visibility 0s;
-    }
-  }
-
-  &__handle {
-    width: 40px;
-    height: 4px;
-    background: var(--filet);
-    border-radius: var(--rayon-xs);
-    margin: 0 auto var(--pas-4);
-
-    @media (min-width: 1024px) { display: none; }
-  }
-
-  &__title {
-    font-size: var(--texte-xl);
-    font-weight: 700;
-    color: var(--encre);
-    margin-bottom: var(--pas-1);
-  }
-  &__subtitle {
-    font-size: var(--texte-xs);
-    color: var(--encre-3);
-    margin-bottom: var(--pas-3);
-  }
-}
 
 // ── Recherche ───────────────────────────────────────────────────────────────
+// Le titre et le sous-titre étaient stylés à l'intérieur du bloc `.agents-sheet`
+// que le composant partagé remplace désormais. Ils reprennent la mise en forme
+// de `zones-sheet`, son voisin le plus proche : même échelle, mêmes écarts.
+.agents-sheet__title {
+  font-size: var(--texte-xl);
+  font-weight: 700;
+  color: var(--encre);
+  margin-bottom: var(--pas-1);
+}
+
+.agents-sheet__subtitle {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  margin-bottom: var(--pas-3);
+}
+
 .agents-search {
   display: flex;
   align-items: center;
