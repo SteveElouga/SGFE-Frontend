@@ -1,4 +1,5 @@
 @use '../../../../styles/variables' as *;
+@use '../../../../styles/buttons' as *;
 
 :host { display: block; }
 
@@ -11,45 +12,31 @@
 }
 
 .fchips__chip {
-  min-height: 44px;                 // WCAG 2.5.5 — pressée en tournée
-  display: inline-flex;
-  align-items: center;
-  gap: var(--pas-2);
-  flex-shrink: 0;             // pilules non compressées → défilement horizontal
-  height: 38px;
-  padding: 0 var(--pas-4);
-  border: 1px solid var(--filet);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--encre-2);
-  font-size: var(--texte-md);
-  font-weight: 600;
-  cursor: pointer;
+  // Sixième traitement de puce relevé au parcours, et le plus retors : celui-ci
+  // ressemblait au bon. Même pilule, même hauteur de cible, même navy actif —
+  // mais fond blanc au lieu de `--surface-douce`, et un survol qui allait dans
+  // l'autre sens. Deux composants partagés faisaient la même chose : ce panneau
+  // sert /terrain et /campagnes/:id, l'autre les sept écrans restants.
+  //
+  // Ils partagent désormais le même mixin. Ce qui reste ici est ce qui tient au
+  // contexte de tournée : la pilule ne se comprime pas, la rangée défile.
+  @include puce-filtre;
+
+  flex-shrink: 0;
   white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-
-  @media (hover: hover) and (pointer: fine) {
-    &:hover:not(&--active) { background: var(--surface-douce); }
-  }
-
-  &:focus-visible {
-    outline: 2px solid rgba($color-primary, 0.5);
-    outline-offset: 1px;
-  }
-
-  &--active {
-    background: var(--navy-nuit);      // navy foncé (maquette)
-    color: var(--surface);
-    border-color: var(--navy-nuit);
-  }
+  font-weight: 600;
 }
 
 .fchips__count {
+  // Le compteur était à 0,55 d'opacité — même défaut que sur l'autre panneau,
+  // corrigé en même temps : « À relever (0) » se lisait moins bien que le mot
+  // qu'il complète, alors que c'est le chiffre qu'un agent cherche du regard.
+  // Encre atténuée, pleine opacité.
   font-size: var(--texte-sm);
   font-weight: 700;
-  opacity: 0.55;
+  color: var(--encre-3);
 
-  .fchips__chip--active & { opacity: 0.8; }
+  .fchips__chip--active & { color: color-mix(in oklab, var(--surface) 78%, transparent); }
 }
 
 // Mobile : pilules resserrées mais cible tactile préservée (WCAG 2.5.5 :
