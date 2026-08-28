@@ -45,7 +45,7 @@
         [ngModel]="dateRange()"
         (ngModelChange)="onDateRangeChange($event)"
         selectionMode="range"
-        placeholder="Date"
+        [placeholder]="'PAIEMENTS.FILTER_PERIODE' | translate"
         dateFormat="dd/mm/yy"
         styleClass="filter-chip filter-chip--date"
         [showIcon]="true"

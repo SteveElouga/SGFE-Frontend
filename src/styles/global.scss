@@ -254,10 +254,16 @@ button:not(.dt__sort-btn):not(.correction-annuler):not(.nb__mark) {
   min-height: 44px;
 }
 
-// Une carte-ligne cliquable en mobile est elle aussi une cible.
-[class$='card__top'],
-[class$='card'],
-.fcard__pay,
-.envoi__resend {
-  min-height: 44px;
-}
+// Il y avait ici une règle « une carte-ligne cliquable est aussi une cible »,
+// écrite `[class$='card__top'], [class$='card']`. Deux problèmes.
+//
+// Elle visait la fin de l'ATTRIBUT class, pas une classe : elle attrapait donc
+// `<i class="pi pi-id-card">` — l'icône de la section « Sélection des abonnés »
+// sur /campagnes/nouvelle, dont le nom se termine par « card ». Une icône de
+// 12 px poussée à 44, seule des cinq de l'écran à se décrocher de son titre.
+//
+// Et elle ne servait à rien : vérifié sur tout le dépôt, aucune carte cliquable
+// n'est autre chose qu'un `<button>` ou un `<a>` — déjà couverts par la règle
+// ci-dessus. Elle ne rattrapait aucune cible réelle.
+//
+// Un sélecteur par suffixe attrape par le nom, pas par la nature.

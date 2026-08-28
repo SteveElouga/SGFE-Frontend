@@ -188,3 +188,10 @@
     cursor: not-allowed;
   }
 }
+
+// Légende de l'astérisque — un marqueur sans légende ne se devine pas.
+.user-form__legende {
+  margin: 0 0 var(--pas-4);
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}

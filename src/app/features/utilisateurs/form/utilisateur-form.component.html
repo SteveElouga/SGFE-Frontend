@@ -29,8 +29,12 @@
     } @else {
       <form class="user-form" (ngSubmit)="onSubmit()">
 
+        <!-- Aucun champ n'était marqué obligatoire alors que les trois le sont :
+             le bouton restait grisé sans que rien ne dise pourquoi. -->
+        <p class="user-form__legende">{{ 'COMMON.CHAMPS_REQUIS' | translate }}</p>
+
         @if (mode() === 'create') {
-          <app-auth-field [label]="'UTILISATEURS.FORM.USERNAME' | translate">
+          <app-auth-field [label]="'UTILISATEURS.FORM.USERNAME' | translate" [required]="true">
             <input
               id="username"
               type="text"
@@ -48,7 +52,7 @@
           </app-auth-field>
         }
 
-        <app-auth-field [label]="'UTILISATEURS.FORM.PHONE' | translate">
+        <app-auth-field [label]="'UTILISATEURS.FORM.PHONE' | translate" [required]="true">
           <div
             class="user-form__phone-field"
             [class.user-form__phone-field--valid]="isPhoneValid()"
@@ -76,7 +80,7 @@
           }
         </app-auth-field>
 
-        <app-auth-field [label]="'UTILISATEURS.FORM.ROLE' | translate">
+        <app-auth-field [label]="'UTILISATEURS.FORM.ROLE' | translate" [required]="true">
           <p-select
             inputId="role"
             [options]="roleOptions()"
@@ -91,7 +95,7 @@
         </app-auth-field>
 
         @if (requiresEmail()) {
-          <app-auth-field [label]="'UTILISATEURS.FORM.EMAIL' | translate">
+          <app-auth-field [label]="'UTILISATEURS.FORM.EMAIL' | translate" [required]="true">
             <input
               id="email"
               type="email"
