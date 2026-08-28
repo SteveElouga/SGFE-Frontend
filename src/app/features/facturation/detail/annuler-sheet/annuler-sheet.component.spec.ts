@@ -1,5 +1,10 @@
 import { TestBed } from '@angular/core/testing';
-import { provideTranslateService } from '@ngx-translate/core';
+import {
+  TranslateService,
+  TranslationObject,
+  provideTranslateService,
+} from '@ngx-translate/core';
+import fr from '../../../../../../public/i18n/fr.json';
 import { AnnulerSheetComponent } from './annuler-sheet.component';
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -184,5 +189,156 @@ describe('AnnulerSheetComponent', () => {
     c.onClose();
     expect(c.motif()).toBe('');
     expect(c.mode()).toBe('annuler');
+  });
+});
+
+/**
+ * Ce que la feuille montre, et pas seulement ce qu'elle calcule.
+ *
+ * Les tests précédents portaient sur ses décisions — quel mode, quel motif,
+ * quelle mutation. Restait l'affichage : un récapitulatif juste qui ne
+ * s'affiche pas ne sert à rien, et c'est justement l'affichage qui doit
+ * dissuader quelqu'un d'annuler une facture par mégarde.
+ *
+ * Ces tests lisent le DOM. Ils n'écrivent rien nulle part, ne demandent aucune
+ * session, et ne touchent à aucune donnée réelle — ce qui est la seule façon de
+ * vérifier cet écran sans créer la dette qu'on prétend annuler.
+ */
+describe('AnnulerSheetComponent · ce qui s’affiche', () => {
+  function monter(over: Partial<{ f: Facture; s: SoldeFacture; e: Envoi[] }> = {}) {
+    TestBed.configureTestingModule({
+      imports: [AnnulerSheetComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        {
+          provide: FacturesService,
+          useValue: { annulerFacture: vi.fn(), regenererFacture: vi.fn() },
+        },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      ],
+    });
+    // Les vraies chaînes françaises, pas les clés : ce qui est vérifié ici est
+    // ce que l'utilisateur lit. Charger le fichier réel fait au passage tomber
+    // le test si une clé manque.
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('fr', fr as unknown as TranslationObject);
+    translate.use('fr');
+
+    const fixture = TestBed.createComponent(AnnulerSheetComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('facture', over.f ?? facture());
+    fixture.componentRef.setInput('solde', over.s ?? solde());
+    fixture.componentRef.setInput('envois', over.e ?? []);
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    return {
+      fixture,
+      c: fixture.componentInstance,
+      racine,
+      texte: () => racine.textContent ?? '',
+      valider: () =>
+        [...racine.querySelectorAll('button')].find((b) =>
+          b.classList.contains('ann-btn--valider'),
+        ) as HTMLButtonElement,
+      alerte: () => racine.querySelector('.ann-alerte'),
+      recap: () => racine.querySelector('.ann-recap'),
+      modes: () => [...racine.querySelectorAll('.ann-mode')] as HTMLElement[],
+    };
+  }
+
+  // ── Le garde-fou visible ─────────────────────────────────────────────────
+
+  it('le bouton de validation est désactivé tant qu’il n’y a pas de motif', () => {
+    const { valider, fixture, c } = monter();
+    expect(valider().disabled).toBe(true);
+
+    c.motif.set('Index du mauvais compteur');
+    fixture.detectChanges();
+    expect(valider().disabled).toBe(false);
+  });
+
+  it('le récapitulatif dit que la facture reste au journal', () => {
+    // C'est ce qui distingue une annulation d'une suppression, et personne ne
+    // le devine : il faut l'écrire.
+    const { recap, texte } = monter();
+    expect(recap()).toBeTruthy();
+    expect(texte()).toMatch(/journal/i);
+  });
+
+  it('il annonce le montant qui reviendra à l’abonné', () => {
+    const { texte } = monter({ s: solde(4_000) });
+    expect(texte()).toMatch(/4[\s  ]?000/);
+  });
+
+  it('et se tait quand rien n’a été versé', () => {
+    // Une ligne « 0 FCFA vous seront rendus » userait l'attention pour rien.
+    const { texte } = monter({ s: solde(0) });
+    expect(texte()).not.toMatch(/reviennent au crédit/i);
+  });
+
+  // ── L'avertissement d'envoi ──────────────────────────────────────────────
+
+  it('avertit à l’écran quand la facture est déjà partie', () => {
+    const { alerte, texte } = monter({ e: [envoi('ENVOYE')] });
+    expect(alerte()).toBeTruthy();
+    expect(texte()).toMatch(/WhatsApp/i);
+  });
+
+  it('n’affiche rien quand l’envoi a échoué', () => {
+    const { alerte } = monter({ e: [envoi('ECHEC')] });
+    expect(alerte()).toBeNull();
+  });
+
+  it('l’avertissement est une information, pas un blocage', () => {
+    // Une erreur d'index se découvre justement après l'envoi : bloquer ici
+    // interdirait la correction au moment précis où elle devient nécessaire.
+    const { valider, fixture, c } = monter({ e: [envoi('ENVOYE')] });
+    c.motif.set('Index corrigé');
+    fixture.detectChanges();
+    expect(valider().disabled).toBe(false);
+  });
+
+  // ── Le choix entre annuler et régénérer ──────────────────────────────────
+
+  it('les deux modes sont proposés pour une facture de consommation', () => {
+    const { modes } = monter();
+    expect(modes()).toHaveLength(2);
+  });
+
+  it('chaque mode porte son explication — son nom ne suffit pas', () => {
+    // « Régénérer » ne se devine pas, et c'est la différence entre les deux
+    // qu'il faut comprendre avant de choisir.
+    const { modes } = monter();
+    for (const m of modes()) {
+      expect(m.querySelector('.ann-mode__desc')?.textContent?.trim().length ?? 0).toBeGreaterThan(10);
+    }
+  });
+
+  it('aucun mode n’est proposé pour une régularisation', () => {
+    const { modes } = monter({ f: facture({ nature: 'REGULARISATION', campagneId: '' }) });
+    expect(modes()).toHaveLength(0);
+  });
+
+  it('le récapitulatif change avec le mode choisi', () => {
+    const { fixture, c, texte } = monter();
+    const avant = texte();
+    c.mode.set('regenerer');
+    fixture.detectChanges();
+    expect(texte()).not.toBe(avant);
+  });
+
+  // ── Le ton de l'écran ────────────────────────────────────────────────────
+
+  it('le numéro de la facture est affiché — on annule celle-ci, pas une autre', () => {
+    const { texte } = monter();
+    expect(texte()).toContain('FACT-2026-08-0001');
+  });
+
+  it('le champ de motif porte une étiquette, pas seulement un indice', () => {
+    const { racine } = monter();
+    const champ = racine.querySelector('#ann-motif');
+    expect(champ).toBeTruthy();
+    expect(racine.querySelector('label[for="ann-motif"]')).toBeTruthy();
   });
 });
