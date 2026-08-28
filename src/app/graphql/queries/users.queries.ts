@@ -15,10 +15,13 @@ export const GET_USERS = gql`
   }
 `;
 
-// ── Souscription temps réel — PENDING BACKEND (message « souscriptions ») ─────
-// Deux usages prévus à la livraison : sans arg → liste utilisateurs (création /
-// désactivation par un autre admin) ; avec arg = utilisateur connecté → réagir à
-// sa propre désactivation / changement de rôle (sécurité : logout / permissions).
+// ── Souscription temps réel ───────────────────────────────────────────────────
+// Branchée sans argument sur `/utilisateurs` : deux admins y travaillent
+// couramment en parallèle. Le second usage prévu — arg = utilisateur connecté,
+// pour réagir à sa propre désactivation — n'est PAS branché : fermer une session
+// depuis un flux temps réel demande une politique (que faire d'un formulaire en
+// cours ?) qui n'a pas été décidée. La révocation par mot de passe le couvre
+// déjà au prochain appel.
 export const UTILISATEUR_UPDATED_SUB = gql`
   subscription UtilisateurUpdated($utilisateurId: ID) {
     utilisateurUpdated(utilisateurId: $utilisateurId) {

@@ -1,18 +1,22 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Apollo } from 'apollo-angular';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { UsersService } from '../../../core/users/users.service';
+import { UTILISATEUR_UPDATED_SUB } from '../../../graphql/queries/users.queries';
 import { Role, User } from '../../../shared/models/user.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
@@ -51,6 +55,8 @@ export class UtilisateursListComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly apollo = inject(Apollo);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly users = signal<User[]>([]);
   readonly loading = signal(false);
@@ -141,7 +147,51 @@ export class UtilisateursListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadUsers();
+    // La souscription n'est ouverte qu'une fois la liste chargée : ouverte
+    // avant, un événement arrivé pendant la requête serait écrasé par le
+    // `users.set()` qui la conclut.
+    void this.loadUsers().then(() => this.ecouterComptes());
+  }
+
+  /**
+   * `utilisateurUpdated` sans argument : le flux global des comptes.
+   *
+   * Cet écran est le seul de l'application où deux administrateurs travaillent
+   * couramment en parallèle — l'un crée un agent pendant que l'autre en
+   * désactive un. Sans ce flux, chacun voyait l'état figé à son propre
+   * chargement et pouvait désactiver un compte déjà désactivé.
+   *
+   * Le service d'authentification publie sur `user:events` à la création, à la
+   * mise à jour, à la désactivation et à la réactivation — les quatre actions
+   * que montre cette liste. En revanche il ne publie **pas** sur les
+   * réinitialisations de mot de passe : ce qu'elles changent n'est de toute
+   * façon affiché nulle part ici.
+   */
+  private ecouterComptes(): void {
+    this.apollo
+      .subscribe<{ utilisateurUpdated: User }>({
+        query: UTILISATEUR_UPDATED_SUB,
+        // Échec silencieux : une liste figée reste juste et utilisable, alors
+        // qu'un bandeau d'erreur sur un flux d'agrément couvrirait l'écran.
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const maj = data?.utilisateurUpdated;
+          if (!maj) return;
+          this.users.update((liste) =>
+            liste.some((u) => u.id === maj.id)
+              ? liste.map((u) => (u.id === maj.id ? maj : u))
+              // La liste est ordonnée du compte le plus récent au plus ancien :
+              // une création se pose en tête, pas en queue.
+              : [maj, ...liste],
+          );
+        },
+        error: () => {
+          /* temps réel indisponible — la liste garde son dernier chargement */
+        },
+      });
   }
 
   async loadUsers(): Promise<void> {

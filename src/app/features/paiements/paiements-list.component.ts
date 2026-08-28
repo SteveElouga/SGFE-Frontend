@@ -1,17 +1,21 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { nomAbonneOuReference } from '../../shared/utils/abonne.utils';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Apollo } from 'apollo-angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SelectModule } from 'primeng/select';
 import { DatePickerModule } from 'primeng/datepicker';
+import { PAIEMENT_CREE_SUB } from '../../graphql/queries/factures.queries';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/facture.model';
@@ -80,6 +84,8 @@ export class PaiementsListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly toast = inject(ToastService);
+  private readonly apollo = inject(Apollo);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -216,7 +222,63 @@ export class PaiementsListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    void this.load();
+    void this.load().then(() => this.ecouterPaiements());
+  }
+
+  /**
+   * `paiementCree` : un encaissement enregistré ailleurs apparaît ici.
+   *
+   * C'est le flux qui compte le plus des cinq. Cet écran est un journal de
+   * caisse, consulté en continu pendant qu'un collègue encaisse au guichet ou
+   * qu'un paiement Mobile Money arrive. Sans lui, le total en haut de page —
+   * « 146 000 FCFA sur 12 transactions » — était juste au chargement puis faux,
+   * silencieusement, sans que rien à l'écran ne le signale.
+   *
+   * Limite connue, côté serveur : `paiement` publie sur `EnregistrerPaiement`
+   * seulement. Ni l'annulation d'un paiement, ni `EnregistrerPaiementAbonne`
+   * (l'encaissement depuis la fiche abonné) n'émettent — ils resteront
+   * invisibles jusqu'au rechargement.
+   */
+  private ecouterPaiements(): void {
+    // La souscription ne porte pas les champs d'annulation : un paiement qui
+    // vient d'être créé n'est par définition pas annulé, on les pose à leur
+    // valeur neutre plutôt que de laisser `rows()` lire des `undefined`.
+    type MajPaiement = Pick<
+      Paiement,
+      'paiementId' | 'factureId' | 'montant' | 'datePaiement'
+      | 'modePaiement' | 'referenceTransaction'
+    >;
+
+    this.apollo
+      .subscribe<{ paiementCree: MajPaiement }>({
+        query: PAIEMENT_CREE_SUB,
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const p = data?.paiementCree;
+          if (!p) return;
+          this.paiements.update((liste) => {
+            // Le collègue qui vient d'encaisser reçoit aussi son propre
+            // événement, après que sa mutation a déjà inséré la ligne.
+            if (liste.some((x) => x.paiementId === p.paiementId)) return liste;
+            const nouveau: Paiement = {
+              ...p,
+              createdAt: p.datePaiement,
+              annule: false,
+              annuleLe: null,
+              annulePar: null,
+              motifAnnulation: null,
+            };
+            // Journal antichronologique : le plus récent en tête.
+            return [nouveau, ...liste];
+          });
+        },
+        error: () => {
+          /* temps réel indisponible — le journal garde son dernier chargement */
+        },
+      });
   }
 
   async load(): Promise<void> {
