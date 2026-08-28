@@ -1,18 +1,22 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Apollo } from 'apollo-angular';
 import { InputTextModule } from 'primeng/inputtext';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { CONFIG_UPDATED_SUB, TARIF_UPDATED_SUB } from '../../graphql/queries/configuration.queries';
 import { ConfigurationService } from '../../core/configuration/configuration.service';
 import { FacturesService } from '../../core/factures/factures.service';
 import { ConfigParam, InfosSociete, TestEnvoiResult } from '../../shared/models/configuration.model';
@@ -84,6 +88,8 @@ export class ConfigurationComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly translate = inject(TranslateService);
+  private readonly apollo = inject(Apollo);
+  private readonly destroyRef = inject(DestroyRef);
 
   // ── État global ────────────────────────────────────────────────────────────
   readonly loading = signal(true);
@@ -158,7 +164,95 @@ export class ConfigurationComponent implements OnInit {
   readonly revoking = signal(false);
 
   ngOnInit(): void {
-    void this.load();
+    void this.load().then(() => {
+      this.ecouterParametres();
+      this.ecouterTarif();
+    });
+  }
+
+  /**
+   * `configUpdated` : un paramètre changé par un autre administrateur.
+   *
+   * Le principe qui gouverne les deux flux de cet écran : **une saisie en cours
+   * gagne toujours sur un événement distant.** C'est un formulaire, pas une
+   * liste. Écraser le champ qu'on est en train de remplir pour y mettre la
+   * valeur d'un collègue serait la pire façon d'être « à jour » — et l'admin
+   * enregistrerait ensuite sans voir ce qu'il vient de perdre.
+   *
+   * On ne recopie donc dans le formulaire que si rien n'y a été touché. Sinon
+   * on met à jour la liste de référence en silence, et le prochain
+   * enregistrement — ou le prochain chargement — remettra tout d'aplomb.
+   *
+   * Limite connue, côté serveur : `config` publie sur `UpdateConfig` mais pas
+   * sur `UpdateInfosSociete`. Le nom, l'adresse et le téléphone de la régie ne
+   * remontent donc pas par ce flux.
+   */
+  private ecouterParametres(): void {
+    this.apollo
+      .subscribe<{ configUpdated: ConfigParam }>({
+        query: CONFIG_UPDATED_SUB,
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const maj = data?.configUpdated;
+          if (!maj) return;
+          const fusionnes = (() => {
+            const liste = this.configs();
+            return liste.some((c) => c.cle === maj.cle)
+              ? liste.map((c) => (c.cle === maj.cle ? { ...c, ...maj } : c))
+              : [...liste, maj];
+          })();
+          this.configs.set(fusionnes);
+          // Le formulaire n'est réaligné que s'il est vierge de modifications.
+          if (!this.configDirty()) this.applyConfigs(fusionnes);
+        },
+        error: () => {
+          /* temps réel indisponible — l'écran garde ses valeurs chargées */
+        },
+      });
+  }
+
+  /**
+   * `tarifUpdated` : le prix au m³ vient de changer.
+   *
+   * Le tarif est la valeur la plus lourde de conséquence de toute l'application
+   * — il détermine chaque montant facturé. Deux administrateurs qui le
+   * modifient à quelques minutes d'intervalle, chacun sur sa page chargée
+   * avant l'autre, produisent un écrasement silencieux. Voir la bannière
+   * « en vigueur » changer sous ses yeux est précisément ce qui évite cela.
+   *
+   * Même règle que ci-dessus : si une modification de tarif est en cours de
+   * saisie, on l'épargne et on se contente de rafraîchir la valeur de
+   * référence affichée à droite.
+   */
+  private ecouterTarif(): void {
+    this.apollo
+      .subscribe<{ tarifUpdated: Tarif }>({
+        query: TARIF_UPDATED_SUB,
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const t = data?.tarifUpdated;
+          if (!t) return;
+          // `tarifDirty` se compare au tarif de référence : il faut le lire
+          // *avant* de remplacer celui-ci, sinon on compare la saisie en cours
+          // à la valeur qui vient d'arriver et une saisie identique au nouveau
+          // tarif passerait pour vierge.
+          const saisieEnCours = this.tarifDirty();
+          this.tarifActuel.set(t);
+          if (!saisieEnCours) {
+            this.tarifPrixM3.set(String(t.prixM3));
+            this.tarifDateEffet.set(t.dateEffet);
+          }
+        },
+        error: () => {
+          /* temps réel indisponible — l'écran garde le tarif chargé */
+        },
+      });
   }
 
   async load(): Promise<void> {

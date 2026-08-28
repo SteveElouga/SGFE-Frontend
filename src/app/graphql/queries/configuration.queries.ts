@@ -37,9 +37,13 @@ export const GET_CONFIGS = gql`
   }
 `;
 
-// ── Souscriptions temps réel — PENDING BACKEND (message « souscriptions ») ────
-// Faible fréquence de changement, mais utile pour la cohérence inter-admins.
-// À brancher à la livraison (subscribeToMore sur l'écran Configuration).
+// ── Souscriptions temps réel ──────────────────────────────────────────────────
+// Branchées sur l'écran Configuration. Faible fréquence, mais le tarif décide de
+// chaque montant facturé : deux admins qui le changent à quelques minutes
+// d'écart s'écrasent en silence. Règle appliquée côté écran : une saisie en
+// cours gagne toujours sur un événement distant.
+// Le service `config` ne publie pas sur `UpdateInfosSociete` — nom, adresse et
+// téléphone de la régie ne remontent donc pas par ce flux.
 export const CONFIG_UPDATED_SUB = gql`
   subscription ConfigUpdated($cle: String) {
     configUpdated(cle: $cle) {

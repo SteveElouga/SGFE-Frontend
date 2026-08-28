@@ -132,12 +132,23 @@ export const GET_ALL_ENVOIS = gql`
   }
 `;
 
-// ── Souscriptions temps réel — PENDING BACKEND ──────────────────────────────
-// Contrats convenus avec l'équipe backend (message « souscriptions temps réel »).
-// Non branchés tant que le backend ne les expose pas : à la livraison, brancher
-// via subscribeToMore + passer les listes en cache-first (cf. flag realtimeReady).
-// Sélections alignées sur GET_FACTURES / GET_PAIEMENTS. Arg optionnel = convention
-// abonneUpdated (sans arg = flux global, avec arg = filtré sur une campagne).
+// ── Souscriptions temps réel ──────────────────────────────────────────────────
+// Branchées sans argument sur /factures et /paiements : l'argument `campagneId`
+// filtrerait à la source, mais il faudrait rouvrir le flux à chaque changement
+// de campagne du sélecteur, et un abonnement resté ouvert sur l'ancienne serait
+// pire que pas d'abonnement. Les écrans ne fusionnent que ce qu'ils affichent.
+//
+// Attention : ces sélections sont des SOUS-ENSEMBLES de GET_FACTURES /
+// GET_PAIEMENTS, pas leur copie. `FactureUpdated` ne porte ni les index, ni le
+// prix au m³, ni les libellés enrichis ; `PaiementCree` ne porte aucun champ
+// d'annulation. Les écrans fusionnent sur la ligne existante ou comblent les
+// manques — remplacer une ligne par ce que porte le flux la mutilerait.
+//
+// Trous de publication côté serveur, à connaître avant de s'y fier :
+//   facture:events  — publié sur GenererFactures et UpdateStatutFacture,
+//                     PAS sur l'annulation, la régénération, la régularisation.
+//   paiement:events — publié sur EnregistrerPaiement seulement, ni sur
+//                     l'annulation ni sur EnregistrerPaiementAbonne.
 export const FACTURE_UPDATED_SUB = gql`
   subscription FactureUpdated($campagneId: ID) {
     factureUpdated(campagneId: $campagneId) {

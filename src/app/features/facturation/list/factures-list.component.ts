@@ -1,13 +1,17 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Apollo } from 'apollo-angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { FACTURE_UPDATED_SUB } from '../../../graphql/queries/factures.queries';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
@@ -68,6 +72,8 @@ export class FacturesListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
+  private readonly apollo = inject(Apollo);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly campagneId = signal('');
   readonly campagneNom = signal('');
@@ -190,10 +196,70 @@ export class FacturesListComponent implements OnInit {
     const id = this.route.snapshot.params['campagneId'] as string | undefined;
     if (id) {
       this.campagneId.set(id);
-      void this.load();
+      void this.load().then(() => this.ecouterFactures());
     } else {
       void this.redirectToMostRecentCampagne();
     }
+  }
+
+  /**
+   * `factureUpdated` sans argument : le flux global des factures.
+   *
+   * L'argument `campagneId` existe et filtrerait à la source, mais il faudrait
+   * rouvrir le flux à chaque changement de campagne du sélecteur — un abonnement
+   * resté ouvert sur l'ancienne campagne serait pire que pas d'abonnement du
+   * tout. On écoute donc tout et on ne **fusionne que les lignes déjà
+   * affichées** : le filtrage par campagne est alors une conséquence de ce que
+   * la liste contient, pas une variable à tenir à jour.
+   *
+   * Ce que ce flux apporte réellement : un comptable encaisse, la ligne passe
+   * d'IMPAYÉE à PAYÉE sur l'écran de son collègue sans rechargement. C'est le
+   * seul événement fréquent ici — la génération de factures, elle, arrive à la
+   * clôture d'une campagne, moment où l'on navigue de toute façon.
+   *
+   * Limite connue, côté serveur : `facturation` publie sur `GenererFactures` et
+   * `UpdateStatutFacture`, mais **pas** sur l'annulation, la régénération ni la
+   * régularisation. Ces trois-là resteront invisibles jusqu'au rechargement.
+   */
+  private ecouterFactures(): void {
+    // La souscription ne porte qu'un sous-ensemble des champs de `Facture`
+    // (ni index, ni prix au m³, ni libellés enrichis) : on fusionne sur la
+    // ligne existante, on ne la remplace jamais — sinon la colonne Abonné
+    // se viderait à chaque encaissement.
+    type MajFacture = Pick<
+      Facture,
+      'factureId' | 'numeroFacture' | 'abonneId' | 'campagneId'
+      | 'statut' | 'consommation' | 'montant' | 'dateReleve' | 'dateLimitePaiement'
+    >;
+
+    this.apollo
+      .subscribe<{ factureUpdated: MajFacture }>({
+        query: FACTURE_UPDATED_SUB,
+        context: { silentError: true },
+      })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          const maj = data?.factureUpdated;
+          if (!maj) return;
+          let fusionnee: Facture | null = null;
+          this.factures.update((liste) =>
+            liste.map((f) => {
+              if (f.factureId !== maj.factureId) return f;
+              fusionnee = { ...f, ...maj };
+              return fusionnee;
+            }),
+          );
+          // Le solde d'une facture partielle est chargé à part : si le statut
+          // vient de basculer en PARTIELLE, il faut aller le chercher.
+          if (fusionnee !== null && maj.statut === 'PARTIELLE') {
+            void this.loadSoldes([fusionnee]);
+          }
+        },
+        error: () => {
+          /* temps réel indisponible — la liste garde son dernier chargement */
+        },
+      });
   }
 
   private async redirectToMostRecentCampagne(): Promise<void> {
