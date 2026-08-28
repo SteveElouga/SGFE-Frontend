@@ -52,7 +52,6 @@
     "SEE": "Voir",
     "ALL": "Tous",
     "RESULTS_COUNT": "{{count}} sur {{total}}",
-    "RESULTS_TOTAL": "{{count}} résultats",
     "CLEAR_ALL_FILTERS": "Effacer les filtres",
     "ACTIVE_FILTERS": "Filtres actifs",
     "REMOVE": "Retirer",
@@ -66,10 +65,7 @@
     "CHAMPS_REQUIS": "Les champs * sont obligatoires",
     "RESULTS_HERO_MULTI_SINGULAR": "Un filtre actif",
     "RESULTS_HERO_MULTI_PLURAL": "{{count}} filtres actifs",
-    "RESULTS_HERO_MULTI_ZERO": "Aucun filtre actif",
-    "RESULTS_TOTAL_SINGULAR": "Un résultat",
-    "RESULTS_TOTAL_PLURAL": "{{count}} résultats",
-    "RESULTS_TOTAL_ZERO": "Aucun résultat"
+    "RESULTS_HERO_MULTI_ZERO": "Aucun filtre actif"
   },
   "STATUS": {
     "ACTIF": "Actif",
@@ -460,7 +456,6 @@
     "ACT_PAIEMENT": "Paiement {{ montant }} FCFA — {{ numero }}",
     "NO_ACTIVITE": "Aucune activité récente",
     "KPI_FACTURE_SHORT": "Facturé",
-    "KPI_FACTURE_HINT": "FCFA · {{ count }} factures",
     "KPI_FACTURE_HINT_SHORT": "FCFA · {{ count }} fact.",
     "KPI_IMPAYES_SHORT": "Impayés",
     "ACT_PAIEMENT_SANS_NUM": "Paiement de {{ montant }} FCFA",
@@ -513,10 +508,6 @@
       "ENVOIS": "envois WhatsApp",
       "PAIEMENTS": "paiements reçus"
     },
-    "M3": {
-      "LABEL": "consommés en {{mois}}",
-      "TOOLTIP": "Consommation agrégée sur les factures générées ce mois. Une conso relevée en juin mais facturée en juillet apparaît en juillet."
-    },
     "CAMPAIGNS": {
       "ACTIVES": "Campagnes actives ({{count}})",
       "AUCUNE": "Aucune campagne de relevé n'est ouverte en ce moment.",
@@ -548,10 +539,7 @@
       "FACTURE": "facturés",
       "ENCAISSE": "encaissés",
       "TITRE": "{{mois}} en chiffres"
-    },
-    "KPI_FACTURE_HINT_SINGULAR": "FCFA · une facture",
-    "KPI_FACTURE_HINT_PLURAL": "FCFA · {{ count }} factures",
-    "KPI_FACTURE_HINT_ZERO": "FCFA · aucune facture"
+    }
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -744,20 +732,6 @@
     },
     "FILTRE": {
       "TOUTES": "Toutes"
-    },
-    "MOIS": {
-      "1": "Janvier",
-      "2": "Février",
-      "3": "Mars",
-      "4": "Avril",
-      "5": "Mai",
-      "6": "Juin",
-      "7": "Juillet",
-      "8": "Août",
-      "9": "Septembre",
-      "10": "Octobre",
-      "11": "Novembre",
-      "12": "Décembre"
     },
     "FORM": {
       "TITLE": "Créer une campagne",
@@ -1048,7 +1022,6 @@
   "PAIEMENTS": {
     "TITLE": "Paiements",
     "RESULTS_HERO": "paiements",
-    "SUBTITLE": "{{count}} paiements",
     "TOTAL_ENCAISSE": "Total encaissé",
     "NB_TRANSACTIONS": "Transactions",
     "SEARCH_PLACEHOLDER": "Abonné, numéro de facture…",
@@ -1101,10 +1074,7 @@
       "SUCCES_MULTIPLE_PLURAL": "Versement enregistré — réparti sur {{n}} factures",
       "SUCCES_MULTIPLE_ZERO": "Versement enregistré"
     },
-    "FILTER_PERIODE": "Période",
-    "SUBTITLE_SINGULAR": "Un paiement",
-    "SUBTITLE_PLURAL": "{{count}} paiements",
-    "SUBTITLE_ZERO": "Aucun paiement"
+    "FILTER_PERIODE": "Période"
   },
   "IMPAYES": {
     "TITLE": "Impayés",
@@ -1119,12 +1089,6 @@
     "COL_ETAPE": "Étape relance",
     "COL_DEPASSEMENT": "Dépassement",
     "COL_ACTIONS": "Actions",
-    "ETAPE": {
-      "1": "1ère relance",
-      "2": "2ème relance",
-      "3": "Avertissement",
-      "4": "Suspendu"
-    },
     "BTN_VOIR": "Voir la facture",
     "EMPTY": "Aucun impayé en cours",
     "ERROR_LOAD": "Impossible de charger les impayés",
@@ -1395,7 +1359,6 @@
     "EXPORT_PAIEMENTS": "Paiements",
     "EXPORT_IMPAYES": "Bilan des impayés",
     "EXPORT_SYNTHESE": "Synthèse",
-    "EXPORT_OK": "{{n}} lignes exportées",
     "EXPORT_DONE": "Export téléchargé",
     "SELECT_CAMPAGNE": "Campagne",
     "SELECT_CAMPAGNE_PLACEHOLDER": "Sélectionner une campagne",
@@ -1405,10 +1368,7 @@
     "COL_CAMPAGNE": "Campagne",
     "COL_RELEVES": "Relevés",
     "COL_CONSO": "Consommation",
-    "COL_PROGRESSION": "Progression",
-    "EXPORT_OK_SINGULAR": "Une ligne exportée",
-    "EXPORT_OK_PLURAL": "{{n}} lignes exportées",
-    "EXPORT_OK_ZERO": "Aucune ligne à exporter"
+    "COL_PROGRESSION": "Progression"
   },
   "ESPACE": {
     "TITLE": "Espace Abonné",
@@ -1558,5 +1518,17 @@
     "CODE_OTP": "Code de vérification à six chiffres",
     "NOTIFICATIONS": "Notifications",
     "FERMER_NOTIFICATION": "Fermer la notification"
+  },
+  "STATUT_BADGE": {
+    "ACTIF": "Actif",
+    "ACTIF_AIDE": "Abonnement actif — l'abonné reçoit ses factures normalement",
+    "SUSPENDU": "Suspendu",
+    "SUSPENDU_AIDE": "Accès temporairement bloqué — le contrat est toujours actif",
+    "RESILIE": "Résilié",
+    "RESILIE_AIDE": "Contrat résilié définitivement",
+    "ACTIVE": "Actif",
+    "ACTIVE_AIDE": "Compte actif — l'utilisateur peut se connecter",
+    "INACTIVE": "Inactif",
+    "INACTIVE_AIDE": "Compte désactivé — connexion impossible"
   }
 }
