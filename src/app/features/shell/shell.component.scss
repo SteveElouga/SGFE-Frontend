@@ -71,7 +71,11 @@
     height: 100dvh;
     z-index: 60;
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    // `ease` est symétrique : il démarre lentement. Un tiroir qui entre doit
+    // partir vite et ralentir en arrivant — c'est ce que fait `ease-out`, et
+    // c'est ce qui donne l'impression que le panneau répond au doigt plutôt que
+    // de se décider. Il s'ouvre à chaque navigation en mobile.
+    transition: transform 0.25s var(--ease-out);
     box-shadow: var(--ombre-tiroir);
   }
 
@@ -82,7 +86,7 @@
     background: var(--voile);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.25s var(--ease-out);
   }
 
   .shell--menu-open {
