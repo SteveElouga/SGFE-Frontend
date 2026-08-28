@@ -100,7 +100,14 @@
     height: 100%;
     background: var(--action);
     border-radius: var(--rayon-xs);
-    transition: width 0.3s ease;
+    // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur.
+    // Le dépôt le faisait déjà à trois endroits — facture-detail, le minuteur
+    // de toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+    // l'avaient pas suivi ; la largeur passe par `--pct` (0 à 1).
+    transform: scaleX(var(--pct, 0));
+    transform-origin: left center;
+    transition: transform 0.3s var(--ease-out);
+    will-change: transform;
   }
 
   &__right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-1); flex-shrink: 0; }
@@ -208,7 +215,14 @@
     height: 100%;
     background: var(--action);
     border-radius: var(--rayon-xs);
-    transition: width 0.3s ease;
+    // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur.
+    // Le dépôt le faisait déjà à trois endroits — facture-detail, le minuteur
+    // de toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+    // l'avaient pas suivi ; la largeur passe par `--pct` (0 à 1).
+    transform: scaleX(var(--pct, 0));
+    transform-origin: left center;
+    transition: transform 0.3s var(--ease-out);
+    will-change: transform;
 
     &--done { background: var(--succes); }
   }

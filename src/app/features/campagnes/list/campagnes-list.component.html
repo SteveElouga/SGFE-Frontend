@@ -88,7 +88,7 @@
             <div class="mini-bar__track">
               <div
                 class="mini-bar__fill"
-                [style.width.%]="progressionPct(prog)"
+                [style.--pct]="progressionPct(prog) / 100"
                 [class.mini-bar__fill--done]="cloturee"
               ></div>
             </div>
@@ -133,7 +133,7 @@
             </span>
             @if (c.statut === 'EN_COURS' && prog) {
               <span class="ccard__bar">
-                <span class="ccard__bar-fill" [style.width.%]="progressionPct(prog)"></span>
+                <span class="ccard__bar-fill" [style.--pct]="progressionPct(prog) / 100"></span>
               </span>
             }
           </span>

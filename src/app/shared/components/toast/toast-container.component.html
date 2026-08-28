@@ -51,7 +51,7 @@
               <span class="toast__progress-count">{{ toast.current ?? 0 }} / {{ toast.total ?? 0 }}</span>
             </div>
             <div class="toast__progress-track">
-              <div class="toast__progress-fill" [style.width.%]="progressPercent(toast)"></div>
+              <div class="toast__progress-fill" [style.--pct]="progressPercent(toast) / 100"></div>
             </div>
           } @else {
             <div class="toast__title">{{ toast.title }}</div>

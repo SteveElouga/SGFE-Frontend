@@ -28,7 +28,7 @@
       <div class="sidebar__campaign-bar">
         <div
           class="sidebar__campaign-bar-fill"
-          [style.width.%]="campagneProgression()!.pourcentage"
+          [style.--pct]="campagneProgression()!.pourcentage / 100"
         ></div>
       </div>
       <p class="sidebar__campaign-stats">{{ campagneProgression()!.label }}</p>

@@ -115,9 +115,16 @@ $sidebar-width:          220px;
 
 .sidebar__campaign-bar-fill {
   height: 100%;
+  // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur. Le
+  // dépôt le faisait déjà à trois endroits — facture-detail, le minuteur de
+  // toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+  // l'avaient pas suivi. La largeur est désormais pilotée par `--pct` (0 à 1).
   background: var(--action);
   border-radius: var(--rayon-xs);
-  transition: width 0.4s ease;
+  transform: scaleX(var(--pct, 0));
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out);
+  will-change: transform;
 }
 
 .sidebar__campaign-stats {

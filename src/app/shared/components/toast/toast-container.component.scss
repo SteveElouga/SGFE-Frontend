@@ -223,9 +223,16 @@
 
 .toast__progress-fill {
   height: 100%;
+  // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur. Le
+  // dépôt le faisait déjà à trois endroits — facture-detail, le minuteur de
+  // toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+  // l'avaient pas suivi. La largeur est désormais pilotée par `--pct` (0 à 1).
   background: linear-gradient(90deg, var(--action), var(--bleu-riviere-clair));
   border-radius: var(--rayon-xs);
-  transition: width 300ms ease;
+  transform: scaleX(var(--pct, 0));
+  transform-origin: left center;
+  transition: transform 300ms var(--ease-out);
+  will-change: transform;
 }
 
 // ── Animations ────────────────────────────────────────────────────────────────
