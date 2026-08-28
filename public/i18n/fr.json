@@ -398,7 +398,15 @@
     "CHECKLIST_3": "Suivi des impayés en temps réel",
     "HERO_1": "Gérez votre",
     "HERO_2": "distribution d'eau",
-    "HERO_SOUS": "Relevés, facturation et recouvrement centralisés en un seul endroit."
+    "HERO_SOUS": "Relevés, facturation et recouvrement centralisés en un seul endroit.",
+    "RETOUR_WHATSAPP": "← Retour à la réinitialisation par WhatsApp",
+    "OTP_EXPLICATION": "Entrez votre numéro de téléphone. Vous recevrez un code valable 10 minutes.",
+    "PAR_EMAIL": "Réinitialiser par e-mail",
+    "SUCCES_CONNEXION": "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "MDP_PROTEGE": "Votre mot de passe protège l'accès aux relevés, à la facturation et aux paiements de votre structure.",
+    "DEJA_UN_COMPTE": "Déjà un compte ?",
+    "MDP_DIFFERENTS": "Les mots de passe ne correspondent pas",
+    "TEL_FORMAT": "9 chiffres commençant par 6 (ex. 612345678)"
   },
   "ERRORS": {
     "GENERIC": "Une erreur est survenue. Veuillez réessayer.",

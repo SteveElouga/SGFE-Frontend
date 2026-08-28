@@ -43,7 +43,7 @@
               name="username"
             />
             @if (username().trim().length > 0 && username().trim().length < 3) {
-              <span class="user-form__hint--error">{{ 'UTILISATEURS.FORM.USERNAME_ERROR' | translate }}</span>
+              <span class="user-form__hint--error" role="status" aria-live="polite">{{ 'UTILISATEURS.FORM.USERNAME_ERROR' | translate }}</span>
             }
           </app-auth-field>
         }
@@ -72,7 +72,7 @@
             />
           </div>
           @if (phone().trim().length > 0 && !isPhoneValid()) {
-            <span class="user-form__hint--error">{{ 'UTILISATEURS.FORM.PHONE_ERROR' | translate }}</span>
+            <span class="user-form__hint--error" role="status" aria-live="polite">{{ 'UTILISATEURS.FORM.PHONE_ERROR' | translate }}</span>
           }
         </app-auth-field>
 
@@ -107,7 +107,7 @@
         }
 
         @if (errorMessage()) {
-          <div class="user-form__error">
+          <div class="user-form__error" role="alert">
             <i aria-hidden="true" class="pi pi-exclamation-circle"></i>
             {{ errorMessage() }}
           </div>

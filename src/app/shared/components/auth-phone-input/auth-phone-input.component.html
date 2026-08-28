@@ -21,7 +21,7 @@
   />
 </div>
 @if (showError()) {
-  <span class="auth-screen__hint auth-screen__hint--error">
-    9 chiffres commençant par 6 (ex. 612345678)
+  <span class="auth-screen__hint auth-screen__hint--error" role="status" aria-live="polite">
+    {{ 'AUTH.TEL_FORMAT' | translate }}
   </span>
 }
