@@ -40,7 +40,15 @@
         </button>
       </div>
 
-      @if (activeTab() !== 2) {
+    </div>
+
+    <!-- « Enregistrer les modifications » était logé DANS la barre d'onglets,
+         à côté d'un `role="tablist"` : une action primaire dans un conteneur de
+         navigation. Un onglet change ce qu'on regarde, un bouton d'enregistrement
+         change ce qui est stocké — les deux ne se rangent pas ensemble. Il prend
+         sa propre rangée, sous les onglets, du côté où l'on finit de lire. -->
+    @if (activeTab() !== 2) {
+      <div class="config-actions">
         <button class="btn btn--primary config-save" [disabled]="!dirty() || saving()" (click)="saveAll()">
           @if (saving()) {
             <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> {{ 'CONFIGURATION.SAVING' | translate }}
@@ -48,8 +56,8 @@
             <i aria-hidden="true" class="pi pi-check"></i> {{ 'CONFIGURATION.SAVE_ALL' | translate }}
           }
         </button>
-      }
-    </div>
+      </div>
+    }
 
     @switch (activeTab()) {
 
@@ -70,7 +78,9 @@
               <div class="societe-top__fields">
                 <div class="form-field">
                   <label class="form-field__label" for="societe-nom">{{ 'CONFIGURATION.NOM' | translate }}</label>
-                  <input id="societe-nom" pInputText class="form-field__input" [ngModel]="societeNom()" (ngModelChange)="societeNom.set($event)" />
+                  <input id="societe-nom" pInputText class="form-field__input" [ngModel]="societeNom()" (ngModelChange)="societeNom.set($event)"
+                [placeholder]="'CONFIGURATION.NOM_PLACEHOLDER' | translate"
+              />
                 </div>
                 <div class="form-field">
                   <label class="form-field__label" for="societe-tel">{{ 'CONFIGURATION.TELEPHONE' | translate }}</label>
@@ -81,7 +91,15 @@
 
             <div class="form-field">
               <label class="form-field__label" for="societe-adresse">{{ 'CONFIGURATION.ADRESSE' | translate }}</label>
-              <input id="societe-adresse" pInputText class="form-field__input" [ngModel]="societeAdresse()" (ngModelChange)="societeAdresse.set($event)" />
+              <input id="societe-adresse" pInputText class="form-field__input" [ngModel]="societeAdresse()" (ngModelChange)="societeAdresse.set($event)"
+                [placeholder]="'CONFIGURATION.ADRESSE_PLACEHOLDER' | translate"
+                aria-describedby="societe-adresse-hint"
+              />
+              <!-- Le champ était nu : ni exemple, ni rappel de sa destination.
+                   Sur la base actuelle il contient une adresse e-mail — qui part
+                   donc s'imprimer sur chaque facture PDF. Le formulaire ne peut
+                   pas corriger la donnée, mais il peut cesser de laisser deviner. -->
+              <span id="societe-adresse-hint" class="form-field__hint">{{ 'CONFIGURATION.ADRESSE_HINT' | translate }}</span>
             </div>
 
             <div class="form-field">

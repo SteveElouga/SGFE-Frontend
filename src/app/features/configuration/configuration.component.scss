@@ -652,3 +652,18 @@
 
   &--on .toggle-switch__thumb { transform: translateX(18px); }
 }
+
+// Rangée d'action de l'écran — séparée de la navigation par onglets.
+.config-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: var(--pas-3) 0 var(--pas-4);
+}
+
+// Aide sous un champ — même forme que sur les autres formulaires : sous le
+// champ, reliée par aria-describedby.
+.form-field__hint {
+  margin-top: var(--pas-1);
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}

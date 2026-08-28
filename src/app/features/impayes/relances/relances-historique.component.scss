@@ -216,12 +216,24 @@
 .action-bar {
   display: flex;
   gap: var(--pas-2);
+  // Les deux boutons étaient collés aux deux bords de l'écran, l'un tirant
+  // toute la largeur restante. Ils se rangent maintenant à gauche, dans
+  // l'ordre où on les lit.
+  justify-content: flex-start;
+  flex-wrap: wrap;
 
   @media (max-width: 639px) { flex-direction: column; }
 }
 
 .btn-paiement {
-  flex: 1;
+  // `flex: 1` lui donnait TOUT l'espace restant : mesuré à 1 314 px face à un
+  // secondaire de 210, pour un libellé qui en fait trois cents. Une action
+  // principale se signale par sa couleur et sa place, pas par sa longueur —
+  // à cette taille elle ne se lit plus comme un bouton mais comme un bandeau.
+  flex: 0 1 auto;
+  padding-inline: var(--pas-5);
+
+  @media (max-width: 639px) { flex: 1 1 auto; }
   min-height: 44px;                    // WCAG 2.5.5;
   border: none;
   border-radius: var(--rayon-md);

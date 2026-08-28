@@ -80,7 +80,16 @@
               [attr.tabindex]="valueOf(f.key) === null ? 0 : -1"
               (click)="setFilterValue(f.key, null)"
               (keydown)="onChipKeydown($event, f, null)"
-            >{{ 'COMMON.ALL' | translate }}</button>
+            >
+            {{ 'COMMON.ALL' | translate }}
+            <!-- « Tous » n'affichait pas son compte quand ses trois voisines
+                 l'affichaient : la rangée se lisait comme trois filtres chiffrés
+                 posés à côté d'un bouton d'une autre nature. Le total est la
+                 somme des options, il n'a pas à être fourni deux fois. -->
+            @if (totalOptions(f) !== null) {
+              <span class="fp__chip-count">({{ totalOptions(f) }})</span>
+            }
+          </button>
           }
           @for (opt of f.options; track opt.value) {
             <button

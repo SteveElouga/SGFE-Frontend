@@ -432,6 +432,17 @@ export class FiltersPanelComponent {
     return f.render ?? 'auto';
   }
 
+  /**
+   * Total d'un filtre : la somme des comptes de ses options, ou `null` si
+   * aucune option n'en porte — auquel cas « Tous » reste sans chiffre, comme
+   * ses voisines.
+   */
+  totalOptions(f: FilterDefinition): number | null {
+    const avecCompte = f.options.filter((o) => o.count !== undefined);
+    if (avecCompte.length === 0) return null;
+    return avecCompte.reduce((n, o) => n + (o.count ?? 0), 0);
+  }
+
   visibilityClass(f: FilterDefinition): string {
     const vis = f.visibility ?? 'both';
     return vis === 'desktop-only' ? 'fp__filter--desktop-only'

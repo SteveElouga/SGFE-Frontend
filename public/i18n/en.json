@@ -647,7 +647,10 @@
     },
     "WHATSAPP_ROMPU_TITRE": "WhatsApp link is down",
     "WHATSAPP_ROMPU_DESC": "No invoice can be sent until the account is linked again. Click Retry — a new QR code will appear within a minute.",
-    "WHATSAPP_ROMPU_DEPUIS": "Down for {{ duree }}"
+    "WHATSAPP_ROMPU_DEPUIS": "Down for {{ duree }}",
+    "ADRESSE_PLACEHOLDER": "e.g. Bastos, PO Box 1234, Yaoundé",
+    "ADRESSE_HINT": "Postal address of the utility — printed on every invoice PDF.",
+    "NOM_PLACEHOLDER": "e.g. Yaoundé Water Utility"
   },
   "PROFIL": {
     "TITLE": "My profile",
@@ -863,7 +866,9 @@
     "AGENTS_EMPTY": "No agent assigned to this campaign.",
     "CHIP_PLANIFIEES": "Planned",
     "CHIP_EN_COURS": "In progress",
-    "CHIP_CLOTUREES": "Closed"
+    "CHIP_CLOTUREES": "Closed",
+    "ZONE_CAMP_LEGENDE": "District · camp",
+    "CAMP": "camp"
   },
   "FACTURATION": {
     "TITLE": "Invoices",
