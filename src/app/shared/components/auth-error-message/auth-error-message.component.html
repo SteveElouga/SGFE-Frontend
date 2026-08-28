@@ -1,5 +1,8 @@
+<!-- Le rôle `alert` est posé sur l'hôte (voir le composant) : la mise en page
+     est une grille flex sur `:host`, un élément enveloppant de plus la
+     casserait. L'icône ne porte rien que le texte ne dise déjà. -->
 @if (text()) {
-  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" class="auth-error-message__icon">
+  <svg width="15" height="15" viewBox="0 0 15 15" fill="none" class="auth-error-message__icon" aria-hidden="true">
     <circle cx="7.5" cy="7.5" r="6.5" stroke="#ef4444" stroke-width="1.4" />
     <path d="M7.5 4.5v3.5M7.5 10.5v.5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" />
   </svg>

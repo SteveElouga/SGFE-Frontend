@@ -398,7 +398,15 @@
     "CHECKLIST_3": "Real-time unpaid invoice tracking",
     "HERO_1": "Manage your",
     "HERO_2": "water distribution",
-    "HERO_SOUS": "Meter readings, invoicing and collection, all in one place."
+    "HERO_SOUS": "Meter readings, invoicing and collection, all in one place.",
+    "RETOUR_WHATSAPP": "← Back to WhatsApp reset",
+    "OTP_EXPLICATION": "Enter your phone number. You will receive a code valid for 10 minutes.",
+    "PAR_EMAIL": "Reset by email",
+    "SUCCES_CONNEXION": "You can now sign in with your new password.",
+    "MDP_PROTEGE": "Your password protects access to your organisation's readings, invoicing and payments.",
+    "DEJA_UN_COMPTE": "Already have an account?",
+    "MDP_DIFFERENTS": "Passwords do not match",
+    "TEL_FORMAT": "9 digits starting with 6 (e.g. 612345678)"
   },
   "ERRORS": {
     "GENERIC": "An error occurred. Please try again.",

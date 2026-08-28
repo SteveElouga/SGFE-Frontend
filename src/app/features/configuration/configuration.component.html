@@ -74,7 +74,7 @@
                 </div>
                 <div class="form-field">
                   <label class="form-field__label" for="societe-tel">{{ 'CONFIGURATION.TELEPHONE' | translate }}</label>
-                  <input id="societe-tel" pInputText class="form-field__input" [ngModel]="societeTelephone()" (ngModelChange)="societeTelephone.set($event)" />
+                  <input id="societe-tel" type="tel" autocomplete="tel" pInputText class="form-field__input" [ngModel]="societeTelephone()" (ngModelChange)="societeTelephone.set($event)" />
                 </div>
               </div>
             </div>

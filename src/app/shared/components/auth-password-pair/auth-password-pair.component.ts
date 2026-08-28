@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { PasswordModule } from 'primeng/password';
@@ -5,7 +6,7 @@ import { AuthFieldComponent } from '../auth-field/auth-field.component';
 
 @Component({
   selector: 'app-auth-password-pair',
-  imports: [FormsModule, PasswordModule, AuthFieldComponent],
+  imports: [FormsModule, PasswordModule, AuthFieldComponent, TranslatePipe],
   templateUrl: './auth-password-pair.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
