@@ -1,4 +1,4 @@
-<nav class="tabs" aria-label="Navigation principale">
+<nav class="tabs" [attr.aria-label]="'A11Y.NAV_PRINCIPALE' | translate">
   @for (item of nav.tabItems(); track item.route) {
     <a
       class="tabs__tab"

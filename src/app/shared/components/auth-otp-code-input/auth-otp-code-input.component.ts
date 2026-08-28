@@ -1,10 +1,11 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-auth-otp-code-input',
-  imports: [FormsModule, InputTextModule],
+  imports: [FormsModule, InputTextModule, TranslatePipe],
   template: `
     <input
       [id]="inputId()"
@@ -15,7 +16,7 @@ import { InputTextModule } from 'primeng/inputtext';
       autocomplete="one-time-code"
       placeholder="123456"
       maxlength="6"
-      aria-label="Code OTP"
+      [attr.aria-label]="'A11Y.CODE_OTP' | translate"
       class="auth-otp-code-input"
       [ngModel]="value()"
       (ngModelChange)="value.set($event)"

@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 import { NotificationBellComponent } from '../notification-bell/notification-bell.component';
 import { NotificationsService } from '../../../core/notifications/notifications.service';
@@ -31,7 +32,7 @@ import { LayoutService } from '../../services/layout.service';
 @Component({
   selector: 'app-page-topbar',
   standalone: true,
-  imports: [RouterLink, NotificationBellComponent],
+  imports: [RouterLink, NotificationBellComponent, TranslatePipe],
   template: `
     <header class="page-topbar">
       <div class="page-topbar__row">
@@ -62,7 +63,7 @@ import { LayoutService } from '../../services/layout.service';
             type="button"
             class="page-topbar__menu"
             (click)="layout.openMenu()"
-            aria-label="Ouvrir le menu"
+            [attr.aria-label]="'A11Y.OUVRIR_MENU' | translate"
           ><i class="pi pi-bars" aria-hidden="true"></i></button>
         </div>
       </div>

@@ -1474,5 +1474,14 @@
     "NOUVEAU_MDP": "Nouveau mot de passe",
     "CONFIRMER_MDP": "Confirmer le mot de passe",
     "CHAMP_TEL": "Numéro de téléphone"
+  },
+  "A11Y": {
+    "QR_WHATSAPP": "QR code de liaison WhatsApp",
+    "NAV_PRINCIPALE": "Navigation principale",
+    "FERMER_MENU": "Fermer le menu",
+    "OUVRIR_MENU": "Ouvrir le menu",
+    "CODE_OTP": "Code de vérification à six chiffres",
+    "NOTIFICATIONS": "Notifications",
+    "FERMER_NOTIFICATION": "Fermer la notification"
   }
 }

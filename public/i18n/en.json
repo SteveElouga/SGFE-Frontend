@@ -1474,5 +1474,14 @@
     "NOUVEAU_MDP": "New password",
     "CONFIRMER_MDP": "Confirm the password",
     "CHAMP_TEL": "Phone number"
+  },
+  "A11Y": {
+    "QR_WHATSAPP": "WhatsApp pairing QR code",
+    "NAV_PRINCIPALE": "Main navigation",
+    "FERMER_MENU": "Close menu",
+    "OUVRIR_MENU": "Open menu",
+    "CODE_OTP": "Six-digit verification code",
+    "NOTIFICATIONS": "Notifications",
+    "FERMER_NOTIFICATION": "Dismiss notification"
   }
 }

@@ -43,7 +43,7 @@
 <!-- QR à scanner -->
 @else if (qr()) {
   <div class="wa-link wa-link--qr">
-    <img class="wa-link__qr" [src]="qr()" alt="QR code WhatsApp" width="176" height="176" />
+    <img class="wa-link__qr" [src]="qr()" [alt]="'A11Y.QR_WHATSAPP' | translate" width="176" height="176" />
     <div class="wa-link__qr-body">
       <div class="wa-link__title">{{ 'CONFIGURATION.WHATSAPP_QR_SCAN' | translate }}</div>
       <div class="wa-link__desc">{{ 'CONFIGURATION.WHATSAPP_QR_SCAN_STEPS' | translate }}</div>

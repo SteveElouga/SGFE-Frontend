@@ -5,6 +5,7 @@ import {
   afterRenderEffect,
   inject,
 } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Toast, ToastService } from '../../services/toast.service';
 import { calculerReplacements, memoriserPositions, PositionToast } from './toast-flip';
 
@@ -20,6 +21,7 @@ const REPLACEMENT_MS = 180;
 @Component({
   selector: 'app-toast-container',
   standalone: true,
+  imports: [TranslatePipe],
   templateUrl: './toast-container.component.html',
   styleUrl: './toast-container.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

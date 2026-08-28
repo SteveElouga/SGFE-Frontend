@@ -13,7 +13,7 @@
     <button
       type="button"
       class="sidebar__close"
-      aria-label="Fermer le menu"
+      [attr.aria-label]="'A11Y.FERMER_MENU' | translate"
       (click)="layout.closeMenu()"
     >
       <i aria-hidden="true" class="pi pi-times"></i>
