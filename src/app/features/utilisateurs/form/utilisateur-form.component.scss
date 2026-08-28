@@ -19,7 +19,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--encre-3);
   text-decoration: none;
   transition: color 0.12s;
@@ -39,14 +39,14 @@
 }
 
 .user-form-page__title {
-  font-size: 22px;
+  font-size: var(--texte-3xl);
   font-weight: 700;
   color: var(--encre);
   margin: 0 0 var(--pas-2);
 }
 
 .user-form-page__subtitle {
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--encre-3);
   margin: 0 0 $spacing-lg;
 }
@@ -75,14 +75,14 @@
 
   &:focus-within {
     border-color: $color-primary;
-    box-shadow: 0 0 0 2px rgba($color-primary, 0.15);
+    box-shadow: var(--anneau);
   }
 
   &--valid {
     border-color: $color-accent;
     &:focus-within {
       border-color: $color-accent;
-      box-shadow: 0 0 0 2px rgba($color-accent, 0.15);
+      box-shadow: var(--anneau);
     }
   }
 
@@ -90,7 +90,7 @@
     border-color: $color-error;
     &:focus-within {
       border-color: $color-error;
-      box-shadow: 0 0 0 2px rgba($color-error, 0.12);
+      box-shadow: var(--anneau-danger);
     }
   }
 
@@ -108,7 +108,7 @@
   padding: 0 var(--pas-2);
   background: var(--surface-douce);
   border-right: 1px solid var(--filet-pale);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   color: var(--encre-2);
   white-space: nowrap;
@@ -116,7 +116,7 @@
 }
 
 .user-form__hint--error {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--danger-encre);
   margin-top: var(--pas-1);
   display: block;
@@ -130,7 +130,7 @@
   background: var(--danger-fond);
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--danger-encre);
 }
 
@@ -150,7 +150,7 @@
   border: 1px solid var(--filet);
   background: var(--surface);
   color: var(--encre-2);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 500;
   text-decoration: none;
   transition: background 0.12s;
@@ -172,7 +172,7 @@
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s;

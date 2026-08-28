@@ -53,18 +53,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
 }
 
 .users-table__username {
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre);
 }
 
 .users-table__email {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
 }
 
@@ -90,7 +90,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-1);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--succes-encre);
 
@@ -103,13 +103,13 @@
 }
 
 .users-table__phone {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-2);
   font-variant-numeric: tabular-nums;
 }
 
 .users-table__date {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-3);
 }
 
@@ -158,14 +158,14 @@
     }
   }
 
-  i { font-size: 13px; }
+  i { font-size: var(--icone-xs); }
 }
 
 .users-table__empty {
   text-align: center;
   padding: 40px 0;
   color: var(--encre-3);
-  font-size: 14px;
+  font-size: var(--texte-lg);
 }
 
 // ── Carte mobile (via data-table appCardRow) ──────────────────────────────────
@@ -220,7 +220,7 @@
   }
 
   &__email {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     white-space: nowrap;
     overflow: hidden;
@@ -238,4 +238,4 @@
 .ucard__head .role-pill { flex-shrink: 0; }
 
 // Avatar un peu plus grand sur la carte mobile.
-.ucard .users-table__avatar { width: 40px; height: 40px; font-size: 15px; }
+.ucard .users-table__avatar { width: 40px; height: 40px; font-size: var(--texte-lg); }

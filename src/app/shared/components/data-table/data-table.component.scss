@@ -9,14 +9,14 @@
   align-items: center;
   padding: var(--pas-7);
   color: var(--action);
-  font-size: 22px;
+  font-size: var(--texte-3xl);
 }
 
 .dt__empty {
   text-align: center;
   padding: var(--pas-7);
   color: var(--encre-3);
-  font-size: 14px;
+  font-size: var(--texte-lg);
 }
 
 // ── Tableau ─────────────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@
   border-collapse: collapse;
 
   thead > tr > th {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -40,7 +40,7 @@
     padding: var(--pas-3) var(--pas-4);
     border-bottom: 1px solid var(--fond);
     vertical-align: middle;
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre);
   }
 
@@ -88,7 +88,7 @@
   // Ligne active/sélectionnée (ex : facture dont le panneau de paiement est ouvert)
   &--selected > td {
     background: var(--action-lueur);
-    box-shadow: inset 3px 0 0 $color-primary;
+    box-shadow: var(--ombre-action);
   }
 
   // Ligne mise en avant (ex : campagne en cours) — teinte discrète
@@ -130,7 +130,7 @@
 }
 
 .dt__page-info {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);
 }
 
@@ -150,7 +150,7 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-sm);
   background: var(--surface);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
   color: var(--encre-2);
   cursor: pointer;
@@ -179,7 +179,7 @@
 
   &:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  i { font-size: 11px; }
+  i { font-size: var(--icone-xs); }
 }
 
 // ── Lien de ligne ─────────────────────────────────────────────────────────────

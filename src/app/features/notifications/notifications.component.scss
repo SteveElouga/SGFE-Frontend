@@ -20,13 +20,13 @@
   border-radius: var(--rayon-md);
   background: var(--surface);
   color: var(--encre-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.12s;
 
-  i { color: var(--succes-encre); font-size: 13px; }
+  i { color: var(--succes-encre); font-size: var(--icone-xs); }
   @media (hover: hover) and (pointer: fine) {
     &:hover { background: var(--surface-douce); }
   }
@@ -58,7 +58,7 @@
   color: var(--encre-2);
   border-radius: var(--rayon-lg);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 11.5px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
@@ -87,7 +87,7 @@
 }
 
 .notif-group-label {
-  font-size: 10.5px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   letter-spacing: 1.2px;
   text-transform: uppercase;
@@ -135,7 +135,7 @@
     justify-content: center;
     flex-shrink: 0;
 
-    i { font-size: 17px; }
+    i { font-size: var(--icone-md); }
 
     &--danger { background: var(--danger-fond); i { color: var(--danger-encre); } }
     &--success { background: var(--succes-fond); i { color: var(--succes-encre); } }
@@ -146,7 +146,7 @@
   &__body { flex: 1; min-width: 0; }
 
   &__title {
-    font-size: 13.5px;
+    font-size: var(--texte-md);
     font-weight: 700;
     color: var(--encre);
 
@@ -154,7 +154,7 @@
   }
 
   &__msg {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     margin-top: var(--pas-1);
     line-height: 1.55;
@@ -175,7 +175,7 @@
   }
 
   &__time {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
     white-space: nowrap;
@@ -199,7 +199,7 @@
 .notif-act {
   border-radius: var(--rayon-sm);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
@@ -226,6 +226,6 @@
   padding: 60px var(--pas-5);
   color: var(--encre-3);
 
-  i { font-size: 34px; }
-  span { font-size: 14px; }
+  i { font-size: var(--icone-2xl); }
+  span { font-size: var(--icone-sm); }
 }

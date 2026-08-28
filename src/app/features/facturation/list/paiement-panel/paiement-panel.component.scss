@@ -6,7 +6,7 @@
   border: 1.5px solid $color-primary;
   border-radius: var(--rayon-lg);
   padding: var(--pas-5);
-  box-shadow: 0 0 0 4px rgba($color-primary, 0.08);
+  box-shadow: var(--anneau);
   display: flex;
   flex-direction: column;
   gap: var(--pas-4);
@@ -27,17 +27,17 @@
     justify-content: center;
     flex-shrink: 0;
     color: var(--action);
-    font-size: 15px;
+    font-size: var(--texte-lg);
   }
 
   &__title {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
   }
 
   &__sub {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--action);
     margin-top: var(--pas-1);
   }
@@ -48,7 +48,7 @@
     border: none;
     color: var(--encre-3);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--texte-lg);
     padding: var(--pas-1);
     line-height: 1;
     transition: color 0.1s;

@@ -16,7 +16,7 @@
   justify-content: center;
   padding: 60px;
   color: var(--action);
-  font-size: 24px;
+  font-size: var(--texte-4xl);
 }
 
 // ── Header card ───────────────────────────────────────────────────────────────
@@ -32,13 +32,13 @@
   gap: var(--pas-3);
 
   &__nom {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin-bottom: var(--pas-1);
   }
   &__meta {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
   }
 }
@@ -64,7 +64,7 @@
   padding: var(--pas-5);
 
   &__title {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
     margin-bottom: var(--pas-4);
@@ -100,7 +100,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 700;
   border: 2px solid;
   box-sizing: border-box;
@@ -146,7 +146,7 @@
 }
 
 .tl-title {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   color: var(--encre);
 
@@ -155,7 +155,7 @@
 }
 
 .tl-when {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-3);
   white-space: nowrap;
@@ -169,7 +169,7 @@
   border: 1px solid var(--fond);
   border-radius: var(--rayon-md);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-style: italic;
   color: var(--encre-3);
   line-height: 1.5;
@@ -227,10 +227,10 @@
   border-radius: var(--rayon-md);
   background: linear-gradient(135deg, var(--action), var(--action-survol));
   color: var(--surface);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(26, 86, 219, 0.3);
+  box-shadow: var(--ombre-action);
   transition: opacity 0.15s;
 
   @media (hover: hover) and (pointer: fine) {
@@ -245,7 +245,7 @@
   border-radius: var(--rayon-md);
   background: var(--surface);
   color: var(--encre-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
   cursor: pointer;
   transition: background 0.12s, transform 160ms var(--ease-out);
@@ -286,19 +286,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: var(--texte-2xl);
     flex-shrink: 0;
   }
 
   &__title {
-    font-size: 15px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
     margin: 0;
   }
 
   &__sub {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     margin: var(--pas-1) 0 0;
     line-height: 1.4;
@@ -312,7 +312,7 @@
   }
 
   &__preview-label {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -325,7 +325,7 @@
     padding: var(--pas-2) var(--pas-3);
     background: var(--succes-fond);                 // mint-lueur = bulle "message WhatsApp"
     border-radius: var(--rayon-md);
-    font-size: 13px;
+    font-size: var(--texte-md);
     line-height: 1.5;
     color: var(--encre);
     white-space: pre-line;
@@ -341,7 +341,7 @@
     height: 48px;
     border-radius: var(--rayon-lg);
     font-family: inherit;
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     cursor: pointer;
     border: none;
@@ -354,7 +354,7 @@
     &--send {
       background: var(--succes-encre);
       color: var(--surface);
-      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.35);
+      box-shadow: var(--ombre-portee);
 
       @media (hover: hover) and (pointer: fine) {
         &:hover:not(:disabled) { background: var(--vert-profond); }
@@ -370,7 +370,7 @@
       color: var(--encre-2);
       border: 1px solid var(--filet);
       font-weight: 500;
-      font-size: 13px;
+      font-size: var(--texte-md);
 
       @media (hover: hover) and (pointer: fine) {
         &:hover:not(:disabled) { background: var(--surface-douce); }

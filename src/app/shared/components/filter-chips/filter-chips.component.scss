@@ -22,7 +22,7 @@
   border-radius: 999px;
   background: var(--surface);
   color: var(--encre-2);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -45,7 +45,7 @@
 }
 
 .fchips__count {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 700;
   opacity: 0.55;
 
@@ -62,10 +62,10 @@
     height: 36px;
     padding: 0 var(--pas-3);
     gap: var(--pas-1);
-    font-size: 12px;
+    font-size: var(--texte-sm);
   }
 
-  .fchips__count { font-size: 11px; }
+  .fchips__count { font-size: var(--texte-xs); }
 }
 
 // ── Groupe nommé ────────────────────────────────────────────────────────────

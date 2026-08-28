@@ -26,7 +26,7 @@
 }
 
 .pf-label {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--encre-3);
   text-transform: uppercase;
@@ -42,7 +42,7 @@
 // Icône d'aide contextuelle (H10 Nielsen) — hover pour tooltip, tabbable
 // pour clavier + screen-reader (aria-label répète le tooltip).
 .pf-help {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-3);
   cursor: help;
   transition: color 0.12s;
@@ -63,7 +63,7 @@
   width: 100%;
   height: 40px;
   padding: 0 var(--pas-3);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   border: 1px solid var(--filet-pale);
   border-radius: var(--rayon-md);
   transition: border-color 0.12s, box-shadow 0.12s;
@@ -71,17 +71,17 @@
   &:focus, &--focus:focus {
     outline: none;
     border-color: var(--action);                  // Bleu Rivière DESIGN.md
-    box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.15);
+    box-shadow: var(--anneau);
   }
 
   &--error {
     border-color: var(--danger);
-    &:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15); }
+    &:focus { box-shadow: var(--anneau-danger); }
   }
 }
 
 .pf-hint {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
   line-height: 1.4;
 
@@ -96,7 +96,7 @@
   border-radius: var(--rayon-md);
   background: linear-gradient(135deg, var(--action), var(--succes));
   color: var(--surface);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   letter-spacing: 0.2px;
   cursor: pointer;

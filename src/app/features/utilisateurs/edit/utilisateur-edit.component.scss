@@ -27,14 +27,14 @@
 
   &__title {
     margin: 0;                 // <h1> de l'écran
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     line-height: 1.2;
   }
 
   &__crumb {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     margin-top: 1px;
   }
@@ -64,7 +64,7 @@
   align-items: center;
   gap: var(--pas-2);
   flex-shrink: 0;
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   color: var(--succes-encre);
   background: var(--succes-fond);
@@ -108,7 +108,7 @@
   padding: var(--pas-4) var(--pas-5);
 
   &__title {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 700;
     color: var(--encre);
     margin-bottom: var(--pas-3);
@@ -147,13 +147,13 @@
   }
 
   &__name {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
   }
 
   &__meta {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     margin-top: var(--pas-1);
   }
@@ -166,7 +166,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: var(--texte-2xl);
   font-weight: 700;
   color: var(--surface);
   flex-shrink: 0;
@@ -210,7 +210,7 @@
   flex-direction: column;
 
   &__label {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     color: var(--encre-3);
     margin-bottom: var(--pas-1);
@@ -255,7 +255,7 @@
 
   &__prefix {
     padding: 0 var(--pas-3);
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 500;
     color: var(--encre-3);
     background: var(--surface-douce);
@@ -299,12 +299,12 @@
   &__text { min-width: 0; }
 
   &__label {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
   }
 
   &__note {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     margin-left: var(--pas-1);
   }
@@ -329,7 +329,7 @@
   }
 
   &__desc {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
     line-height: 1.5;
     margin: 0;
@@ -375,7 +375,7 @@
   gap: var(--pas-3);
 
   &__note {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--encre-3);
   }
 
@@ -406,7 +406,7 @@
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
   padding: var(--pas-3) var(--pas-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--danger-encre);
 }
 
@@ -416,7 +416,7 @@
   min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
@@ -432,7 +432,7 @@
     background: linear-gradient(135deg, var(--action), var(--action-survol));
     border: none;
     color: var(--surface);
-    box-shadow: 0 3px 10px rgba(26, 86, 219, 0.3);
+    box-shadow: var(--ombre-action);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) { opacity: 0.9; }
@@ -474,7 +474,7 @@
     background: linear-gradient(135deg, var(--succes-encre), var(--succes-encre));
     border: none;
     color: var(--surface);
-    box-shadow: 0 2px 8px rgba(4, 120, 87, 0.28);
+    box-shadow: var(--ombre-carte);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) { opacity: 0.9; }
@@ -529,7 +529,7 @@
   }
 
   &__title {
-    font-size: 16px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-1);
@@ -537,7 +537,7 @@
   }
 
   &__desc {
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre-3);
     margin: 0;
     line-height: 1.5;
@@ -565,7 +565,7 @@
   gap: var(--pas-2);
   padding: 60px 0;
   color: var(--encre-3);
-  font-size: 14px;
+  font-size: var(--texte-lg);
 
   &__link {
     color: var(--action);

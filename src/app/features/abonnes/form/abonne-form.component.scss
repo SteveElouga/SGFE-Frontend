@@ -34,7 +34,7 @@
   background: var(--danger-fond);
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   color: var(--danger-encre);
 }
 
@@ -56,14 +56,14 @@
 }
 
 .af-card__title {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   color: var(--encre);
   margin-bottom: var(--pas-1);
 }
 
 .af-card__subtitle {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 700;
   color: var(--encre-2);
   letter-spacing: 0.5px;
@@ -112,7 +112,7 @@
 }
 
 .af-label {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 500;
   color: var(--encre-3);
   display: flex;
@@ -133,7 +133,7 @@
 }
 
 .af-field__error {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--danger-encre);
   margin-top: var(--pas-1);
   display: flex;
@@ -155,7 +155,7 @@
   input[pInputText].ng-invalid,
   input[pInputText].ng-invalid:focus {
     border-color: var(--danger);
-    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
+    box-shadow: var(--anneau-danger);
   }
 }
 
@@ -201,7 +201,7 @@
 }
 
 .af-readonly__value {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
   color: var(--encre-3);
 
@@ -212,7 +212,7 @@
   }
 
   &--muted {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 400;
     color: var(--encre-3);
   }
@@ -235,7 +235,7 @@
   align-items: center;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-sm);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 600;
   letter-spacing: 0.3px;
   text-transform: uppercase;
@@ -271,7 +271,7 @@
 .af-btn {
   height: 46px;
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 700;
   cursor: pointer;
   transition: opacity 0.15s;
@@ -287,7 +287,7 @@
     background: linear-gradient(135deg, var(--action), var(--action-survol));
     color: var(--surface);
     border: none;
-    box-shadow: 0 4px 14px rgba(26, 86, 219, 0.3);
+    box-shadow: var(--ombre-action);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) { opacity: 0.9; }

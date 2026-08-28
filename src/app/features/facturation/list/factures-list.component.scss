@@ -43,20 +43,20 @@
 
   &__icon {
     color: var(--ambre-attente);
-    font-size: 18px;
+    font-size: var(--texte-2xl);
     flex-shrink: 0;
     margin-top: 1px;
   }
 
   &__title {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 700;
     color: var(--attente-encre);
     margin-bottom: var(--pas-1);
   }
 
   &__sub {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: var(--ambre-attente);
   }
 }
@@ -73,7 +73,7 @@
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
@@ -101,15 +101,15 @@
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.18); // profondeur discrète (plus légère que le CTA du sheet)
+  box-shadow: var(--ombre-carte); // profondeur discrète (plus légère que le CTA du sheet)
   transition: opacity 0.15s, box-shadow 0.15s, transform 160ms var(--ease-out, ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { opacity: 0.92; box-shadow: 0 2px 8px rgba(22, 101, 52, 0.24); }
+    &:hover:not(:disabled) { opacity: 0.92; box-shadow: var(--ombre-carte); }
   }
   &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
@@ -165,7 +165,7 @@
   }
 
   &__nom {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 700;
     color: var(--encre);
     white-space: nowrap;
@@ -187,7 +187,7 @@
   }
 
   &__montant {
-    font-size: 15px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
   }
@@ -197,7 +197,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre-2);
 }
 
@@ -210,7 +210,7 @@
 }
 
 .col-numero {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-3);
   white-space: nowrap;
@@ -227,38 +227,38 @@
 
 .abonne-nom {
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--encre);
 }
 
 .abonne-sub {
-  font-size: 11px;
+  font-size: var(--texte-xs);
   color: var(--encre-3);
 }
 
 .col-montant {
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--texte-lg);
 }
 
 .col-solde {
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--texte-md);
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
 }
 
 .solde-zero { color: var(--succes-encre); }
-.solde-red  { color: var(--danger-encre); font-weight: 700; font-size: 14px; }
-.solde-blue { color: var(--action); font-weight: 700; font-size: 14px; }
+.solde-red  { color: var(--danger-encre); font-weight: 700; font-size: var(--texte-lg); }
+.solde-blue { color: var(--action); font-weight: 700; font-size: var(--texte-lg); }
 .solde-loading { color: var(--encre-3); }
 
 // Indicateur "solde estimé" (P1 batch 8 list) : honnêteté visuelle sur les
 // IMPAYEE dont le solde n'a pas été vérifié backend. Discret pour ne pas
 // perturber la lecture des chiffres réels.
 .solde-estimated {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-3);                                       // slate 400 (icon, non-texte)
   cursor: help;
   transition: color 0.12s;
@@ -288,7 +288,7 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--encre-3);
   background: var(--surface);
@@ -316,7 +316,7 @@
 
   &--icon {
     padding: var(--pas-1) var(--pas-2);
-    i { font-size: 13px; }
+    i { font-size: var(--icone-xs); }
   }
 }
 
@@ -347,19 +347,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: var(--texte-3xl);
     flex-shrink: 0;
   }
 
   &__title {
-    font-size: 17px;
+    font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-1);
   }
 
   &__desc {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     line-height: 1.55;
     margin: 0;
@@ -376,7 +376,7 @@
     justify-content: space-between;
     gap: var(--pas-3);
     padding: var(--pas-2) var(--pas-3);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     border-bottom: 1px solid var(--fond);
 
@@ -397,11 +397,11 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: var(--encre-2);
   line-height: 1.5;
 
-  &__icon { font-size: 13px; line-height: 1.4; flex-shrink: 0; color: var(--encre-3); }
+  &__icon { font-size: var(--texte-md); line-height: 1.4; flex-shrink: 0; color: var(--encre-3); }
 }
 
 .wa-bulk-actions {
@@ -417,7 +417,7 @@
   height: 44px;                                         // WCAG 2.5.5
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
@@ -442,7 +442,7 @@
     background: linear-gradient(135deg, var(--vert-profond), var(--succes));  // Vert Profond → Vert Nappe
     color: var(--surface);
     border: none;
-    box-shadow: 0 2px 8px rgba(22, 101, 52, 0.28);
+    box-shadow: var(--ombre-carte);
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) { opacity: 0.92; }
     }

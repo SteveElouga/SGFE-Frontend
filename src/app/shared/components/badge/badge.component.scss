@@ -12,7 +12,7 @@
   white-space: nowrap;
 
   &--md { padding: var(--pas-1) var(--pas-2); font-size: var(--badge-texte); }
-  &--lg { padding: var(--pas-2) var(--pas-4); font-size: 14px; letter-spacing: 0.4px; }  // Héro : statut dominant (facturation PAYÉE)
+  &--lg { padding: var(--pas-2) var(--pas-4); font-size: var(--texte-lg); letter-spacing: 0.4px; }  // Héro : statut dominant (facturation PAYÉE)
 
   &--success { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
   &--info    { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }

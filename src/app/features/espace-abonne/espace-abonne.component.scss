@@ -55,7 +55,7 @@
     padding: var(--pas-7) 0;
   }
 
-  &__spinner { font-size: 30px; color: var(--action); }
+  &__spinner { font-size: var(--texte-5xl); color: var(--action); }
   &__state-text { font-size: var(--texte-lg); margin: 0; }
 
   &__foot {
@@ -81,7 +81,7 @@
   &--msg { margin: auto; }
 
   &__titre {
-    font-size: var(--texte-2xl);
+    font-size: var(--texte-3xl);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-2);
@@ -105,7 +105,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: var(--texte-5xl);
 
   &--danger { background: var(--danger-fond); color: var(--danger-encre); }
   &--warn { background: var(--attente-fond); color: var(--attente-encre); }
@@ -173,7 +173,7 @@
     font-weight: 600;
     color: var(--succes-encre);
 
-    .pi { font-size: 20px; }
+    .pi { font-size: var(--icone-lg); }
   }
 
   &__label {
@@ -189,7 +189,7 @@
   // laisse rétrécir jusqu'à tenir — le chiffre reste d'un seul tenant à
   // toutes les largeurs.
   &__val {
-    font-size: clamp(var(--texte-xl), 7vw, var(--texte-3xl));
+    font-size: clamp(var(--texte-xl), 7vw, var(--texte-5xl));
     font-weight: 800;
     line-height: 1.1;
     color: var(--encre);

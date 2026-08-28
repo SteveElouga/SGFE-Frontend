@@ -44,7 +44,7 @@
     background: transparent;
     border: none;
     border-radius: 999px;
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
     color: var(--encre-3);
     cursor: pointer;
@@ -88,19 +88,19 @@
   gap: var(--pas-3);
 
   i {
-    font-size: 42px;                               // display token DESIGN.md (icône illustrative empty-state)
+    font-size: var(--icone-2xl);                               // display token DESIGN.md (icône illustrative empty-state)
     color: var(--encre-3);                                // Ardoise Crayon
   }
 
   &__title {
-    font-size: 20px;                               // title DESIGN.md
+    font-size: var(--texte-3xl);                               // title DESIGN.md
     font-weight: 700;
     color: var(--encre);                                // Ardoise Nuit
     margin: 0;
   }
 
   &__msg {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     color: var(--encre-3);                                // Ardoise Brume
     max-width: 420px;
     line-height: 1.5;
@@ -115,7 +115,7 @@
     border-radius: var(--rayon-md);
     text-decoration: none;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--texte-lg);
     transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
 
     @media (hover: hover) and (pointer: fine) {
@@ -155,14 +155,14 @@
   }
 
   &__label {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-2);                                // Ardoise Encre
     letter-spacing: 0.01em;
   }
 
   &__count {
-    font-size: 42px;                               // display token DESIGN.md
+    font-size: var(--texte-6xl);                               // display token DESIGN.md
     font-weight: 800;
     color: var(--encre);                                // Ardoise Nuit
     line-height: 1;
@@ -170,11 +170,11 @@
     font-variant-numeric: tabular-nums;
     margin-top: var(--pas-1);
 
-    @media (max-width: 639px) { font-size: 34px; } // metric-xl DESIGN.md
+    @media (max-width: 639px) { font-size: var(--texte-6xl); } // metric-xl DESIGN.md
   }
 
   &__devise {
-    font-size: 20px;                               // title DESIGN.md
+    font-size: var(--texte-3xl);                               // title DESIGN.md
     font-weight: 700;
     color: var(--encre-2);
     margin-left: var(--pas-1);
@@ -195,7 +195,7 @@
     align-items: center;
     gap: var(--pas-2);
     margin-top: var(--pas-2);
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -203,7 +203,7 @@
   &__delta-hint {
     font-weight: 500;
     color: var(--encre-3);
-    font-size: 12px;
+    font-size: var(--texte-sm);
   }
 }
 
@@ -222,7 +222,7 @@
   border: 1px solid var(--danger-trait);
   border-radius: var(--rayon-md);
   color: var(--danger-encre);
-  font-size: 13px;
+  font-size: var(--texte-md);
 
   button {
     display: inline-flex;
@@ -233,7 +233,7 @@
     border: 1px solid var(--danger);
     border-radius: var(--rayon-sm);
     color: var(--danger-encre);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
     cursor: pointer;
     margin-left: auto;
@@ -269,14 +269,14 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      box-shadow: var(--ombre-portee);
     }
   }
   &:active { transform: translateY(0); }
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 
   &__value {
-    font-size: 30px;                               // metric-md DESIGN.md
+    font-size: var(--texte-5xl);                               // metric-md DESIGN.md
     font-weight: 800;
     line-height: 1;
     font-variant-numeric: tabular-nums;
@@ -284,14 +284,14 @@
   }
 
   &__unit {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-2);
     margin-top: var(--pas-1);
   }
 
   &__hint {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     font-variant-numeric: tabular-nums;
     margin-top: var(--pas-1);
@@ -301,7 +301,7 @@
   // Même pattern que .dash-m3__help : couleur au repos AA-safe, hover teint
   // sur la couleur sémantique du KPI parent.
   &__help {
-    font-size: 11px;
+    font-size: var(--texte-xs);
     color: currentColor;
     opacity: 0.55;
     margin-left: var(--pas-1);
@@ -357,7 +357,7 @@
     background: var(--surface-douce);
     border-style: dashed;
     color: var(--encre-3);
-    font-size: 13px;
+    font-size: var(--texte-md);
 
     button {
       display: inline-flex;
@@ -379,7 +379,7 @@
     }
   }
 
-  &__unavail { font-size: 12px; }
+  &__unavail { font-size: var(--texte-sm); }
 }
 
 // ── Top 5 impayés les plus anciens ─────────────────────────────────────────
@@ -389,7 +389,7 @@
   @media (max-width: 639px) { padding: var(--pas-4); }
 
   &__title {
-    font-size: 15px;                               // subtitle DESIGN.md
+    font-size: var(--texte-lg);                               // subtitle DESIGN.md
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-3);
@@ -439,7 +439,7 @@
   }
 
   &__nom {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 600;
     color: var(--encre);
     overflow: hidden;
@@ -448,13 +448,13 @@
   }
 
   &__meta {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     font-variant-numeric: tabular-nums;
   }
 
   &__solde {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--danger-encre);                                // rouge (dette)
     font-variant-numeric: tabular-nums;
@@ -462,7 +462,7 @@
   }
 
   &__chev {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     transition: transform 0.15s, color 0.15s;
   }
@@ -479,7 +479,7 @@
 .dash-ribbon {
 
   &__title {
-    font-size: 15px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-4);
@@ -519,7 +519,7 @@
   &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 
   &__value {
-    font-size: 24px;                               // kpi-value DESIGN.md
+    font-size: var(--texte-4xl);                               // kpi-value DESIGN.md
     font-weight: 800;
     line-height: 1;
     color: var(--encre);
@@ -528,7 +528,7 @@
   }
 
   &__label {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 500;
     color: var(--encre-3);
   }
@@ -556,7 +556,7 @@
     // var(--encre-2) Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
     // devient enfin lisible.
     .dash-step__unavail {
-      font-size: 11px;
+      font-size: var(--texte-xs);
       color: var(--encre-2);
       font-style: italic;
       margin-top: var(--pas-1);
@@ -589,7 +589,7 @@
   }
 
   &__label {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 500;
     color: var(--encre-2);
     display: inline-flex;
@@ -601,7 +601,7 @@
   // tooltips batch 7). Fix v4 P1 : contraste au repos passe var(--encre-faible) (2.56:1
   // FAIL AA) → var(--encre-3) (5.24:1 PASS AA). Sam peut la localiser sans tab actif.
   &__help {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     cursor: help;
     transition: color 0.12s;
@@ -617,7 +617,7 @@
   }
 
   &__count {
-    font-size: 42px;                               // display DESIGN.md
+    font-size: var(--texte-6xl);                               // display DESIGN.md
     font-weight: 800;
     color: var(--encre);
     line-height: 1;
@@ -625,11 +625,11 @@
     font-variant-numeric: tabular-nums;
     margin-top: var(--pas-1);
 
-    @media (max-width: 639px) { font-size: 30px; } // metric-md
+    @media (max-width: 639px) { font-size: var(--texte-5xl); } // metric-md
   }
 
   &__unit {
-    font-size: 20px;
+    font-size: var(--texte-3xl);
     font-weight: 700;
     color: var(--succes-encre);                                // Vert Nappe (eau)
     margin-left: var(--pas-1);
@@ -649,7 +649,7 @@
     align-items: center;
     gap: var(--pas-2);
     margin-top: var(--pas-2);
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
   }
@@ -657,7 +657,7 @@
   &__delta-hint {
     font-weight: 500;
     color: var(--encre-3);
-    font-size: 12px;
+    font-size: var(--texte-sm);
   }
 }
 
@@ -671,7 +671,7 @@
 .dash-campaigns {
 
   &__title {
-    font-size: 15px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
     margin: 0 0 var(--pas-4);
@@ -713,7 +713,7 @@
   }
 
   &__nom {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);
     overflow: hidden;
@@ -757,7 +757,7 @@
   }
 
   &__meta {
-    font-size: 12px;
+    font-size: var(--texte-sm);
     color: var(--encre-3);
     font-variant-numeric: tabular-nums;
   }
@@ -786,7 +786,7 @@
 
     &--empty {
       color: var(--encre-3);
-      font-size: 12px;
+      font-size: var(--texte-sm);
       font-style: italic;
     }
   }
@@ -800,7 +800,7 @@
   background: var(--action-lueur);                             // Bleu Rivière Lueur (actif)
   border: 1px solid var(--action-trait);
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--action);                                  // Bleu Rivière
   white-space: nowrap;
@@ -844,11 +844,11 @@
     height: 8px;
     border-radius: 50%;
     background: var(--succes);
-    box-shadow: 0 0 0 3px rgba(14, 159, 110, 0.15);
+    box-shadow: var(--anneau);
   }
 
   &__text {
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     color: var(--succes-encre);
   }
@@ -866,7 +866,7 @@
   padding: var(--pas-4) var(--pas-5);
 
   &__title {
-    font-size: 14px;
+    font-size: var(--texte-lg);
     font-weight: 700;
     color: var(--encre);                                // Ardoise Nuit (neutre)
     margin: 0 0 var(--pas-3);
@@ -886,12 +886,12 @@
     align-items: center;
     gap: var(--pas-2);
     padding: var(--pas-2) var(--pas-3);
-    font-size: 13px;
+    font-size: var(--texte-md);
     border-radius: var(--rayon-md);
     border: 1px solid transparent;
 
     i {
-      font-size: 14px;
+      font-size: var(--icone-sm);
       flex-shrink: 0;
     }
 
@@ -926,7 +926,7 @@
 // Un seul style de titre de section : la vue empilait quatre traitements.
 .dash-section__titre {
   margin: 0 0 var(--pas-3);
-  font-size: 15px;
+  font-size: var(--texte-lg);
   font-weight: 700;
   color: var(--encre);
   letter-spacing: -0.005em;
@@ -958,7 +958,7 @@
   transition: border-color var(--duree-courte) var(--ease-out);
 
   &__valeur {
-    font-size: 28px;
+    font-size: var(--texte-5xl);
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.015em;
@@ -967,20 +967,20 @@
 
     small {
       margin-left: var(--pas-1);
-      font-size: 13px;
+      font-size: var(--texte-md);
       font-weight: 600;
       color: var(--encre-3);
     }
   }
 
   &__label {
-    font-size: 13px;
+    font-size: var(--texte-md);
     color: var(--encre-2);
   }
 
   &__delta {
     margin-top: var(--pas-1);
-    font-size: 12px;
+    font-size: var(--texte-sm);
     font-weight: 600;
   }
 
@@ -1015,7 +1015,7 @@
 
   &__msg {
     margin: 0;
-    font-size: 13.5px;
+    font-size: var(--texte-md);
     color: var(--encre-2);
   }
 
@@ -1027,7 +1027,7 @@
     background: var(--action);
     color: var(--sur-action);
     border-radius: var(--rayon-sm);
-    font-size: 13px;
+    font-size: var(--texte-md);
     font-weight: 600;
     text-decoration: none;
     transition: transform var(--duree-courte) var(--ease-out);

@@ -42,14 +42,14 @@
   // <h1> : on neutralise les marges et la taille par défaut du navigateur,
   // l'échelle typographique reste celle du DESIGN.md (page-title 17/700).
   margin: 0;
-  font-size: 17px;
+  font-size: var(--texte-xl);
   font-weight: 700;
   color: var(--encre);
   white-space: nowrap;
 }
 
 .page-topbar__subtitle {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 400;
   color: var(--encre-3);
   margin-left: var(--pas-2);
@@ -60,7 +60,7 @@
 // (ordre inversé par flex), au-dessus du titre sur mobile.
 .page-topbar__overline {
   order: 2;
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 400;
   color: var(--encre-3);
   margin-left: var(--pas-2);
@@ -68,7 +68,7 @@
 }
 
 .page-topbar__back {
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 400;
   color: var(--encre-3);
   text-decoration: none;
@@ -83,7 +83,7 @@
 .topbar--subtitle-mobile .page-topbar__subtitle { display: none; }
 
 .page-topbar__sep {
-  font-size: 13px;
+  font-size: var(--texte-md);
   color: var(--filet);
   margin: 0 var(--pas-2);
 }
@@ -98,7 +98,7 @@
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.1);
   color: var(--surface);
-  font-size: 17px;
+  font-size: var(--texte-xl);
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -118,11 +118,11 @@
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(26, 86, 219, 0.3);
+  box-shadow: var(--ombre-action);
   transition: opacity 0.15s;
   white-space: nowrap;
   flex-shrink: 0;
@@ -166,7 +166,7 @@
     gap: var(--pas-1);
   }
   .page-topbar__back {
-    font-size: 18px;
+    font-size: var(--texte-2xl);
     line-height: 1;
     color: rgba(255, 255, 255, 0.65);
     flex-shrink: 0;
@@ -174,14 +174,14 @@
   .page-topbar__back-label { display: none; }
   .page-topbar__title {
     order: 1;
-    font-size: 20px;
+    font-size: var(--texte-3xl);
     line-height: 1.15;
     color: var(--surface);
   }
   .page-topbar__overline {
     order: 0;
     margin-left: 0;
-    font-size: 11px;
+    font-size: var(--texte-xs);
     font-weight: 500;
     letter-spacing: 0.3px;
     color: var(--encre-inverse-3);
@@ -189,7 +189,7 @@
   .page-topbar__subtitle {
     order: 2;
     margin-left: 0;
-    font-size: 11px;
+    font-size: var(--texte-xs);
     line-height: 1.15;
     color: var(--encre-inverse-3);
     max-width: 100%;
@@ -218,7 +218,7 @@
     padding: 0;
     justify-content: center;
     border-radius: var(--rayon-md);
-    box-shadow: 0 4px 10px rgba(26, 86, 219, 0.4);
+    box-shadow: var(--ombre-action);
   }
   .page-topbar-action__label { display: none; }
 }

@@ -56,14 +56,14 @@
 }
 
 .auth-brand__logo-name {
-  font-size: 26px;
+  font-size: var(--texte-4xl);
   font-weight: 700;
   color: var(--surface);
   letter-spacing: -0.4px;
 }
 
 .auth-brand__logo-tagline {
-  font-size: 12px;
+  font-size: var(--texte-sm);
   color: rgba(255, 255, 255, 0.6);
 }
 

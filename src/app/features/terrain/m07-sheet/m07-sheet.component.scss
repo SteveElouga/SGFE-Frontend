@@ -3,8 +3,8 @@
 // Chrome (overlay, sheet, poignée) fournie par <app-bottom-sheet>.
 // Ici, uniquement le contenu métier : titre, options radio, observation, actions.
 
-.m07-title { font-size: 17px; font-weight: 700; color: var(--encre); }
-.m07-sub { font-size: 12px; color: var(--encre-3); margin-top: var(--pas-1); margin-bottom: var(--pas-3); }
+.m07-title { font-size: var(--texte-xl); font-weight: 700; color: var(--encre); }
+.m07-sub { font-size: var(--texte-sm); color: var(--encre-3); margin-top: var(--pas-1); margin-bottom: var(--pas-3); }
 
 .m07-options { display: flex; flex-direction: column; gap: var(--pas-2); margin-bottom: var(--pas-3); }
 
@@ -32,9 +32,9 @@
     transition: border 0.15s ease;
   }
   &__body { flex: 1; min-width: 0; }
-  &__label { display: block; font-size: 13px; font-weight: 600; color: var(--encre); }
-  &__hint { display: block; font-size: 11px; color: var(--encre-3); margin-top: var(--pas-1); line-height: 1.35; }
-  &__icon { font-size: 18px; color: var(--encre-3); flex-shrink: 0; }
+  &__label { display: block; font-size: var(--texte-md); font-weight: 600; color: var(--encre); }
+  &__hint { display: block; font-size: var(--texte-xs); color: var(--encre-3); margin-top: var(--pas-1); line-height: 1.35; }
+  &__icon { font-size: var(--texte-2xl); color: var(--encre-3); flex-shrink: 0; }
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(&--selected) { border-color: var(--filet-pale); background: var(--surface-douce); }
@@ -43,7 +43,7 @@
 
   &--selected {
     border-color: $color-primary;
-    box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+    box-shadow: var(--anneau);
     .m07-opt__radio { border: 6px solid $color-primary; }
     .m07-opt__icon { color: var(--action); }
   }
@@ -51,7 +51,7 @@
   &--danger.m07-opt--selected {
     border-color: var(--danger);
     background: var(--danger-fond);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+    box-shadow: var(--anneau-danger);
     .m07-opt__label { color: var(--danger-encre); }
     .m07-opt__radio { border-color: var(--danger); }
     .m07-opt__icon { color: var(--danger-encre); }
@@ -62,13 +62,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--texte-sm);
   font-weight: 600;
   color: var(--encre-2);
   margin-bottom: var(--pas-1);
 
   .req { color: var(--danger-encre); }
-  .obs-count { font-size: 11px; font-weight: 500; color: var(--encre-3); }
+  .obs-count { font-size: var(--texte-xs); font-weight: 500; color: var(--encre-3); }
 }
 
 .obs-input {
@@ -76,22 +76,22 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
   padding: var(--pas-2) var(--pas-3);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-family: inherit;
   color: var(--encre);
   resize: none;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-  &:focus, &:focus-visible { border-color: $color-primary; box-shadow: 0 0 0 3px rgba($color-primary, 0.1); }
-  &--error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08); }
+  &:focus, &:focus-visible { border-color: $color-primary; box-shadow: var(--anneau); }
+  &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
 }
 
 .obs-warn {
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  font-size: 11px;
+  font-size: var(--texte-xs);
   font-weight: 500;
   color: var(--ambre-attente);
   margin: var(--pas-2) 0 var(--pas-4);
@@ -115,9 +115,9 @@
   height: 48px;
   background: var(--danger);
   color: var(--surface);
-  font-size: 14px;
+  font-size: var(--texte-lg);
   font-weight: 700;
-  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+  box-shadow: var(--ombre-portee);
   margin-bottom: var(--pas-2);
 
   @media (hover: hover) and (pointer: fine) {
@@ -133,7 +133,7 @@
   background: var(--surface);
   color: var(--encre-2);
   border: 1px solid var(--filet);
-  font-size: 13px;
+  font-size: var(--texte-md);
   font-weight: 500;
 
   @media (hover: hover) and (pointer: fine) {
