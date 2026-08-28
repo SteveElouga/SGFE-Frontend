@@ -1,46 +1,56 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { BadgeComponent, BadgeTone } from '../badge/badge.component';
 
 export type BadgeStatus = 'ACTIF' | 'SUSPENDU' | 'RESILIE' | 'ACTIVE' | 'INACTIVE';
 
-const LABELS: Record<BadgeStatus, string> = {
-  ACTIF: 'Actif',
-  SUSPENDU: 'Suspendu',
-  RESILIE: 'Résilié',
-  ACTIVE: 'Actif',
-  INACTIVE: 'Inactif',
-};
-
-const TOOLTIPS: Record<BadgeStatus, string> = {
-  ACTIF: 'Abonnement actif — l\'abonné reçoit ses factures normalement',
-  SUSPENDU: 'Accès temporairement bloqué — le contrat est toujours actif',
-  RESILIE: 'Contrat résilié définitivement',
-  ACTIVE: 'Compte actif — l\'utilisateur peut se connecter',
-  INACTIVE: 'Compte désactivé — connexion impossible',
+/**
+ * Teinte de chaque statut. C'est la seule chose que ce composant décide.
+ */
+const TONS: Record<BadgeStatus, BadgeTone> = {
+  ACTIF: 'success',
+  ACTIVE: 'success',
+  SUSPENDU: 'warning',
+  INACTIVE: 'warning',
+  RESILIE: 'danger',
 };
 
 /**
- * Pastille de statut abonné/utilisateur (`ACTIF`/`SUSPENDU`/`RESILIE` +
- * `ACTIVE`/`INACTIVE`) : libellé et tooltip explicatif dérivés du statut, teinte
- * portée par la classe `--{statut}`. Réservé à ces statuts ; les autres domaines
- * (facture, paiement…) utilisent leurs propres puces.
+ * Pastille de statut d'abonné ou de compte.
  *
- * ```html
- * <app-status-badge [status]="abonne.statut" />
- * ```
+ * L'inventaire des composants la marquait « à trancher » : deux composants pour
+ * un même rôle, `badge` servant six écrans et celui-ci un seul. Deux choses la
+ * sauvent, une la condamnait.
+ *
+ * Ce qui la sauve : elle traduit un statut du domaine en teinte, et elle porte
+ * l'infobulle qui explique ce que ce statut veut dire. « Accès temporairement
+ * bloqué — le contrat est toujours actif » n'est pas de la décoration : c'est
+ * la différence entre suspendu et résilié, et personne ne la devine.
+ *
+ * Ce qui la condamnait : elle **redéclarait `.badge`** dans sa propre feuille,
+ * avec d'autres valeurs — `--rayon-sm` au lieu de `--badge-rayon`, un poids et
+ * un interlettrage écrits en dur — dans un dépôt dont `badge.component.scss`
+ * s'annonce comme « la référence unique du badge de statut ». Et ses libellés
+ * comme ses infobulles étaient du français figé dans le TypeScript, hors
+ * traduction.
+ *
+ * Elle ne dessine donc plus rien : elle compose `app-badge`, ne garde que la
+ * correspondance statut → teinte, et passe par les clés `STATUT_BADGE.*`.
  */
 @Component({
   selector: 'app-status-badge',
   standalone: true,
-  imports: [TooltipDirective],
-  templateUrl: './status-badge.component.html',
-  styleUrl: './status-badge.component.scss',
+  imports: [BadgeComponent, TooltipDirective, TranslatePipe],
+  template: `
+    <span [appTooltip]="'STATUT_BADGE.' + status() + '_AIDE' | translate">
+      <app-badge [label]="'STATUT_BADGE.' + status() | translate" [tone]="ton()" />
+    </span>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StatusBadgeComponent {
   readonly status = input.required<BadgeStatus>();
 
-  readonly label = computed(() => LABELS[this.status()] ?? this.status());
-  readonly modifier = computed(() => this.status().toLowerCase());
-  readonly tooltip = computed(() => TOOLTIPS[this.status()] ?? '');
+  readonly ton = computed<BadgeTone>(() => TONS[this.status()] ?? 'neutral');
 }

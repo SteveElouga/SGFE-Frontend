@@ -52,7 +52,6 @@
     "SEE": "View",
     "ALL": "All",
     "RESULTS_COUNT": "{{count}} of {{total}}",
-    "RESULTS_TOTAL": "{{count}} results",
     "CLEAR_ALL_FILTERS": "Clear filters",
     "ACTIVE_FILTERS": "Active filters",
     "REMOVE": "Remove",
@@ -66,10 +65,7 @@
     "CHAMPS_REQUIS": "Fields marked * are required",
     "RESULTS_HERO_MULTI_SINGULAR": "One active filter",
     "RESULTS_HERO_MULTI_PLURAL": "{{count}} active filters",
-    "RESULTS_HERO_MULTI_ZERO": "No active filter",
-    "RESULTS_TOTAL_SINGULAR": "One result",
-    "RESULTS_TOTAL_PLURAL": "{{count}} results",
-    "RESULTS_TOTAL_ZERO": "No result"
+    "RESULTS_HERO_MULTI_ZERO": "No active filter"
   },
   "STATUS": {
     "ACTIF": "Active",
@@ -460,7 +456,6 @@
     "ACT_PAIEMENT": "Payment {{ montant }} FCFA — {{ numero }}",
     "NO_ACTIVITE": "No recent activity",
     "KPI_FACTURE_SHORT": "Billed",
-    "KPI_FACTURE_HINT": "FCFA · {{ count }} invoices",
     "KPI_FACTURE_HINT_SHORT": "FCFA · {{ count }} inv.",
     "KPI_IMPAYES_SHORT": "Unpaid",
     "ACT_PAIEMENT_SANS_NUM": "Payment of {{ montant }} FCFA",
@@ -513,10 +508,6 @@
       "ENVOIS": "WhatsApp sent",
       "PAIEMENTS": "payments received"
     },
-    "M3": {
-      "LABEL": "consumed in {{mois}}",
-      "TOOLTIP": "Consumption aggregated from invoices generated this month. A reading from June invoiced in July appears in July."
-    },
     "CAMPAIGNS": {
       "ACTIVES": "Active campaigns ({{count}})",
       "AUCUNE": "No meter-reading campaign is currently open.",
@@ -548,10 +539,7 @@
       "FACTURE": "invoiced",
       "ENCAISSE": "collected",
       "TITRE": "{{mois}} at a glance"
-    },
-    "KPI_FACTURE_HINT_SINGULAR": "FCFA · one invoice",
-    "KPI_FACTURE_HINT_PLURAL": "FCFA · {{ count }} invoices",
-    "KPI_FACTURE_HINT_ZERO": "FCFA · no invoice"
+    }
   },
   "CONFIGURATION": {
     "TITLE": "Configuration",
@@ -744,20 +732,6 @@
     },
     "FILTRE": {
       "TOUTES": "All"
-    },
-    "MOIS": {
-      "1": "January",
-      "2": "February",
-      "3": "March",
-      "4": "April",
-      "5": "May",
-      "6": "June",
-      "7": "July",
-      "8": "August",
-      "9": "September",
-      "10": "October",
-      "11": "November",
-      "12": "December"
     },
     "FORM": {
       "TITLE": "Create a campaign",
@@ -1048,7 +1022,6 @@
   "PAIEMENTS": {
     "TITLE": "Payments",
     "RESULTS_HERO": "payments",
-    "SUBTITLE": "{{count}} payments",
     "TOTAL_ENCAISSE": "Total collected",
     "NB_TRANSACTIONS": "Transactions",
     "SEARCH_PLACEHOLDER": "Subscriber, invoice number…",
@@ -1101,10 +1074,7 @@
       "SUCCES_MULTIPLE_PLURAL": "Payment recorded — split across {{n}} invoices",
       "SUCCES_MULTIPLE_ZERO": "Payment recorded"
     },
-    "FILTER_PERIODE": "Date range",
-    "SUBTITLE_SINGULAR": "One payment",
-    "SUBTITLE_PLURAL": "{{count}} payments",
-    "SUBTITLE_ZERO": "No payment"
+    "FILTER_PERIODE": "Date range"
   },
   "IMPAYES": {
     "TITLE": "Overdue",
@@ -1119,12 +1089,6 @@
     "COL_ETAPE": "Follow-up stage",
     "COL_DEPASSEMENT": "Overdue since",
     "COL_ACTIONS": "Actions",
-    "ETAPE": {
-      "1": "1st reminder",
-      "2": "2nd reminder",
-      "3": "Final warning",
-      "4": "Suspended"
-    },
     "BTN_VOIR": "View invoice",
     "EMPTY": "No outstanding overdue invoices",
     "ERROR_LOAD": "Failed to load overdue invoices",
@@ -1395,7 +1359,6 @@
     "EXPORT_PAIEMENTS": "Payments",
     "EXPORT_IMPAYES": "Overdue report",
     "EXPORT_SYNTHESE": "Summary",
-    "EXPORT_OK": "{{n}} rows exported",
     "EXPORT_DONE": "Export downloaded",
     "SELECT_CAMPAGNE": "Campaign",
     "SELECT_CAMPAGNE_PLACEHOLDER": "Select a campaign",
@@ -1405,10 +1368,7 @@
     "COL_CAMPAGNE": "Campaign",
     "COL_RELEVES": "Readings",
     "COL_CONSO": "Consumption",
-    "COL_PROGRESSION": "Progress",
-    "EXPORT_OK_SINGULAR": "One row exported",
-    "EXPORT_OK_PLURAL": "{{n}} rows exported",
-    "EXPORT_OK_ZERO": "No row to export"
+    "COL_PROGRESSION": "Progress"
   },
   "ESPACE": {
     "TITLE": "Subscriber Area",
@@ -1558,5 +1518,17 @@
     "CODE_OTP": "Six-digit verification code",
     "NOTIFICATIONS": "Notifications",
     "FERMER_NOTIFICATION": "Dismiss notification"
+  },
+  "STATUT_BADGE": {
+    "ACTIF": "Active",
+    "ACTIF_AIDE": "Active subscription — the subscriber receives invoices as usual",
+    "SUSPENDU": "Suspended",
+    "SUSPENDU_AIDE": "Access temporarily blocked — the contract is still active",
+    "RESILIE": "Terminated",
+    "RESILIE_AIDE": "Contract terminated for good",
+    "ACTIVE": "Active",
+    "ACTIVE_AIDE": "Active account — the user can sign in",
+    "INACTIVE": "Inactive",
+    "INACTIVE_AIDE": "Account disabled — cannot sign in"
   }
 }
