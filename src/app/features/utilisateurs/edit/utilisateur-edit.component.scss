@@ -42,7 +42,7 @@
 
 .uedit-back {
   width: 30px;
-  height: 30px;
+  min-height: 44px;                    // WCAG 2.5.5;
   border-radius: var(--rayon-md);
   border: 1px solid var(--filet);
   background: var(--surface-douce);
@@ -413,7 +413,7 @@
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .uedit-btn {
-  height: 38px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   font-size: 12px;

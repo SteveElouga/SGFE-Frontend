@@ -222,7 +222,7 @@
 
 .btn-paiement {
   flex: 1;
-  height: 42px;
+  min-height: 44px;                    // WCAG 2.5.5;
   border: none;
   border-radius: var(--rayon-md);
   background: linear-gradient(135deg, var(--action), var(--action-survol));
@@ -239,7 +239,7 @@
 }
 
 .btn-renvoi {
-  height: 42px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);

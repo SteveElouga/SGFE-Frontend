@@ -518,7 +518,7 @@
 // Bouton « Appliquer » : hauteur alignée sur le select, ton ambre (action
 // manuelle à confirmer). Ne s'efface plus quand désactivé (garde un contour).
 .correction-apply {
-  height: 42px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   flex-shrink: 0;
 }

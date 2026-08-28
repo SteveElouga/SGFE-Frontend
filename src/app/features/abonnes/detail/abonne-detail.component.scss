@@ -794,7 +794,7 @@
 .abonne-kpi__action {
   margin-top: var(--pas-2);
   padding: var(--pas-1) 0;
-  min-height: 32px;
+  min-height: 44px;                    // WCAG 2.5.5;
   background: none;
   border: none;
   font-family: inherit;

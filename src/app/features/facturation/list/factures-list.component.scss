@@ -67,7 +67,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  height: 38px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   background: $color-primary;
   color: var(--surface);

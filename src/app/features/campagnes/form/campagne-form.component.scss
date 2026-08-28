@@ -272,7 +272,7 @@
 .agent-tag {
   display: inline-flex;
   align-items: center;
-  height: 28px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-3);
   border: 1.5px dashed var(--filet-pale);
   border-radius: var(--rayon-lg);
@@ -430,7 +430,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  height: 34px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-3);
   border: 1.5px solid var(--filet);
   border-radius: var(--rayon-lg);
@@ -535,6 +535,19 @@
 // ── Toggle ────────────────────────────────────────────────────────────────────
 
 .toggle {
+  // La piste est un objet dessiné : la grandir la déformerait. C'est la
+  // zone tactile qu'on étend, par un pseudo-élément centré qui déborde sans
+  // se voir — le doigt l'attrape, l'œil ne le voit pas.
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;                       // WCAG 2.5.5
+    transform: translate(-50%, -50%);
+  }
+
   width: 44px;
   height: 24px;
   border-radius: var(--rayon-lg);

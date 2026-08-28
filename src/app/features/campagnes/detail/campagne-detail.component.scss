@@ -78,7 +78,7 @@
 .btn {
   @include btn-reset;
   gap: var(--pas-2);
-  height: 40px;
+  min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-5);
   border-radius: var(--rayon-md);
   font-size: 14px;

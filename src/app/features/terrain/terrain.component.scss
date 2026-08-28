@@ -185,7 +185,10 @@
   &__sub { font-size: 11px; color: var(--attente-encre); margin-top: var(--pas-1); line-height: 1.4; }   // var(--ambre-attente) → var(--attente-encre) (meilleur contraste + adouci)
   &__body { flex: 1; min-width: 0; }
   &__retry {
-    min-height: 36px;                 // 26 → 36 (tap AAA-adjacent)
+    // 44 px, pas 36. C'est le bouton qu'un agent presse quand ses relevés ne
+    // sont pas partis — debout, dehors, souvent d'une main. « Presque » la
+    // bonne taille est exactement là où l'on rate sa cible.
+    min-height: 44px;                 // WCAG 2.5.5
     border: 1.5px solid var(--ambre-attente);
     background: var(--surface);
     border-radius: var(--rayon-md);
