@@ -3,7 +3,7 @@
 .auth-field {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: var(--pas-1);
   font-weight: 500;
   font-size: var(--texte-md);
   color: var(--encre-2);

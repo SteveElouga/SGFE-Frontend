@@ -7,7 +7,7 @@
 
   --p-select-border-radius: var(--rayon-md);
   --p-select-border-color: var(--filet);
-  --p-select-padding-x: 12px;
+  --p-select-padding-x: var(--pas-3);
 }
 
 .factures-content {
@@ -70,7 +70,7 @@
   gap: var(--pas-2);
   min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-4);
-  background: $color-primary;
+  background: var(--action);
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
@@ -83,7 +83,7 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) { background: var(--action-survol); }
   }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
@@ -206,7 +206,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: $color-primary;
+  background: var(--action);
   flex-shrink: 0;
 }
 

@@ -65,7 +65,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--pas-3);
-  padding: 56px var(--pas-4);
+  padding: var(--pas-7) var(--pas-4);
   color: var(--encre-3);                     // était var(--encre-faible) (2.9:1) → 4.5:1
   font-size: var(--texte-md);
   text-align: center;
@@ -81,10 +81,10 @@
 
   &--row { display: flex; align-items: center; gap: var(--pas-3); padding: var(--pas-3) var(--pas-4) var(--pas-3); }
 
-  &__campagne { font-size: var(--texte-xs); color: rgba(255, 255, 255, 0.70); letter-spacing: 0.5px; margin-bottom: var(--pas-1); }  // 0.45 → 0.70 (contraste sur navy)
+  &__campagne { font-size: var(--texte-xs); color: var(--encre-inverse-2); letter-spacing: 0.5px; margin-bottom: var(--pas-1); }  // 0.45 → 0.70 (contraste sur navy)
   &__title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--pas-3); }
   &__title { margin: 0; font-size: var(--texte-3xl); font-weight: 700; color: var(--surface); }   // <h1> de l'écran terrain
-  &__sub { font-size: var(--texte-sm); color: rgba(255, 255, 255, 0.75); margin-top: var(--pas-1); }  // 11px 0.5 → 12px 0.75 (nom d'abonné doit rester lisible sous soleil)
+  &__sub { font-size: var(--texte-sm); color: var(--encre-inverse-2); margin-top: var(--pas-1); }  // 11px 0.5 → 12px 0.75 (nom d'abonné doit rester lisible sous soleil)
 }
 
 .t-back {
@@ -92,7 +92,7 @@
   height: 44px;
   border-radius: var(--rayon-md);
   border: none;
-  background: rgba(255, 255, 255, 0.10);
+  background: var(--surface-inverse-fond);
   color: var(--surface);
   cursor: pointer;
   display: flex;
@@ -102,7 +102,7 @@
   transition: background 0.15s ease, transform 160ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: rgba(255, 255, 255, 0.16); }
+    &:hover { background: var(--surface-inverse-fond); }
   }
   &:focus-visible { outline: 2px solid var(--surface); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
@@ -130,14 +130,14 @@
   justify-content: space-between;
   font-size: var(--texte-xs);
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.70);   // 0.5 → 0.70
+  color: var(--encre-inverse-2);   // 0.5 → 0.70
   margin-bottom: var(--pas-2);
 
   @media (min-width: 1024px) { color: var(--encre-3); font-size: var(--texte-sm); }
 }
 
 .t-progress {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--surface-inverse-fond);
 
   @media (min-width: 1024px) { background: var(--filet); }
   height: 6px;                        // 5 → 6 (léger épaississement pour lisibilité)
@@ -180,7 +180,7 @@
 
   &__icon { font-size: var(--texte-lg); }
   &__title { font-size: var(--texte-sm); font-weight: 700; }
-  &__sub { font-size: var(--texte-xs); color: rgba(255, 255, 255, 0.85); margin-top: 1px; }  // 10px 0.75 → 11px 0.85
+  &__sub { font-size: var(--texte-xs); color: var(--encre-inverse-2); margin-top: 1px; }  // 10px 0.75 → 11px 0.85
 }
 
 // ── Corps liste ───────────────────────────────────────────────────────────────
@@ -283,7 +283,7 @@
   &--pending { background: var(--attente-fond); }
   &--action { cursor: pointer; &:active { background: var(--surface-douce); } }
   &:disabled { cursor: default; }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: -2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: -2px; }
 
   &__sync {
     font-size: var(--texte-lg);
@@ -390,7 +390,7 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &--old { background: var(--surface-douce); border: 1.5px dashed var(--filet); }
-  &--new { background: var(--surface); border: 2px solid $color-primary; box-shadow: var(--anneau); }
+  &--new { background: var(--surface); border: 2px solid var(--action); box-shadow: var(--anneau); }
   &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
 
   &__value { font-size: var(--texte-5xl); font-weight: 700; line-height: 1; color: var(--encre-2); }   // var(--encre-faible) (1.9:1) → var(--encre-2) (7.1:1 sur var(--surface-douce) — critique)
@@ -448,7 +448,7 @@
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &::placeholder { color: var(--encre-3); }
-  &:focus, &:focus-visible { border-color: $color-primary; box-shadow: var(--anneau); }
+  &:focus, &:focus-visible { border-color: var(--action); box-shadow: var(--anneau); }
   &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
 }
 
@@ -503,7 +503,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.22);
+    background: var(--surface-inverse-fort);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -511,7 +511,7 @@
   }
   &__body { flex: 1; min-width: 0; }
   &__title { font-size: var(--texte-lg); font-weight: 700; color: var(--surface); line-height: 1.2; }
-  &__sub { font-size: var(--texte-sm); color: rgba(255, 255, 255, 0.80); margin-top: var(--pas-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  // 12px 0.60 → 12px 0.80 + ellipsis
+  &__sub { font-size: var(--texte-sm); color: var(--encre-inverse-2); margin-top: var(--pas-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  // 12px 0.60 → 12px 0.80 + ellipsis
   &__counter {
     font-size: var(--texte-2xl);
     font-weight: 800;
@@ -520,7 +520,7 @@
     flex-shrink: 0;
     letter-spacing: -0.01em;
   }
-  &__counter-sep { color: rgba(255, 255, 255, 0.55); font-weight: 500; margin: 0 1px; }
+  &__counter-sep { color: var(--encre-inverse-3); font-weight: 500; margin: 0 1px; }
 }
 
 .succ-body { padding: var(--pas-4); }
@@ -590,7 +590,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--pas-2);
-  background: $color-primary;
+  background: var(--action);
   color: var(--surface);
   font-size: var(--texte-lg);
   font-weight: 700;
@@ -599,7 +599,7 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) { background: var(--action-survol); }
   }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active:not(:disabled) { transform: scale(0.97); }
   &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
@@ -637,6 +637,6 @@
   @media (hover: hover) and (pointer: fine) {
     &:hover { background: var(--surface-douce); }
   }
-  &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
   &:active { transform: scale(0.97); }
 }

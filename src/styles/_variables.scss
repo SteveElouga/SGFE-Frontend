@@ -1,22 +1,16 @@
-// Couleurs — jumeaux SCSS des jetons de `_tokens.scss`.
+// Ce fichier ne portait plus que des doublons.
 //
-// Les jetons runtime (`var(--action)`) sont la source de vérité et ce que
-// consomment les composants. Ces variables SCSS n'existent que pour les
-// fonctions de couleur à la compilation — `rgba($color-primary, .3)`,
-// `color.adjust(...)` — qui ne savent pas lire une variable CSS.
-// Toute modification ici doit être répercutée dans `_tokens.scss`.
-$color-primary: #1a56db;
-$color-accent: #0e9f6e;
-$color-error: #ef4444;
-$color-success: #0e9f6e;
-$color-warning: #d97706;
-
-// Espacements
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 32px;
+// `$color-primary` et ses quatre frères répétaient en Sass des valeurs que
+// `_tokens.scss` déclare déjà en variables CSS — deux sources de vérité pour le
+// même bleu. Ils ne survivaient que parce que `rgba($color-x, .4)` ne sait pas
+// teinter une variable CSS ; `color-mix(in oklab, var(--action) 40%, transparent)`
+// le sait. Les 31 teintes converties, puis les 182 usages directs, ont fait
+// tomber la dernière référence.
+//
+// Même chose pour `$spacing-xs` à `$spacing-xl`, doublons de `--pas-1` à
+// `--pas-6`.
+//
+// Ne reste ici que ce qui ne peut pas s'exprimer en variable CSS : un mixin.
 
 // Masque la scrollbar d'un conteneur défilable (le défilement reste possible
 // à la molette / au toucher / au drag). À inclure sur les zones à défilement

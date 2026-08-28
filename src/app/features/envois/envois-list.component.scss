@@ -11,14 +11,14 @@
 .envois__loading {
   display: flex;
   justify-content: center;
-  padding: 40px;
+  padding: var(--pas-7);
   color: var(--action);
   font-size: var(--texte-3xl);
 }
 
 .envois__empty {
   text-align: center;
-  padding: 40px var(--pas-4);
+  padding: var(--pas-7) var(--pas-4);
   font-size: var(--texte-md);
   color: var(--encre-3);
 }

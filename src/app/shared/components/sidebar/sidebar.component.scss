@@ -1,7 +1,7 @@
 $sidebar-bg:             var(--navy-nuit);
-$sidebar-item-active-bg: rgba(26, 86, 219, 0.28);
-$sidebar-item-hover-bg:  rgba(255, 255, 255, 0.06);
-$sidebar-border:         rgba(255, 255, 255, 0.07);
+$sidebar-item-active-bg: color-mix(in oklab, var(--action) 28%, transparent);
+$sidebar-item-hover-bg:  var(--surface-inverse-voile);
+$sidebar-border:         var(--filet-inverse);
 $sidebar-text:           var(--surface);
 // Une entrée de nav est du texte *interactif*, pas de la méta : elle prend le
 // rôle « secondaire » (8,9:1) et non le rôle « étiquette » (6,3:1). À 0,58 les
@@ -64,14 +64,14 @@ $sidebar-width:          220px;
   height: 44px;
   border: none;
   border-radius: var(--rayon-md);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--surface-inverse-voile);
+  color: var(--encre-inverse-2);
   font-size: var(--texte-lg);
   cursor: pointer;
   flex-shrink: 0;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: rgba(255, 255, 255, 0.14); color: var(--surface); }
+    &:hover { background: var(--surface-inverse-fond); color: var(--surface); }
   }
 }
 
@@ -84,8 +84,8 @@ $sidebar-width:          220px;
 
 .sidebar__campaign {
   margin: var(--pas-3) var(--pas-3) var(--pas-1);
-  background: rgba(26, 86, 219, 0.18);
-  border: 1px solid rgba(79, 142, 247, 0.25);
+  background: color-mix(in oklab, var(--action) 18%, transparent);
+  border: 1px solid color-mix(in oklab, var(--bleu-riviere-clair) 25%, transparent);
   border-radius: var(--rayon-md);
   padding: var(--pas-2) var(--pas-3);
 }
@@ -108,16 +108,23 @@ $sidebar-width:          220px;
 
 .sidebar__campaign-bar {
   height: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-inverse-fond);
   border-radius: var(--rayon-xs);
   overflow: hidden;
 }
 
 .sidebar__campaign-bar-fill {
   height: 100%;
+  // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur. Le
+  // dépôt le faisait déjà à trois endroits — facture-detail, le minuteur de
+  // toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+  // l'avaient pas suivi. La largeur est désormais pilotée par `--pct` (0 à 1).
   background: var(--action);
   border-radius: var(--rayon-xs);
-  transition: width 0.4s ease;
+  transform: scaleX(var(--pct, 0));
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out);
+  will-change: transform;
 }
 
 .sidebar__campaign-stats {
@@ -181,7 +188,7 @@ $sidebar-width:          220px;
       width: 3px;
       height: 24px;
       border-radius: 0 999px 999px 0;
-      background: var(--bleu-riviere-clair, #60a5fa);
+      background: var(--bleu-riviere-clair);
     }
   }
 
@@ -207,7 +214,7 @@ $sidebar-width:          220px;
   margin-left: auto;
   min-width: 20px;
   height: 18px;
-  background: rgba(239, 68, 68, 0.25);
+  background: color-mix(in oklab, var(--danger) 25%, transparent);
   color: var(--danger-trait);
   font-size: var(--texte-xs);
   font-weight: 700;

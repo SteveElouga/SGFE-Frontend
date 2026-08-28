@@ -288,7 +288,7 @@
     overflow-wrap: anywhere;
     min-width: 0;
 
-    .pi { margin-top: 2px; flex-shrink: 0; }
+    .pi { margin-top: var(--pas-0); flex-shrink: 0; }
   }
 
   &__motif-txt { font-weight: 400; }
@@ -299,7 +299,7 @@
     gap: var(--pas-3) var(--pas-4);
   }
 
-  &__cell { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  &__cell { display: flex; flex-direction: column; gap: var(--pas-0); min-width: 0; }
   &__k { font-size: var(--texte-sm); color: var(--encre-faible); }
 
   &__v {

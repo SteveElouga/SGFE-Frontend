@@ -6,13 +6,13 @@
 }
 
 .user-form-page {
-  padding: $spacing-lg $spacing-xl;
+  padding: var(--pas-5) var(--pas-6);
   max-width: 600px;
   margin: 0 auto;
 }
 
 .user-form-page__breadcrumb {
-  margin-bottom: $spacing-lg;
+  margin-bottom: var(--pas-5);
 }
 
 .user-form-page__back {
@@ -35,7 +35,7 @@
   background: var(--surface);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
-  padding: $spacing-xl;
+  padding: var(--pas-6);
 }
 
 .user-form-page__title {
@@ -48,7 +48,7 @@
 .user-form-page__subtitle {
   font-size: var(--texte-lg);
   color: var(--encre-3);
-  margin: 0 0 $spacing-lg;
+  margin: 0 0 var(--pas-5);
 }
 
 .user-form-page__loading {
@@ -56,13 +56,13 @@
   align-items: center;
   gap: var(--pas-2);
   color: var(--encre-3);
-  padding: $spacing-lg 0;
+  padding: var(--pas-5) 0;
 }
 
 .user-form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: var(--pas-4);
 }
 
 .user-form__phone-field {
@@ -74,22 +74,22 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 
   &:focus-within {
-    border-color: $color-primary;
+    border-color: var(--action);
     box-shadow: var(--anneau);
   }
 
   &--valid {
-    border-color: $color-accent;
+    border-color: var(--succes);
     &:focus-within {
-      border-color: $color-accent;
+      border-color: var(--succes);
       box-shadow: var(--anneau);
     }
   }
 
   &--invalid {
-    border-color: $color-error;
+    border-color: var(--danger);
     &:focus-within {
-      border-color: $color-error;
+      border-color: var(--danger);
       box-shadow: var(--anneau-danger);
     }
   }
@@ -136,9 +136,9 @@
 
 .user-form__actions {
   display: flex;
-  gap: $spacing-sm;
+  gap: var(--pas-2);
   justify-content: flex-end;
-  margin-top: $spacing-sm;
+  margin-top: var(--pas-2);
 }
 
 .user-form__cancel {
@@ -168,7 +168,7 @@
   gap: var(--pas-2);
   min-height: 44px;                    // WCAG 2.5.5;
   padding: 0 var(--pas-5);
-  background: $color-primary;
+  background: var(--action);
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
@@ -179,7 +179,7 @@
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
-      background: color.adjust($color-primary, $lightness: -8%);
+      background: var(--action-survol);
     }
   }
 

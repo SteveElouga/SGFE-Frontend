@@ -223,9 +223,16 @@
 
 .toast__progress-fill {
   height: 100%;
+  // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur. Le
+  // dépôt le faisait déjà à trois endroits — facture-detail, le minuteur de
+  // toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+  // l'avaient pas suivi. La largeur est désormais pilotée par `--pct` (0 à 1).
   background: linear-gradient(90deg, var(--action), var(--bleu-riviere-clair));
   border-radius: var(--rayon-xs);
-  transition: width 300ms ease;
+  transform: scaleX(var(--pct, 0));
+  transform-origin: left center;
+  transition: transform 300ms var(--ease-out);
+  will-change: transform;
 }
 
 // ── Animations ────────────────────────────────────────────────────────────────
@@ -264,11 +271,11 @@
     box-shadow: var(--ombre-portee);
     animation: toast-slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
-    &--success  { --toast-icon-bg: rgba(14, 159, 110, 0.2); --toast-icon-color: var(--succes); }
-    &--error    { --toast-icon-bg: rgba(220, 38, 38, 0.2);  --toast-icon-color: var(--danger); }
-    &--warning  { --toast-icon-bg: rgba(245, 158, 11, 0.2); --toast-icon-color: var(--attente); }
-    &--info     { --toast-icon-bg: rgba(26, 86, 219, 0.2);  --toast-icon-color: var(--bleu-riviere-clair); }
-    &--progress { --toast-icon-bg: rgba(71, 85, 105, 0.2);  --toast-icon-color: var(--encre-3); }
+    &--success  { --toast-icon-bg: color-mix(in oklab, var(--succes) 20%, transparent); --toast-icon-color: var(--succes); }
+    &--error    { --toast-icon-bg: color-mix(in oklab, var(--danger) 20%, transparent);  --toast-icon-color: var(--danger); }
+    &--warning  { --toast-icon-bg: color-mix(in oklab, var(--attente) 20%, transparent); --toast-icon-color: var(--attente); }
+    &--info     { --toast-icon-bg: color-mix(in oklab, var(--action) 20%, transparent);  --toast-icon-color: var(--bleu-riviere-clair); }
+    &--progress { --toast-icon-bg: color-mix(in oklab, var(--encre-2) 20%, transparent);  --toast-icon-color: var(--encre-3); }
   }
 
   .toast__body {

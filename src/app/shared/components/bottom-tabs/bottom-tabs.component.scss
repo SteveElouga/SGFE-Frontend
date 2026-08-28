@@ -17,7 +17,7 @@
   background: var(--surface);
   border-top: 1px solid var(--filet);
   box-shadow: var(--ombre-panneau);
-  padding: 8px 4px calc(10px + env(safe-area-inset-bottom, 0px));
+  padding: var(--pas-2) var(--pas-1) calc(var(--pas-3) + env(safe-area-inset-bottom, 0px));
 }
 
 .tabs__tab {

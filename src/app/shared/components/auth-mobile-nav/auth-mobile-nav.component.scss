@@ -4,9 +4,9 @@
 :host {
   display: flex;
   align-items: center;
-  gap: $spacing-md;
+  gap: var(--pas-4);
   background: var(--navy-nuit);
-  padding: $spacing-md $spacing-lg;
+  padding: var(--pas-4) var(--pas-5);
 
   @include desktop {
     display: none;

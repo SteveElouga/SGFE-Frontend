@@ -62,7 +62,7 @@
   }
 
   &--selected {
-    border: 1.5px solid $color-primary;
+    border: 1.5px solid var(--action);
     background: var(--surface-douce);
     box-shadow: var(--anneau);
   }
@@ -109,8 +109,8 @@
   i { font-size: var(--icone-xs); color: var(--surface); }
 
   &--on {
-    background: $color-primary;
-    border-color: $color-primary;
+    background: var(--action);
+    border-color: var(--action);
   }
 }
 

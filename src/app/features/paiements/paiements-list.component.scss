@@ -9,7 +9,7 @@
   // PrimeNG filter chips — override via custom properties so no ::ng-deep needed
   --p-select-border-radius: var(--rayon-md);
   --p-select-border-color: var(--filet);
-  --p-select-padding-x: 12px;
+  --p-select-padding-x: var(--pas-3);
   --p-datepicker-border-radius: var(--rayon-md);
   --p-datepicker-border-color: var(--filet);
 }
@@ -146,7 +146,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: $color-primary;
+  background: var(--action);
   flex-shrink: 0;
 }
 

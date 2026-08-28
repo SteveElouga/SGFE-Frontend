@@ -14,7 +14,7 @@
 .auth-screen {
   flex: 1;
   display: flex;
-  padding: $spacing-lg;
+  padding: var(--pas-5);
   background: var(--surface);
 
   @include desktop {
@@ -33,7 +33,7 @@
 .auth-screen__success {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: var(--pas-4);
 }
 
 .auth-screen__form h2 {
@@ -51,7 +51,7 @@
 
 .auth-screen__hint {
   font-size: var(--texte-sm);
-  margin-top: $spacing-xs;
+  margin-top: var(--pas-1);
 
   &--error {
     color: var(--danger-encre);
@@ -86,7 +86,7 @@
 
 .auth-screen__success-actions {
   display: flex;
-  gap: $spacing-sm;
+  gap: var(--pas-2);
 }
 
 .auth-screen__action-btn {
@@ -103,7 +103,7 @@
   cursor: pointer;
 
   &--primary {
-    background: $color-accent;
+    background: var(--succes);
     color: var(--surface);
     border: none;
   }
@@ -111,7 +111,7 @@
   &--outline {
     background: var(--surface);
     color: var(--succes-encre);
-    border: 1.5px solid $color-accent;
+    border: 1.5px solid var(--succes);
 
     &:disabled {
       opacity: 0.6;
@@ -126,7 +126,7 @@
     font-weight: 300;
     line-height: 1.25;
     margin: 0 0 var(--pas-2);
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--encre-inverse);
 
     strong {
       font-weight: 700;
@@ -137,15 +137,15 @@
   > p {
     font-size: var(--texte-lg);
     line-height: 1.65;
-    color: rgba(255, 255, 255, 0.65);
-    margin: 0 0 36px;
+    color: var(--encre-inverse-3);
+    margin: 0 0 var(--pas-7);
   }
 }
 
 .auth-brand__divider {
   width: 48px;
   height: 3px;
-  background: $color-accent;
+  background: var(--succes);
   border-radius: var(--rayon-xs);
   margin: 0 0 var(--pas-5);
 }

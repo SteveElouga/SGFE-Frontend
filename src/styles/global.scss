@@ -144,14 +144,14 @@ a:focus-visible,
 }
 
 .container {
-  padding: $spacing-sm;
+  padding: var(--pas-2);
 
   @include tablet {
-    padding: $spacing-md;
+    padding: var(--pas-4);
   }
 
   @include desktop {
-    padding: $spacing-lg;
+    padding: var(--pas-5);
   }
 }
 

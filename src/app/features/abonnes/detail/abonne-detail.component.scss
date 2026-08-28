@@ -168,7 +168,7 @@
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
-      border-color: $color-primary;
+      border-color: var(--action);
       color: var(--action);
       background: var(--action-lueur);
     }
@@ -244,8 +244,8 @@
   padding: var(--pas-3) var(--pas-4);
   border-top-width: 3px;
 
-  &--blue   { border-top-color: $color-primary; }
-  &--green  { border-top-color: $color-accent; }
+  &--blue   { border-top-color: var(--action); }
+  &--green  { border-top-color: var(--succes); }
   &--red    { border-top-color: var(--danger); }
   &--slate  { border-top-color: var(--encre-3); }
 }
@@ -310,7 +310,7 @@
   &--active {
     font-weight: 600;
     color: var(--action);
-    border-bottom-color: $color-primary;
+    border-bottom-color: var(--action);
   }
 }
 
@@ -437,7 +437,7 @@
 
 .abonne-invoices__see-all {
   display: block;
-  margin: 8px 0 0 auto;
+  margin: var(--pas-2) 0 0 auto;
   border: none;
   background: none;
   font-size: var(--texte-xs);
@@ -565,8 +565,8 @@
 
 // Compteur actuel
 .hist-current {
-  background: linear-gradient(135deg, rgba(26,86,219,0.05), rgba(14,159,110,0.04));
-  border: 1px solid rgba($color-primary, 0.15);
+  background: linear-gradient(135deg, color-mix(in oklab, var(--action) 5%, transparent), color-mix(in oklab, var(--succes) 4%, transparent));
+  border: 1px solid color-mix(in oklab, var(--action) 15%, transparent);
   border-radius: var(--rayon-md);
   padding: var(--pas-4);
 }
@@ -591,7 +591,7 @@
   font-weight: 600;
   padding: var(--pas-1) var(--pas-2);
   border-radius: var(--rayon-xs);
-  background: rgba($color-accent, 0.1);
+  background: color-mix(in oklab, var(--succes) 10%, transparent);
   color: var(--succes-encre);
   text-transform: uppercase;
   letter-spacing: 0.3px;
@@ -633,7 +633,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--pas-2);
-  padding: 36px var(--pas-5);
+  padding: var(--pas-7) var(--pas-5);
   color: var(--encre-3);
   font-size: var(--texte-md);
 }
@@ -683,7 +683,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: $color-primary;
+  background: var(--action);
   border: 2px solid var(--surface);
   box-shadow: var(--anneau);
 }
@@ -736,8 +736,8 @@
   }
 
   &--new {
-    background: rgba($color-accent, 0.05);
-    border: 1px solid rgba($color-accent, 0.2);
+    background: color-mix(in oklab, var(--succes) 5%, transparent);
+    border: 1px solid color-mix(in oklab, var(--succes) 20%, transparent);
   }
 }
 

@@ -205,7 +205,7 @@
                     <span class="agent-card__prog-num">{{ a.nbReleves }} <span class="muted">/ {{ a.nbAbonnes }}</span></span>
                   </div>
                   <div class="zone-prog__track">
-                    <div class="zone-prog__fill" [style.width.%]="a.pct"></div>
+                    <div class="zone-prog__fill" [style.--pct]="a.pct / 100"></div>
                   </div>
                 </div>
 
@@ -266,7 +266,7 @@
                           class="zone-prog__fill"
                           [class.zone-prog__fill--full]="z.pct === 100"
                           [class.zone-prog__fill--low]="z.pct < 80"
-                          [style.width.%]="z.pct"
+                          [style.--pct]="z.pct / 100"
                         ></div>
                       </div>
                       <span

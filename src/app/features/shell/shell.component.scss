@@ -59,7 +59,9 @@
 @media (max-width: 1023px) {
   // Espace pour la barre d'onglets fixe du bas.
   .shell__content {
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    // 64 px est la hauteur de la barre d'onglets, pas un cran d'espacement :
+    // c'est une dimension de composant, elle n'a pas sa place dans l'échelle.
+    padding-bottom: calc(var(--hauteur-onglets) + env(safe-area-inset-bottom, 0px));
   }
 
   .shell__sidebar {
@@ -77,7 +79,7 @@
     position: fixed;
     inset: 0;
     z-index: 55;
-    background: rgba(15, 23, 42, 0.5);
+    background: var(--voile);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;

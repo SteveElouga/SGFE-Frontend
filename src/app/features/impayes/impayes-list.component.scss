@@ -359,7 +359,7 @@
     flex-wrap: wrap;
   }
 
-  &__qui { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  &__qui { display: flex; flex-direction: column; gap: var(--pas-0); min-width: 0; }
 
   &__nom {
     font-size: var(--texte-xl);
@@ -375,7 +375,7 @@
 
   &__ref { font-size: var(--texte-sm); color: var(--encre-3); font-variant-numeric: tabular-nums; }
 
-  &__chiffres { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  &__chiffres { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-0); }
 
   &__total {
     font-size: var(--texte-3xl);

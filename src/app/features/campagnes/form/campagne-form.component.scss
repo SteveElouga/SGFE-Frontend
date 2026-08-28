@@ -107,7 +107,7 @@
   width: 100%;
 
   &:focus {
-    border-color: $color-primary;
+    border-color: var(--action);
     box-shadow: var(--anneau);
   }
 
@@ -243,7 +243,7 @@
   }
 
   &--on {
-    border-color: $color-primary;
+    border-color: var(--action);
     background: var(--surface-douce);
     color: var(--action);
     box-shadow: var(--anneau);
@@ -316,7 +316,7 @@
   transition: border-color 0.15s, background 0.15s;
 
   &--selected {
-    border-color: $color-primary;
+    border-color: var(--action);
     background: var(--action-lueur);
   }
 
@@ -340,8 +340,8 @@
   transition: border-color 0.15s, background 0.15s;
 
   &--checked {
-    border-color: $color-primary;
-    background: $color-primary;
+    border-color: var(--action);
+    background: var(--action);
 
     &::after {
       content: '';
@@ -365,7 +365,7 @@
 }
 
 .abonnes-option__badge {
-  background: $color-primary;
+  background: var(--action);
   color: var(--surface);
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
@@ -443,26 +443,26 @@
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      border-color: $color-primary;
+      border-color: var(--action);
       color: var(--action);
-      background: rgba($color-primary, 0.05);
+      background: color-mix(in oklab, var(--action) 5%, transparent);
     }
   }
 
   &--selected {
-    border-color: $color-primary;
-    background: $color-primary;
+    border-color: var(--action);
+    background: var(--action);
     color: var(--surface);
 
     .zone-chip__count {
-      background: rgba(0, 0, 0, 0.15);
+      background: color-mix(in oklab, var(--encre) 15%, transparent);
       color: var(--surface);
     }
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
-        background: color.adjust($color-primary, $lightness: -8%);
-        border-color: color.adjust($color-primary, $lightness: -8%);
+        background: var(--action-survol);
+        border-color: var(--action-survol);
         box-shadow: var(--ombre-action);
         color: var(--surface);
       }
@@ -604,9 +604,9 @@
   &--primary {
     flex: 1;
     @include btn-variant(
-      $color-primary, var(--surface),
+      var(--action), var(--surface),
       $shadow: var(--ombre-action),
-      $hover-bg: color.adjust($color-primary, $lightness: -8%)
+      $hover-bg: var(--action-survol)
     );
   }
 
