@@ -32,7 +32,12 @@
   align-items: center;
   gap: var(--pas-1);
   padding: var(--pas-1);
-  background: var(--fond);                             // Ardoise Nappe
+  // La piste prenait `--fond`, c'est-à-dire exactement la couleur de la page
+  // qui la porte : mesuré, rgb(241,245,249) des deux côtés. Un contrôle
+  // segmenté dont la piste est invisible ne se lit plus comme un contrôle —
+  // il reste une pastille pleine et trois mots posés dans le vide.
+  background: var(--surface);
+  border: 1px solid var(--filet);
   border-radius: 999px;
   align-self: flex-start;
 
@@ -355,7 +360,6 @@
     justify-content: center;
     text-align: center;
     background: var(--surface-douce);
-    border-style: dashed;
     color: var(--encre-3);
     font-size: var(--texte-md);
 
@@ -459,6 +463,13 @@
     color: var(--danger-encre);                                // rouge (dette)
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.005em;
+    // Chaque ligne est un `<a>` distinct, donc une GRILLE distincte : les
+    // colonnes `auto` se dimensionnaient ligne par ligne. « 3 500 FCFA » fait
+    // 83 px et « 25 000 FCFA » 92 px, ce qui décalait la référence et
+    // l'ancienneté de 10 px d'une ligne à l'autre — mesuré. Une largeur
+    // plancher rend la colonne commune sans qu'il faille une sous-grille.
+    min-width: 7rem;
+    text-align: right;
   }
 
   &__chev {
@@ -545,8 +556,13 @@
   // Envois : backend v3.3 n'expose pas les stats (statuts limités +
   // pas de campagne_id). État "Indisponible" honnête, non-cliquable.
   &--unavailable {
+    // Le trait était en pointillés — la seule bordure ainsi de toute
+    // l'application. Un pointillé annonce une zone de dépôt ou un
+    // emplacement à remplir ; il criait l'erreur pour un état neutre.
+    // « Indisponible » n'est pas une panne : c'est un aveu honnête que le
+    // backend n'expose pas encore cette statistique. Le ton reste discret —
+    // même fond que les frères, trait plein très pâle, libellé en italique.
     background: var(--surface-douce);
-    border-style: dashed;
     border-color: var(--filet-pale);
     align-items: flex-start;
     cursor: default;
