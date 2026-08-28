@@ -25,7 +25,7 @@ import { PageTopbarComponent } from '../../shared/components/page-topbar/page-to
 import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../shared/components/filters-panel/filters-panel.component';
 import { DataTableComponent, DataTableColumn } from '../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
-import { FcfaPipe, formatFcfa } from '../../shared/pipes/fcfa.pipe';
+import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
 
 interface CampagneItem {
@@ -212,13 +212,19 @@ export class PaiementsListComponent implements OnInit {
     this.rows().reduce((acc, r) => (r.annule ? acc + r.montant : acc), 0),
   );
 
+  /**
+   * Le bandeau ne dit que ce que la page ne dit pas ailleurs.
+   *
+   * Il affichait « Juillet 2026 · 12 · 146 000 FCFA » — soit exactement la carte
+   * « Total encaissé » posée soixante pixels plus bas, qui donne le montant en
+   * grand et « sur 12 transaction(s) affichée(s) » juste dessous. Le nombre et
+   * le montant sont donc rendus à leur carte ; le bandeau garde la période,
+   * seule information qui disparaît au défilement.
+   */
   readonly subtitle = computed(() => {
     const campagneId = this.selectedCampagneId();
     const campagne = this.campagnes().find((c) => c.campagneId === campagneId);
-    const periode = campagne ? this.formatPeriode(campagne) : '';
-    const count = this.rows().length;
-    const total = formatFcfa(this.totalMontant());
-    return periode ? `${periode} · ${count} · ${total}` : `${count} · ${total}`;
+    return campagne ? this.formatPeriode(campagne) : '';
   });
 
   ngOnInit(): void {

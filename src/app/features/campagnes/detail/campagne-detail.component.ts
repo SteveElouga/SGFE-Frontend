@@ -208,11 +208,17 @@ export class CampagneDetailComponent implements OnInit {
     const c = this.campagne();
     if (!c) return '';
     const lang = this.translate.currentLang() ?? 'fr';
+
+    // Une campagne clôturée écrivait « Clôturée · Clôturée le 27/08 » : le même
+    // mot deux fois dans la même ligne, à trois centimètres d'écart. Le libellé
+    // de date le porte déjà — le statut n'a pas à le précéder.
+    if (c.statut === 'CLOTUREE' && c.dateCloture) {
+      return `${this.translate.instant('CAMPAGNES.CLOTURE_LE', {}, lang)} ${this.formatShortDate(c.dateCloture)}`;
+    }
+
     const statut = this.translate.instant('CAMPAGNES.STATUT.' + c.statut, {}, lang);
-    const dateLabel = c.statut === 'CLOTUREE' && c.dateCloture
-      ? `${this.translate.instant('CAMPAGNES.CLOTURE_LE', {}, lang)} ${this.formatShortDate(c.dateCloture)}`
-      : `${this.translate.instant('CAMPAGNES.CREE_LE', {}, lang)} ${this.formatShortDate(c.dateCreation)}`;
-    return `${statut} · ${dateLabel}`;
+    const creeLe = `${this.translate.instant('CAMPAGNES.CREE_LE', {}, lang)} ${this.formatShortDate(c.dateCreation)}`;
+    return `${statut} · ${creeLe}`;
   });
 
   /** Formatte une date en dd/MM (locale-agnostic pour la topbar). */

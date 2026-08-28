@@ -109,6 +109,7 @@
   <!-- ── Meta : tags dismissables + effacer ─────────────────────────────── -->
   @if (activeCount() > 0) {
     <div class="fp__meta">
+      @if (activeTags().length > 0) {
       <div class="fp__tags" role="list" [attr.aria-label]="'COMMON.ACTIVE_FILTERS' | translate">
         @for (tag of activeTags(); track tag.key) {
           <button
@@ -125,6 +126,7 @@
           </button>
         }
       </div>
+      }
 
       <button
         type="button"

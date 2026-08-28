@@ -124,3 +124,24 @@
     }
   }
 }
+
+// ── Pastille de rôle ─────────────────────────────────────────────────────────
+// Le même rôle s'écrivait de deux façons : pastille teintée par rôle sur
+// /utilisateurs, pastille noire pleine sur /profil — la seule de l'application,
+// et le sixième traitement de badge relevé au parcours. Une couleur par rôle
+// porte une information ; le noir n'en porte aucune.
+@mixin pastille-role {
+  display: inline-block;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--badge-rayon);
+  font-size: var(--badge-texte);
+  font-weight: var(--badge-poids);
+  letter-spacing: var(--badge-espace);
+  text-transform: var(--badge-casse);
+
+  &--admin       { background: var(--action-lueur); color: var(--action); }
+  &--comptable   { background: var(--role-violet-lueur); color: var(--role-violet); }
+  &--agent       { background: var(--succes-fond); color: var(--succes-encre); }
+  &--superviseur { background: var(--role-cyan-lueur); color: var(--role-cyan); }
+  &--off         { background: var(--fond); color: var(--encre-3); }
+}

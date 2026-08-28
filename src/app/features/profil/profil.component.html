@@ -14,8 +14,10 @@
     </div>
     <div class="profil-identity">
       <div class="profil-identity__username">{{ user()?.username }}</div>
+      <!-- Le rôle était écrit ici ET dans « Informations du compte », à 350 px
+           d'écart, sous deux pastilles noires identiques. Il reste là où il
+           porte son étiquette : en face du mot « Rôle ». -->
       <div class="profil-identity__meta">
-        <span class="profil-identity__role">{{ 'UTILISATEURS.ROLES.' + user()?.role | translate }}</span>
         <span class="profil-identity__phone">{{ user()?.phoneNumber }}</span>
       </div>
     </div>
@@ -55,7 +57,7 @@
         <div class="profil-donnee">
           <dt>{{ 'PROFIL.ROLE' | translate }}</dt>
           <dd>
-            <span class="profil-role-badge profil-role-badge--{{ user()?.role?.toLowerCase() }}">
+            <span class="role-pill role-pill--{{ user()?.role?.toLowerCase() }}">
               {{ 'UTILISATEURS.ROLES.' + user()?.role | translate }}
             </span>
           </dd>
