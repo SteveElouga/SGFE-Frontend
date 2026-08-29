@@ -1,0 +1,150 @@
+// Feuille d'annulation d'un paiement. Volontairement calquée sur
+// `annuler-sheet` (annulation de facture) : même en-tête à pastille, même
+// bloc motif, mêmes boutons. Deux gestes correctifs voisins doivent se
+// ressembler — c'est ce qui fait qu'on reconnaît le second sans l'apprendre.
+
+.ap-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-4);
+  padding: var(--pas-5);
+}
+
+.ap-header {
+  display: flex;
+  gap: var(--pas-4);
+  align-items: flex-start;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--rayon-md);
+    background: var(--attente-fond);
+    color: var(--attente-encre);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--texte-2xl);
+  }
+
+  &__titre {
+    margin: 0;
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+  }
+
+  &__desc {
+    margin: var(--pas-1) 0 0;
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// La règle comptable, énoncée avant le geste plutôt qu'après. On ne modifie
+// pas une écriture : on la contre-passe. Le dire ici évite de chercher un
+// bouton « modifier » qui n'existera jamais.
+.ap-note {
+  margin: 0;
+  padding: var(--pas-3) var(--pas-4);
+  border-radius: var(--rayon-sm);
+  background: var(--surface-douce);
+  border-left: 3px solid var(--action);
+  font-size: var(--texte-md);
+  color: var(--encre-2);
+  line-height: 1.5;
+}
+
+.ap-label {
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--encre-2);
+}
+
+.ap-required {
+  color: var(--danger-encre);
+  margin-left: var(--pas-1);
+}
+
+.ap-textarea {
+  width: 100%;
+  padding: var(--pas-3);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  color: var(--encre);
+  background: var(--surface);
+  border: 1px solid var(--filet-pale);
+  border-radius: var(--rayon-sm);
+  resize: vertical;
+  transition: border-color var(--duree-courte) var(--ease-out),
+    box-shadow var(--duree-courte) var(--ease-out);
+
+  &:focus {
+    outline: none;
+    border-color: var(--action);
+    box-shadow: var(--anneau);
+  }
+
+  &::placeholder { color: var(--encre-3); }
+}
+
+.ap-aide {
+  margin-top: calc(-1 * var(--pas-2));
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  line-height: 1.4;
+}
+
+.ap-actions {
+  display: flex;
+  gap: var(--pas-3);
+  justify-content: flex-end;
+  margin-top: var(--pas-2);
+}
+
+.ap-btn {
+  min-height: 44px;
+  padding: var(--pas-3) var(--pas-5);
+  border-radius: var(--rayon-sm);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  &--secondaire {
+    background: var(--surface);
+    border: 1px solid var(--filet);
+    color: var(--encre-2);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { background: var(--surface-douce); }
+    }
+  }
+
+  // Rouge, comme l'annulation de facture : le geste défait une écriture
+  // enregistrée et laisse une trace définitive.
+  &--danger {
+    background: var(--danger);
+    border: 1px solid var(--danger);
+    color: var(--encre-inverse);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) { filter: brightness(0.92); }
+    }
+  }
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &:active:not(:disabled) { transform: scale(0.97); }
+
+  &:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--action);
+    outline-offset: var(--focus-decalage);
+  }
+}

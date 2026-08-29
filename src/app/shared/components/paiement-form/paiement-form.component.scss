@@ -86,6 +86,14 @@
   line-height: 1.4;
 
   &--error { color: var(--danger-encre); }
+
+  // Le trop-perçu n'est pas une erreur : il annonce un report d'avance sur la
+  // prochaine facture. Ton d'information, pas d'alerte — la couleur porte le
+  // sens, et le rouge dirait « corrige ça » là où il faut lire « c'est noté ».
+  &--info {
+    color: var(--action-survol);
+    font-weight: 500;
+  }
 }
 
 .paiement-form__submit {

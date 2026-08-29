@@ -324,8 +324,12 @@ export class FacturesListComponent implements OnInit {
       void this.loadCampagneObjet(this.campagneId());
       // Sélecteur multi-campagnes dérivé de toutes les factures.
       void this.loadAllCampagnes();
-      const partielles = factures.filter((f) => f.statut === 'PARTIELLE');
-      void this.loadSoldes(partielles);
+      // Toutes les factures non soldées, et non plus les seules PARTIELLE.
+      // L'heuristique « IMPAYEE ⇒ solde = montant » était fausse dès qu'un
+      // avoir était imputé, et le trop-perçu désormais accepté rend les avoirs
+      // courants : la supposition se trompait de plus en plus souvent.
+      const nonSoldees = factures.filter((f) => f.statut !== 'PAYEE');
+      void this.loadSoldes(nonSoldees);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('FACTURATION.ERROR_LOAD'));
@@ -408,27 +412,22 @@ export class FacturesListComponent implements OnInit {
     this.soldes.set(map);
   }
 
-  // Heuristique de solde basée sur le statut, pour éviter N appels backend au
-  // chargement de la liste (seules les PARTIELLE sont interrogées). Limite connue :
-  // si le statut backend est désynchronisé du solde réel (soldeRestant=0 mais
-  // statut IMPAYEE — synchro UpdateStatutFacture dégradée), cette colonne affiche
-  // le montant total alors que le vrai solde est 0. Le panneau de paiement et la
-  // page détail, eux, se fient au soldeFacture backend (autoritaire).
-  // Correctif attendu côté backend : cf. docs/BESOINS_API_facturation.md §1.
+  // Solde autoritaire : la valeur vient du backend pour toute facture non
+  // soldée. L'ancienne heuristique — « IMPAYEE ⇒ solde = montant » — évitait N
+  // appels au chargement, au prix d'un chiffre supposé. Elle se trompait dans
+  // deux cas : un statut désynchronisé du solde réel, et surtout un avoir
+  // imputé, qui réduit le solde sans changer le montant.
+  //
+  // Le second cas était marginal ; il ne l'est plus. Depuis que le trop-perçu
+  // est accepté à la saisie, les avoirs deviennent courants — la supposition
+  // se serait donc trompée de plus en plus souvent, et sur les factures les
+  // plus délicates à expliquer au guichet.
   soldeFor(f: Facture): number | null {
     if (f.statut === 'PAYEE') return 0;
-    if (f.statut === 'IMPAYEE') return f.montant;
+    // Plus de repli sur `f.montant` pour les IMPAYEE : c'était une supposition,
+    // fausse dès qu'un avoir avait réduit le solde. On rend `null` — la colonne
+    // affiche « — » le temps du chargement — plutôt qu'un chiffre inventé.
     return this.soldes().get(f.factureId) ?? null;
-  }
-
-  /**
-   * Signale à l'utilisateur qu'un solde est une estimation heuristique (statut
-   * IMPAYEE non vérifié) plutôt qu'une donnée backend autoritaire (PAYEE=0 ou
-   * PARTIELLE fetched). Utilisé pour afficher un indicateur discret + tooltip
-   * dans la colonne Solde (P1 batch 8 list : honnêteté visuelle).
-   */
-  soldeEstimated(f: Facture): boolean {
-    return f.statut === 'IMPAYEE';
   }
 
   abonneFor(abonneId: string): AbonneInfo | null {

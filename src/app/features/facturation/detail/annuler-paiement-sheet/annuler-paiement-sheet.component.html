@@ -1,0 +1,60 @@
+<!-- ══ Annuler un paiement saisi par erreur ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="annul-paiement-titre" (close)="onClose()">
+  <div class="ap-body">
+
+    <div class="ap-header">
+      <div class="ap-header__icon" aria-hidden="true">
+        <i aria-hidden="true" class="pi pi-undo"></i>
+      </div>
+      <div>
+        <h3 class="ap-header__titre" id="annul-paiement-titre">
+          {{ 'FACTURATION.ANNUL_PAIEMENT.TITRE' | translate }}
+        </h3>
+        @if (paiement(); as p) {
+          <p class="ap-header__desc">
+            {{ 'FACTURATION.ANNUL_PAIEMENT.DESC' | translate: { montant: (p.montant | fcfa) } }}
+          </p>
+        }
+      </div>
+    </div>
+
+    <!-- On ne supprime pas : on contre-passe. Le dire ici évite qu'on cherche
+         un bouton « modifier » qui n'existera jamais, et explique pourquoi la
+         ligne annulée restera visible dans l'historique. -->
+    <p class="ap-note">
+      {{ 'FACTURATION.ANNUL_PAIEMENT.NOTE' | translate }}
+    </p>
+
+    <label class="ap-label" for="ap-motif">
+      {{ 'FACTURATION.ANNUL_PAIEMENT.MOTIF' | translate }}<span class="ap-required" aria-hidden="true">*</span>
+    </label>
+    <textarea
+      id="ap-motif"
+      class="ap-textarea"
+      rows="3"
+      [ngModel]="motif()"
+      (ngModelChange)="motif.set($event)"
+      [attr.placeholder]="'FACTURATION.ANNUL_PAIEMENT.MOTIF_PLACEHOLDER' | translate"
+      [attr.aria-describedby]="'ap-motif-aide'"
+    ></textarea>
+    <span id="ap-motif-aide" class="ap-aide">
+      {{ 'FACTURATION.ANNUL_PAIEMENT.MOTIF_AIDE' | translate }}
+    </span>
+
+    <div class="ap-actions">
+      <button type="button" class="ap-btn ap-btn--secondaire" (click)="onClose()" [disabled]="submitting()">
+        {{ 'COMMON.CLOSE' | translate }}
+      </button>
+      <button
+        type="button"
+        class="ap-btn ap-btn--danger"
+        (click)="submit()"
+        [disabled]="!motifValide() || submitting()"
+        [attr.aria-busy]="submitting()"
+      >
+        {{ (submitting() ? 'COMMON.LOADING' : 'FACTURATION.ANNUL_PAIEMENT.CONFIRMER') | translate }}
+      </button>
+    </div>
+
+  </div>
+</app-bottom-sheet>

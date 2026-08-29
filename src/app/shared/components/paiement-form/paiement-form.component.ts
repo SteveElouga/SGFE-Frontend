@@ -93,21 +93,31 @@ export class PaiementFormComponent {
 
   readonly effectiveSolde = computed(() => this.soldeRestant() ?? 0);
 
-  readonly montantExceedsSolde = computed(() => {
+  /**
+   * Excédent versé au-delà du solde restant.
+   *
+   * Ce n'est **pas** une erreur : le backend accepte le surpaiement, solde la
+   * facture avec la part imputable et porte l'excédent au crédit (avoir) de
+   * l'abonné, d'où il s'impute automatiquement sur ses prochaines factures
+   * (`AvoirAbonne`, `_appliquer_avoir`). Un abonné qui donne 10 000 pour une
+   * facture de 5 000 laisse 5 000 d'avance : c'est un cas courant au guichet,
+   * pas une faute de saisie.
+   *
+   * Le formulaire l'interdisait — `montant <= effectiveSolde()` bloquait la
+   * validation et un message rouge annonçait « le montant ne peut pas dépasser
+   * le solde restant ». La capacité existait côté serveur depuis le début.
+   * On l'annonce désormais au lieu de la refuser.
+   */
+  readonly excedent = computed(() => {
     const montant = Number.parseFloat(this.pMontant());
-    return !Number.isNaN(montant) && montant > this.effectiveSolde();
+    if (Number.isNaN(montant)) return 0;
+    return Math.max(0, montant - this.effectiveSolde());
   });
 
   readonly formValid = computed(() => {
     const montant = Number.parseFloat(this.pMontant());
     const refOk = !this.refRequired() || !!this.pRef().trim();
-    return (
-      !Number.isNaN(montant) &&
-      montant > 0 &&
-      montant <= this.effectiveSolde() &&
-      !!this.pDate() &&
-      refOk
-    );
+    return !Number.isNaN(montant) && montant > 0 && !!this.pDate() && refOk;
   });
 
   readonly confirmLabel = computed(() => {

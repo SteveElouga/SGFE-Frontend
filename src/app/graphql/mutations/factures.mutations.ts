@@ -216,3 +216,62 @@ export const REGENERER_FACTURE = gql`
     }
   }
 `;
+
+/**
+ * Annule un paiement enregistré par erreur — ADMIN et COMPTABLE.
+ *
+ * Annulation douce : le paiement reste en base, marqué annulé avec qui, quand
+ * et pourquoi. Le solde de la facture est rétabli, l'impayé réapparaît.
+ * Le backend refuse une seconde annulation (pas de double rétablissement).
+ *
+ * Il n'existe pas — et il ne doit pas exister — de mutation de *modification*
+ * d'un paiement : en comptabilité on ne retouche pas une écriture, on la
+ * contre-passe et on ressaisit. « Modifier » se lit donc « annuler puis
+ * ressaisir », et l'interface doit le formuler ainsi.
+ */
+export const ANNULER_PAIEMENT = gql`
+  mutation AnnulerPaiement($paiementId: String!, $motif: String!) {
+    annulerPaiement(paiementId: $paiementId, motif: $motif) {
+      paiementId
+      factureId
+      montant
+      datePaiement
+      modePaiement
+      referenceTransaction
+      createdAt
+      operateur
+      statutFacture
+      annule
+      annuleLe
+      annulePar
+      motifAnnulation
+    }
+  }
+`;
+
+/**
+ * Émet un avoir manuel sur le compte d'un abonné — ADMIN et COMPTABLE.
+ *
+ * Note de rectification : facture corrigée à la baisse, erreur d'index, geste
+ * commercial. Le crédit alimente l'avoir de l'abonné et s'impute
+ * automatiquement sur ses prochaines factures.
+ *
+ * À distinguer du trop-perçu, qui alimente le même avoir mais sans geste
+ * manuel : verser plus que le solde restant suffit.
+ */
+export const CREDITER_AVOIR = gql`
+  mutation CrediterAvoir($abonneId: String!, $montant: Float!, $motif: String!) {
+    crediterAvoir(abonneId: $abonneId, montant: $montant, motif: $motif) {
+      abonneId
+      montant
+      mouvements {
+        montant
+        typeMouvement
+        motif
+        factureId
+        creePar
+        createdAt
+      }
+    }
+  }
+`;

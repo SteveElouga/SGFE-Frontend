@@ -279,7 +279,26 @@
                   @if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
                 </div>
               </div>
-              <span class="paiement-badge" [class.paiement-badge--solde]="pctPaye() >= 100">{{ (pctPaye() >= 100 ? 'FACTURATION.DETAIL.SOLDE_PAR' : 'FACTURATION.DETAIL.ACOMPTE') | translate }}</span>
+              <div class="paiement-row__aside">
+                @if (p.annule) {
+                  <!-- Un paiement annulé reste visible : c'est la trace qui
+                       prouve la correction, pas un résidu à masquer. -->
+                  <span class="paiement-badge paiement-badge--annule">{{ 'FACTURATION.ANNUL_PAIEMENT.ANNULE' | translate }}</span>
+                } @else {
+                  <span class="paiement-badge" [class.paiement-badge--solde]="pctPaye() >= 100">{{ (pctPaye() >= 100 ? 'FACTURATION.DETAIL.SOLDE_PAR' : 'FACTURATION.DETAIL.ACOMPTE') | translate }}</span>
+                  @if (peutAnnulerPaiement()) {
+                    <button
+                      type="button"
+                      class="paiement-row__annuler"
+                      (click)="ouvrirAnnulationPaiement(p)"
+                      [attr.aria-label]="'FACTURATION.ANNUL_PAIEMENT.ARIA' | translate: { montant: (p.montant | fcfa) }"
+                    >
+                      <i aria-hidden="true" class="pi pi-undo"></i>
+                      <span>{{ 'FACTURATION.ANNUL_PAIEMENT.ACTION' | translate }}</span>
+                    </button>
+                  }
+                }
+              </div>
             </div>
           }
         </div>
@@ -471,6 +490,13 @@
 
   }
 </div>
+
+<app-annuler-paiement-sheet
+  [open]="annulPaiementOuverte()"
+  [paiement]="paiementAAnnuler()"
+  (close)="fermerAnnulationPaiement()"
+  (done)="onPaiementAnnule()"
+/>
 
 <app-annuler-sheet
   [open]="annulerSheetVisible()"
