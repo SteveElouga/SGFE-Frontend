@@ -36,16 +36,36 @@ import { ConfigParam, InfosSociete } from '../shared/models/configuration.model'
 const laisserChargerPuisEcouter = () => new Promise((r) => setTimeout(r, 0));
 
 const utilisateur = (p: Partial<User> = {}): User => ({
-  id: 'u1', username: 'demo_agent', email: '', phoneNumber: '+237600000001',
-  role: 'AGENT', isActive: true, createdAt: '2026-08-26T00:00:00Z', ...p,
+  id: 'u1',
+  username: 'demo_agent',
+  email: '',
+  phoneNumber: '+237600000001',
+  role: 'AGENT',
+  isActive: true,
+  createdAt: '2026-08-26T00:00:00Z',
+  ...p,
 });
 
 const facture = (p: Partial<Facture> = {}): Facture => ({
-  factureId: 'f1', numeroFacture: 'FACT-2026-08-0001', abonneId: 'a1', campagneId: 'c1',
-  ancienIndex: 0, nouveauIndex: 10, consommation: 10, prixM3: 500, montant: 5000,
-  statut: 'IMPAYEE', dateReleve: '2026-08-01', dateLimitePaiement: '2026-09-01',
-  dateGeneration: '2026-08-02', pdfPath: '/pdf/f1.pdf', numeroMobileMoney: '655000000',
-  abonneNom: 'Blandine', abonneNumero: 'AB-0007', campagneNom: 'Août 2026', ...p,
+  factureId: 'f1',
+  numeroFacture: 'FACT-2026-08-0001',
+  abonneId: 'a1',
+  campagneId: 'c1',
+  ancienIndex: 0,
+  nouveauIndex: 10,
+  consommation: 10,
+  prixM3: 500,
+  montant: 5000,
+  statut: 'IMPAYEE',
+  dateReleve: '2026-08-01',
+  dateLimitePaiement: '2026-09-01',
+  dateGeneration: '2026-08-02',
+  pdfPath: '/pdf/f1.pdf',
+  numeroMobileMoney: '655000000',
+  abonneNom: 'Blandine',
+  abonneNumero: 'AB-0007',
+  campagneNom: 'Août 2026',
+  ...p,
 });
 
 describe('Flux temps réel branchés', () => {
@@ -68,7 +88,10 @@ describe('Flux temps réel branchés', () => {
     }
 
     it('remplace en place un compte déjà listé', async () => {
-      const { component, flux } = setup([utilisateur(), utilisateur({ id: 'u2', username: 'admin' })]);
+      const { component, flux } = setup([
+        utilisateur(),
+        utilisateur({ id: 'u2', username: 'admin' }),
+      ]);
       await laisserChargerPuisEcouter();
 
       flux.next({ data: { utilisateurUpdated: utilisateur({ isActive: false }) } });
@@ -111,6 +134,9 @@ describe('Flux temps réel branchés', () => {
               getFacturesParCampagne: vi.fn().mockResolvedValue(factures),
               getFactures: vi.fn().mockResolvedValue(factures),
               getSoldeFacture: vi.fn().mockResolvedValue({ soldeRestant: 2000 }),
+              getDetteAbonne: vi
+                .fn()
+                .mockResolvedValue({ totalDu: 2000, nbFactures: 1, plusAncienneEcheance: null }),
             },
           },
           { provide: FacturePdfService, useValue: {} },
@@ -131,9 +157,15 @@ describe('Flux temps réel branchés', () => {
       flux.next({
         data: {
           factureUpdated: {
-            factureId: 'f1', numeroFacture: 'FACT-2026-08-0001', abonneId: 'a1',
-            campagneId: 'c1', statut: 'PAYEE', consommation: 10, montant: 5000,
-            dateReleve: '2026-08-01', dateLimitePaiement: '2026-09-01',
+            factureId: 'f1',
+            numeroFacture: 'FACT-2026-08-0001',
+            abonneId: 'a1',
+            campagneId: 'c1',
+            statut: 'PAYEE',
+            consommation: 10,
+            montant: 5000,
+            dateReleve: '2026-08-01',
+            dateLimitePaiement: '2026-09-01',
           },
         },
       });
@@ -182,8 +214,11 @@ describe('Flux temps réel branchés', () => {
 
     /** Exactement la sélection de PAIEMENT_CREE_SUB — sans champs d'annulation. */
     const evenement = {
-      paiementId: 'p9', factureId: 'f1', montant: 1234,
-      datePaiement: '2026-08-28T09:15:00Z', modePaiement: 'ESPECES' as const,
+      paiementId: 'p9',
+      factureId: 'f1',
+      montant: 1234,
+      datePaiement: '2026-08-28T09:15:00Z',
+      modePaiement: 'ESPECES' as const,
       referenceTransaction: 'REF-9',
     };
 
@@ -203,9 +238,17 @@ describe('Flux temps réel branchés', () => {
 
     it('pose l’encaissement en tête — le journal est antichronologique', async () => {
       const ancien: Paiement = {
-        paiementId: 'p1', factureId: 'f1', montant: 500, datePaiement: '2026-07-01T00:00:00Z',
-        modePaiement: 'ESPECES', referenceTransaction: '', createdAt: '2026-07-01T00:00:00Z',
-        annule: false, annuleLe: null, annulePar: null, motifAnnulation: null,
+        paiementId: 'p1',
+        factureId: 'f1',
+        montant: 500,
+        datePaiement: '2026-07-01T00:00:00Z',
+        modePaiement: 'ESPECES',
+        referenceTransaction: '',
+        createdAt: '2026-07-01T00:00:00Z',
+        annule: false,
+        annuleLe: null,
+        annulePar: null,
+        motifAnnulation: null,
       };
       const { component, flux } = setup([ancien]);
       await laisserChargerPuisEcouter();
@@ -240,8 +283,11 @@ describe('Flux temps réel branchés', () => {
   // ────────────────────────────────────────────────────────────────────────
   describe('/configuration — configUpdated et tarifUpdated', () => {
     const infos: InfosSociete = {
-      nom: 'SGFE', adresse: 'Yaoundé', telephone: '658552294',
-      logoPath: '', updatedAt: '2026-07-10T11:34:00Z',
+      nom: 'SGFE',
+      adresse: 'Yaoundé',
+      telephone: '658552294',
+      logoPath: '',
+      updatedAt: '2026-07-10T11:34:00Z',
     };
     const tarif: Tarif = { tarifId: 't1', prixM3: 500, dateEffet: '2026-07-01', isActive: true };
     const configs: ConfigParam[] = [
@@ -275,7 +321,10 @@ describe('Flux temps réel branchés', () => {
               getConfigs: vi.fn().mockResolvedValue(configs),
             },
           },
-          { provide: FacturesService, useValue: { getTarifActuel: vi.fn().mockResolvedValue(tarif) } },
+          {
+            provide: FacturesService,
+            useValue: { getTarifActuel: vi.fn().mockResolvedValue(tarif) },
+          },
         ],
       });
       const fixture = TestBed.createComponent(ConfigurationComponent);
@@ -318,7 +367,9 @@ describe('Flux temps réel branchés', () => {
       await laisserChargerPuisEcouter();
 
       fluxTarif.next({
-        data: { tarifUpdated: { tarifId: 't2', prixM3: 600, dateEffet: '2026-09-01', isActive: true } },
+        data: {
+          tarifUpdated: { tarifId: 't2', prixM3: 600, dateEffet: '2026-09-01', isActive: true },
+        },
       });
 
       expect(component.tarifActuel()?.prixM3).toBe(600);
@@ -334,7 +385,9 @@ describe('Flux temps réel branchés', () => {
       expect(component.tarifDirty()).toBe(true);
 
       fluxTarif.next({
-        data: { tarifUpdated: { tarifId: 't2', prixM3: 600, dateEffet: '2026-09-01', isActive: true } },
+        data: {
+          tarifUpdated: { tarifId: 't2', prixM3: 600, dateEffet: '2026-09-01', isActive: true },
+        },
       });
 
       // Le bandeau « en vigueur » suit, le champ en cours de saisie non.

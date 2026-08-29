@@ -869,6 +869,8 @@
     "COL_ABONNE": "Subscriber",
     "COL_MONTANT": "Amount (FCFA)",
     "COL_SOLDE": "Outstanding (FCFA)",
+    "SOLDE_ERREUR_TOOLTIP": "Balance unavailable — insufficient rights or server temporarily saturated. Reload the page.",
+    "AUTRES_DETTES_TOOLTIP": "This subscriber owes {{montant}} FCFA more on {{n}} other invoice(s). The balance shown covers this invoice only.",
     "COL_STATUT": "Status",
     "COL_ACTIONS": "Actions",
     "EMPTY": "No invoices for this campaign",
