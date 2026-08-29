@@ -10,11 +10,11 @@ Apollo Client    @apollo/client + apollo-angular
 PWA              @angular/pwa
 Test runner      Vitest (défaut Angular 22)
 Styles           SCSS
-UI               Angular Material 3
-Icons            Material Icons
-HTTP             httpResource (Angular 22 stable)
+UI               PrimeNG 21 (+ préréglage maison `core/theme/aquabill-preset.ts`)
+Icons            PrimeIcons
+Données          Apollo Client — tout passe par GraphQL, pas de httpResource
 State            Signals (Angular 22 stable — PAS de NgRx)
-Forms            Signal Forms (Angular 22 stable — PAS de ReactiveFormsModule)
+Forms            FormsModule + `ngModel`, validation par `computed()`
 Change Detection OnPush par défaut (Angular 22)
 Zone.js          Désactivé (Zoneless architecture)
 ```
@@ -50,12 +50,14 @@ frontend/
 │   │   │
 │   │   ├── shared/                      # Composants, pipes, directives réutilisables
 │   │   │   ├── components/
-│   │   │   │   ├── loading/
-│   │   │   │   ├── error-message/
-│   │   │   │   └── confirm-dialog/
+│   │   │   │   ├── data-table/          # tableau trié + paginé, 6 écrans
+│   │   │   │   ├── bottom-sheet/        # coquille des feuilles modales
+│   │   │   │   ├── badge/               # référence unique du badge de statut
+│   │   │   │   ├── paiement-form/       # saisie d'un versement
+│   │   │   │   └── …                    # ~28 composants, voir le dossier
 │   │   │   ├── pipes/
 │   │   │   │   ├── fcfa.pipe.ts         # Formatage montants FCFA
-│   │   │   │   └── m3.pipe.ts           # Formatage consommation m³
+│   │   │   │   └── pluriel.pipe.ts      # Accord singulier/pluriel/zéro
 │   │   │   └── models/                  # Interfaces TypeScript (types GraphQL)
 │   │   │       ├── abonne.model.ts
 │   │   │       ├── campagne.model.ts
@@ -144,7 +146,30 @@ export class CampagneListComponent {
 }
 ```
 
-### Signal Forms (formulaires — OBLIGATOIRE, PAS de ReactiveFormsModule)
+### Formulaires — `ngModel` et validation par signal
+
+> ⚠️ **Corrigé le 28 août 2026.** Cette section prescrivait les *Signal Forms*
+> comme obligatoires et interdisait `ReactiveFormsModule`. Mesure faite :
+> **0 occurrence** de `signalForm` dans le dépôt, contre **54** de
+> `FormsModule`. La prescription n'a jamais été suivie ; c'est elle qui était
+> fausse, pas le code. Elle décrivait une cible, pas un état.
+
+Le motif réel : `ngModel` en écriture, un `signal()` par champ, et la
+validation dérivée en `computed()`. Voir `shared/components/paiement-form/`
+pour l'exemple de référence.
+
+```typescript
+readonly pMontant = signal('');
+
+readonly formValid = computed(() => {
+  const montant = Number.parseFloat(this.pMontant());
+  return !Number.isNaN(montant) && montant > 0;
+});
+```
+
+<details>
+<summary>Ancienne prescription (non appliquée, conservée pour mémoire)</summary>
+
 
 ```typescript
 // ✅ Angular 22 — Signal Forms (stable)
@@ -164,7 +189,27 @@ export class SaisirIndexComponent {
 }
 ```
 
-### Selectorless Components (Angular 22 — OBLIGATOIRE pour nouveaux composants)
+</details>
+
+### Composants — sélecteur `app-*`, standalone, OnPush
+
+> ⚠️ **Corrigé le 28 août 2026.** Cette section prescrivait les composants
+> *selectorless*. Mesure faite : **59 composants** déclarent un
+> `selector: 'app-…'`, **aucun** n'est selectorless. La convention réelle est
+> le sélecteur explicite — elle est cohérente, et c'est la prescription qui
+> s'en écartait.
+
+```typescript
+@Component({
+  selector: 'app-paiement-form',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+```
+
+<details>
+<summary>Ancienne prescription (non appliquée, conservée pour mémoire)</summary>
+
 
 ```typescript
 // ✅ Angular 22 — Selectorless Component
@@ -181,7 +226,20 @@ export class AbonneCardComponent { }
 // (pas de string selector à mémoriser)
 ```
 
-### httpResource (récupération de données — OBLIGATOIRE)
+</details>
+
+### Données — Apollo, jamais `httpResource`
+
+> ⚠️ **Corrigé le 28 août 2026.** Cette section prescrivait `httpResource`.
+> Mesure faite : **0 occurrence**, contre **84** appels
+> `apollo.query/mutate/watchQuery`. C'est cohérent avec la règle fondamentale
+> ci-dessus — ce frontend ne parle qu'à la gateway GraphQL, et `httpResource`
+> vise des API REST qui n'existent pas ici. La prescription se contredisait
+> elle-même.
+
+<details>
+<summary>Ancienne prescription (non appliquée, conservée pour mémoire)</summary>
+
 
 ```typescript
 // ✅ Angular 22 — httpResource pour les données
@@ -197,6 +255,8 @@ export class DashboardComponent {
   data = this.dashboardData.value;
 }
 ```
+
+</details>
 
 ### Zoneless (PAS de Zone.js — OBLIGATOIRE)
 
@@ -438,7 +498,7 @@ ng add apollo-angular
 ng generate component features/terrain/saisir-index --standalone
 
 # Lancer le serveur de dev
-ng serve --port 4200
+ng serve            # port 4321 en local (voir proxy.conf.json)
 
 # Build production PWA
 ng build --configuration production
@@ -539,7 +599,7 @@ export const environment = {
 
 ### Proxy de développement
 
-`ng serve` (port 4200) et l'API Gateway (`localhost:8080`) sont deux
+`ng serve` (port 4321 en local) et l'API Gateway (`localhost:8080`) sont deux
 origines distinctes pour le navigateur. Pour que `/graphql` reste
 same-origin en développement, le serveur de dev Angular proxyfie cette
 route vers la Gateway via `proxy.conf.json` (racine du projet) :
