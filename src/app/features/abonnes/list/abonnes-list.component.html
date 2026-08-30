@@ -21,7 +21,7 @@
 </app-page-topbar>
 
 <!-- Contenu scrollable -->
-<div class="abonnes-content">
+<div class="abonnes-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="loadAbonnes()" />

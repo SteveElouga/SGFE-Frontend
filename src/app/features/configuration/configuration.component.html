@@ -5,7 +5,7 @@
   [subtitle]="'CONFIGURATION.SUBTITLE' | translate"
 />
 
-<div class="config-content">
+<div class="config-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />

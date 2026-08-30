@@ -7,7 +7,7 @@
   [backLabel]="'CAMPAGNES.TITLE' | translate"
 />
 
-<div class="detail-page">
+<div class="detail-page page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />

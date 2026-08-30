@@ -11,7 +11,7 @@
 // Bouton d'action projeté dans la topbar
 .mark-all {
   min-width: 44px;
-  min-height: 44px;                 // WCAG 2.5.5
+  min-height: 44px; // WCAG 2.5.5
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
@@ -27,9 +27,14 @@
   white-space: nowrap;
   transition: background 0.12s;
 
-  i { color: var(--succes-encre); font-size: var(--icone-xs); }
+  i {
+    color: var(--succes-encre);
+    font-size: var(--icone-xs);
+  }
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-douce); }
+    &:hover {
+      background: var(--surface-douce);
+    }
   }
 }
 
@@ -39,11 +44,16 @@
     gap: 0;
     padding: 0 var(--pas-2);
   }
-  .mark-all__label { display: none; }
+  .mark-all__label {
+    display: none;
+  }
 }
 
 // ── Filtres (chips) ─────────────────────────────────────────────────────────
 .notif-filters {
+  // Reste au-dessus de la région défilante : les chips doivent rester
+  // atteignables quand on parcourt un long flux.
+  flex: none;
   background: var(--surface);
   border-bottom: 1px solid var(--filet);
   padding: var(--pas-3) var(--pas-5);
@@ -61,7 +71,10 @@
   &__count {
     color: var(--encre-3);
 
-    &--alert { color: var(--danger-encre); font-weight: 700; }
+    &--alert {
+      color: var(--danger-encre);
+      font-weight: 700;
+    }
   }
 }
 
@@ -84,7 +97,9 @@
   padding-left: var(--pas-1);
   margin-top: var(--pas-2);
 
-  &:first-child { margin-top: 0; }
+  &:first-child {
+    margin-top: 0;
+  }
 }
 
 .notif-card {
@@ -105,15 +120,31 @@
   cursor: pointer;
   transition: background 0.1s;
 
-  &:last-child { border-bottom: none; }
+  &:last-child {
+    border-bottom: none;
+  }
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface); }
+    &:hover {
+      background: var(--surface);
+    }
   }
 
-  &--unread.notif-item--danger { border-left-color: var(--danger); background: var(--danger-fond); }
-  &--unread.notif-item--success { border-left-color: var(--succes); background: var(--succes-fond); }
-  &--unread.notif-item--warning { border-left-color: var(--attente); background: var(--attente-fond); }
-  &--unread.notif-item--info { border-left-color: var(--action); background: var(--surface-douce); }
+  &--unread.notif-item--danger {
+    border-left-color: var(--danger);
+    background: var(--danger-fond);
+  }
+  &--unread.notif-item--success {
+    border-left-color: var(--succes);
+    background: var(--succes-fond);
+  }
+  &--unread.notif-item--warning {
+    border-left-color: var(--attente);
+    background: var(--attente-fond);
+  }
+  &--unread.notif-item--info {
+    border-left-color: var(--action);
+    background: var(--surface-douce);
+  }
 
   &__icon {
     width: 38px;
@@ -124,22 +155,50 @@
     justify-content: center;
     flex-shrink: 0;
 
-    i { font-size: var(--icone-md); }
+    i {
+      font-size: var(--icone-md);
+    }
 
-    &--danger { background: var(--danger-fond); i { color: var(--danger-encre); } }
-    &--success { background: var(--succes-fond); i { color: var(--succes-encre); } }
-    &--warning { background: var(--attente-fond); i { color: var(--ambre-attente); } }
-    &--info { background: var(--action-lueur); i { color: var(--action); } }
+    &--danger {
+      background: var(--danger-fond);
+      i {
+        color: var(--danger-encre);
+      }
+    }
+    &--success {
+      background: var(--succes-fond);
+      i {
+        color: var(--succes-encre);
+      }
+    }
+    &--warning {
+      background: var(--attente-fond);
+      i {
+        color: var(--ambre-attente);
+      }
+    }
+    &--info {
+      background: var(--action-lueur);
+      i {
+        color: var(--action);
+      }
+    }
   }
 
-  &__body { flex: 1; min-width: 0; }
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
 
   &__title {
     font-size: var(--texte-md);
     font-weight: 700;
     color: var(--encre);
 
-    &--read { font-weight: 600; color: var(--encre-2); }
+    &--read {
+      font-weight: 600;
+      color: var(--encre-2);
+    }
   }
 
   &__msg {
@@ -170,7 +229,9 @@
     white-space: nowrap;
   }
 
-  &--unread &__time { color: var(--encre-3); }
+  &--unread &__time {
+    color: var(--encre-3);
+  }
 
   &__dot {
     width: 9px;
@@ -182,7 +243,9 @@
 
 // Un item lu voit son titre/temps grisés (comme la maquette)
 .notif-item:not(.notif-item--unread) {
-  .notif-item__time { color: var(--encre-3); }
+  .notif-item__time {
+    color: var(--encre-3);
+  }
 }
 
 .notif-act {
@@ -192,17 +255,33 @@
   font-weight: 600;
   cursor: pointer;
   border: 1px solid transparent;
-  transition: opacity 0.12s, background 0.12s;
+  transition:
+    opacity 0.12s,
+    background 0.12s;
 
-  &--danger { background: var(--danger); color: var(--surface); &:hover { opacity: 0.9; } }
-  &--dark { background: var(--navy-nuit); color: var(--surface); &:hover { opacity: 0.9; } }
+  &--danger {
+    background: var(--danger);
+    color: var(--surface);
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+  &--dark {
+    background: var(--navy-nuit);
+    color: var(--surface);
+    &:hover {
+      opacity: 0.9;
+    }
+  }
   &--ghost {
     background: var(--surface);
     border-color: var(--filet);
     color: var(--encre-2);
     font-weight: 500;
     @media (hover: hover) and (pointer: fine) {
-      &:hover { background: var(--surface-douce); }
+      &:hover {
+        background: var(--surface-douce);
+      }
     }
   }
 }
@@ -215,6 +294,10 @@
   padding: var(--pas-7) var(--pas-5);
   color: var(--encre-3);
 
-  i { font-size: var(--icone-2xl); }
-  span { font-size: var(--icone-sm); }
+  i {
+    font-size: var(--icone-2xl);
+  }
+  span {
+    font-size: var(--icone-sm);
+  }
 }

@@ -5,7 +5,7 @@
   </button>
 </app-page-topbar>
 
-<div class="paiements-content">
+<div class="paiements-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />

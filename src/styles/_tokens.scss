@@ -19,139 +19,139 @@
   // ── 1. Primitives ─────────────────────────────────────────────────────────
 
   // Bleu Rivière — le geste actif : bouton primaire, lien, focus, sélection.
-  --bleu-riviere:        #1a56db;
-  --bleu-riviere-fonce:  #1d4ed8;
-  --bleu-riviere-clair:  #60a5fa;
-  --ciel-lueur:          #eff6ff;
-  --ciel-trait:          #bfdbfe;
+  --bleu-riviere: #1a56db;
+  --bleu-riviere-fonce: #1d4ed8;
+  --bleu-riviere-clair: #60a5fa;
+  --ciel-lueur: #eff6ff;
+  --ciel-trait: #bfdbfe;
 
   // Vert Nappe — ce que l'application confirme : paiement acté, relevé pris.
-  --vert-nappe:          #0e9f6e;
-  --vert-profond:        #166534;
-  --vert-abysse:         #14532d;
-  --mint-lueur:          #f0fdf4;
-  --mint-trait:          #bbf7d0;
-  --mint-tapis:          #dcfce7;
+  --vert-nappe: #0e9f6e;
+  --vert-profond: #166534;
+  --vert-abysse: #14532d;
+  --mint-lueur: #f0fdf4;
+  --mint-trait: #bbf7d0;
+  --mint-tapis: #dcfce7;
 
   // Navy Nuit — la structure : sidebar, bande de tête, chip actif.
-  --navy-nuit:           #0f1c3d;
-  --navy-clair:          #1a2e5a;
+  --navy-nuit: #0f1c3d;
+  --navy-clair: #1a2e5a;
 
   // Rouge Alerte — l'impayé, l'échec, l'action destructrice.
-  --rouge-alerte:        #dc2626;
-  --rouge-brulure:       #b91c1c;
-  --rouge-braise:        #7f1d1d;
-  --rose-lueur:          #fef2f2;
-  --rose-trait:          #fecaca;
+  --rouge-alerte: #dc2626;
+  --rouge-brulure: #b91c1c;
+  --rouge-braise: #7f1d1d;
+  --rose-lueur: #fef2f2;
+  --rose-trait: #fecaca;
 
   // Ambre Attente — l'échéance qui approche, le partiel, l'avertissement.
-  --ambre-attente:       #b45309;
-  --ambre-jaune:         #f59e0b;
-  --ambre-lueur:         #fffbeb;
-  --ambre-trait:         #fde68a;
-  --ambre-tapis:         #fef3c7;
+  --ambre-attente: #b45309;
+  --ambre-jaune: #f59e0b;
+  --ambre-lueur: #fffbeb;
+  --ambre-trait: #fde68a;
+  --ambre-tapis: #fef3c7;
 
   // Échelle d'ardoise — le silence entre les accents.
-  --ardoise-nuit:        #0f172a;
-  --ardoise-encre:       #475569;
-  --ardoise-brume:       #5f6e85;   // 4,73:1 sur le fond de page (était #64748b : 4,34)
-  --ardoise-pale:        #94a3b8;
-  --ardoise-crayon:      #cbd5e1;
-  --ardoise-trait:       #e2e8f0;
-  --ardoise-nappe:       #f1f5f9;
-  --ardoise-brise:       #f8fafc;
-  --blanc:               #ffffff;
+  --ardoise-nuit: #0f172a;
+  --ardoise-encre: #475569;
+  --ardoise-brume: #5f6e85; // 4,73:1 sur le fond de page (était #64748b : 4,34)
+  --ardoise-pale: #94a3b8;
+  --ardoise-crayon: #cbd5e1;
+  --ardoise-trait: #e2e8f0;
+  --ardoise-nappe: #f1f5f9;
+  --ardoise-brise: #f8fafc;
+  --blanc: #ffffff;
 
   // Teintes de rôle utilisateur — hors vocabulaire d'eau, mais elles
   // distinguent quatre rôles d'un coup d'œil et méritent d'exister.
-  --role-violet:         #6d28d9;   // Comptable  (était #7c3aed : 3,9:1 sur blanc)
-  --role-violet-lueur:   #f5f3ff;
-  --role-cyan:           #0e7490;   // Superviseur
-  --role-cyan-lueur:     #ecfeff;
+  --role-violet: #6d28d9; // Comptable  (était #7c3aed : 3,9:1 sur blanc)
+  --role-violet-lueur: #f5f3ff;
+  --role-cyan: #0e7490; // Superviseur
+  --role-cyan-lueur: #ecfeff;
 
   // ── 2. Rôles ──────────────────────────────────────────────────────────────
 
   // Surfaces, du plus haut au plus bas.
-  --surface:             var(--blanc);
-  --surface-douce:       var(--ardoise-brise);
-  --fond:                var(--ardoise-nappe);
-  --surface-inverse:     var(--navy-nuit);
+  --surface: var(--blanc);
+  --surface-douce: var(--ardoise-brise);
+  --fond: var(--ardoise-nappe);
+  --surface-inverse: var(--navy-nuit);
 
   // Filets et séparateurs.
-  --filet:               var(--ardoise-trait);
-  --filet-pale:          var(--ardoise-crayon);
+  --filet: var(--ardoise-trait);
+  --filet-pale: var(--ardoise-crayon);
 
   // Encres, de la plus forte à la plus discrète.
-  --encre:               var(--ardoise-nuit);      // titres, chiffres, texte primaire
-  --encre-2:             var(--ardoise-encre);     // texte secondaire
-  --encre-3:             var(--ardoise-brume);     // étiquette, méta — plancher AA
-  --encre-faible:        var(--ardoise-pale);      // décor uniquement, jamais du texte
-  --encre-inverse:       var(--blanc);
+  --encre: var(--ardoise-nuit); // titres, chiffres, texte primaire
+  --encre-2: var(--ardoise-encre); // texte secondaire
+  --encre-3: var(--ardoise-brume); // étiquette, méta — plancher AA
+  --encre-faible: var(--ardoise-pale); // décor uniquement, jamais du texte
+  --encre-inverse: var(--blanc);
   // Sur la surface navy, le blanc translucide doit rester lisible : à 0,35 il
   // tombe à 3,15:1, à 0,45 à 4,36. Le plancher AA est atteint à 0,55.
-  --encre-inverse-2:     rgba(255, 255, 255, 0.72);   //  8,9:1 — texte secondaire
-  --encre-inverse-3:     rgba(255, 255, 255, 0.58);   //  6,3:1 — étiquette, méta
+  --encre-inverse-2: rgba(255, 255, 255, 0.72); //  8,9:1 — texte secondaire
+  --encre-inverse-3: rgba(255, 255, 255, 0.58); //  6,3:1 — étiquette, méta
 
   // ── 3ter. Surfaces sur fond sombre ────────────────────────────────────────
   // L'échelle de TEXTE sur sombre existait déjà au-dessus — et personne ne
   // l'appelait : mesuré, 22 alphas différents de blanc écrits à la main, de
   // 0,05 à 0,95. Le versant surface manquait, ce qui expliquait le reste : un
   // fond de survol ou un filet n'avait aucun jeton où se ranger.
-  --surface-inverse-voile: rgba(255, 255, 255, 0.07);   // fond à peine posé
-  --surface-inverse-fond:  rgba(255, 255, 255, 0.12);   // survol, carte creuse
-  --surface-inverse-fort:  rgba(255, 255, 255, 0.22);   // état actif, pastille
-  --filet-inverse:         rgba(255, 255, 255, 0.12);   // séparateur sur sombre
+  --surface-inverse-voile: rgba(255, 255, 255, 0.07); // fond à peine posé
+  --surface-inverse-fond: rgba(255, 255, 255, 0.12); // survol, carte creuse
+  --surface-inverse-fort: rgba(255, 255, 255, 0.22); // état actif, pastille
+  --filet-inverse: rgba(255, 255, 255, 0.12); // séparateur sur sombre
 
   // Le voile qui assombrit la page derrière un tiroir ou une modale.
-  --voile:                 rgba(15, 23, 42, 0.5);
+  --voile: rgba(15, 23, 42, 0.5);
 
   // Action.
-  --action:              var(--bleu-riviere);
-  --action-survol:       var(--bleu-riviere-fonce);
-  --action-lueur:        var(--ciel-lueur);
-  --action-trait:        var(--ciel-trait);
-  --sur-action:          var(--blanc);
+  --action: var(--bleu-riviere);
+  --action-survol: var(--bleu-riviere-fonce);
+  --action-lueur: var(--ciel-lueur);
+  --action-trait: var(--ciel-trait);
+  --sur-action: var(--blanc);
 
   // Statuts — chacun un triplet fond / trait / encre, l'encre étant toujours
   // lisible sur son propre fond (c'est là que les 12 échecs de contraste se
   // jouaient : le vert et le rouge vifs ne passent pas sur leur teinte pâle).
-  --succes:              var(--vert-nappe);
-  --succes-fond:         var(--mint-lueur);
-  --succes-trait:        var(--mint-trait);
-  --succes-encre:        #047857;                  // 5,3:1 sur #f0fdf4 (était 3,2)
+  --succes: var(--vert-nappe);
+  --succes-fond: var(--mint-lueur);
+  --succes-trait: var(--mint-trait);
+  --succes-encre: #047857; // 5,3:1 sur #f0fdf4 (était 3,2)
 
-  --danger:              var(--rouge-alerte);
-  --danger-fond:         var(--rose-lueur);
-  --danger-trait:        var(--rose-trait);
-  --danger-encre:        var(--rouge-brulure);     // 6,0:1 sur #fef2f2 (était 4,4)
+  --danger: var(--rouge-alerte);
+  --danger-fond: var(--rose-lueur);
+  --danger-trait: var(--rose-trait);
+  --danger-encre: var(--rouge-brulure); // 6,0:1 sur #fef2f2 (était 4,4)
 
-  --attente:             var(--ambre-jaune);
-  --attente-fond:        var(--ambre-lueur);
-  --attente-trait:       var(--ambre-trait);
-  --attente-encre:       #92400e;                  // 7,4:1 sur #fffbeb
+  --attente: var(--ambre-jaune);
+  --attente-fond: var(--ambre-lueur);
+  --attente-trait: var(--ambre-trait);
+  --attente-encre: #92400e; // 7,4:1 sur #fffbeb
 
-  --info-fond:           var(--ciel-lueur);
-  --info-trait:          var(--ciel-trait);
-  --info-encre:          var(--bleu-riviere-fonce);
+  --info-fond: var(--ciel-lueur);
+  --info-trait: var(--ciel-trait);
+  --info-encre: var(--bleu-riviere-fonce);
 
   // Focus clavier — une seule définition pour toute l'application.
-  --focus-anneau:        var(--bleu-riviere);
-  --focus-epaisseur:     2px;
-  --focus-decalage:      2px;
+  --focus-anneau: var(--bleu-riviere);
+  --focus-epaisseur: 2px;
+  --focus-decalage: 2px;
 
   // ── 3. Espacement — grille de 4 px, six pas ───────────────────────────────
   // Avant : 20 valeurs distinctes, dont 3, 5, 7, 9, 11, 13, 18 et 22 px.
   // Sous le plancher : l'écart entre deux lignes de texte d'un même bloc, là où
   // 4 px les décollerait trop. Sept usages mesurés, tous de cette nature.
-  --pas-0:   2px;
-  --pas-1:   4px;
-  --pas-2:   8px;
-  --pas-3:  12px;
-  --pas-4:  16px;
-  --pas-5:  24px;
-  --pas-6:  32px;
-  --pas-7:  48px;
-  --pas-8:  64px;   // rembourrage d'un panneau d'authentification en desktop
+  --pas-0: 2px;
+  --pas-1: 4px;
+  --pas-2: 8px;
+  --pas-3: 12px;
+  --pas-4: 16px;
+  --pas-5: 24px;
+  --pas-6: 32px;
+  --pas-7: 48px;
+  --pas-8: 64px; // rembourrage d'un panneau d'authentification en desktop
 
   // Dimension de composant, pas un cran d'espacement — mais elle sert de
   // repère à la coquille pour dégager le bas des pages en mobile.
@@ -159,11 +159,11 @@
 
   // ── 4. Formes — quatre rayons ─────────────────────────────────────────────
   // Avant : 12 rayons, de 2 à 20 px.
-  --rayon-xs:   4px;    // pastille, petit badge
-  --rayon-sm:   6px;    // champ, bouton
-  --rayon-md:   8px;    // carte, panneau
-  --rayon-lg:  12px;    // feuille modale, grande carte
-  --rayon-rond: 999px;  // chip, avatar, point
+  --rayon-xs: 4px; // pastille, petit badge
+  --rayon-sm: 6px; // champ, bouton
+  --rayon-md: 8px; // carte, panneau
+  --rayon-lg: 12px; // feuille modale, grande carte
+  --rayon-rond: 999px; // chip, avatar, point
 
   // ── 4bis. Échelle typographique ────────────────────────────────────────────
   // Il n'y en avait aucune : 25 tailles distinctes dans le dépôt, de 10 à 30 px,
@@ -174,81 +174,113 @@
   // Dix crans. Le plancher est à 11 px : sous cette taille, un écran de terrain
   // tenu à bout de bras en plein soleil ne se lit plus. Le plafond à 42 px est le
   // compteur du tableau de bord — au-delà, on décore.
-  --texte-xs:   11px;   // badge, étiquette de colonne, méta
-  --texte-sm:   12px;   // aide sous un champ, sous-titre de ligne
-  --texte-md:   13px;   // texte de tableau, corps dense
-  --texte-lg:   14px;   // corps courant
-  --texte-xl:   16px;   // sous-titre de section
-  --texte-2xl:  18px;   // titre de carte
-  --texte-3xl:  20px;   // titre d'écran
-  --texte-4xl:  24px;   // nombre mis en avant dans une carte
-  --texte-5xl:  30px;   // chiffre de KPI
-  --texte-6xl:  42px;   // affichage : compteur de tableau de bord
+  --texte-xs: 11px; // badge, étiquette de colonne, méta
+  --texte-sm: 12px; // aide sous un champ, sous-titre de ligne
+  --texte-md: 13px; // texte de tableau, corps dense
+  --texte-lg: 14px; // corps courant
+  --texte-xl: 16px; // sous-titre de section
+  --texte-2xl: 18px; // titre de carte
+  --texte-3xl: 20px; // titre d'écran
+  --texte-4xl: 24px; // nombre mis en avant dans une carte
+  --texte-5xl: 30px; // chiffre de KPI
+  --texte-6xl: 42px; // affichage : compteur de tableau de bord
 
   // ── 4bis. Taille des icônes ───────────────────────────────────────────────
   // Les icônes PrimeIcons se dimensionnent en `font-size`, mais ce ne sont pas
   // du texte : les faire passer par l'échelle typographique liait la taille
   // d'un pictogramme à celle d'un paragraphe. Mesuré avant : 14 valeurs
   // distinctes de 11 à 42 px, dont 11/12/13 px pour la même fonction.
-  --icone-xs:   12px;   // icône inline dans une ligne de méta
-  --icone-sm:   14px;   // icône d'un bouton, d'un champ
-  --icone-md:   16px;   // icône de navigation, d'en-tête
-  --icone-lg:   20px;   // icône d'action isolée
-  --icone-xl:   28px;   // icône d'un état vide
-  --icone-2xl:  40px;   // pictogramme d'illustration
+  --icone-xs: 12px; // icône inline dans une ligne de méta
+  --icone-sm: 14px; // icône d'un bouton, d'un champ
+  --icone-md: 16px; // icône de navigation, d'en-tête
+  --icone-lg: 20px; // icône d'action isolée
+  --icone-xl: 28px; // icône d'un état vide
+  --icone-2xl: 40px; // pictogramme d'illustration
 
   // ── 4ter. Badge de statut ──────────────────────────────────────────────────
   // Un seul badge, partout. Mesuré avant : 10 / 10,5 / 11 px, rayons 4 / 6 /
   // 12 px, capitales sur trois écrans et casse normale sur deux.
-  --badge-texte:  var(--texte-xs);
-  --badge-rayon:  var(--rayon-sm);
-  --badge-poids:  600;
-  --badge-casse:  uppercase;
+  --badge-texte: var(--texte-xs);
+  --badge-rayon: var(--rayon-sm);
+  --badge-poids: 600;
+  --badge-casse: uppercase;
   --badge-espace: 0.04em;
 
   // ── 5. Élévation ──────────────────────────────────────────────────────────
   // L'ombre d'un CTA prend la teinte du CTA (règle du DESIGN.md).
-  --ombre-carte:   0 1px 2px rgba(15, 28, 61, 0.05);
-  --ombre-portee:  0 8px 24px rgba(15, 28, 61, 0.12);
-  --ombre-action:  0 2px 8px rgba(26, 86, 219, 0.24);
+  --ombre-carte: 0 1px 2px rgba(15, 28, 61, 0.05);
+  --ombre-portee: 0 8px 24px rgba(15, 28, 61, 0.12);
+  --ombre-action: 0 2px 8px rgba(26, 86, 219, 0.24);
   // Corollaire de la règle : un CTA d'avertissement, de succès ou de danger
   // porte l'ombre de sa propre teinte, pas celle de l'action principale.
-  --ombre-action-avert:  0 2px 8px rgba(180, 83, 9, 0.26);
+  --ombre-action-avert: 0 2px 8px rgba(180, 83, 9, 0.26);
   --ombre-action-succes: 0 2px 8px rgba(22, 101, 52, 0.26);
   --ombre-action-danger: 0 2px 8px rgba(220, 38, 38, 0.26);
   // Un panneau qui monte du bas est éclairé par le dessous, pas par le dessus.
   --ombre-panneau: 0 -8px 24px rgba(15, 28, 61, 0.12);
   // Le tiroir de navigation porte son ombre de côté, pas vers le bas.
-  --ombre-tiroir:  4px 0 24px rgba(15, 28, 61, 0.25);
+  --ombre-tiroir: 4px 0 24px rgba(15, 28, 61, 0.25);
 
   // ── 5bis. Anneau de focus ─────────────────────────────────────────────────
   // Ce ne sont pas des ombres : ce sont les seuls indicateurs de focus au
   // clavier. Ils étaient écrits en dur 35 fois, en 2 et 3 px, à sept opacités
   // différentes — une épaisseur qui varie d'un champ à l'autre se lit comme un
   // bug, et la plus fine ne se voyait pas.
-  --anneau:        0 0 0 3px rgba(26, 86, 219, 0.18);
+  --anneau: 0 0 0 3px rgba(26, 86, 219, 0.18);
   --anneau-danger: 0 0 0 3px rgba(239, 68, 68, 0.18);
   --anneau-succes: 0 0 0 3px rgba(21, 128, 61, 0.18);
 
   // ── 6. Mouvement ──────────────────────────────────────────────────────────
-  --ease-out:      cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out:   cubic-bezier(0.77, 0, 0.175, 1);
-  --duree-courte:  160ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --duree-courte: 160ms;
   --duree-moyenne: 220ms;
-  --duree-longue:  300ms;
+  --duree-longue: 300ms;
+
+  // ── 7. Barre de défilement ────────────────────────────────────────────────
+  // Desktop uniquement : en dessous de 1023 px, `global.scss` masque toutes
+  // les barres — le défilement tactile n'a pas besoin de piste visible, et
+  // une barre y mangerait de la largeur pour rien.
+  //
+  // Le curseur emprunte la teinte des filets plutôt qu'un gris neutre : il
+  // appartient au même registre que les séparateurs du tableau qu'il longe.
+  --barre-epaisseur: 10px;
+  --barre-piste: transparent;
+  --barre-curseur: var(--filet);
+  --barre-curseur-survol: var(--filet-pale);
 }
 
 // ── 7. Points de rupture — trois, pas quinze ────────────────────────────────
 // Avant : 480, 520, 540, 560, 600, 640, 700, 720, 721, 767, 768, 900, 960,
 // 1023 et 1024 px — dont trois paires à un pixel d'écart.
-$rupture-mobile:  640px;   // en dessous : une seule colonne, tables en cartes
+$rupture-mobile: 640px; // en dessous : une seule colonne, tables en cartes
 $rupture-tablette: 1024px; // en dessous : navigation en tiroir
-$rupture-large:   1280px;  // au-delà : colonnes secondaires
+$rupture-large: 1280px; // au-delà : colonnes secondaires
 
-@mixin mobile   { @media (max-width: #{$rupture-mobile - 1px})   { @content; } }
-@mixin tablette { @media (max-width: #{$rupture-tablette - 1px}) { @content; } }
-@mixin desktop  { @media (min-width: #{$rupture-tablette})       { @content; } }
-@mixin large    { @media (min-width: #{$rupture-large})          { @content; } }
+@mixin mobile {
+  @media (max-width: #{$rupture-mobile - 1px}) {
+    @content;
+  }
+}
+@mixin tablette {
+  @media (max-width: #{$rupture-tablette - 1px}) {
+    @content;
+  }
+}
+@mixin desktop {
+  @media (min-width: #{$rupture-tablette}) {
+    @content;
+  }
+}
+@mixin large {
+  @media (min-width: #{$rupture-large}) {
+    @content;
+  }
+}
 
 // Survol réel uniquement : au doigt, `:hover` se déclenche au premier appui.
-@mixin survol   { @media (hover: hover) and (pointer: fine)      { @content; } }
+@mixin survol {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}

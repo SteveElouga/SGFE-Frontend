@@ -12,7 +12,7 @@
   </a>
 </app-page-topbar>
 
-<div class="users-content">
+<div class="users-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="loadUsers()" />

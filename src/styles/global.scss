@@ -59,12 +59,20 @@ textarea {
 
   // Deuxième tooltip d'affilée : il s'ouvre déjà sans délai, l'animer en plus
   // rejouerait à chaque bouton un mouvement que l'utilisateur vient de voir.
-  &[data-instantane] { animation: none; }
+  &[data-instantane] {
+    animation: none;
+  }
 }
 
 @keyframes aq-tooltip-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 // ── Retour au toucher : l'interface répond à l'appui ─────────────────────────
@@ -108,8 +116,8 @@ a.page-topbar-action:active {
 // panneaux). Le : où-est-le-focus-clavier n'est plus une devinette.
 button:focus-visible,
 a:focus-visible,
-[role="button"]:focus-visible,
-[tabindex]:not([tabindex="-1"]):focus-visible {
+[role='button']:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible {
   outline: 2px solid var(--action);
   outline-offset: 2px;
 }
@@ -155,21 +163,104 @@ a:focus-visible,
   }
 }
 
+// ── Géométrie du défilement : l'en-tête de page hors du flux ─────────────────
+//
+// Ces deux règles vivent ici, et non dans `shell.component.scss`, parce
+// qu'elles portent sur des éléments qui appartiennent aux composants de page —
+// l'encapsulation d'Angular empêcherait le shell de les atteindre.
+//
+// `.shell__content` est une colonne flex (voir le shell). Son enfant réel est
+// l'hôte du composant routé, inséré par `router-outlet` : c'est lui qui doit
+// devenir une colonne à son tour, pour que l'en-tête et la région défilante
+// se répartissent la hauteur.
+//
+// `min-height: 0` n'est pas décoratif : sans lui, un enfant flex refuse de
+// rétrécir sous la hauteur de son contenu, et la région déborde au lieu de
+// défiler.
+.shell__content > *:not(router-outlet) {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// La région qui défile, marquée explicitement par chaque page.
+//
+// Une classe plutôt qu'un sélecteur de voisinage (`app-page-topbar + *`) : les
+// vingt gabarits ne posent pas tous le même nombre de frères après l'en-tête,
+// et un tel sélecteur se serait cassé le jour où quelqu'un glisse une bannière
+// entre les deux — silencieusement, en rendant la page non défilante.
+.page-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+// ── Desktop : une barre de défilement dessinée, pas celle du système ──────────
+//
+// Jusqu'ici le dépôt n'avait qu'un seul traitement des barres : les masquer.
+// Sur desktop, on héritait donc de celle du système d'exploitation — épaisse
+// et grise sur Windows, fantôme sur macOS. Deux postes de la même régie ne
+// voyaient pas la même application.
+//
+// La piste reste transparente : ce qu'on dessine, c'est le curseur, et il
+// emprunte la teinte des filets pour appartenir au même registre que les
+// séparateurs qu'il longe.
+//
+// `scrollbar-width: thin` couvre Firefox, `::-webkit-scrollbar` le reste ;
+// aucun des deux ne remplace l'autre.
+@media (min-width: 1024px) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--barre-curseur) var(--barre-piste);
+  }
+
+  *::-webkit-scrollbar {
+    width: var(--barre-epaisseur);
+    height: var(--barre-epaisseur);
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--barre-piste);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--barre-curseur);
+    border-radius: 999px;
+    // La bordure transparente amincit visuellement le curseur sans réduire sa
+    // cible de clic : on garde 10 px à viser pour 6 px dessinés.
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    *::-webkit-scrollbar-thumb:hover {
+      background: var(--barre-curseur-survol);
+      background-clip: content-box;
+    }
+  }
+
+  // L'angle entre barre horizontale et verticale, sinon peint en gris système.
+  *::-webkit-scrollbar-corner {
+    background: var(--barre-piste);
+  }
+}
+
 // ── Mobile : masquer TOUTES les scrollbars (le défilement reste possible) ──────
 // Règle globale (non encapsulée) → s'applique aussi aux zones défilables internes
 // des composants, quel que soit l'écran.
 @media (max-width: 1023px) {
   * {
-    scrollbar-width: none;      // Firefox
-    -ms-overflow-style: none;   // ancien Edge / IE
+    scrollbar-width: none; // Firefox
+    -ms-overflow-style: none; // ancien Edge / IE
   }
-  *::-webkit-scrollbar {        // Chrome / Safari / Edge / WebView mobile
+  *::-webkit-scrollbar {
+    // Chrome / Safari / Edge / WebView mobile
     width: 0;
     height: 0;
     display: none;
   }
 }
-
 
 // ── État désactivé — une seule définition ─────────────────────────────────────
 // Avant : un bouton désactivé restait un aplat bleu à texte blanc. Il ne se
@@ -191,7 +282,9 @@ textarea:disabled {
   // On garde le texte lisible : « désactivé » n'est pas « illisible ».
   opacity: 1;
 
-  &::placeholder { color: var(--encre-3); }
+  &::placeholder {
+    color: var(--encre-3);
+  }
 }
 
 // Un bouton en cours de traitement reste un bouton actif : il garde sa couleur,
@@ -200,7 +293,6 @@ button[aria-busy='true'],
 .btn[data-loading='true'] {
   cursor: progress;
 }
-
 
 // ── Carte ─────────────────────────────────────────────────────────────────────
 // Le motif le plus répété de l'application : fond blanc, filet 1 px, coins
@@ -222,9 +314,10 @@ button[aria-busy='true'],
 .carte--padded {
   padding: var(--pas-5);
 
-  @media (max-width: 639px) { padding: var(--pas-4); }
+  @media (max-width: 639px) {
+    padding: var(--pas-4);
+  }
 }
-
 
 // ── Cibles tactiles ───────────────────────────────────────────────────────────
 // WCAG 2.5.5 : 44×44 px minimum. Les champs et les déclencheurs de liste
