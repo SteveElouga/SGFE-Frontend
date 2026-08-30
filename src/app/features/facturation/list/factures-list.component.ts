@@ -17,15 +17,30 @@ import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { Campagne } from '../../../shared/models/campagne.model';
-import { Facture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import {
+  DetteAbonne,
+  Facture,
+  StatutFacture,
+  factureStatutTone,
+} from '../../../shared/models/facture.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
-import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import {
+  DataTableComponent,
+  DataTableColumn,
+} from '../../../shared/components/data-table/data-table.component';
+import {
+  DataTableCardDirective,
+  DataTableCellDirective,
+} from '../../../shared/components/data-table/data-table.directives';
 import { PaiementPanelComponent } from './paiement-panel/paiement-panel.component';
 import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
-import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../shared/components/filters-panel/filters-panel.component';
+import {
+  FiltersPanelComponent,
+  FilterDefinition,
+  FilterValues,
+} from '../../../shared/components/filters-panel/filters-panel.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
@@ -47,7 +62,8 @@ function forme(n: number): '_ZERO' | '_SINGULAR' | '_PLURAL' {
 }
 
 @Component({
-  imports: [PlurielPipe, 
+  imports: [
+    PlurielPipe,
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
@@ -90,6 +106,18 @@ export class FacturesListComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly factures = signal<Facture[]>([]);
   readonly soldes = signal<Map<string, number>>(new Map());
+  /**
+   * Ce que chaque abonné doit au total, toutes factures confondues. Une entrée
+   * par abonné — pas par facture : six abonnés endettés donnent six appels, pas
+   * vingt-cinq.
+   */
+  readonly dettes = signal<Map<string, DetteAbonne>>(new Map());
+  /**
+   * Factures dont le solde n'a pas pu être chargé. Sans ce jeu, un refus de
+   * rôle ou un 429 laissait la case sur « — », impossible à distinguer d'un
+   * chargement en cours.
+   */
+  readonly soldesEnErreur = signal<Set<string>>(new Set());
   readonly abonnesMap = signal<Map<string, AbonneInfo>>(new Map());
   readonly allCampagnes = signal<CampagneOption[]>([]);
 
@@ -97,11 +125,36 @@ export class FacturesListComponent implements OnInit {
   readonly searchTerm = signal('');
 
   readonly columns: DataTableColumn[] = [
-    { key: 'numero', header: 'FACTURATION.COL_NUMERO', sortable: true, sortValue: (r) => (r as Facture).numeroFacture },
-    { key: 'abonne', header: 'FACTURATION.COL_ABONNE', sortable: true, sortValue: (r) => this.abonneFor((r as Facture).abonneId)?.nom ?? '' },
-    { key: 'montant', header: 'FACTURATION.COL_MONTANT', sortable: true, sortValue: (r) => (r as Facture).montant },
-    { key: 'solde', header: 'FACTURATION.COL_SOLDE', sortable: true, sortValue: (r) => this.soldeFor(r as Facture) ?? 0 },
-    { key: 'statut', header: 'FACTURATION.COL_STATUT', sortable: true, sortValue: (r) => (r as Facture).statut },
+    {
+      key: 'numero',
+      header: 'FACTURATION.COL_NUMERO',
+      sortable: true,
+      sortValue: (r) => (r as Facture).numeroFacture,
+    },
+    {
+      key: 'abonne',
+      header: 'FACTURATION.COL_ABONNE',
+      sortable: true,
+      sortValue: (r) => this.abonneFor((r as Facture).abonneId)?.nom ?? '',
+    },
+    {
+      key: 'montant',
+      header: 'FACTURATION.COL_MONTANT',
+      sortable: true,
+      sortValue: (r) => (r as Facture).montant,
+    },
+    {
+      key: 'solde',
+      header: 'FACTURATION.COL_SOLDE',
+      sortable: true,
+      sortValue: (r) => this.soldeFor(r as Facture) ?? 0,
+    },
+    {
+      key: 'statut',
+      header: 'FACTURATION.COL_STATUT',
+      sortable: true,
+      sortValue: (r) => (r as Facture).statut,
+    },
     { key: 'actions', header: 'FACTURATION.COL_ACTIONS' },
   ];
   /** Seules les factures non soldées sont cliquables (ouvre le panneau de paiement). */
@@ -137,9 +190,21 @@ export class FacturesListComponent implements OnInit {
         key: 'statut',
         label: 'FACTURATION.FILTER_STATUT',
         options: [
-          { label: this.translate.instant('FACTURATION.CHIP_IMPAYEES', {}, lang), value: 'IMPAYEE', count: all.filter((f) => f.statut === 'IMPAYEE').length },
-          { label: this.translate.instant('FACTURATION.CHIP_PARTIELLES', {}, lang), value: 'PARTIELLE', count: all.filter((f) => f.statut === 'PARTIELLE').length },
-          { label: this.translate.instant('FACTURATION.CHIP_PAYEES', {}, lang), value: 'PAYEE', count: all.filter((f) => f.statut === 'PAYEE').length },
+          {
+            label: this.translate.instant('FACTURATION.CHIP_IMPAYEES', {}, lang),
+            value: 'IMPAYEE',
+            count: all.filter((f) => f.statut === 'IMPAYEE').length,
+          },
+          {
+            label: this.translate.instant('FACTURATION.CHIP_PARTIELLES', {}, lang),
+            value: 'PARTIELLE',
+            count: all.filter((f) => f.statut === 'PARTIELLE').length,
+          },
+          {
+            label: this.translate.instant('FACTURATION.CHIP_PAYEES', {}, lang),
+            value: 'PAYEE',
+            count: all.filter((f) => f.statut === 'PAYEE').length,
+          },
         ],
       },
       {
@@ -147,7 +212,7 @@ export class FacturesListComponent implements OnInit {
         label: 'FACTURATION.FILTER_CAMPAGNE',
         options: this.allCampagnes().map((c) => ({ label: c.label, value: c.value })),
         render: 'select',
-        clearable: false,   // campagne = contexte, doit toujours avoir une valeur
+        clearable: false, // campagne = contexte, doit toujours avoir une valeur
       },
     ];
   });
@@ -194,10 +259,10 @@ export class FacturesListComponent implements OnInit {
     const nom = this.campagneNom();
     const lang = this.translate.currentLang() ?? undefined;
     return nom
-      // « 1 factures » : ces deux libellés étaient accordés en dur au pluriel.
-      // Le suffixe suit le compteur, comme le fait désormais le pipe `pluriel`
-      // dans les gabarits.
-      ? this.translate.instant(`FACTURATION.SUBTITLE_CAMPAGNE${forme(count)}`, { nom, count }, lang)
+      ? // « 1 factures » : ces deux libellés étaient accordés en dur au pluriel.
+        // Le suffixe suit le compteur, comme le fait désormais le pipe `pluriel`
+        // dans les gabarits.
+        this.translate.instant(`FACTURATION.SUBTITLE_CAMPAGNE${forme(count)}`, { nom, count }, lang)
       : this.translate.instant(`FACTURATION.SUBTITLE${forme(count)}`, { count }, lang);
   });
 
@@ -237,8 +302,15 @@ export class FacturesListComponent implements OnInit {
     // se viderait à chaque encaissement.
     type MajFacture = Pick<
       Facture,
-      'factureId' | 'numeroFacture' | 'abonneId' | 'campagneId'
-      | 'statut' | 'consommation' | 'montant' | 'dateReleve' | 'dateLimitePaiement'
+      | 'factureId'
+      | 'numeroFacture'
+      | 'abonneId'
+      | 'campagneId'
+      | 'statut'
+      | 'consommation'
+      | 'montant'
+      | 'dateReleve'
+      | 'dateLimitePaiement'
     >;
 
     this.apollo
@@ -263,6 +335,12 @@ export class FacturesListComponent implements OnInit {
           // vient de basculer en PARTIELLE, il faut aller le chercher.
           if (fusionnee !== null && maj.statut === 'PARTIELLE') {
             void this.loadSoldes([fusionnee]);
+          }
+          // Un encaissement change aussi ce que l'abonné doit au total —
+          // l'annotation « doit X ailleurs » des autres lignes du même abonné
+          // serait périmée sans ça.
+          if (fusionnee !== null) {
+            void this.loadDettes([fusionnee]);
           }
         },
         error: () => {
@@ -317,7 +395,11 @@ export class FacturesListComponent implements OnInit {
       this.campagneNom.set(factures[0]?.campagneNom ?? '');
       const map = new Map<string, AbonneInfo>();
       for (const f of factures) {
-        map.set(f.abonneId, { nom: f.abonneNom ?? '', prenom: '', numeroAbonne: f.abonneNumero ?? '' });
+        map.set(f.abonneId, {
+          nom: f.abonneNom ?? '',
+          prenom: '',
+          numeroAbonne: f.abonneNumero ?? '',
+        });
       }
       this.abonnesMap.set(map);
       // Best-effort (ADMIN) : objet campagne complet pour le toggle WhatsApp auto.
@@ -330,6 +412,7 @@ export class FacturesListComponent implements OnInit {
       // courants : la supposition se trompait de plus en plus souvent.
       const nonSoldees = factures.filter((f) => f.statut !== 'PAYEE');
       void this.loadSoldes(nonSoldees);
+      void this.loadDettes(nonSoldees);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('FACTURATION.ERROR_LOAD'));
@@ -400,16 +483,46 @@ export class FacturesListComponent implements OnInit {
 
   private async loadSoldes(factures: Facture[]): Promise<void> {
     if (!factures.length) return;
+    // `async` sur le callback : une erreur levée de façon synchrone devient une
+    // promesse rejetée, que `allSettled` absorbe. Sans lui, elle échapperait à
+    // l'appelant, qui lance en `void` — donc en rejet non traité.
     const results = await Promise.allSettled(
-      factures.map((f) => this.facturesService.getSoldeFacture(f.factureId)),
+      factures.map(async (f) => this.facturesService.getSoldeFacture(f.factureId)),
     );
     const map = new Map(this.soldes());
+    const enErreur = new Set(this.soldesEnErreur());
     results.forEach((r, i) => {
+      const id = factures[i].factureId;
       if (r.status === 'fulfilled') {
-        map.set(factures[i].factureId, r.value.soldeRestant);
+        map.set(id, r.value.soldeRestant);
+        enErreur.delete(id);
+      } else {
+        // Un échec ne doit pas se déguiser en chargement : `soldeFacture` est
+        // réservée à ADMIN/COMPTABLE, et nginx renvoie 429 au-delà de sa
+        // rafale. Dans les deux cas la case restait sur « — », muette.
+        enErreur.add(id);
       }
     });
     this.soldes.set(map);
+    this.soldesEnErreur.set(enErreur);
+  }
+
+  /**
+   * Charge la dette totale des abonnés concernés — un appel par abonné
+   * distinct. Sert à répondre, sur chaque ligne, à la question que le solde
+   * seul ne traite pas : « est-ce que c'est tout ce qu'il me doit ? »
+   */
+  private async loadDettes(factures: Facture[]): Promise<void> {
+    const abonneIds = [...new Set(factures.map((f) => f.abonneId).filter(Boolean))];
+    if (!abonneIds.length) return;
+    const results = await Promise.allSettled(
+      abonneIds.map(async (id) => this.facturesService.getDetteAbonne(id)),
+    );
+    const map = new Map(this.dettes());
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled') map.set(abonneIds[i], r.value);
+    });
+    this.dettes.set(map);
   }
 
   // Solde autoritaire : la valeur vient du backend pour toute facture non
@@ -428,6 +541,35 @@ export class FacturesListComponent implements OnInit {
     // fausse dès qu'un avoir avait réduit le solde. On rend `null` — la colonne
     // affiche « — » le temps du chargement — plutôt qu'un chiffre inventé.
     return this.soldes().get(f.factureId) ?? null;
+  }
+
+  /** Le solde de cette facture n'a pas pu être chargé (rôle, réseau, 429). */
+  soldeEnErreur(f: Facture): boolean {
+    return this.soldesEnErreur().has(f.factureId);
+  }
+
+  /**
+   * Ce que l'abonné doit **en plus** de cette facture. La colonne solde ne
+   * parle que de la ligne qu'on lit ; ce nombre dit si elle raconte toute
+   * l'histoire.
+   *
+   * `null` quand il n'y a rien à signaler : dette non chargée, solde inconnu,
+   * ou facture unique. Une annotation qui apparaîtrait partout ne serait plus
+   * une annotation.
+   */
+  autresDettesFor(f: Facture): number | null {
+    const dette = this.dettes().get(f.abonneId);
+    const solde = this.soldeFor(f);
+    if (!dette || solde === null) return null;
+    const autres = Math.round(dette.totalDu - solde);
+    return autres > 0 ? autres : null;
+  }
+
+  /** Nombre de factures que l'abonné doit en plus de celle-ci. */
+  autresFacturesFor(f: Facture): number {
+    const dette = this.dettes().get(f.abonneId);
+    if (!dette) return 0;
+    return Math.max(0, dette.nbFactures - (f.statut === 'PAYEE' ? 0 : 1));
   }
 
   abonneFor(abonneId: string): AbonneInfo | null {

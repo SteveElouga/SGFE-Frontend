@@ -18,7 +18,10 @@
   flex-direction: column;
   gap: var(--pas-3);
 
-  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
+  @media (max-width: 1023px) {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-2);
+  }
 }
 
 // ── Ligne filtres + action WhatsApp bulk (batch 10 : filters-panel shared) ─
@@ -68,7 +71,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   background: var(--action);
   color: var(--surface);
@@ -78,14 +81,27 @@
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s, opacity 0.15s, transform 160ms var(--ease-out);
+  transition:
+    background 0.15s,
+    opacity 0.15s,
+    transform 160ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { background: var(--action-survol); }
+    &:hover:not(:disabled) {
+      background: var(--action-survol);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-  &:active:not(:disabled) { transform: scale(0.97); }
-  &:disabled { opacity: 0.55; cursor: not-allowed; }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 // Aligné sur le vert canonique WhatsApp de DESIGN.md : même dégradé Vert Profond
@@ -96,9 +112,13 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  height: 44px;                                   // aligne avec la hauteur des contrôles du filters-panel
+  height: 44px; // aligne avec la hauteur des contrôles du filters-panel
   padding: 0 var(--pas-4);
-  background: linear-gradient(135deg, var(--vert-profond), var(--succes));  // Vert Profond → Vert Nappe
+  background: linear-gradient(
+    135deg,
+    var(--vert-profond),
+    var(--succes)
+  ); // Vert Profond → Vert Nappe
   color: var(--surface);
   border: none;
   border-radius: var(--rayon-md);
@@ -107,14 +127,28 @@
   cursor: pointer;
   white-space: nowrap;
   box-shadow: var(--ombre-carte); // profondeur discrète (plus légère que le CTA du sheet)
-  transition: opacity 0.15s, box-shadow 0.15s, transform 160ms var(--ease-out, ease-out);
+  transition:
+    opacity 0.15s,
+    box-shadow 0.15s,
+    transform 160ms var(--ease-out, ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { opacity: 0.92; box-shadow: var(--ombre-carte); }
+    &:hover:not(:disabled) {
+      opacity: 0.92;
+      box-shadow: var(--ombre-carte);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
-  &:active:not(:disabled) { transform: scale(0.97); }
-  &:disabled { opacity: 0.55; cursor: not-allowed; }
+  &:focus-visible {
+    outline: 2px solid var(--vert-profond);
+    outline-offset: 2px;
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────────
@@ -135,7 +169,9 @@
 }
 
 @media (max-width: 1023px) {
-  .fcard { margin-bottom: var(--pas-2); }
+  .fcard {
+    margin-bottom: var(--pas-2);
+  }
 }
 
 // ── Cartes mobiles (MB-04) — rendues par app-data-table via appCardRow ─────────
@@ -151,11 +187,17 @@
   border-radius: var(--rayon-lg);
   padding: var(--pas-3) var(--pas-3);
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 
-  &--impayee { border-color: var(--danger-trait); }
+  &--impayee {
+    border-color: var(--danger-trait);
+  }
 
-  &:active { background: var(--surface-douce); }
+  &:active {
+    background: var(--surface-douce);
+  }
 
   &__info {
     flex: 1;
@@ -216,8 +258,14 @@
   color: var(--encre-3);
   white-space: nowrap;
 
-  &--link { color: var(--action); cursor: pointer; }
-  &--selected { color: var(--action); font-weight: 600; }
+  &--link {
+    color: var(--action);
+    cursor: pointer;
+  }
+  &--selected {
+    color: var(--action);
+    font-weight: 600;
+  }
 }
 
 .col-abonne {
@@ -250,10 +298,47 @@
   gap: var(--pas-2);
 }
 
-.solde-zero { color: var(--succes-encre); }
-.solde-red  { color: var(--danger-encre); font-weight: 700; font-size: var(--texte-lg); }
-.solde-blue { color: var(--action); font-weight: 700; font-size: var(--texte-lg); }
-.solde-loading { color: var(--encre-3); }
+.solde-zero {
+  color: var(--succes-encre);
+}
+.solde-red {
+  color: var(--danger-encre);
+  font-weight: 700;
+  font-size: var(--texte-lg);
+}
+.solde-blue {
+  color: var(--action);
+  font-weight: 700;
+  font-size: var(--texte-lg);
+}
+.solde-loading {
+  color: var(--encre-3);
+}
+
+// Le solde n'a pas pu être chargé. Volontairement dans la teinte d'alerte et
+// non dans le gris du chargement : c'est un état qui demande une action, pas
+// une attente.
+.solde-erreur {
+  color: var(--attente-encre);
+  font-size: var(--texte-lg);
+  cursor: help;
+}
+
+// Ce que l'abonné doit sur ses AUTRES factures. Secondaire par construction —
+// plus petit, en pastille, sans gras : le chiffre de la ligne reste le sujet,
+// celui-ci n'est qu'un rappel qu'il ne dit pas tout.
+.solde-ailleurs {
+  flex-shrink: 0;
+  padding: 1px var(--pas-2);
+  border-radius: var(--rayon-pilule, 999px);
+  background: var(--attente-fond);
+  color: var(--attente-encre);
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: help;
+}
 
 // ── Row actions ───────────────────────────────────────────────────────────────
 
@@ -270,7 +355,9 @@
   // ligne : c'est la seule action iconique de l'application.
   &--icon {
     @include action-ligne-icone;
-    i { font-size: var(--icone-xs); }
+    i {
+      font-size: var(--icone-xs);
+    }
   }
 
   // L'action principale d'une ligne impayée : encaisser.
@@ -280,16 +367,21 @@
     color: var(--surface);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { background: var(--action-survol); border-color: var(--action-survol); color: var(--surface); }
+      &:hover {
+        background: var(--action-survol);
+        border-color: var(--action-survol);
+        color: var(--surface);
+      }
     }
   }
 }
 
-
 // Mobile (MB-04) : l'envoi WhatsApp groupé reste une action desktop.
 // Placé en fin de fichier pour l'emporter sur le `display` de la règle de base.
 @media (max-width: 639px) {
-  .btn-whatsapp-tous { display: none; }
+  .btn-whatsapp-tous {
+    display: none;
+  }
 }
 
 // ── Confirmation WhatsApp bulk (P0 batch 8 : prévention destructive) ─────────
@@ -300,15 +392,19 @@
   flex-direction: column;
   gap: var(--pas-3);
 
-  &__head { display: flex; gap: var(--pas-3); align-items: flex-start; }
+  &__head {
+    display: flex;
+    gap: var(--pas-3);
+    align-items: flex-start;
+  }
 
   &__icon {
     width: 44px;
     height: 44px;
     border-radius: var(--rayon-lg);
-    background: var(--succes-fond);                                // Vert Lueur DESIGN.md
-    border: 1px solid var(--succes-trait);                          // Vert Trait
-    color: var(--vert-profond);                                     // Vert Profond
+    background: var(--succes-fond); // Vert Lueur DESIGN.md
+    border: 1px solid var(--succes-trait); // Vert Trait
+    color: var(--vert-profond); // Vert Profond
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,7 +441,9 @@
     color: var(--encre-3);
     border-bottom: 1px solid var(--fond);
 
-    &:last-child { border-bottom: none; }
+    &:last-child {
+      border-bottom: none;
+    }
   }
 
   &__v {
@@ -366,52 +464,78 @@
   color: var(--encre-2);
   line-height: 1.5;
 
-  &__icon { font-size: var(--texte-md); line-height: 1.4; flex-shrink: 0; color: var(--encre-3); }
+  &__icon {
+    font-size: var(--texte-md);
+    line-height: 1.4;
+    flex-shrink: 0;
+    color: var(--encre-3);
+  }
 }
 
 .wa-bulk-actions {
   display: flex;
-  flex-direction: column-reverse;                       // « Envoyer » au-dessus, Annuler dessous
+  flex-direction: column-reverse; // « Envoyer » au-dessus, Annuler dessous
   gap: var(--pas-2);
   padding-top: var(--pas-1);
 
-  .wa-bulk-btn { width: 100%; justify-content: center; }
+  .wa-bulk-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .wa-bulk-btn {
-  height: 44px;                                         // WCAG 2.5.5
+  height: 44px; // WCAG 2.5.5
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s, transform 160ms var(--ease-out, ease-out);
+  transition:
+    opacity 0.15s,
+    transform 160ms var(--ease-out, ease-out);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--pas-2);
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
-  &:active:not(:disabled) { transform: scale(0.97); }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
 
   &--ghost {
     background: none;
     color: var(--encre-2);
     border: 1px solid var(--filet);
     @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { background: var(--surface-douce); }
+      &:hover:not(:disabled) {
+        background: var(--surface-douce);
+      }
     }
   }
 
   &--confirm {
-    background: linear-gradient(135deg, var(--vert-profond), var(--succes));  // Vert Profond → Vert Nappe
+    background: linear-gradient(
+      135deg,
+      var(--vert-profond),
+      var(--succes)
+    ); // Vert Profond → Vert Nappe
     color: var(--surface);
     border: none;
     box-shadow: var(--ombre-carte);
     @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { opacity: 0.92; }
+      &:hover:not(:disabled) {
+        opacity: 0.92;
+      }
     }
-    &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
+    &:focus-visible {
+      outline: 2px solid var(--vert-profond);
+      outline-offset: 2px;
+    }
   }
 }
 
