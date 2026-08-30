@@ -24,8 +24,14 @@ export default defineConfig({
 
   projects: [
     // ── Setup : authentification ─────────────────────────────────────────────
+    // `testDir` global vaut `./e2e/specs` ; le fichier de setup vit dans
+    // `./e2e/fixtures`, donc hors périmètre. Ce projet ne collectait aucun
+    // test et ne s'exécutait jamais — les trois projets qui en dépendent
+    // pointaient donc vers des fichiers `storageState` inexistants. Élargir
+    // `testDir` ici, et là seulement, remet la dépendance en état.
     {
       name: 'setup',
+      testDir: './e2e',
       testMatch: '**/fixtures/auth.setup.ts',
     },
 
@@ -60,13 +66,20 @@ export default defineConfig({
     },
   ],
 
-  // Serveur de dev local (hors CI)
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: 'npm run start',
-        url: 'http://localhost:4200',
-        reuseExistingServer: true,
-        timeout: 120_000,
-      },
+  // Le serveur tourne aussi en CI.
+  //
+  // Il était `undefined` quand `CI` était posé : **rien ne servait
+  // l'application**, et les tests n'avaient donc aucune page à visiter. Comme
+  // le job passait par ailleurs `--pass-with-no-tests` sur un `testDir` vide,
+  // le vert ne prouvait rien — ni que l'application démarre, ni qu'une route
+  // répond.
+  //
+  // `reuseExistingServer` garde le confort local : un `ng serve` déjà lancé
+  // est réutilisé au lieu d'être dupliqué.
+  webServer: {
+    command: 'npm run start',
+    url: 'http://localhost:4200',
+    reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
+  },
 });
