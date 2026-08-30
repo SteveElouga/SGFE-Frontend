@@ -1,6 +1,8 @@
 @use '../../../../styles/variables' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // ── États ──────────────────────────────────────────────────────────────────
 .dt__loading {
@@ -44,9 +46,13 @@
     color: var(--encre);
   }
 
-  tbody > tr:last-child > td { border-bottom: none; }
+  tbody > tr:last-child > td {
+    border-bottom: none;
+  }
 
-  &--striped tbody > tr:nth-child(even) > td { background: var(--surface); }
+  &--striped tbody > tr:nth-child(even) > td {
+    background: var(--surface);
+  }
 }
 
 // Bouton d'en-tête pour tri : hérite du look du th mais devient cliquable.
@@ -71,37 +77,71 @@
   transition: color 0.12s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--action); }
+    &:hover {
+      color: var(--action);
+    }
   }
-  &:focus-visible { outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent); outline-offset: 2px; border-radius: var(--rayon-xs); }
+  &:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent);
+    outline-offset: 2px;
+    border-radius: var(--rayon-xs);
+  }
 
-  &--active { color: var(--action); }
+  &--active {
+    color: var(--action);
+  }
 
-  &__ghost { opacity: 0.35; }
+  &__ghost {
+    opacity: 0.35;
+  }
 
-  i { font-size: var(--texte-xs); }
+  i {
+    font-size: var(--texte-xs);
+  }
 }
 
 .dt__row {
   &--clickable {
     cursor: pointer;
     @media (hover: hover) and (pointer: fine) {
-      &:hover > td { background: var(--surface-douce); }
+      &:hover > td {
+        background: var(--surface-douce);
+      }
     }
-    &:focus-visible { outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent); outline-offset: -2px; }
+    &:focus-visible {
+      outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent);
+      outline-offset: -2px;
+    }
   }
 
   // Ligne active/sélectionnée (ex : facture dont le panneau de paiement est ouvert)
+  //
+  // Pas de `box-shadow` portée ici : une ombre posée sur `> td` se dessine
+  // autour de CHAQUE cellule. Sur six colonnes, ça donne six rectangles
+  // ombrés accolés, bords intérieurs doublés — un quadrillage bleuté, soit
+  // l'inverse exact du relief recherché. Le report sur `> td` venait de ce
+  // que les navigateurs ignorent largement `box-shadow` sur un `<tr>`.
+  //
+  // Le relief passe donc par un liseré `inset` sur la seule première cellule :
+  // une barre franche à gauche de la ligne, sans rien qui déborde entre les
+  // colonnes.
   &--selected > td {
     background: var(--action-lueur);
-    box-shadow: var(--ombre-action);
+  }
+
+  &--selected > td:first-child {
+    box-shadow: inset 3px 0 0 var(--action);
   }
 
   // Ligne mise en avant (ex : campagne en cours) — teinte discrète
-  &--active > td { background: var(--surface-douce); }
+  &--active > td {
+    background: var(--surface-douce);
+  }
 
   // Ligne en alerte (ex : impayé suspendu) — teinte rouge très discrète
-  &--danger > td { background: var(--danger-fond); }
+  &--danger > td {
+    background: var(--danger-fond);
+  }
 }
 
 // ── Défilement horizontal ────────────────────────────────────────────────────
@@ -115,12 +155,19 @@
 }
 
 // ── Cartes mobiles ──────────────────────────────────────────────────────────
-.dt__cards { display: none; }
+.dt__cards {
+  display: none;
+}
 
 .dt--has-cards {
   @media (max-width: 1023px) {
-    .dt__scroll { display: none; }
-    .dt__cards { display: flex; flex-direction: column; }
+    .dt__scroll {
+      display: none;
+    }
+    .dt__cards {
+      display: flex;
+      flex-direction: column;
+    }
   }
 }
 
@@ -148,7 +195,7 @@
 
 .dt__page-btn {
   min-width: 44px;
-  min-height: 44px;                 // WCAG 2.5.5 — était 30×30
+  min-height: 44px; // WCAG 2.5.5 — était 30×30
   width: auto;
   // min-width d'origine (30px) relevé au seuil tactile ci-dessus.
   height: 30px;
@@ -163,7 +210,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover:not(:disabled) {
@@ -179,13 +228,21 @@
     color: var(--surface);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { background: var(--action); color: var(--surface); }
+      &:hover {
+        background: var(--action);
+        color: var(--surface);
+      }
     }
   }
 
-  &:disabled { opacity: 0.4; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
 
-  i { font-size: var(--icone-xs); }
+  i {
+    font-size: var(--icone-xs);
+  }
 }
 
 // ── Lien de ligne ─────────────────────────────────────────────────────────────
@@ -208,5 +265,8 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .dt__lien:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .dt__lien:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
 }
