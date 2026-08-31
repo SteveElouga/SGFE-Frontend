@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "verify:jointure": "node scripts/verifier-jointure-api.mjs",
     "e2e": "playwright test"
   },
   "private": true,

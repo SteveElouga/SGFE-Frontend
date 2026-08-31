@@ -25,6 +25,35 @@ export const apolloCache = new InMemoryCache({
   },
 });
 
+/**
+ * URL du WebSocket des subscriptions, DÉRIVÉE de l'origine de la page.
+ *
+ * Elle était écrite en dur dans les deux `environment.ts` : `ws://localhost:8080`
+ * en développement, `wss://api.aquabill.cm` en production. Les deux étaient faux,
+ * chacun à sa manière.
+ *
+ * En production, ce domaine n'est provisionné par rien — ni DNS, ni certificat,
+ * ni playbook — donc aucune subscription ne pouvait s'ouvrir. En développement,
+ * l'URL visait directement la gateway, en contournant le proxy : une seconde
+ * origine, alors que toute l'architecture de ce frontend repose sur le fait qu'il
+ * n'y en a qu'une (le cookie `refresh_token` est `SameSite=Strict`).
+ *
+ * Dérivée de `location`, elle suit l'origine réelle sans qu'on ait à la deviner :
+ * `/graphql` est proxyfié vers la gateway par le serveur de dev en local et par
+ * nginx en production, et les deux savent négocier l'`Upgrade` WebSocket. Le
+ * schéma suit celui de la page — `wss:` derrière un TLS, `ws:` sans — parce
+ * qu'un `ws:` depuis une page `https:` est bloqué par le navigateur.
+ *
+ * `globalThis.location` plutôt que `location` : le fichier est aussi chargé par
+ * les tests, où l'absence de `location` doit rendre une valeur inerte plutôt que
+ * lever à l'import.
+ */
+function urlWebSocketGraphQL(): string {
+  const loc = globalThis.location;
+  if (!loc) return `ws://localhost${environment.graphqlUrl}`;
+  return `${loc.protocol === 'https:' ? 'wss:' : 'ws:'}//${loc.host}${environment.graphqlUrl}`;
+}
+
 function apolloOptionsFactory(): ApolloClient.Options {
   const httpLink = inject(HttpLink);
   // Injector, not AuthService directly: AuthService depends on Apollo,
@@ -37,7 +66,7 @@ function apolloOptionsFactory(): ApolloClient.Options {
 
   const ws = new GraphQLWsLink(
     createClient({
-      url: environment.graphqlWsUrl,
+      url: urlWebSocketGraphQL(),
       // Evaluated lazily at each connection attempt — safe to use the injector here
       // because GraphQLWsLink only connects when the first subscription is registered
       // (i.e. after login, from ShellComponent.startCacheSync).
