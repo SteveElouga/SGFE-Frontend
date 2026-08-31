@@ -2,7 +2,9 @@
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // ── Contenu scrollable ────────────────────────────────────────────────────────
 
@@ -12,7 +14,11 @@
   flex-direction: column;
   gap: var(--pas-3);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 }
 
 // ── Filtres ───────────────────────────────────────────────────────────────────
@@ -39,8 +45,12 @@
 
   &--off {
     opacity: 0.6;
-    .users-table__username { text-decoration: line-through; }
-    .users-table__avatar { background: var(--filet-pale); }
+    .users-table__username {
+      text-decoration: line-through;
+    }
+    .users-table__avatar {
+      background: var(--filet-pale);
+    }
   }
 }
 
@@ -83,11 +93,18 @@
   font-weight: 600;
   color: var(--succes-encre);
 
-  &__mark { width: 7px; height: 7px; border-radius: 50%; background: var(--succes); }
+  &__mark {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--succes);
+  }
 
   &--off {
     color: var(--encre-3);
-    .statut-dot__mark { background: var(--filet-pale); }
+    .statut-dot__mark {
+      background: var(--filet-pale);
+    }
   }
 }
 
@@ -111,8 +128,12 @@
 .users-table__action-btn {
   @include action-ligne;
 
-  &--danger  { @include action-ligne-danger; }
-  &--success { @include action-ligne-succes; }
+  &--danger {
+    @include action-ligne-danger;
+  }
+  &--success {
+    @include action-ligne-succes;
+  }
 }
 
 .users-table__empty {
@@ -146,8 +167,12 @@
 
   &--off {
     opacity: 0.6;
-    .users-table__username { text-decoration: line-through; }
-    .users-table__avatar { background: var(--filet-pale); }
+    .users-table__username {
+      text-decoration: line-through;
+    }
+    .users-table__avatar {
+      background: var(--filet-pale);
+    }
   }
 
   &__body {
@@ -189,7 +214,13 @@
 }
 
 // Le pill de rôle ne rétrécit pas (le nom tronque à sa place).
-.ucard__head .role-pill { flex-shrink: 0; }
+.ucard__head .role-pill {
+  flex-shrink: 0;
+}
 
 // Avatar un peu plus grand sur la carte mobile.
-.ucard .users-table__avatar { width: 40px; height: 40px; font-size: var(--texte-lg); }
+.ucard .users-table__avatar {
+  width: 40px;
+  height: 40px;
+  font-size: var(--texte-lg);
+}

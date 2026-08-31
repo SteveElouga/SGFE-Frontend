@@ -1,11 +1,18 @@
 @use '../../../styles/variables' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
+// Cette région porte `page-scroll` : c'est elle qui défile, donc c'est elle qui
+// porte la barre. Elle doit donc occuper toute la largeur, sinon la barre se
+// pose au bord du bloc et non de l'écran — mesuré à 30 px du bord avec
+// `max-width: 820px; margin: 0 auto`.
+//
+// Le plafond de lecture et le centrage passent dans le rembourrage : même
+// composition à l'œil, barre au bord.
 .envois {
-  padding: var(--pas-4);
-  max-width: 820px;
-  margin: 0 auto;
+  padding: var(--pas-4) max(var(--pas-4), calc((100% - 820px) / 2));
 }
 
 .envois__loading {
@@ -38,10 +45,16 @@
   border-radius: var(--rayon-lg);
   background: var(--surface);
 
-  &--echec { border-color: var(--danger-trait); background: var(--danger-fond); }
+  &--echec {
+    border-color: var(--danger-trait);
+    background: var(--danger-fond);
+  }
 }
 
-.envoi__body { flex: 1; min-width: 0; }
+.envoi__body {
+  flex: 1;
+  min-width: 0;
+}
 
 .envoi__head {
   display: flex;
@@ -110,7 +123,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-3);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
@@ -122,13 +135,20 @@
   transition: background 0.12s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { background: var(--surface-douce); }
+    &:hover:not(:disabled) {
+      background: var(--surface-douce);
+    }
   }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 // ── Regroupement par jour ─────────────────────────────────────────────────────
-.envois__jour + .envois__jour { margin-top: var(--pas-5); }
+.envois__jour + .envois__jour {
+  margin-top: var(--pas-5);
+}
 
 .envois__jour-titre {
   margin: 0 0 var(--pas-2);

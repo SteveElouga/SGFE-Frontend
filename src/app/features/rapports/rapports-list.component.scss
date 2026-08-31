@@ -1,11 +1,17 @@
 @use '../../../styles/variables' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 .rap {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--pas-4);
@@ -32,7 +38,9 @@
   grid-template-columns: repeat(4, 1fr);
   gap: var(--pas-3);
 
-  @media (max-width: 1023px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .kpi {
@@ -41,8 +49,12 @@
   border-radius: var(--rayon-lg);
   padding: var(--pas-4) var(--pas-4);
 
-  &--accent-blue { background: var(--action-lueur); }
-  &--accent-green { background: var(--succes-fond); }
+  &--accent-blue {
+    background: var(--action-lueur);
+  }
+  &--accent-green {
+    background: var(--succes-fond);
+  }
 
   &__value {
     font-size: var(--texte-3xl);
@@ -50,7 +62,9 @@
     color: var(--encre);
     line-height: 1.15;
 
-    &--green { color: var(--succes-encre); }
+    &--green {
+      color: var(--succes-encre);
+    }
   }
   &__label {
     margin-top: var(--pas-1);
@@ -79,8 +93,12 @@
   grid-template-columns: repeat(4, 1fr);
   gap: var(--pas-3);
 
-  @media (max-width: 1023px) { grid-template-columns: repeat(2, 1fr); }
-  @media (max-width: 639px) { grid-template-columns: 1fr; }
+  @media (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .export-card {
@@ -93,12 +111,20 @@
   border-radius: var(--rayon-lg);
   padding: var(--pas-3) var(--pas-4);
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
+  transition:
+    border-color 0.12s,
+    background 0.12s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { border-color: var(--filet-pale); background: var(--surface); }
+    &:hover:not(:disabled) {
+      border-color: var(--filet-pale);
+      background: var(--surface);
+    }
   }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 
   &__icon {
     width: 40px;
@@ -110,15 +136,43 @@
     flex-shrink: 0;
     font-size: var(--texte-xl);
 
-    &--blue { background: var(--action-lueur); color: var(--action); }
-    &--green { background: var(--succes-fond); color: var(--succes-encre); }
-    &--violet { background: var(--role-violet-lueur); color: var(--role-violet); }
-    &--red { background: var(--danger-fond); color: var(--danger-encre); }
+    &--blue {
+      background: var(--action-lueur);
+      color: var(--action);
+    }
+    &--green {
+      background: var(--succes-fond);
+      color: var(--succes-encre);
+    }
+    &--violet {
+      background: var(--role-violet-lueur);
+      color: var(--role-violet);
+    }
+    &--red {
+      background: var(--danger-fond);
+      color: var(--danger-encre);
+    }
   }
-  &__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  &__title { font-size: var(--texte-md); font-weight: 600; color: var(--encre); }
-  &__sub { font-size: var(--texte-xs); color: var(--encre-3); margin-top: 1px; }
-  &__dl { color: var(--encre-3); font-size: var(--texte-lg); }
+  &__text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  &__title {
+    font-size: var(--texte-md);
+    font-weight: 600;
+    color: var(--encre);
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-top: 1px;
+  }
+  &__dl {
+    color: var(--encre-3);
+    font-size: var(--texte-lg);
+  }
 }
 
 // ── Historique ──────────────────────────────────────────────────────────────
@@ -152,10 +206,19 @@
     font-size: var(--texte-sm);
     color: var(--encre);
   }
-  tbody > tr:last-child > td { border-bottom: none; }
-  tbody > tr:nth-child(even) > td { background: var(--surface); }
+  tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+  tbody > tr:nth-child(even) > td {
+    background: var(--surface);
+  }
 
-  .col-num { text-align: right; white-space: nowrap; }
+  .col-num {
+    text-align: right;
+    white-space: nowrap;
+  }
 }
 
-.rap-camp { font-weight: 600; }
+.rap-camp {
+  font-weight: 600;
+}

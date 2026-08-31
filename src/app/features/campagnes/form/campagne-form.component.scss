@@ -2,12 +2,18 @@
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 .campagne-form-content {
   padding: var(--pas-5) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 }
 
 // ── Card principale ───────────────────────────────────────────────────────────
@@ -20,7 +26,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--pas-5);
-
 }
 
 .form-card__intro {
@@ -99,11 +104,14 @@
   color: var(--encre);
   background: var(--surface);
   outline: none;
-  &:focus-visible {            // l'anneau clavier, retiré à tort
+  &:focus-visible {
+    // l'anneau clavier, retiré à tort
     outline: 2px solid var(--action);
     outline-offset: 2px;
   }
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   width: 100%;
 
   &:focus {
@@ -111,7 +119,9 @@
     box-shadow: var(--anneau);
   }
 
-  &[type='date'] { color: var(--encre-2); }
+  &[type='date'] {
+    color: var(--encre-2);
+  }
 }
 
 .form-field__hint {
@@ -128,7 +138,9 @@
 .form-field__input--error {
   border-color: var(--danger);
 
-  &:focus { box-shadow: var(--anneau-danger); }
+  &:focus {
+    box-shadow: var(--anneau-danger);
+  }
 }
 
 // ── Agents ────────────────────────────────────────────────────────────────────
@@ -179,7 +191,9 @@
   transition: color 0.1s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--surface); }
+    &:hover {
+      color: var(--surface);
+    }
   }
 }
 
@@ -207,7 +221,9 @@
 .agent-assign .agent-chip__remove {
   color: var(--encre-3);
   @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--danger-encre); }
+    &:hover {
+      color: var(--danger-encre);
+    }
   }
 }
 
@@ -236,10 +252,16 @@
   font-weight: 600;
   padding: var(--pas-1) var(--pas-3);
   cursor: pointer;
-  transition: background 0.12s, border-color 0.12s, box-shadow 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    border-color 0.12s,
+    box-shadow 0.12s,
+    color 0.12s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--fond); }
+    &:hover {
+      background: var(--fond);
+    }
   }
 
   &--on {
@@ -272,7 +294,7 @@
 .agent-tag {
   display: inline-flex;
   align-items: center;
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-3);
   border: 1.5px dashed var(--filet-pale);
   border-radius: var(--rayon-lg);
@@ -281,7 +303,9 @@
   color: var(--encre-2);
   background: var(--surface);
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
@@ -313,7 +337,9 @@
   background: var(--surface);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 
   &--selected {
     border-color: var(--action);
@@ -325,7 +351,9 @@
     opacity: 0.55;
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { border-color: var(--filet); }
+      &:hover {
+        border-color: var(--filet);
+      }
     }
   }
 }
@@ -337,7 +365,9 @@
   border: 2px solid var(--filet-pale);
   flex-shrink: 0;
   position: relative;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 
   &--checked {
     border-color: var(--action);
@@ -391,7 +421,9 @@
   font-weight: 500;
   color: var(--succes-encre);
 
-  i { font-size: var(--icone-xs); }
+  i {
+    font-size: var(--icone-xs);
+  }
 
   &--warn {
     background: var(--attente-fond);
@@ -430,7 +462,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-3);
   border: 1.5px solid var(--filet);
   border-radius: var(--rayon-lg);
@@ -439,7 +471,11 @@
   font-weight: 500;
   color: var(--encre-2);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
@@ -544,7 +580,7 @@
     top: 50%;
     left: 50%;
     width: 44px;
-    height: 44px;                       // WCAG 2.5.5
+    height: 44px; // WCAG 2.5.5
     transform: translate(-50%, -50%);
   }
 
@@ -559,7 +595,9 @@
   transition: background 0.2s;
   padding: 0;
 
-  &--on { background: var(--navy-nuit); }
+  &--on {
+    background: var(--navy-nuit);
+  }
 }
 
 .toggle__thumb {
@@ -573,7 +611,9 @@
   transition: transform 0.2s;
   pointer-events: none;
 
-  .toggle--on & { transform: translateX(20px); }
+  .toggle--on & {
+    transform: translateX(20px);
+  }
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -597,20 +637,30 @@
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
   font-weight: 700;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
-  &:disabled { opacity: 0.45; }
+  &:disabled {
+    opacity: 0.45;
+  }
 
   &--primary {
     flex: 1;
     @include btn-variant(
-      var(--action), var(--surface),
+      var(--action),
+      var(--surface),
       $shadow: var(--ombre-action),
       $hover-bg: var(--action-survol)
     );
   }
 
   &--outline {
-    @include btn-variant(var(--surface), var(--encre-2), $border: 1.5px solid var(--filet), $hover-bg: var(--surface-douce));
+    @include btn-variant(
+      var(--surface),
+      var(--encre-2),
+      $border: 1.5px solid var(--filet),
+      $hover-bg: var(--surface-douce)
+    );
   }
 }

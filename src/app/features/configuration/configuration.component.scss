@@ -2,7 +2,9 @@
 @use '../../../styles/variables' as *;
 @use '../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // ── Contenu ───────────────────────────────────────────────────────────────────
 
@@ -12,12 +14,20 @@
   flex-direction: column;
   gap: var(--pas-3);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 
-.config-skeleton { display: flex; flex-direction: column; gap: var(--pas-4); }
+.config-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-4);
+}
 
 .skeleton-section {
   background: var(--surface);
@@ -53,7 +63,9 @@
   @include hide-scrollbar;
 
   // Un onglet ne doit pas se comprimer pour tenir : il défile.
-  > * { flex: 0 0 auto; }
+  > * {
+    flex: 0 0 auto;
+  }
   min-width: 0;
   overflow-x: auto;
   @include hide-scrollbar;
@@ -69,10 +81,14 @@
   border-bottom: 2px solid transparent;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--encre); }
+    &:hover {
+      color: var(--encre);
+    }
   }
 
   &--active {
@@ -90,7 +106,9 @@
 // Mobile : la nav d'onglets occupe toute la 1re ligne (scroll horizontal) ; le
 // bouton passe en pleine largeur sous les onglets plutôt que flottant à droite.
 @media (max-width: 639px) {
-  .config-tabs__nav { flex-basis: 100%; }
+  .config-tabs__nav {
+    flex-basis: 100%;
+  }
   .config-save {
     width: 100%;
     margin: 0 0 var(--pas-2);
@@ -106,9 +124,14 @@
   gap: var(--pas-3);
   align-items: start;
 
-  &--single { grid-template-columns: 1fr; max-width: 720px; }
+  &--single {
+    grid-template-columns: 1fr;
+    max-width: 720px;
+  }
 
-  @media (max-width: 1023px) { grid-template-columns: 1fr; }
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .config-card {
@@ -117,9 +140,24 @@
   border-radius: var(--rayon-lg);
   padding: var(--pas-4) var(--pas-5);
 
-  &__title { font-size: var(--texte-md); font-weight: 700; color: var(--encre); margin-bottom: var(--pas-1); }
-  &__sub   { font-size: var(--texte-xs); color: var(--encre-3); margin-bottom: var(--pas-3); line-height: 1.5; }
-  &__subtitle { font-size: var(--texte-sm); font-weight: 700; color: var(--encre); margin-bottom: var(--pas-2); }
+  &__title {
+    font-size: var(--texte-md);
+    font-weight: 700;
+    color: var(--encre);
+    margin-bottom: var(--pas-1);
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-bottom: var(--pas-3);
+    line-height: 1.5;
+  }
+  &__subtitle {
+    font-size: var(--texte-sm);
+    font-weight: 700;
+    color: var(--encre);
+    margin-bottom: var(--pas-2);
+  }
 
   &__updated {
     display: flex;
@@ -129,7 +167,9 @@
     color: var(--encre-3);
     margin: var(--pas-3) 0 0;
 
-    .pi { font-size: var(--icone-xs); }
+    .pi {
+      font-size: var(--icone-xs);
+    }
   }
 }
 
@@ -141,17 +181,29 @@
   gap: var(--pas-1);
   margin-bottom: var(--pas-3);
 
-  &:last-child { margin-bottom: 0; }
+  &:last-child {
+    margin-bottom: 0;
+  }
 
-  &__label { font-size: var(--texte-xs); font-weight: 500; color: var(--encre-3); }
+  &__label {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--encre-3);
+  }
   &__input {
     width: 100%;
     height: 36px;
     font-size: var(--texte-md);
 
-    &--mono { font-family: 'JetBrains Mono', 'Cascadia Code', monospace; font-size: var(--texte-sm); }
+    &--mono {
+      font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+      font-size: var(--texte-sm);
+    }
   }
-  &__hint { font-size: var(--texte-xs); color: var(--encre-3); }
+  &__hint {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+  }
 }
 
 .card-divider {
@@ -166,9 +218,16 @@
   gap: var(--pas-3);
   margin-bottom: var(--pas-3);
 
-  &__fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--pas-2);
+  &__fields {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-2);
 
-    .form-field { margin-bottom: 0; }
+    .form-field {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -186,8 +245,14 @@
   gap: var(--pas-1);
   color: var(--encre-3);
 
-  .pi { font-size: var(--icone-lg); color: var(--navy-nuit); }
-  span { font-size: var(--texte-xs); font-weight: 500; }
+  .pi {
+    font-size: var(--icone-lg);
+    color: var(--navy-nuit);
+  }
+  span {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+  }
 }
 
 // ── Tarif ─────────────────────────────────────────────────────────────────────
@@ -202,7 +267,11 @@
 .tarif-current {
   flex: 1;
 
-  &__label { font-size: var(--texte-xs); color: var(--encre-3); margin-bottom: var(--pas-1); }
+  &__label {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-bottom: var(--pas-1);
+  }
   &__box {
     border: 1.5px solid var(--action);
     border-radius: var(--rayon-md);
@@ -212,13 +281,28 @@
     align-items: center;
     box-shadow: var(--anneau);
   }
-  &__value { font-size: var(--texte-3xl); font-weight: 800; color: var(--encre); }
-  &__value::after { content: ' FCFA/m³'; font-size: var(--texte-sm); font-weight: 500; color: var(--encre-3); }
-  &__empty { font-size: var(--texte-md); color: var(--encre-3); font-style: italic; }
+  &__value {
+    font-size: var(--texte-3xl);
+    font-weight: 800;
+    color: var(--encre);
+  }
+  &__value::after {
+    content: ' FCFA/m³';
+    font-size: var(--texte-sm);
+    font-weight: 500;
+    color: var(--encre-3);
+  }
+  &__empty {
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    font-style: italic;
+  }
 }
 
 // ── Modale « Modifier le tarif du m³ » (écran 30) ───────────────────────────
-.tarif-modal { padding: var(--pas-1) var(--pas-1); }
+.tarif-modal {
+  padding: var(--pas-1) var(--pas-1);
+}
 
 .tarif-modal__header {
   display: flex;
@@ -285,10 +369,17 @@
   font-weight: 800;
   color: var(--encre);
 
-  small { font-size: var(--texte-xs); font-weight: 500; color: var(--encre-3); margin-left: var(--pas-1); }
+  small {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--encre-3);
+    margin-left: var(--pas-1);
+  }
 }
 
-.tarif-modal__col--new .tarif-modal__col-value { color: var(--action); }
+.tarif-modal__col--new .tarif-modal__col-value {
+  color: var(--action);
+}
 
 .tarif-modal__arrow {
   color: var(--encre-3);
@@ -316,7 +407,11 @@
   line-height: 1.4;
   color: var(--attente-encre);
 
-  i { color: var(--attente-encre); margin-top: 1px; flex-shrink: 0; }
+  i {
+    color: var(--attente-encre);
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
 }
 
 .tarif-modal__actions {
@@ -324,11 +419,16 @@
   flex-direction: column-reverse; // primaire au-dessus, Annuler dessous (MC-04)
   gap: var(--pas-2);
 
-  .btn { width: 100%; justify-content: center; }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 639px) {
-  .tarif-modal__fields { grid-template-columns: 1fr; }
+  .tarif-modal__fields {
+    grid-template-columns: 1fr;
+  }
 }
 
 .hist-head {
@@ -357,13 +457,26 @@
   font-size: var(--texte-xs);
   border-top: 1px solid var(--fond);
 
-  &:first-child { border-top: none; }
-  &__meta { color: var(--encre-3); }
-
-  &--active { background: var(--succes-fond); color: var(--succes-encre); font-weight: 600;
-    .hist-row__meta { font-weight: 400; }
+  &:first-child {
+    border-top: none;
   }
-  &--muted { color: var(--encre-3); font-style: italic; justify-content: center; }
+  &__meta {
+    color: var(--encre-3);
+  }
+
+  &--active {
+    background: var(--succes-fond);
+    color: var(--succes-encre);
+    font-weight: 600;
+    .hist-row__meta {
+      font-weight: 400;
+    }
+  }
+  &--muted {
+    color: var(--encre-3);
+    font-style: italic;
+    justify-content: center;
+  }
 }
 
 // ── Coming soon (fonctionnalités sans API backend) ────────────────────────────
@@ -382,9 +495,18 @@
 
 // ── Relances : étapes ─────────────────────────────────────────────────────────
 
-.steps { display: flex; flex-direction: column; gap: var(--pas-2); margin-bottom: var(--pas-3); }
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-3);
+}
 
-.step-row { display: flex; align-items: center; gap: var(--pas-2); }
+.step-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+}
 
 .step-badge {
   width: 130px;
@@ -396,10 +518,25 @@
   font-weight: 600;
   border: 1px solid transparent;
 
-  &--doux  { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--ambre-attente); }
-  &--ferme { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--ambre-attente); }
-  &--avert { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
-  &--susp  { background: var(--rouge-braise); color: var(--surface); }
+  &--doux {
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--ambre-attente);
+  }
+  &--ferme {
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--ambre-attente);
+  }
+  &--avert {
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
+  }
+  &--susp {
+    background: var(--rouge-braise);
+    color: var(--surface);
+  }
 }
 
 .step-delay {
@@ -412,15 +549,25 @@
   padding: 0 var(--pas-2) 0 var(--pas-3);
   background: var(--surface);
 
-  &:focus-within { border-color: var(--action); box-shadow: var(--anneau); }
-  &--disabled { opacity: 0.55; }
+  &:focus-within {
+    border-color: var(--action);
+    box-shadow: var(--anneau);
+  }
+  &--disabled {
+    opacity: 0.55;
+  }
 
-  &__prefix { font-size: var(--texte-md); font-weight: 700; color: var(--encre); }
+  &__prefix {
+    font-size: var(--texte-md);
+    font-weight: 700;
+    color: var(--encre);
+  }
   &__input {
     width: 44px;
     border: none;
     outline: none;
-    &:focus-visible {            // l'anneau clavier, retiré à tort
+    &:focus-visible {
+      // l'anneau clavier, retiré à tort
       outline: 2px solid var(--action);
       outline-offset: 2px;
     }
@@ -432,7 +579,10 @@
   }
 }
 
-.step-hint { font-size: var(--texte-xs); color: var(--encre-3); }
+.step-hint {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+}
 
 // ── Switch / days rows ────────────────────────────────────────────────────────
 
@@ -447,12 +597,24 @@
   border-radius: var(--rayon-md);
   margin-bottom: var(--pas-2);
 
-  &:last-child { margin-bottom: 0; }
-
-  &__label { font-size: var(--texte-sm); font-weight: 600; color: var(--encre);
-    &--plain { font-weight: 500; color: var(--encre-2); }
+  &:last-child {
+    margin-bottom: 0;
   }
-  &__sub { font-size: var(--texte-xs); color: var(--encre-3); margin-top: var(--pas-1); }
+
+  &__label {
+    font-size: var(--texte-sm);
+    font-weight: 600;
+    color: var(--encre);
+    &--plain {
+      font-weight: 500;
+      color: var(--encre-2);
+    }
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-top: var(--pas-1);
+  }
 }
 
 .days-box {
@@ -465,14 +627,20 @@
   padding: 0 var(--pas-2);
   background: var(--surface);
 
-  &:focus-within { border-color: var(--action); box-shadow: var(--anneau); }
-  &--disabled { opacity: 0.55; }
+  &:focus-within {
+    border-color: var(--action);
+    box-shadow: var(--anneau);
+  }
+  &--disabled {
+    opacity: 0.55;
+  }
 
   &__input {
     width: 40px;
     border: none;
     outline: none;
-    &:focus-visible {            // l'anneau clavier, retiré à tort
+    &:focus-visible {
+      // l'anneau clavier, retiré à tort
       outline: 2px solid var(--action);
       outline-offset: 2px;
     }
@@ -482,12 +650,18 @@
     color: var(--encre);
     padding: 0;
   }
-  &__suffix { font-size: var(--texte-sm); color: var(--encre-3); }
+  &__suffix {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  }
 }
 
 // ── Utilisateurs ──────────────────────────────────────────────────────────────
 
-.users-link { text-decoration: none; width: fit-content; }
+.users-link {
+  text-decoration: none;
+  width: fit-content;
+}
 
 // ── WhatsApp & tokens ─────────────────────────────────────────────────────────
 // (statut de session + appairage QR : composant dédié WhatsappLinkComponent)
@@ -498,7 +672,10 @@
   gap: var(--pas-2);
   margin-top: var(--pas-2);
 
-  .form-field { flex: 1; margin-bottom: 0; }
+  .form-field {
+    flex: 1;
+    margin-bottom: 0;
+  }
 }
 
 // Résultat inline de l'envoi de test (succès ou motif d'échec renvoyé par le backend)
@@ -513,10 +690,21 @@
   padding: var(--pas-2) var(--pas-3);
   border-radius: var(--rayon-md);
 
-  .pi { flex-shrink: 0; font-size: var(--icone-sm); }
+  .pi {
+    flex-shrink: 0;
+    font-size: var(--icone-sm);
+  }
 
-  &--ok  { color: var(--succes-encre); background: var(--succes-fond); border: 1px solid var(--succes-trait); }
-  &--ko  { color: var(--ambre-attente); background: var(--attente-fond); border: 1px solid var(--attente-trait); }
+  &--ok {
+    color: var(--succes-encre);
+    background: var(--succes-fond);
+    border: 1px solid var(--succes-trait);
+  }
+  &--ko {
+    color: var(--ambre-attente);
+    background: var(--attente-fond);
+    border: 1px solid var(--attente-trait);
+  }
 }
 
 .kpi-grid {
@@ -527,7 +715,9 @@
   padding-top: var(--pas-3);
   margin-top: var(--pas-2);
 
-  @media (max-width: 639px) { grid-template-columns: 1fr; }
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .kpi-box {
@@ -536,15 +726,26 @@
   border-radius: var(--rayon-md);
   padding: var(--pas-3) var(--pas-3);
 
-  &--disabled { opacity: 0.55; }
+  &--disabled {
+    opacity: 0.55;
+  }
 
-  &__label { font-size: var(--texte-xs); color: var(--encre-3); margin-bottom: var(--pas-2); }
-  &__value { display: flex; align-items: baseline; gap: var(--pas-1); }
+  &__label {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-bottom: var(--pas-2);
+  }
+  &__value {
+    display: flex;
+    align-items: baseline;
+    gap: var(--pas-1);
+  }
   &__input {
     width: 52px;
     border: none;
     outline: none;
-    &:focus-visible {            // l'anneau clavier, retiré à tort
+    &:focus-visible {
+      // l'anneau clavier, retiré à tort
       outline: 2px solid var(--action);
       outline-offset: 2px;
     }
@@ -554,9 +755,15 @@
     color: var(--encre);
     padding: 0;
 
-    &:focus { border-bottom: 1.5px solid var(--action); }
+    &:focus {
+      border-bottom: 1.5px solid var(--action);
+    }
   }
-  &__unit { font-size: var(--texte-xs); font-weight: 500; color: var(--encre-3); }
+  &__unit {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--encre-3);
+  }
 }
 
 .revoke-row {
@@ -570,7 +777,14 @@
   border-radius: var(--rayon-md);
   margin-top: var(--pas-2);
 
-  &__label { display: flex; align-items: center; gap: var(--pas-2); font-size: var(--texte-xs); font-weight: 500; color: var(--danger-encre); }
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--danger-encre);
+  }
 }
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
@@ -579,31 +793,57 @@
   @include btn-reset;
   justify-content: center;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
   font-weight: 600;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
-  &--sm { height: 30px; padding: 0 var(--pas-3); font-size: var(--texte-xs); font-weight: 500; }
+  &--sm {
+    height: 30px;
+    padding: 0 var(--pas-3);
+    font-size: var(--texte-xs);
+    font-weight: 500;
+  }
 
-  &:disabled { opacity: 0.5; }
+  &:disabled {
+    opacity: 0.5;
+  }
 
   &--primary {
     @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
   }
 
   &--ghost {
-    @include btn-variant(var(--surface), var(--encre-2), $border: 1px solid var(--filet), $hover-bg: var(--surface-douce));
+    @include btn-variant(
+      var(--surface),
+      var(--encre-2),
+      $border: 1px solid var(--filet),
+      $hover-bg: var(--surface-douce)
+    );
   }
 
   &--dark-outline {
-    @include btn-variant(var(--surface), var(--navy-nuit), $border: 1.5px solid var(--navy-nuit), $hover-bg: var(--navy-nuit), $hover-color: var(--surface));
+    @include btn-variant(
+      var(--surface),
+      var(--navy-nuit),
+      $border: 1.5px solid var(--navy-nuit),
+      $hover-bg: var(--navy-nuit),
+      $hover-color: var(--surface)
+    );
   }
 
   &--danger-outline {
-    @include btn-variant(var(--surface), var(--danger), $border: 1px solid var(--danger), $hover-bg: var(--danger), $hover-color: var(--surface));
+    @include btn-variant(
+      var(--surface),
+      var(--danger),
+      $border: 1px solid var(--danger),
+      $hover-bg: var(--danger),
+      $hover-color: var(--surface)
+    );
   }
 }
 
@@ -619,7 +859,7 @@
     top: 50%;
     left: 50%;
     width: 44px;
-    height: 44px;                       // WCAG 2.5.5
+    height: 44px; // WCAG 2.5.5
     transform: translate(-50%, -50%);
   }
 
@@ -634,9 +874,14 @@
   flex-shrink: 0;
   padding: 0;
 
-  &--on { background: var(--succes); }
+  &--on {
+    background: var(--succes);
+  }
 
-  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 
   &__thumb {
     position: absolute;
@@ -650,7 +895,9 @@
     transition: transform 0.2s;
   }
 
-  &--on .toggle-switch__thumb { transform: translateX(18px); }
+  &--on .toggle-switch__thumb {
+    transform: translateX(18px);
+  }
 }
 
 // Rangée d'action de l'écran — séparée de la navigation par onglets.

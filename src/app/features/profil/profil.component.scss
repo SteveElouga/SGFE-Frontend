@@ -15,7 +15,11 @@
 .profil-content {
   padding: var(--pas-5) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 }
 
 .profil-inner {
@@ -73,8 +77,6 @@
   gap: var(--pas-2);
   flex-wrap: wrap;
 }
-
-
 
 .profil-identity__phone {
   font-size: var(--texte-md);
@@ -139,7 +141,9 @@
   font-weight: 500;
   color: var(--succes-encre);
 
-  i { font-size: var(--icone-sm); }
+  i {
+    font-size: var(--icone-sm);
+  }
 }
 
 .profil-reset-hint {
@@ -174,15 +178,20 @@
   color: var(--encre);
   background: var(--surface);
   outline: none;
-  &:focus-visible {            // l'anneau clavier, retiré à tort
+  &:focus-visible {
+    // l'anneau clavier, retiré à tort
     outline: 2px solid var(--action);
     outline-offset: 2px;
   }
   transition: border-color 0.15s;
 
-  &:focus { border-color: var(--action); }
+  &:focus {
+    border-color: var(--action);
+  }
 
-  &--error { border-color: var(--danger); }
+  &--error {
+    border-color: var(--danger);
+  }
 }
 
 .profil-field__readonly {
@@ -206,7 +215,9 @@
   border-radius: var(--rayon-xs);
   white-space: nowrap;
 
-  &--muted { color: var(--encre-2); }
+  &--muted {
+    color: var(--encre-2);
+  }
 }
 
 .profil-field__hint {
@@ -215,58 +226,91 @@
   align-items: center;
   gap: var(--pas-1);
 
-  &--error { color: var(--danger-encre); }
+  &--error {
+    color: var(--danger-encre);
+  }
 }
 
 // ── Role badge ────────────────────────────────────────────────────────────────
-
-
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
 .btn {
   @include btn-reset;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
   font-weight: 600;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
-  &:disabled { opacity: 0.45; }
+  &:disabled {
+    opacity: 0.45;
+  }
 
   &--primary {
     @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
   }
 
   &--outline {
-    @include btn-variant(transparent, var(--encre), $border: 1.5px solid var(--encre), $hover-bg: var(--surface-douce));
+    @include btn-variant(
+      transparent,
+      var(--encre),
+      $border: 1.5px solid var(--encre),
+      $hover-bg: var(--surface-douce)
+    );
   }
 
   &--danger {
-    @include btn-variant(var(--danger-trait), var(--danger-encre), $border: 1.5px solid var(--danger-trait), $hover-bg: var(--danger-trait));
+    @include btn-variant(
+      var(--danger-trait),
+      var(--danger-encre),
+      $border: 1.5px solid var(--danger-trait),
+      $hover-bg: var(--danger-trait)
+    );
   }
 }
 
 // ── Mobile (carte étroite) ────────────────────────────────────────────────────
 @container profil (max-width: 639px) {
-  .profil-content { padding: var(--pas-3) var(--pas-3); }
+  .profil-content {
+    padding: var(--pas-3) var(--pas-3);
+  }
 
   // Carte avatar plus compacte
-  .profil-avatar-card { padding: var(--pas-4); gap: var(--pas-3); }
-  .profil-avatar { width: 56px; height: 56px; }
-  .profil-avatar__initials { font-size: var(--texte-3xl); }
-  .profil-identity__username { font-size: var(--texte-2xl); }
+  .profil-avatar-card {
+    padding: var(--pas-4);
+    gap: var(--pas-3);
+  }
+  .profil-avatar {
+    width: 56px;
+    height: 56px;
+  }
+  .profil-avatar__initials {
+    font-size: var(--texte-3xl);
+  }
+  .profil-identity__username {
+    font-size: var(--texte-2xl);
+  }
 
   // En-têtes / corps de section resserrés
-  .profil-section__header { padding: var(--pas-3) var(--pas-4); }
-  .profil-section__body { padding: var(--pas-4); }
-  .profil-section__footer { padding: var(--pas-3) var(--pas-4) var(--pas-4); }
+  .profil-section__header {
+    padding: var(--pas-3) var(--pas-4);
+  }
+  .profil-section__body {
+    padding: var(--pas-4);
+  }
+  .profil-section__footer {
+    padding: var(--pas-3) var(--pas-4) var(--pas-4);
+  }
 
   // Boutons pleine largeur → cibles tactiles confortables
   .profil-section__footer .btn,
-  .profil-section__body > .btn { // bouton « Se déconnecter »
+  .profil-section__body > .btn {
+    // bouton « Se déconnecter »
     width: 100%;
     justify-content: center;
   }
@@ -288,7 +332,9 @@
   padding: var(--pas-3) 0;
   border-bottom: 1px solid var(--filet);
 
-  &:last-child { border-bottom: 0; }
+  &:last-child {
+    border-bottom: 0;
+  }
 
   dt {
     font-size: var(--texte-md);
@@ -320,4 +366,6 @@
   color: var(--encre-3);
 }
 
-.role-pill { @include pastille-role; }
+.role-pill {
+  @include pastille-role;
+}

@@ -8,12 +8,18 @@
 // ── Filtres : dropdowns (desktop) ↔ recherche + chips seuls (mobile M-05) ─────
 // Les chips remplacent le select de statut sous ~640px ; le select Quartier
 // n'existe pas dans la maquette mobile (desktop uniquement).
-.abonnes-statut-chips { display: none; }
+.abonnes-statut-chips {
+  display: none;
+}
 
 @media (max-width: 639px) {
-  .abonnes-statut-chips { display: block; }
+  .abonnes-statut-chips {
+    display: block;
+  }
   .abonnes-statut-select,
-  .abonnes-quartier-select { display: none; }
+  .abonnes-quartier-select {
+    display: none;
+  }
 }
 
 // Topbar et filtres → portés par PageTopbarComponent et PageFiltersComponent
@@ -26,9 +32,16 @@
   flex-direction: column;
   gap: var(--pas-3);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 
-  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
+  @media (max-width: 1023px) {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-2);
+  }
 }
 
 // ── Bannière d'erreur ─────────────────────────────────────────────────────────
@@ -56,7 +69,9 @@
   cursor: pointer;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--danger-fond); }
+    &:hover {
+      background: var(--danger-fond);
+    }
   }
 }
 
@@ -142,7 +157,9 @@
 .abonnes-table__action-btn {
   @include action-ligne;
 
-  &--reactiver { @include action-ligne-succes; }
+  &--reactiver {
+    @include action-ligne-succes;
+  }
 }
 
 // ── État vide ─────────────────────────────────────────────────────────────────
@@ -172,7 +189,9 @@
   gap: var(--pas-3);
   cursor: pointer;
 
-  &:active { background: var(--surface-douce); }
+  &:active {
+    background: var(--surface-douce);
+  }
 
   &__avatar {
     width: 38px;
@@ -190,13 +209,29 @@
     // Dégradés variés (M-05) : stables par abonné (hash-picked), ambre = suspendu.
     // 4 gradients tirés exclusivement de la palette DESIGN.md (Bleu Rivière clair,
     // navy, Vert Nappe, Vert Profond) — variance décorative sans dette de palette.
-    &--g1 { background: linear-gradient(135deg, var(--action), var(--bleu-riviere-clair)); }
-    &--g2 { background: linear-gradient(135deg, var(--navy-nuit), var(--action)); }
-    &--g3 { background: linear-gradient(135deg, var(--succes), var(--vert-profond)); }
-    &--suspendu { background: linear-gradient(135deg, var(--ambre-attente), var(--ambre-attente)); }
-    &--resilie { background: linear-gradient(135deg, var(--encre-3), var(--encre-3)); }
+    &--g1 {
+      background: linear-gradient(135deg, var(--action), var(--bleu-riviere-clair));
+    }
+    &--g2 {
+      background: linear-gradient(135deg, var(--navy-nuit), var(--action));
+    }
+    &--g3 {
+      background: linear-gradient(135deg, var(--succes), var(--vert-profond));
+    }
+    &--suspendu {
+      background: linear-gradient(135deg, var(--ambre-attente), var(--ambre-attente));
+    }
+    &--resilie {
+      background: linear-gradient(135deg, var(--encre-3), var(--encre-3));
+    }
   }
-  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-1);
+  }
   &__nom {
     font-size: var(--texte-lg);
     font-weight: 700;
@@ -205,23 +240,51 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &--muted { color: var(--encre-3); }
+    &--muted {
+      color: var(--encre-3);
+    }
   }
-  &__sub { font-size: var(--texte-xs); color: var(--encre-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-1); flex-shrink: 0; }
-  &__chevron { color: var(--filet); font-size: var(--texte-sm); }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--pas-1);
+    flex-shrink: 0;
+  }
+  &__chevron {
+    color: var(--filet);
+    font-size: var(--texte-sm);
+  }
 }
 
 // Mobile : wrapper transparent, cartes accolées (1px) avec coins arrondis en
 // tête et pied de groupe (M-05)
 @media (max-width: 1023px) {
-  .abonnes-card { border: none; background: transparent; border-radius: 0; overflow: visible; }
+  .abonnes-card {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
   .acard {
     margin-bottom: 1px;
 
-    &:first-of-type { border-radius: 12px 12px 2px 2px; }   // xl + mini (accolées)
-    &:last-of-type { border-radius: 2px 2px 12px 12px; }    // mini + xl
-    &:only-of-type { border-radius: var(--rayon-lg); }
+    &:first-of-type {
+      border-radius: 12px 12px 2px 2px;
+    } // xl + mini (accolées)
+    &:last-of-type {
+      border-radius: 2px 2px 12px 12px;
+    } // mini + xl
+    &:only-of-type {
+      border-radius: var(--rayon-lg);
+    }
   }
 }
 

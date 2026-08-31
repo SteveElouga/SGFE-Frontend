@@ -1,11 +1,17 @@
 @use '../../../../styles/variables' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 .relances-content {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
@@ -83,7 +89,9 @@
   display: flex;
   gap: var(--pas-3);
 
-  &--last .tl-line { display: none; }
+  &--last .tl-line {
+    display: none;
+  }
 }
 
 .tl-rail {
@@ -105,11 +113,32 @@
   border: 2px solid;
   box-sizing: border-box;
 
-  &.tone--1 { background: var(--attente-fond); border-color: var(--attente); color: var(--ambre-attente); }
-  &.tone--2 { background: var(--attente-fond); border-color: var(--attente); color: var(--ambre-attente); }
-  &.tone--3 { background: var(--danger-fond); border-color: var(--danger); color: var(--danger-encre); }
-  &.tone--4 { background: var(--rouge-braise); border-color: var(--rouge-braise); color: var(--surface); }
-  &.tone--upcoming { background: var(--surface-douce); border-color: var(--filet-pale); border-style: dashed; color: var(--encre-3); }
+  &.tone--1 {
+    background: var(--attente-fond);
+    border-color: var(--attente);
+    color: var(--ambre-attente);
+  }
+  &.tone--2 {
+    background: var(--attente-fond);
+    border-color: var(--attente);
+    color: var(--ambre-attente);
+  }
+  &.tone--3 {
+    background: var(--danger-fond);
+    border-color: var(--danger);
+    color: var(--danger-encre);
+  }
+  &.tone--4 {
+    background: var(--rouge-braise);
+    border-color: var(--rouge-braise);
+    color: var(--surface);
+  }
+  &.tone--upcoming {
+    background: var(--surface-douce);
+    border-color: var(--filet-pale);
+    border-style: dashed;
+    color: var(--encre-3);
+  }
 
   &--future {
     background: var(--surface-douce);
@@ -150,8 +179,14 @@
   font-weight: 600;
   color: var(--encre);
 
-  &--suspension { font-weight: 700; color: var(--rouge-braise); }
-  &--future { color: var(--encre-3); margin-bottom: var(--pas-1); }
+  &--suspension {
+    font-weight: 700;
+    color: var(--rouge-braise);
+  }
+  &--future {
+    color: var(--encre-3);
+    margin-bottom: var(--pas-1);
+  }
 }
 
 .tl-when {
@@ -161,8 +196,12 @@
   white-space: nowrap;
 }
 
-.tl-delivered { color: var(--succes-encre); }
-.tl-scheduled { color: var(--encre-3); }
+.tl-delivered {
+  color: var(--succes-encre);
+}
+.tl-scheduled {
+  color: var(--encre-3);
+}
 
 .tl-msg {
   background: var(--surface-douce);
@@ -222,7 +261,9 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 
-  @media (max-width: 639px) { flex-direction: column; }
+  @media (max-width: 639px) {
+    flex-direction: column;
+  }
 }
 
 .btn-paiement {
@@ -233,8 +274,10 @@
   flex: 0 1 auto;
   padding-inline: var(--pas-5);
 
-  @media (max-width: 639px) { flex: 1 1 auto; }
-  min-height: 44px;                    // WCAG 2.5.5;
+  @media (max-width: 639px) {
+    flex: 1 1 auto;
+  }
+  min-height: 44px; // WCAG 2.5.5;
   border: none;
   border-radius: var(--rayon-md);
   background: linear-gradient(135deg, var(--action), var(--action-survol));
@@ -246,12 +289,14 @@
   transition: opacity 0.15s;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { opacity: 0.9; }
+    &:hover {
+      opacity: 0.9;
+    }
   }
 }
 
 .btn-renvoi {
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-md);
@@ -260,17 +305,29 @@
   font-size: var(--texte-sm);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s, transform 160ms var(--ease-out);
+  transition:
+    background 0.12s,
+    transform 160ms var(--ease-out);
   display: inline-flex;
   align-items: center;
   gap: var(--pas-2);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { background: var(--surface-douce); }
+    &:hover:not(:disabled) {
+      background: var(--surface-douce);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-  &:active:not(:disabled) { transform: scale(0.97); }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 // ── Sheet confirmation renvoi WhatsApp ────────────────────────────────────────
@@ -335,7 +392,7 @@
   &__preview-body {
     margin: 0;
     padding: var(--pas-2) var(--pas-3);
-    background: var(--succes-fond);                 // mint-lueur = bulle "message WhatsApp"
+    background: var(--succes-fond); // mint-lueur = bulle "message WhatsApp"
     border-radius: var(--rayon-md);
     font-size: var(--texte-md);
     line-height: 1.5;
@@ -361,7 +418,10 @@
     align-items: center;
     justify-content: center;
     gap: var(--pas-2);
-    transition: transform 160ms var(--ease-out), background 0.15s ease, opacity 0.15s ease;
+    transition:
+      transform 160ms var(--ease-out),
+      background 0.15s ease,
+      opacity 0.15s ease;
 
     &--send {
       background: var(--succes-encre);
@@ -369,11 +429,22 @@
       box-shadow: var(--ombre-portee);
 
       @media (hover: hover) and (pointer: fine) {
-        &:hover:not(:disabled) { background: var(--vert-profond); }
+        &:hover:not(:disabled) {
+          background: var(--vert-profond);
+        }
       }
-      &:focus-visible { outline: 2px solid var(--succes-encre); outline-offset: 2px; }
-      &:active:not(:disabled) { transform: scale(0.97); }
-      &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+      &:focus-visible {
+        outline: 2px solid var(--succes-encre);
+        outline-offset: 2px;
+      }
+      &:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+      &:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
     }
 
     &--cancel {
@@ -385,11 +456,21 @@
       font-size: var(--texte-md);
 
       @media (hover: hover) and (pointer: fine) {
-        &:hover:not(:disabled) { background: var(--surface-douce); }
+        &:hover:not(:disabled) {
+          background: var(--surface-douce);
+        }
       }
-      &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-      &:active:not(:disabled) { transform: scale(0.97); }
-      &:disabled { opacity: 0.6; cursor: not-allowed; }
+      &:focus-visible {
+        outline: 2px solid var(--action);
+        outline-offset: 2px;
+      }
+      &:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
   }
 }

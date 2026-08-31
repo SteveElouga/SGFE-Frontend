@@ -5,10 +5,10 @@
   display: block;
 }
 
+// Région défilante (`page-scroll`) : pleine largeur pour que la barre se pose
+// au bord de l'écran. Le plafond de lecture passe dans le rembourrage.
 .user-form-page {
-  padding: var(--pas-5) var(--pas-6);
-  max-width: 600px;
-  margin: 0 auto;
+  padding: var(--pas-5) max(var(--pas-6), calc((100% - 600px) / 2));
 }
 
 .user-form-page__breadcrumb {
@@ -71,7 +71,9 @@
   border: 1px solid var(--filet-pale);
   border-radius: var(--rayon-sm);
   overflow: hidden;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 
   &:focus-within {
     border-color: var(--action);
@@ -144,7 +146,7 @@
 .user-form__cancel {
   display: flex;
   align-items: center;
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   border-radius: var(--rayon-md);
   border: 1px solid var(--filet);
@@ -166,7 +168,7 @@
   display: flex;
   align-items: center;
   gap: var(--pas-2);
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-5);
   background: var(--action);
   color: var(--surface);
