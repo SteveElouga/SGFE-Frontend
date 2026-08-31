@@ -11,10 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { SelectModule } from 'primeng/select';
+import { InputTextModule } from 'primeng/inputtext';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
-import { ExportsService } from '../../core/rapports/exports.service';
+import { CriteresExport, ExportsService } from '../../core/rapports/exports.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { GET_STATS_GLOBALES } from '../../graphql/queries/stats.queries';
 import { CampagnesService } from '../../core/campagnes/campagnes.service';
@@ -41,7 +42,16 @@ interface StatsGlobales {
 @Component({
   selector: 'app-rapports-list',
   standalone: true,
-  imports: [FormsModule, TranslatePipe, DecimalPipe, SelectModule, PageTopbarComponent, ErrorBannerComponent, FcfaPipe],
+  imports: [
+    FormsModule,
+    TranslatePipe,
+    DecimalPipe,
+    SelectModule,
+    InputTextModule,
+    PageTopbarComponent,
+    ErrorBannerComponent,
+    FcfaPipe,
+  ],
   templateUrl: './rapports-list.component.html',
   styleUrl: './rapports-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -98,8 +108,57 @@ export class RapportsListComponent implements OnInit {
   readonly stats = signal<StatsGlobales | null>(null);
   /** Identifiant de l'export en cours ('factures' | 'paiements' | 'synthese' | 'bilan'). */
   readonly exporting = signal<string | null>(null);
-  /** Campagne ciblée par les 3 exports par-campagne (le bilan impayés est global). */
+  /** Campagne ciblée par la synthèse PDF, et par les CSV en mode « campagne ». */
   readonly selectedCampagneId = signal<string | null>(null);
+
+  // ── Exports CSV : par campagne, ou par période ─────────────────────────────
+  //
+  // Le serveur exigeait un `campagne_id`. Un comptable qui voulait son journal
+  // du mois devait donc exporter campagne par campagne et recoller les fichiers
+  // à la main — et les régularisations, créées sans campagne, n'apparaissaient
+  // dans aucun export. Les deux critères sont maintenant offerts ici.
+  //
+  // La synthèse PDF et le bilan des impayés ne changent pas : le premier est par
+  // nature une synthèse DE campagne, le second est déjà global.
+  readonly modeExport = signal<'campagne' | 'periode'>('campagne');
+  readonly dateDebut = signal('');
+  readonly dateFin = signal('');
+
+  /** Bornes inversées : refusé côté serveur, autant le dire avant l'appel. */
+  readonly periodeInvalide = computed(() => {
+    const d = this.dateDebut();
+    const f = this.dateFin();
+    return !!d && !!f && d > f;
+  });
+
+  /** Les critères tels qu'ils partiront — une seule source pour les deux CSV. */
+  readonly criteresExport = computed<CriteresExport>(() =>
+    this.modeExport() === 'campagne'
+      ? { campagneId: this.selectedCampagneId() ?? '' }
+      : { dateDebut: this.dateDebut(), dateFin: this.dateFin() },
+  );
+
+  /** Un export CSV est-il lançable ? */
+  readonly csvPret = computed(() =>
+    this.modeExport() === 'campagne' ? !!this.selectedCampagneId() : !this.periodeInvalide(),
+  );
+
+  /**
+   * Ce que l'export va contenir, en clair sous le bouton.
+   *
+   * Aucune borne est un critère valide — c'est ce qu'une clôture d'exercice
+   * demande — mais un bouton qui rend tout l'historique sans le dire est un
+   * bouton qu'on ne clique pas deux fois. Il le dit.
+   */
+  readonly libelleCritere = computed(() => {
+    if (this.modeExport() === 'campagne') return this.translate.instant('RAPPORTS.PAR_CAMPAGNE');
+    const d = this.dateDebut();
+    const f = this.dateFin();
+    if (d && f) return `${d} → ${f}`;
+    if (d) return this.translate.instant('RAPPORTS.PERIODE_DEPUIS', { debut: d });
+    if (f) return this.translate.instant('RAPPORTS.PERIODE_JUSQU', { fin: f });
+    return this.translate.instant('RAPPORTS.TOUT_HISTORIQUE');
+  });
 
   readonly tauxRecouvrement = computed(() => {
     const s = this.stats();
@@ -146,13 +205,15 @@ export class RapportsListComponent implements OnInit {
   // ── Exports serveur (écran 13) ──────────────────────────────────────────────
 
   exportFactures(): void {
-    const id = this.selectedCampagneId();
-    if (id) void this.run('factures', () => this.exports.facturesCsv(id));
+    if (!this.csvPret()) return;
+    const criteres = this.criteresExport();
+    void this.run('factures', () => this.exports.facturesCsv(criteres));
   }
 
   exportPaiements(): void {
-    const id = this.selectedCampagneId();
-    if (id) void this.run('paiements', () => this.exports.paiementsCsv(id));
+    if (!this.csvPret()) return;
+    const criteres = this.criteresExport();
+    void this.run('paiements', () => this.exports.paiementsCsv(criteres));
   }
 
   exportSynthese(): void {
