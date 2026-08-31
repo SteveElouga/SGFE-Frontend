@@ -117,7 +117,8 @@
             }
           </div>
           @if (f.remplaceeParId) {
-            <a class="annulee-bandeau__lien" [routerLink]="['/facturation', f.remplaceeParId]">
+            <!-- `/factures` : `/facturation` n'est pas une route, le lien menait au login. -->
+            <a class="annulee-bandeau__lien" [routerLink]="['/factures', f.remplaceeParId]">
               {{ 'FACTURATION.ANNULATION.BANDEAU_REMPLACEE' | translate }}
             </a>
           }

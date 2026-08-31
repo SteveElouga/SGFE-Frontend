@@ -496,7 +496,12 @@ export class FactureDetailComponent implements OnInit {
    */
   async onAnnulationFaite(nouvelle: Facture | null): Promise<void> {
     if (nouvelle) {
-      await this.router.navigate(['/facturation', nouvelle.factureId]);
+      // `/factures`, et non `/facturation` : aucune route de ce nom n'existe.
+      // Le lien tombait donc dans `{ path: '**', redirectTo: 'login' }` — après
+      // avoir annulé et régénéré une facture, l'utilisateur se retrouvait à
+      // l'écran de connexion. Les onze autres liens vers une facture du dépôt
+      // emploient bien `/factures`.
+      await this.router.navigate(['/factures', nouvelle.factureId]);
       return;
     }
     await this.reload();

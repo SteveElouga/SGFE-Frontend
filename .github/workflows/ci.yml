@@ -43,6 +43,20 @@ jobs:
       - name: Production build
         run: npx ng build --configuration production
 
+      # Deux invariants que ni le compilateur ni les tests ne peuvent voir,
+      # parce que chaque fichier est juste séparément — c'est son accord avec un
+      # autre qui ne l'est pas :
+      #
+      #  • chaque écran routé dans la coquille marque sa région défilante, sans
+      #    quoi le bas de la page est inatteignable, sans aucune erreur ;
+      #  • aucun lien ne vise une route inexistante — le joker `**` les renvoie
+      #    au login, ce qui déconnecte l'utilisateur sans rien dire.
+      #
+      # Les deux défauts ont existé. Les deux scripts les reproduisent sur le
+      # code d'avant.
+      - name: Invariants d'interface
+        run: npm run verify:ui
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
