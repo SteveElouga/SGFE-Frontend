@@ -1,6 +1,6 @@
 <app-page-topbar [title]="'RAPPORTS.TITLE' | translate" [subtitle]="'RAPPORTS.SUBTITLE' | translate" />
 
-<div class="rap">
+<div class="rap page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />

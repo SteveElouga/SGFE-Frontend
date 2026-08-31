@@ -1,6 +1,8 @@
 @use '../../../../styles/variables' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // Topbar déléguée à <app-page-topbar> ; le badge CRÉATION/MODIFICATION est
 // porté par `overline` (surtitre au-dessus du titre en mobile).
@@ -13,7 +15,11 @@
   flex-direction: column;
   gap: var(--pas-3);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 }
 
 // ── Squelette chargement ──────────────────────────────────────────────────────
@@ -98,7 +104,9 @@
 // éléments sur deux colonnes et « Prénom » se retrouvait seul, moitié droite
 // vide. Le numéro d'abonné — qui n'est pas encore attribué et qu'on ne saisit
 // pas — prend la ligne entière, et le nom retrouve son prénom.
-.af-field--pleine-ligne { grid-column: 1 / -1; }
+.af-field--pleine-ligne {
+  grid-column: 1 / -1;
+}
 
 // ── Champs de formulaire ──────────────────────────────────────────────────────
 
@@ -296,7 +304,9 @@
     box-shadow: var(--ombre-action);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { opacity: 0.9; }
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+      }
     }
   }
 

@@ -1,7 +1,10 @@
 @use '../../../styles/variables' as *;
 
 // Projetée dans la carte de filtres via le slot [fp-extra].
-.paiements-date-range { flex: 0 0 auto; min-width: 168px; }
+.paiements-date-range {
+  flex: 0 0 auto;
+  min-width: 168px;
+}
 
 :host {
   display: block;
@@ -30,15 +33,26 @@
   background: var(--surface);
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, transform 160ms var(--ease-out);
+  transition:
+    background 0.15s ease,
+    transform 160ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-douce); }
+    &:hover {
+      background: var(--surface-douce);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 
-  i { font-size: var(--icone-xs); }
+  i {
+    font-size: var(--icone-xs);
+  }
 }
 
 // ── Page layout ───────────────────────────────────────────────────────────────
@@ -46,7 +60,11 @@
 .paiements-content {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
@@ -56,8 +74,8 @@
 // famille) qui signale "argent encaissé confirmé" sans violer la doctrine
 // side-tab. Chiffre 30/800 Vert Profond porte le Chiffre Fort.
 .total-kpi {
-  background: var(--succes-fond);               // Mint Lueur
-  border: 1px solid var(--succes-trait);         // Mint Trait
+  background: var(--succes-fond); // Mint Lueur
+  border: 1px solid var(--succes-trait); // Mint Trait
   border-radius: var(--rayon-lg);
   padding: var(--pas-3) var(--pas-4);
   display: flex;
@@ -73,10 +91,10 @@
   }
 
   &__value {
-    font-size: var(--texte-5xl);                  // metric-md
-    font-weight: 800;                 // Chiffre Fort
+    font-size: var(--texte-5xl); // metric-md
+    font-weight: 800; // Chiffre Fort
     line-height: 1;
-    color: var(--vert-profond);                   // Vert Profond
+    color: var(--vert-profond); // Vert Profond
     font-variant-numeric: tabular-nums;
   }
 
@@ -104,7 +122,9 @@
   }
 
   @media (max-width: 1023px) {
-    &__value { font-size: var(--texte-4xl); }     // metric compact mobile
+    &__value {
+      font-size: var(--texte-4xl);
+    } // metric compact mobile
   }
 }
 
@@ -159,16 +179,31 @@
   overflow: hidden;
 }
 
-.col-date { color: var(--encre-3); white-space: nowrap; font-size: var(--texte-sm); }
-.col-abonne .abonne-nom { font-weight: 600; font-size: var(--texte-md); color: var(--encre); }
-.col-facture { font-size: var(--texte-xs); color: var(--encre-3); }
-.col-montant { font-weight: 700; font-size: var(--texte-lg); color: var(--encre); }
+.col-date {
+  color: var(--encre-3);
+  white-space: nowrap;
+  font-size: var(--texte-sm);
+}
+.col-abonne .abonne-nom {
+  font-weight: 600;
+  font-size: var(--texte-md);
+  color: var(--encre);
+}
+.col-facture {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+}
+.col-montant {
+  font-weight: 700;
+  font-size: var(--texte-lg);
+  color: var(--encre);
+}
 
 // ── Référence transaction (Principe #2 : donnée obligatoire pour MM/virement) ──
 .col-reference {
   font-size: var(--texte-sm);
   color: var(--encre-2);
-  font-variant-numeric: tabular-nums;   // alignement des références numériques
+  font-variant-numeric: tabular-nums; // alignement des références numériques
   max-width: 180px;
   display: inline-block;
   overflow: hidden;
@@ -177,7 +212,9 @@
   vertical-align: bottom;
 
   // Espèces : pas de référence attendue → tiret décoratif silencieux
-  &--none { color: var(--encre-3); }
+  &--none {
+    color: var(--encre-3);
+  }
 
   // MM/virement sans référence : anomalie métier → signal ambre discret
   &--missing {
@@ -187,26 +224,38 @@
   }
 }
 
-.montant--partiel { color: var(--action); }
+.montant--partiel {
+  color: var(--action);
+}
 
 // ── Mode badges ───────────────────────────────────────────────────────────────
 
 .mode-badge {
   display: inline-block;
   padding: var(--pas-1) var(--pas-2);
-  border-radius: var(--badge-rayon);                 // rounded.sm — aligné sur <app-badge> partagé
+  border-radius: var(--badge-rayon); // rounded.sm — aligné sur <app-badge> partagé
   font-size: var(--badge-texte);
   font-weight: var(--badge-poids);
   letter-spacing: var(--badge-espace);
   text-transform: var(--badge-casse);
   border: 1px solid;
 
-  &--especes      { background: var(--surface-douce); border-color: var(--filet); color: var(--encre-2); }
-  &--mobile_money { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
-  &--virement     { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
+  &--especes {
+    background: var(--surface-douce);
+    border-color: var(--filet);
+    color: var(--encre-2);
+  }
+  &--mobile_money {
+    background: var(--action-lueur);
+    border-color: var(--action-trait);
+    color: var(--action-survol);
+  }
+  &--virement {
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
+  }
 }
-
-
 
 // ── Carte mobile (via data-table appCardRow) ──────────────────────────────────
 .pcard {
@@ -220,12 +269,46 @@
   flex-direction: column;
   gap: var(--pas-2);
 
-  &__top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--pas-2); }
-  &__id { min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
-  &__abonne { font-size: var(--texte-md); font-weight: 700; color: var(--encre); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  &__ref { font-size: var(--texte-xs); color: var(--encre-3); }
-  &__montant { font-size: var(--texte-lg); font-weight: 700; color: var(--encre); white-space: nowrap; flex-shrink: 0; &.montant--partiel { color: var(--action); } }
-  &__bottom { display: flex; align-items: center; gap: var(--pas-2); flex-wrap: wrap; }
+  &__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--pas-2);
+  }
+  &__id {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-1);
+  }
+  &__abonne {
+    font-size: var(--texte-md);
+    font-weight: 700;
+    color: var(--encre);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__ref {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+  }
+  &__montant {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    white-space: nowrap;
+    flex-shrink: 0;
+    &.montant--partiel {
+      color: var(--action);
+    }
+  }
+  &__bottom {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    flex-wrap: wrap;
+  }
   &__reference {
     font-size: var(--texte-xs);
     color: var(--encre-2);
@@ -235,13 +318,21 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 
-    &--missing { color: var(--ambre-attente); font-style: italic; }
+    &--missing {
+      color: var(--ambre-attente);
+      font-style: italic;
+    }
   }
 }
 
 // Mobile : wrapper transparent + chrome de carte (via appCardRow)
 @media (max-width: 1023px) {
-  .table-wrap { border: none; background: transparent; border-radius: 0; overflow: visible; }
+  .table-wrap {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
   .pcard {
     background: var(--surface);
     border: 1px solid var(--filet);

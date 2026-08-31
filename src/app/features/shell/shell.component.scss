@@ -7,7 +7,7 @@
   left: 8px;
   z-index: 1000;
   padding: var(--pas-3) var(--pas-4);
-  min-height: 44px;                 // WCAG 2.5.5
+  min-height: 44px; // WCAG 2.5.5
   display: flex;
   align-items: center;
   border-radius: var(--rayon-md);
@@ -27,7 +27,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .shell__skip { transition: none; }
+  .shell__skip {
+    transition: none;
+  }
 }
 
 :host {
@@ -41,14 +43,33 @@
   overflow: hidden;
 }
 
+// L'en-tête de page sort du flux défilant.
+//
+// Avant, `.shell__content` portait `overflow-y: auto` et contenait TOUT, y
+// compris l'`app-page-topbar` de la page. L'en-tête ne partait pas — il est en
+// `position: sticky` — mais la barre de défilement, elle, appartenait à ce
+// conteneur : elle courait donc sur toute la hauteur, en longeant l'en-tête,
+// et démarrait au ras du haut de l'écran.
+//
+// `sticky` garde l'en-tête *visible pendant* qu'il défile. Le sortir du
+// conteneur fait qu'il *ne défile pas du tout* — et c'est seulement dans ce
+// second cas que la piste s'arrête à son bord inférieur.
+//
+// La colonne est posée ici et sur l'hôte de la route ; chaque page marque
+// ensuite sa région défilante d'une classe `page-scroll`.
 .shell__content {
   flex: 1;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   // C'était `--filet` : une couleur de bordure servant de fond de page. Le
   // reste de l'application pose son contenu sur `--fond`.
   background: var(--fond);
   min-width: 0;
 }
+// L'hôte du composant routé et la région défilante sont stylés dans
+// `global.scss` : ils appartiennent aux composants de page, hors de
+// l'encapsulation de ce composant-ci.
 
 // Scrim : masqué par défaut (desktop), affiché en mobile quand le tiroir est ouvert.
 .shell__scrim {
@@ -90,7 +111,13 @@
   }
 
   .shell--menu-open {
-    .shell__sidebar { transform: translateX(0); }
-    .shell__scrim { display: block; opacity: 1; pointer-events: auto; }
+    .shell__sidebar {
+      transform: translateX(0);
+    }
+    .shell__scrim {
+      display: block;
+      opacity: 1;
+      pointer-events: auto;
+    }
   }
 }

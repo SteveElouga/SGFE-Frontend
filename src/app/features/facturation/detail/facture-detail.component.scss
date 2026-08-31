@@ -2,12 +2,18 @@
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 .detail-content {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
@@ -72,7 +78,9 @@
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
 
-  .pi { font-size: var(--icone-xs); }
+  .pi {
+    font-size: var(--icone-xs);
+  }
 }
 
 .detail-card__actions-col {
@@ -99,12 +107,21 @@
   border-radius: var(--rayon-md);
   font-size: var(--texte-sm);
   font-weight: 600;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
-  &:disabled { opacity: 0.45; }
+  &:disabled {
+    opacity: 0.45;
+  }
 
   &--outline {
-    @include btn-variant(var(--surface), var(--encre-2), $border: 1px solid var(--filet), $hover-bg: var(--surface-douce));
+    @include btn-variant(
+      var(--surface),
+      var(--encre-2),
+      $border: 1px solid var(--filet),
+      $hover-bg: var(--surface-douce)
+    );
   }
 
   &--dark {
@@ -113,13 +130,20 @@
 
   &--primary {
     @include btn-variant(
-      var(--action), var(--surface),
+      var(--action),
+      var(--surface),
       $shadow: var(--ombre-action),
       $hover-bg: var(--action-survol)
     );
   }
 
-  &--full { width: 100%; height: 44px; justify-content: center; font-size: var(--texte-md); font-weight: 700; }
+  &--full {
+    width: 100%;
+    height: 44px;
+    justify-content: center;
+    font-size: var(--texte-md);
+    font-weight: 700;
+  }
 }
 
 // ── Calculation card ──────────────────────────────────────────────────────────
@@ -142,7 +166,9 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--pas-2);
 
-  @media (max-width: 639px) { grid-template-columns: 1fr; }
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
 }
 
 .calc-info-cell {
@@ -191,7 +217,9 @@
 
     // Cellules opérateurs de l'en-tête : vides, servent juste à occuper la
     // colonne pour aligner les valeurs avec les opérateurs du corps.
-    .calc-op-head { padding: 0 var(--pas-1); }
+    .calc-op-head {
+      padding: 0 var(--pas-1);
+    }
 
     // Header avec pastille d'aide contextuelle (TARIF → tooltip "défini par admin")
     .calc-table__head-help {
@@ -211,7 +239,9 @@
     transition: color 0.12s;
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { color: var(--action); }
+      &:hover {
+        color: var(--action);
+      }
     }
     &:focus-visible {
       color: var(--action);
@@ -254,9 +284,17 @@
   font-size: var(--texte-3xl);
   font-weight: 600;
 
-  &--old  { color: var(--encre-3); }
-  &--new  { color: var(--encre); font-weight: 700; }
-  &--conso { color: var(--encre); font-weight: 800; }
+  &--old {
+    color: var(--encre-3);
+  }
+  &--new {
+    color: var(--encre);
+    font-weight: 700;
+  }
+  &--conso {
+    color: var(--encre);
+    font-weight: 800;
+  }
   &--tarif {
     font-size: var(--texte-md);
     font-weight: 500;
@@ -275,7 +313,7 @@
   padding: 0 var(--pas-2);
   font-size: var(--texte-3xl);
   font-weight: 400;
-  color: var(--encre-3);                 // Ardoise (AA 5.6:1 sur blanc)
+  color: var(--encre-3); // Ardoise (AA 5.6:1 sur blanc)
   line-height: 1;
   text-align: center;
   user-select: none;
@@ -374,7 +412,7 @@
     }
     height: 100%;
     border-radius: var(--rayon-xs);
-    transform: scaleX(var(--pct, 0));   // scaleX (non layout) au lieu de width animée
+    transform: scaleX(var(--pct, 0)); // scaleX (non layout) au lieu de width animée
     transform-origin: left center;
     transition: transform 0.4s var(--ease-out);
     will-change: transform;
@@ -387,8 +425,12 @@
     font-weight: 600;
   }
 
-  &__paid { color: var(--action); }
-  &__remaining { color: var(--danger-encre); }
+  &__paid {
+    color: var(--action);
+  }
+  &__remaining {
+    color: var(--danger-encre);
+  }
 }
 
 .paiement-form {
@@ -424,14 +466,20 @@
     background: var(--attente-fond);
     border-color: var(--attente-trait);
 
-    .journal-entry__text { color: var(--ambre-attente); font-weight: 500; }
+    .journal-entry__text {
+      color: var(--ambre-attente);
+      font-weight: 500;
+    }
   }
 
   &--error {
     background: var(--danger-fond);
     border-color: var(--danger-trait);
 
-    .journal-entry__text { color: var(--danger-encre); font-weight: 600; }
+    .journal-entry__text {
+      color: var(--danger-encre);
+      font-weight: 600;
+    }
   }
 
   &__head {
@@ -475,9 +523,13 @@
     white-space: nowrap;
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { background: var(--danger-fond); }
+      &:hover {
+        background: var(--danger-fond);
+      }
     }
-    i { font-size: var(--icone-xs); }
+    i {
+      font-size: var(--icone-xs);
+    }
   }
 
   // Détail technique de l'erreur : petit, tronqué à 2 lignes (message complet
@@ -493,7 +545,6 @@
     overflow: hidden;
   }
 }
-
 
 // Distillation finale : carte neutre (fond blanc + border 1px slate héritée
 // de .detail-card). Le signal ambre est entièrement porté par
@@ -517,14 +568,16 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border-radius: var(--rayon-md);                 // rounded.md — aligné ramp DESIGN.md
+    border-radius: var(--rayon-md); // rounded.md — aligné ramp DESIGN.md
     background: var(--attente-fond);
     color: var(--ambre-attente);
     font-size: var(--texte-lg);
     flex-shrink: 0;
   }
 
-  &__text { min-width: 0; }
+  &__text {
+    min-width: 0;
+  }
 }
 
 .correction-desc {
@@ -539,22 +592,32 @@
   align-items: center;
   gap: var(--pas-3);
 
-  .correction-select { flex: 1 1 200px; min-width: 0; }
+  .correction-select {
+    flex: 1 1 200px;
+    min-width: 0;
+  }
 }
 
 // Bouton « Appliquer » : hauteur alignée sur le select, ton ambre (action
 // manuelle à confirmer). Ne s'efface plus quand désactivé (garde un contour).
 .correction-apply {
-  min-height: 44px;                    // WCAG 2.5.5;
+  min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   flex-shrink: 0;
 }
 
 // Rangée empilée (pleine largeur) quand la carte est étroite.
 @container fdetail (max-width: 639px) {
-  .correction-row { flex-wrap: wrap; }
-  .correction-row .correction-select { flex-basis: 100%; }
-  .correction-apply { width: 100%; justify-content: center; }
+  .correction-row {
+    flex-wrap: wrap;
+  }
+  .correction-row .correction-select {
+    flex-basis: 100%;
+  }
+  .correction-apply {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .correction-warning {
@@ -570,12 +633,19 @@
   line-height: 1.5;
   color: var(--attente-encre);
 
-  i { margin-top: 1px; flex-shrink: 0; }
+  i {
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
 }
 
 // ── Paiement en bottom sheet (mobile · MB-06) ─────────────────────────────────
-.paiement-form__backdrop { display: none; }
-.paiement-form__grip { display: none; }
+.paiement-form__backdrop {
+  display: none;
+}
+.paiement-form__grip {
+  display: none;
+}
 
 @media (max-width: 1023px) {
   .paiement-form__backdrop {
@@ -592,7 +662,7 @@
     bottom: 0;
     z-index: 100;
     background: var(--surface);
-    border-radius: 24px 24px 0 0;       // rounded.sheet — conforme signature mobile bottom-sheet
+    border-radius: 24px 24px 0 0; // rounded.sheet — conforme signature mobile bottom-sheet
     padding: var(--pas-3) var(--pas-4) calc(var(--pas-5) + env(safe-area-inset-bottom, 0px));
     margin: 0;
     max-height: 88vh;
@@ -609,8 +679,13 @@
   }
 
   // MB-05 : table de calcul plus compacte sur mobile
-  .calc-table__head > div { padding: var(--pas-2) var(--pas-2); font-size: var(--texte-xs); }   // 9→10 (ramp `micro`)
-  .calc-val { padding: var(--pas-2) var(--pas-2); }
+  .calc-table__head > div {
+    padding: var(--pas-2) var(--pas-2);
+    font-size: var(--texte-xs);
+  } // 9→10 (ramp `micro`)
+  .calc-val {
+    padding: var(--pas-2) var(--pas-2);
+  }
 }
 
 // ═══ Mobile (MB-05) ═══════════════════════════════════════════════════════════
@@ -618,7 +693,9 @@
 // des équivalents desktop. Placé en fin de fichier pour gagner la cascade.
 
 // ── Héro solde : bordure bleue + montant rouge + badge ────────────────────────
-.msolde { display: none; }
+.msolde {
+  display: none;
+}
 
 @media (max-width: 1023px) {
   .msolde {
@@ -630,7 +707,10 @@
     padding: var(--pas-4);
     text-align: center;
 
-    &--paid { border-color: var(--succes); box-shadow: var(--anneau); }
+    &--paid {
+      border-color: var(--succes);
+      box-shadow: var(--anneau);
+    }
 
     &__label {
       font-size: var(--texte-xs);
@@ -665,12 +745,17 @@
       line-height: 1.2;
     }
 
-    &__devise { font-size: var(--texte-lg); font-weight: 600; }
+    &__devise {
+      font-size: var(--texte-lg);
+      font-weight: 600;
+    }
   }
 }
 
 // ── Calcul en lignes clé/valeur ───────────────────────────────────────────────
-.mrows { display: none; }
+.mrows {
+  display: none;
+}
 
 @media (max-width: 1023px) {
   .mrows {
@@ -688,17 +773,32 @@
         background: var(--surface-douce);
         border-bottom: none;
 
-        .mrows__k { font-weight: 700; color: var(--encre); }
-        .mrows__v { font-size: var(--texte-md); }
+        .mrows__k {
+          font-weight: 700;
+          color: var(--encre);
+        }
+        .mrows__v {
+          font-size: var(--texte-md);
+        }
       }
     }
-    &__k { font-size: var(--texte-sm); color: var(--encre-3); }
-    &__v { font-size: var(--texte-sm); font-weight: 600; color: var(--encre); white-space: nowrap; }
+    &__k {
+      font-size: var(--texte-sm);
+      color: var(--encre-3);
+    }
+    &__v {
+      font-size: var(--texte-sm);
+      font-weight: 600;
+      color: var(--encre);
+      white-space: nowrap;
+    }
   }
 }
 
 // ── Paiements MB-05 : check vert + mode + montant vert ───────────────────────
-.mpaiements { display: none; }
+.mpaiements {
+  display: none;
+}
 
 @media (max-width: 1023px) {
   .mpaiements {
@@ -725,10 +825,27 @@
       flex-shrink: 0;
     }
 
-    &__body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    &__mode { font-size: var(--texte-sm); font-weight: 600; color: var(--encre); }
-    &__meta { font-size: var(--texte-xs); color: var(--encre-3); }
-    &__montant { font-size: var(--texte-md); font-weight: 700; color: var(--succes-encre); flex-shrink: 0; }
+    &__body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    &__mode {
+      font-size: var(--texte-sm);
+      font-weight: 600;
+      color: var(--encre);
+    }
+    &__meta {
+      font-size: var(--texte-xs);
+      color: var(--encre-3);
+    }
+    &__montant {
+      font-size: var(--texte-md);
+      font-weight: 700;
+      color: var(--succes-encre);
+      flex-shrink: 0;
+    }
 
     &__reste {
       display: flex;
@@ -738,12 +855,18 @@
       font-weight: 500;
       color: var(--encre-3);
     }
-    &__reste-montant { font-size: var(--texte-sm); font-weight: 700; color: var(--danger-encre); }
+    &__reste-montant {
+      font-size: var(--texte-sm);
+      font-weight: 700;
+      color: var(--danger-encre);
+    }
   }
 }
 
 // ── Rangée d'actions : + Paiement / 📄 / ↻ ────────────────────────────────────
-.mactions { display: none; }
+.mactions {
+  display: none;
+}
 
 @media (max-width: 1023px) {
   .mactions {
@@ -779,32 +902,50 @@
     flex-shrink: 0;
 
     // Sans « + Paiement » (facture payée), les carrés se partagent la largeur
-    &:first-child { flex: 1; }
+    &:first-child {
+      flex: 1;
+    }
 
-    &--wa { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &--wa {
+      background: var(--succes-fond);
+      border-color: var(--succes-trait);
+      color: var(--succes-encre);
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
 // ── Masquage des équivalents desktop ─────────────────────────────────────────
 @media (max-width: 1023px) {
-  .detail-content { padding: var(--pas-2) var(--pas-3); gap: var(--pas-3); }
+  .detail-content {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-3);
+  }
 
   .detail-card--header,
   .calc-grid2,
   .calc-table,
   .paiements-list,
   .progress-bar,
-  .card-row-header .btn { display: none; }
+  .card-row-header .btn {
+    display: none;
+  }
 }
 
 // ── Correction manuelle du statut : repliée par défaut ────────────────────────
 .correction {
   // `.detail-card` impose un `display` au <details>, ce qui neutralise le
   // masquage natif de l'état fermé : on le rétablit explicitement.
-  &:not([open]) > *:not(summary) { display: none; }
+  &:not([open]) > *:not(summary) {
+    display: none;
+  }
 
-  &[open] .correction-summary__chevron { transform: rotate(180deg); }
+  &[open] .correction-summary__chevron {
+    transform: rotate(180deg);
+  }
 }
 
 .correction-summary {
@@ -817,7 +958,9 @@
   font-weight: 600;
   color: var(--encre-2);
 
-  &::-webkit-details-marker { display: none; }
+  &::-webkit-details-marker {
+    display: none;
+  }
 
   &:focus-visible {
     outline: var(--focus-epaisseur) solid var(--focus-anneau);
@@ -825,7 +968,9 @@
     border-radius: var(--rayon-xs);
   }
 
-  &__label { flex: 1; }
+  &__label {
+    flex: 1;
+  }
 
   &__chevron {
     font-size: var(--texte-sm);
@@ -868,7 +1013,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .correction-summary__chevron { transition: none; }
+  .correction-summary__chevron {
+    transition: none;
+  }
 }
 
 // Un versement qui solde la facture n'est pas un acompte.
@@ -911,7 +1058,9 @@
     }
   }
 
-  &__k { color: var(--encre-2); }
+  &__k {
+    color: var(--encre-2);
+  }
 
   &__v {
     color: var(--encre);
@@ -920,11 +1069,17 @@
 
     // La dette porte l'encre du danger : elle ne doit pas se lire comme une
     // consommation ordinaire.
-    &--dette { color: var(--danger-encre); font-weight: 700; }
+    &--dette {
+      color: var(--danger-encre);
+      font-weight: 700;
+    }
 
     // L'avoir est un crédit : vert, à l'opposé du rouge de la dette qui le
     // précède parfois dans le même bloc.
-    &--avoir { color: var(--succes-encre); font-weight: 700; }
+    &--avoir {
+      color: var(--succes-encre);
+      font-weight: 700;
+    }
   }
 
   // L'âge pèse plus que le montant : c'est lui qui fait payer.
@@ -980,7 +1135,10 @@
     text-decoration: none;
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { text-decoration: underline; text-underline-offset: 3px; }
+      &:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
     }
 
     &:focus-visible {
@@ -999,6 +1157,8 @@
   color: var(--danger-encre);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--danger-fond); }
+    &:hover {
+      background: var(--danger-fond);
+    }
   }
 }

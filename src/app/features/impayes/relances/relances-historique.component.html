@@ -4,7 +4,7 @@
   [backLabel]="'RELANCES.BACK' | translate"
 />
 
-<div class="relances-content">
+<div class="relances-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="reload()" />

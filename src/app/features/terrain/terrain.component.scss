@@ -16,6 +16,20 @@
 .terrain {
   position: relative;
   flex: 1;
+  // `.shell__content` ne défile plus : c'est chaque page qui marque sa région
+  // défilante d'une classe `page-scroll`. Terrain ne peut pas le faire — son
+  // en-tête vit à l'intérieur d'un `@switch` à trois vues, et deux d'entre
+  // elles en posent un. L'écran défile donc en bloc, comme avant.
+  //
+  // Sans cette ligne, il *rognerait* au lieu de défiler : c'est le conteneur
+  // parent qui portait l'`overflow` jusqu'ici.
+  //
+  // La géométrie « en-tête hors du flux » ne couvre donc pas cet écran. C'est
+  // assumé : il cible des téléphones, où les barres de défilement sont de
+  // toute façon masquées, et c'est l'écran le plus critique du projet — le
+  // restructurer méritait sa propre passe, pas d'être emporté dans celle-ci.
+  overflow-y: auto;
+  min-height: 0;
   width: 100%;
   max-width: 480px;
   margin: 0 auto;
@@ -49,7 +63,13 @@
   }
 }
 
-.t-loading { display: flex; justify-content: center; padding: var(--pas-7); color: var(--action); font-size: var(--texte-3xl); }
+.t-loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--pas-7);
+  color: var(--action);
+  font-size: var(--texte-3xl);
+}
 
 .t-empty {
   display: flex;
@@ -66,11 +86,14 @@
   justify-content: center;
   gap: var(--pas-3);
   padding: var(--pas-7) var(--pas-4);
-  color: var(--encre-3);                     // était var(--encre-faible) (2.9:1) → 4.5:1
+  color: var(--encre-3); // était var(--encre-faible) (2.9:1) → 4.5:1
   font-size: var(--texte-md);
   text-align: center;
 
-  .pi { font-size: var(--icone-xl); color: var(--encre-3); }
+  .pi {
+    font-size: var(--icone-xl);
+    color: var(--encre-3);
+  }
 }
 
 // ── En-tête (liste + saisie) ──────────────────────────────────────────────────
@@ -79,16 +102,40 @@
   background: var(--navy-nuit);
   padding: var(--pas-3) var(--pas-5) var(--pas-4);
 
-  &--row { display: flex; align-items: center; gap: var(--pas-3); padding: var(--pas-3) var(--pas-4) var(--pas-3); }
+  &--row {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-3);
+    padding: var(--pas-3) var(--pas-4) var(--pas-3);
+  }
 
-  &__campagne { font-size: var(--texte-xs); color: var(--encre-inverse-2); letter-spacing: 0.5px; margin-bottom: var(--pas-1); }  // 0.45 → 0.70 (contraste sur navy)
-  &__title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--pas-3); }
-  &__title { margin: 0; font-size: var(--texte-3xl); font-weight: 700; color: var(--surface); }   // <h1> de l'écran terrain
-  &__sub { font-size: var(--texte-sm); color: var(--encre-inverse-2); margin-top: var(--pas-1); }  // 11px 0.5 → 12px 0.75 (nom d'abonné doit rester lisible sous soleil)
+  &__campagne {
+    font-size: var(--texte-xs);
+    color: var(--encre-inverse-2);
+    letter-spacing: 0.5px;
+    margin-bottom: var(--pas-1);
+  } // 0.45 → 0.70 (contraste sur navy)
+  &__title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--pas-3);
+  }
+  &__title {
+    margin: 0;
+    font-size: var(--texte-3xl);
+    font-weight: 700;
+    color: var(--surface);
+  } // <h1> de l'écran terrain
+  &__sub {
+    font-size: var(--texte-sm);
+    color: var(--encre-inverse-2);
+    margin-top: var(--pas-1);
+  } // 11px 0.5 → 12px 0.75 (nom d'abonné doit rester lisible sous soleil)
 }
 
 .t-back {
-  width: 44px;                        // 34 → 44 (WCAG 2.5.5)
+  width: 44px; // 34 → 44 (WCAG 2.5.5)
   height: 44px;
   border-radius: var(--rayon-md);
   border: none;
@@ -99,13 +146,22 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.15s ease, transform 160ms var(--ease-out);
+  transition:
+    background 0.15s ease,
+    transform 160ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-inverse-fond); }
+    &:hover {
+      background: var(--surface-inverse-fond);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--surface); outline-offset: 2px; }
-  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--surface);
+    outline-offset: 2px;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 // Projeté dans le slot héro du topbar partagé. Ce slot est masqué par défaut
@@ -130,26 +186,35 @@
   justify-content: space-between;
   font-size: var(--texte-xs);
   font-weight: 500;
-  color: var(--encre-inverse-2);   // 0.5 → 0.70
+  color: var(--encre-inverse-2); // 0.5 → 0.70
   margin-bottom: var(--pas-2);
 
-  @media (min-width: 1024px) { color: var(--encre-3); font-size: var(--texte-sm); }
+  @media (min-width: 1024px) {
+    color: var(--encre-3);
+    font-size: var(--texte-sm);
+  }
 }
 
 .t-progress {
   background: var(--surface-inverse-fond);
 
-  @media (min-width: 1024px) { background: var(--filet); }
-  height: 6px;                        // 5 → 6 (léger épaississement pour lisibilité)
+  @media (min-width: 1024px) {
+    background: var(--filet);
+  }
+  height: 6px; // 5 → 6 (léger épaississement pour lisibilité)
   border-radius: 999px;
   overflow: hidden;
 }
 .t-progress__fill {
   background: var(--surface);
 
-  @media (min-width: 1024px) { background: var(--action); }
+  @media (min-width: 1024px) {
+    background: var(--action);
+  }
   height: 100%;
-  transform: scaleX(var(--pct, 0));   // scaleX (non layout) pour éviter le thrash sur Android bas de gamme
+  transform: scaleX(
+    var(--pct, 0)
+  ); // scaleX (non layout) pour éviter le thrash sur Android bas de gamme
   transform-origin: left center;
   transition: transform 0.3s var(--ease-out);
   will-change: transform;
@@ -159,13 +224,19 @@
   background: var(--surface);
   border-bottom: 1px solid var(--filet);
   padding: var(--pas-2) var(--pas-4);
-  font-size: var(--texte-sm);                    // 11 → 12
-  color: var(--encre-2);                     // var(--encre-faible) (2.9:1) → var(--encre-2) (7.1:1 sur blanc — critique : numéro de compteur)
+  font-size: var(--texte-sm); // 11 → 12
+  color: var(
+    --encre-2
+  ); // var(--encre-faible) (2.9:1) → var(--encre-2) (7.1:1 sur blanc — critique : numéro de compteur)
   display: flex;
   align-items: center;
   gap: var(--pas-2);
 
-  &__icon { font-size: var(--texte-sm); color: var(--encre-3); flex-shrink: 0; }
+  &__icon {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+    flex-shrink: 0;
+  }
 }
 
 // ── Bannière hors ligne ───────────────────────────────────────────────────────
@@ -178,14 +249,27 @@
   gap: var(--pas-2);
   color: var(--surface);
 
-  &__icon { font-size: var(--texte-lg); }
-  &__title { font-size: var(--texte-sm); font-weight: 700; }
-  &__sub { font-size: var(--texte-xs); color: var(--encre-inverse-2); margin-top: 1px; }  // 10px 0.75 → 11px 0.85
+  &__icon {
+    font-size: var(--texte-lg);
+  }
+  &__title {
+    font-size: var(--texte-sm);
+    font-weight: 700;
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-inverse-2);
+    margin-top: 1px;
+  } // 10px 0.75 → 11px 0.85
 }
 
 // ── Corps liste ───────────────────────────────────────────────────────────────
 
-.t-body { flex: 1; display: flex; flex-direction: column; }
+.t-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
 .sync-card {
   margin: var(--pas-3) var(--pas-4) 0;
@@ -197,15 +281,38 @@
   align-items: center;
   gap: var(--pas-3);
 
-  &__icon { width: 38px; height: 38px; border-radius: var(--rayon-md); background: var(--ambre-tapis); display: flex; align-items: center; justify-content: center; color: var(--ambre-attente); font-size: var(--texte-xl); flex-shrink: 0; }
-  &__title { font-size: var(--texte-md); font-weight: 700; color: var(--attente-encre); }
-  &__sub { font-size: var(--texte-xs); color: var(--attente-encre); margin-top: var(--pas-1); line-height: 1.4; }   // var(--ambre-attente) → var(--attente-encre) (meilleur contraste + adouci)
-  &__body { flex: 1; min-width: 0; }
+  &__icon {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--rayon-md);
+    background: var(--ambre-tapis);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ambre-attente);
+    font-size: var(--texte-xl);
+    flex-shrink: 0;
+  }
+  &__title {
+    font-size: var(--texte-md);
+    font-weight: 700;
+    color: var(--attente-encre);
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--attente-encre);
+    margin-top: var(--pas-1);
+    line-height: 1.4;
+  } // var(--ambre-attente) → var(--attente-encre) (meilleur contraste + adouci)
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
   &__retry {
     // 44 px, pas 36. C'est le bouton qu'un agent presse quand ses relevés ne
     // sont pas partis — debout, dehors, souvent d'une main. « Presque » la
     // bonne taille est exactement là où l'on rate sa cible.
-    min-height: 44px;                 // WCAG 2.5.5
+    min-height: 44px; // WCAG 2.5.5
     border: 1.5px solid var(--ambre-attente);
     background: var(--surface);
     border-radius: var(--rayon-md);
@@ -215,14 +322,26 @@
     color: var(--ambre-attente);
     cursor: pointer;
     flex-shrink: 0;
-    transition: background 0.15s ease, transform 160ms var(--ease-out);
+    transition:
+      background 0.15s ease,
+      transform 160ms var(--ease-out);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover:not(:disabled) { background: var(--ambre-tapis); }
+      &:hover:not(:disabled) {
+        background: var(--ambre-tapis);
+      }
     }
-    &:focus-visible { outline: 2px solid var(--ambre-attente); outline-offset: 2px; }
-    &:active:not(:disabled) { transform: scale(0.97); }
-    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:focus-visible {
+      outline: 2px solid var(--ambre-attente);
+      outline-offset: 2px;
+    }
+    &:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   }
 }
 
@@ -279,11 +398,25 @@
   }
   transition: background 0.15s ease;
 
-  &--done { background: var(--succes-fond); }
-  &--pending { background: var(--attente-fond); }
-  &--action { cursor: pointer; &:active { background: var(--surface-douce); } }
-  &:disabled { cursor: default; }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: -2px; }
+  &--done {
+    background: var(--succes-fond);
+  }
+  &--pending {
+    background: var(--attente-fond);
+  }
+  &--action {
+    cursor: pointer;
+    &:active {
+      background: var(--surface-douce);
+    }
+  }
+  &:disabled {
+    cursor: default;
+  }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: -2px;
+  }
 
   &__sync {
     font-size: var(--texte-lg);
@@ -300,7 +433,10 @@
     gap: var(--pas-1);
 
     // En carte, l'info ne se partage plus la ligne : elle la prend toute.
-    @media (min-width: 640px) { flex: none; width: 100%; }
+    @media (min-width: 640px) {
+      flex: none;
+      width: 100%;
+    }
   }
   &__name {
     font-size: var(--texte-lg);
@@ -310,15 +446,33 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &--muted { color: var(--encre-3); }
+    &--muted {
+      color: var(--encre-3);
+    }
   }
-  &__sub { font-size: var(--texte-sm); color: var(--encre-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }  // 11px var(--encre-faible) → 12px var(--encre-3)
+  &__sub {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  } // 11px var(--encre-faible) → 12px var(--encre-3)
   &__detail {
     font-size: var(--texte-xs);
     color: var(--encre-3);
-    &--releve, &--estime { color: var(--succes-encre); font-weight: 500; }
-    &--non_releve { color: var(--danger-encre); font-weight: 500; }
-    &--pending { color: var(--attente-encre); font-weight: 500; }
+    &--releve,
+    &--estime {
+      color: var(--succes-encre);
+      font-weight: 500;
+    }
+    &--non_releve {
+      color: var(--danger-encre);
+      font-weight: 500;
+    }
+    &--pending {
+      color: var(--attente-encre);
+      font-weight: 500;
+    }
   }
   &__right {
     display: flex;
@@ -339,7 +493,10 @@
       margin-top: auto;
     }
   }
-  &__chevron { color: var(--encre-3); font-size: var(--texte-sm); }  // var(--filet) → var(--encre-faible) (au moins visible)
+  &__chevron {
+    color: var(--encre-3);
+    font-size: var(--texte-sm);
+  } // var(--filet) → var(--encre-faible) (au moins visible)
 }
 
 .row-badge {
@@ -355,18 +512,50 @@
   // A_RELEVER = triplet Neutral (DESIGN.md Badges & Statuses). L'ambre est
   // réservé à PENDING : partager la même famille chromatique diluait la
   // sémantique « tâche restante » vs « en cours de sync ».
-  &--a_relever { background: var(--fond); border-color: var(--filet); color: var(--encre-2); }
-  &--releve, &--estime { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
-  &--non_releve { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
-  &--pending { background: var(--attente-fond); border-color: var(--attente-trait); color: var(--attente-encre); }
+  &--a_relever {
+    background: var(--fond);
+    border-color: var(--filet);
+    color: var(--encre-2);
+  }
+  &--releve,
+  &--estime {
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
+  }
+  &--non_releve {
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    color: var(--danger-encre);
+  }
+  &--pending {
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    color: var(--attente-encre);
+  }
 }
 
 // ── Saisie (écran 08) ─────────────────────────────────────────────────────────
 
-.saisie-body { padding: var(--pas-3) var(--pas-4) var(--pas-5); display: flex; flex-direction: column; gap: var(--pas-3); }
+.saisie-body {
+  padding: var(--pas-3) var(--pas-4) var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+}
 
 .field {
-  &__label { font-size: var(--texte-sm); font-weight: 500; color: var(--encre-2); margin-bottom: var(--pas-2); display: block; &--strong { font-weight: 600; color: var(--encre); } }
+  &__label {
+    font-size: var(--texte-sm);
+    font-weight: 500;
+    color: var(--encre-2);
+    margin-bottom: var(--pas-2);
+    display: block;
+    &--strong {
+      font-weight: 600;
+      color: var(--encre);
+    }
+  }
   &__hint {
     font-size: var(--texte-xs);
     font-weight: 500;
@@ -376,8 +565,12 @@
     align-items: center;
     gap: var(--pas-1);
 
-    &--error { color: var(--danger-encre); }
-    &-icon { font-size: var(--texte-xs); }
+    &--error {
+      color: var(--danger-encre);
+    }
+    &-icon {
+      font-size: var(--texte-xs);
+    }
   }
 }
 
@@ -387,15 +580,50 @@
   display: flex;
   align-items: baseline;
   gap: var(--pas-2);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
-  &--old { background: var(--surface-douce); border: 1.5px dashed var(--filet); }
-  &--new { background: var(--surface); border: 2px solid var(--action); box-shadow: var(--anneau); }
-  &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
+  &--old {
+    background: var(--surface-douce);
+    border: 1.5px dashed var(--filet);
+  }
+  &--new {
+    background: var(--surface);
+    border: 2px solid var(--action);
+    box-shadow: var(--anneau);
+  }
+  &--error {
+    border-color: var(--danger);
+    box-shadow: var(--anneau-danger);
+  }
 
-  &__value { font-size: var(--texte-5xl); font-weight: 700; line-height: 1; color: var(--encre-2); }   // var(--encre-faible) (1.9:1) → var(--encre-2) (7.1:1 sur var(--surface-douce) — critique)
-  &__unit { font-size: var(--texte-lg); font-weight: 500; color: var(--encre-3); &--new { font-size: var(--texte-xl); font-weight: 600; color: var(--encre-2); } }  // var(--encre-faible) → var(--encre-3)
-  &__tag { margin-left: auto; font-size: var(--texte-xs); font-weight: 500; color: var(--encre-2); background: var(--filet); padding: var(--pas-1) var(--pas-2); border-radius: var(--rayon-xs); align-self: center; }  // var(--encre-faible) → var(--encre-2)
+  &__value {
+    font-size: var(--texte-5xl);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--encre-2);
+  } // var(--encre-faible) (1.9:1) → var(--encre-2) (7.1:1 sur var(--surface-douce) — critique)
+  &__unit {
+    font-size: var(--texte-lg);
+    font-weight: 500;
+    color: var(--encre-3);
+    &--new {
+      font-size: var(--texte-xl);
+      font-weight: 600;
+      color: var(--encre-2);
+    }
+  } // var(--encre-faible) → var(--encre-3)
+  &__tag {
+    margin-left: auto;
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--encre-2);
+    background: var(--filet);
+    padding: var(--pas-1) var(--pas-2);
+    border-radius: var(--rayon-xs);
+    align-self: center;
+  } // var(--encre-faible) → var(--encre-2)
   &__input {
     flex: 1;
     min-width: 0;
@@ -407,8 +635,12 @@
     line-height: 1;
     color: var(--encre);
     padding: 0;
-    &::placeholder { color: var(--encre-3); }
-    &:focus-visible { outline: none; }  // le halo du parent .idx-box--new sert de focus indicator
+    &::placeholder {
+      color: var(--encre-3);
+    }
+    &:focus-visible {
+      outline: none;
+    } // le halo du parent .idx-box--new sert de focus indicator
   }
 }
 
@@ -418,8 +650,18 @@
   border-radius: var(--rayon-md);
   padding: var(--pas-3) var(--pas-4);
 
-  &__label { font-size: var(--texte-xs); font-weight: 500; color: var(--succes-encre); margin-bottom: var(--pas-1); }
-  &__value { font-size: var(--texte-5xl); font-weight: 800; line-height: 1; color: var(--vert-profond); }
+  &__label {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--succes-encre);
+    margin-bottom: var(--pas-1);
+  }
+  &__value {
+    font-size: var(--texte-5xl);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--vert-profond);
+  }
   &__warn {
     display: flex;
     align-items: center;
@@ -431,7 +673,9 @@
     font-weight: 600;
     color: var(--ambre-attente);
 
-    i { font-size: var(--icone-xs); }
+    i {
+      font-size: var(--icone-xs);
+    }
   }
 }
 
@@ -445,14 +689,29 @@
   color: var(--encre);
   resize: none;
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 
-  &::placeholder { color: var(--encre-3); }
-  &:focus, &:focus-visible { border-color: var(--action); box-shadow: var(--anneau); }
-  &--error { border-color: var(--danger); box-shadow: var(--anneau-danger); }
+  &::placeholder {
+    color: var(--encre-3);
+  }
+  &:focus,
+  &:focus-visible {
+    border-color: var(--action);
+    box-shadow: var(--anneau);
+  }
+  &--error {
+    border-color: var(--danger);
+    box-shadow: var(--anneau-danger);
+  }
 }
 
-.saisie-actions { display: flex; flex-direction: column; gap: var(--pas-2); }
+.saisie-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
 
 // Action d'exception (« Impossible de relever cet abonné » — anciennement
 // « Marquer NR/EST » en danger-outline collé au CTA principal, source de
@@ -474,15 +733,28 @@
   font-family: inherit;
   cursor: pointer;
   border-radius: var(--rayon-md);
-  transition: color 0.15s ease, background 0.15s ease, transform 160ms var(--ease-out);
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 160ms var(--ease-out);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { color: var(--danger-encre); background: var(--danger-fond); }
+    &:hover {
+      color: var(--danger-encre);
+      background: var(--danger-fond);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--danger); outline-offset: 2px; }
-  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--danger);
+    outline-offset: 2px;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 
-  i { font-size: var(--icone-xs); }
+  i {
+    font-size: var(--icone-xs);
+  }
 }
 
 // ── Succès (écran 09) ─────────────────────────────────────────────────────────
@@ -509,9 +781,24 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  &__body { flex: 1; min-width: 0; }
-  &__title { font-size: var(--texte-lg); font-weight: 700; color: var(--surface); line-height: 1.2; }
-  &__sub { font-size: var(--texte-sm); color: var(--encre-inverse-2); margin-top: var(--pas-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }  // 12px 0.60 → 12px 0.80 + ellipsis
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+  &__title {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--surface);
+    line-height: 1.2;
+  }
+  &__sub {
+    font-size: var(--texte-sm);
+    color: var(--encre-inverse-2);
+    margin-top: var(--pas-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } // 12px 0.60 → 12px 0.80 + ellipsis
   &__counter {
     font-size: var(--texte-2xl);
     font-weight: 800;
@@ -520,12 +807,24 @@
     flex-shrink: 0;
     letter-spacing: -0.01em;
   }
-  &__counter-sep { color: var(--encre-inverse-3); font-weight: 500; margin: 0 1px; }
+  &__counter-sep {
+    color: var(--encre-inverse-3);
+    font-weight: 500;
+    margin: 0 1px;
+  }
 }
 
-.succ-body { padding: var(--pas-4); }
+.succ-body {
+  padding: var(--pas-4);
+}
 
-.succ-summary-title { font-size: var(--texte-md); font-weight: 700; color: var(--encre); margin-bottom: var(--pas-2); text-align: center; }
+.succ-summary-title {
+  font-size: var(--texte-md);
+  font-weight: 700;
+  color: var(--encre);
+  margin-bottom: var(--pas-2);
+  text-align: center;
+}
 
 .succ-card {
   border: 1px solid var(--filet);
@@ -541,22 +840,46 @@
   padding: var(--pas-2) var(--pas-3);
   border-bottom: 1px solid var(--fond);
   font-size: var(--texte-sm);
-  color: var(--encre-3);                     // était var(--encre-faible)
+  color: var(--encre-3); // était var(--encre-faible)
 
-  span:last-child { font-weight: 700; font-size: var(--texte-lg); color: var(--encre); }
-  &__strong { color: var(--encre); }
+  span:last-child {
+    font-weight: 700;
+    font-size: var(--texte-lg);
+    color: var(--encre);
+  }
+  &__strong {
+    color: var(--encre);
+  }
 
-  &--muted { background: var(--surface-douce); span:last-child { color: var(--encre-2); } }  // var(--encre-faible) → var(--encre-2)
+  &--muted {
+    background: var(--surface-douce);
+    span:last-child {
+      color: var(--encre-2);
+    }
+  } // var(--encre-faible) → var(--encre-2)
   &--conso {
     background: linear-gradient(90deg, var(--succes-fond), var(--mint-tapis));
     border-top: 1.5px solid var(--succes-trait);
     border-bottom: none;
-    span:first-child { font-weight: 600; font-size: var(--texte-md); color: var(--succes-encre); }
+    span:first-child {
+      font-weight: 600;
+      font-size: var(--texte-md);
+      color: var(--succes-encre);
+    }
   }
-  &__conso { font-size: var(--texte-3xl) !important; font-weight: 800 !important; color: var(--vert-profond) !important; }
+  &__conso {
+    font-size: var(--texte-3xl) !important;
+    font-weight: 800 !important;
+    color: var(--vert-profond) !important;
+  }
 }
 
-.succ-meta { font-size: var(--texte-sm); color: var(--encre-3); text-align: center; margin-bottom: var(--pas-3); }  // 11px var(--encre-faible) → 12px var(--encre-3)
+.succ-meta {
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+  text-align: center;
+  margin-bottom: var(--pas-3);
+} // 11px var(--encre-faible) → 12px var(--encre-3)
 
 .next-card {
   background: var(--surface);
@@ -565,11 +888,25 @@
   padding: var(--pas-3) var(--pas-3);
   margin-bottom: var(--pas-3);
 
-  &__label { font-size: var(--texte-xs); font-weight: 600; color: var(--encre-3); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: var(--pas-1); }  // var(--encre-faible) → var(--encre-3)
-  &__name { font-size: var(--texte-lg); font-weight: 700; color: var(--encre); margin-bottom: var(--pas-1); }
-  &__sub { font-size: var(--texte-sm); color: var(--encre-3); }  // 11 → 12
+  &__label {
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-3);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: var(--pas-1);
+  } // var(--encre-faible) → var(--encre-3)
+  &__name {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    margin-bottom: var(--pas-1);
+  }
+  &__sub {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  } // 11 → 12
 }
-
 
 // ── Boutons ───────────────────────────────────────────────────────────────────
 
@@ -581,7 +918,11 @@
   font-family: inherit;
   cursor: pointer;
   border: none;
-  transition: transform 160ms var(--ease-out), background 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 160ms var(--ease-out),
+    background 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .btn-primary {
@@ -597,14 +938,31 @@
   box-shadow: var(--ombre-action);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover:not(:disabled) { background: var(--action-survol); }
+    &:hover:not(:disabled) {
+      background: var(--action-survol);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-  &:active:not(:disabled) { transform: scale(0.97); }
-  &:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
 
-  &__icon { font-size: var(--texte-lg); }
-  &__conso { font-weight: 600; opacity: 0.95; margin-left: var(--pas-1); }
+  &__icon {
+    font-size: var(--texte-lg);
+  }
+  &__conso {
+    font-weight: 600;
+    opacity: 0.95;
+    margin-left: var(--pas-1);
+  }
 }
 
 .btn-success {
@@ -620,14 +978,21 @@
   box-shadow: var(--ombre-portee);
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { filter: brightness(1.05); }
+    &:hover {
+      filter: brightness(1.05);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--vert-profond); outline-offset: 2px; }
-  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--vert-profond);
+    outline-offset: 2px;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 .btn-ghost {
-  height: 44px;                       // 42 → 44 (WCAG)
+  height: 44px; // 42 → 44 (WCAG)
   background: var(--surface);
   color: var(--encre-2);
   border: 1px solid var(--filet);
@@ -635,8 +1000,15 @@
   font-weight: 500;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-douce); }
+    &:hover {
+      background: var(--surface-douce);
+    }
   }
-  &:focus-visible { outline: 2px solid var(--action); outline-offset: 2px; }
-  &:active { transform: scale(0.97); }
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+  }
+  &:active {
+    transform: scale(0.97);
+  }
 }

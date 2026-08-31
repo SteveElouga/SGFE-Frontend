@@ -7,7 +7,7 @@
   [backLabel]="'FACTURATION.DETAIL.BACK' | translate"
 />
 
-<div class="detail-content">
+<div class="detail-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="reload()" />

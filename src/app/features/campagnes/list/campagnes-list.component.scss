@@ -2,19 +2,27 @@
 @use '../../../../styles/variables' as *;
 @use '../../../../styles/buttons' as *;
 
-:host { display: block; }
+:host {
+  display: block;
+}
 
 // Topbar → PageTopbarComponent  |  Filtres → PageFiltersComponent
 
 // ── Filtres : dropdowns (desktop) ↔ recherche + chips seuls (mobile M-05) ─────
 // Les chips remplacent le select de statut sous ~640px ; le select Agent
 // est réservé au desktop (même approche que le Quartier des abonnés).
-.campagnes-statut-chips { display: none; }
+.campagnes-statut-chips {
+  display: none;
+}
 
 @media (max-width: 639px) {
-  .campagnes-statut-chips { display: block; }
+  .campagnes-statut-chips {
+    display: block;
+  }
   .campagnes-statut-select,
-  .campagnes-agent-select { display: none; }
+  .campagnes-agent-select {
+    display: none;
+  }
 }
 
 // ── Contenu scrollable ────────────────────────────────────────────────────────
@@ -25,9 +33,16 @@
   flex-direction: column;
   gap: var(--pas-3);
   background: var(--fond);
-  min-height: calc(100% - 54px);
+  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
+  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
+  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
+  // de 54 px en bas de page.
+  min-height: 100%;
 
-  @media (max-width: 1023px) { padding: var(--pas-2) var(--pas-3); gap: var(--pas-2); }
+  @media (max-width: 1023px) {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-2);
+  }
 }
 
 // ── Carte tableau ─────────────────────────────────────────────────────────────
@@ -46,14 +61,16 @@
   text-align: left;
   background: var(--surface);
   border: none;
-  border-radius: var(--rayon-xs);                                   // mini token (accolées M-05)
+  border-radius: var(--rayon-xs); // mini token (accolées M-05)
   padding: var(--pas-3) var(--pas-3);
   display: flex;
   align-items: center;
   gap: var(--pas-3);
   cursor: pointer;
 
-  &:active { background: var(--surface-douce); }
+  &:active {
+    background: var(--surface-douce);
+  }
 
   &__icon {
     width: 38px;
@@ -66,12 +83,24 @@
     justify-content: center;
     font-size: var(--texte-lg);
 
-    &--en_cours { background: linear-gradient(135deg, var(--action), var(--succes)); }
-    &--planifiee { background: linear-gradient(135deg, var(--navy-nuit), var(--action)); }
-    &--cloturee { background: linear-gradient(135deg, var(--encre-3), var(--encre-faible)); }
+    &--en_cours {
+      background: linear-gradient(135deg, var(--action), var(--succes));
+    }
+    &--planifiee {
+      background: linear-gradient(135deg, var(--navy-nuit), var(--action));
+    }
+    &--cloturee {
+      background: linear-gradient(135deg, var(--encre-3), var(--encre-faible));
+    }
   }
 
-  &__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--pas-1); }
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--pas-1);
+  }
 
   &__nom {
     font-size: var(--texte-lg);
@@ -81,10 +110,18 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    &--muted { color: var(--encre-3); }
+    &--muted {
+      color: var(--encre-3);
+    }
   }
 
-  &__sub { font-size: var(--texte-xs); color: var(--encre-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 
   &__bar {
     display: block;
@@ -110,23 +147,42 @@
     will-change: transform;
   }
 
-  &__right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--pas-1); flex-shrink: 0; }
-  &__chevron { color: var(--filet); font-size: var(--texte-sm); }
+  &__right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--pas-1);
+    flex-shrink: 0;
+  }
+  &__chevron {
+    color: var(--filet);
+    font-size: var(--texte-sm);
+  }
 }
 
 // Mobile : wrapper transparent, cartes accolées (1px) avec coins arrondis en
 // tête et pied de groupe (M-05)
 @media (max-width: 1023px) {
-  .campagnes-card { border: none; background: transparent; border-radius: 0; overflow: visible; }
+  .campagnes-card {
+    border: none;
+    background: transparent;
+    border-radius: 0;
+    overflow: visible;
+  }
   .ccard {
     margin-bottom: 1px;
 
-    &:first-of-type { border-radius: 12px 12px 2px 2px; }    // xl + mini (accolées M-05)
-    &:last-of-type { border-radius: 2px 2px 12px 12px; }     // mini + xl
-    &:only-of-type { border-radius: var(--rayon-lg); }
+    &:first-of-type {
+      border-radius: 12px 12px 2px 2px;
+    } // xl + mini (accolées M-05)
+    &:last-of-type {
+      border-radius: 2px 2px 12px 12px;
+    } // mini + xl
+    &:only-of-type {
+      border-radius: var(--rayon-lg);
+    }
   }
 }
-
 
 // ── Cellule campagne ──────────────────────────────────────────────────────────
 
@@ -207,7 +263,7 @@
     width: 100%;
     height: 6px;
     background: var(--filet);
-    border-radius: var(--rayon-xs);                                 // xs token (pill 6px height)
+    border-radius: var(--rayon-xs); // xs token (pill 6px height)
     overflow: hidden;
   }
 
@@ -224,7 +280,9 @@
     transition: transform 0.3s var(--ease-out);
     will-change: transform;
 
-    &--done { background: var(--succes); }
+    &--done {
+      background: var(--succes);
+    }
   }
 
   &__label {
@@ -233,7 +291,9 @@
     font-variant-numeric: tabular-nums;
     color: var(--encre-3);
 
-    &--muted { color: var(--encre-3); }
+    &--muted {
+      color: var(--encre-3);
+    }
   }
 
   &__skeleton {
@@ -241,23 +301,29 @@
     width: 100%;
     height: 6px;
     background: var(--filet);
-    border-radius: var(--rayon-xs);                                 // xs token
+    border-radius: var(--rayon-xs); // xs token
     animation: shimmer 1.5s infinite ease-in-out;
   }
 }
 
 @keyframes shimmer {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.45; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
 }
-
 
 // ── Boutons d'action ──────────────────────────────────────────────────────────
 
 .btn-action {
   @include action-ligne;
 
-  &--demarrer { @include action-ligne-succes; }
+  &--demarrer {
+    @include action-ligne-succes;
+  }
 }
 
 // ── Boutons dialog ────────────────────────────────────────────────────────────
@@ -270,16 +336,25 @@
   border-radius: var(--rayon-md);
   font-size: var(--texte-lg);
   font-weight: 600;
-  transition: background 0.15s, opacity 0.15s;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
 
-  &:disabled { opacity: 0.5; }
+  &:disabled {
+    opacity: 0.5;
+  }
 
   &--primary {
     @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
   }
 
   &--ghost {
-    @include btn-variant(transparent, var(--encre-3), $border: 1px solid var(--filet), $hover-bg: var(--fond));
+    @include btn-variant(
+      transparent,
+      var(--encre-3),
+      $border: 1px solid var(--filet),
+      $hover-bg: var(--fond)
+    );
   }
 }
 
@@ -309,7 +384,9 @@
     color: var(--encre-2);
   }
 
-  &__input { width: 100%; }
+  &__input {
+    width: 100%;
+  }
 
   &__hint {
     font-size: var(--texte-xs);

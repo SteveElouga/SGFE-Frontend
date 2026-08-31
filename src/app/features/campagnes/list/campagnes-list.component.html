@@ -14,7 +14,7 @@
 </app-page-topbar>
 
 <!-- Contenu scrollable -->
-<div class="campagnes-content">
+<div class="campagnes-content page-scroll">
 
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />

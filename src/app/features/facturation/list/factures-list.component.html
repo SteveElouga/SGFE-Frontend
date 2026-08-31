@@ -15,7 +15,7 @@
   }
 </app-page-topbar>
 
-<div class="factures-content">
+<div class="factures-content page-scroll">
   @if (error()) {
     <app-error-banner [message]="error()!" (retry)="load()" />
   }
