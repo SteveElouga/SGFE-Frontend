@@ -43,12 +43,16 @@
 
   <!-- Carte tableau -->
   <div class="abonnes-card">
+    <!-- `pageSize` à 25 et non 15 : le parc tient sur quelques dizaines de
+         lignes, et paginer à 15 créait une seconde page de quatre abonnés alors
+         que la zone défile déjà. Deux obstacles pour atteindre les derniers, là
+         où un seul suffit. -->
     <app-data-table
       [columns]="columns"
       [rows]="filteredAbonnes()"
       [rowLink]="lienAbonne"
       [loading]="loading()"
-      [pageSize]="15"
+      [pageSize]="25"
       [striped]="true"
       trackKey="id"
       [emptyMessage]="emptyKey()"

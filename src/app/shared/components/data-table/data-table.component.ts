@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TemplateRef,
+  afterRenderEffect,
   computed,
   contentChild,
   contentChildren,
@@ -11,6 +13,7 @@ import {
   output,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
@@ -96,6 +99,44 @@ export class DataTableComponent<T = unknown> {
   /** Émis quand l'utilisateur change le tri via un en-tête cliquable. */
   readonly sortChange = output<SortState | null>();
 
+  // ── Débordement : dire qu'il reste des lignes en dessous ────────────────
+  /**
+   * Le tableau défile à l'intérieur de sa zone depuis que la pagination doit
+   * rester à l'écran. Sur une fenêtre de 900 px, cette zone montre **onze
+   * lignes et demie** — mesuré : 826 px de hauteur visible pour 1 098 px de
+   * contenu sur quinze lignes. Rien ne le disait.
+   *
+   * Le pied annonçait « 1–15 sur 19 » pendant que l'écran en montrait douze :
+   * l'utilisateur a compté douze abonnés sur dix-neuf et conclu qu'il en
+   * manquait sept. Ni le total ni la pagination n'étaient faux — c'est la
+   * coupe qui était invisible.
+   *
+   * Ces deux signaux la rendent visible. Ils sont pilotés par l'événement de
+   * défilement plutôt que par une règle CSS : les ombres de défilement en CSS
+   * pur (`background-attachment: local`) se peignent sur le fond du conteneur,
+   * que les lignes opaques du tableau recouvrent entièrement.
+   */
+  readonly resteEnDessous = signal(false);
+  readonly resteAuDessus = signal(false);
+
+  /**
+   * La zone défilante, pour la mesurer avant tout défilement.
+   *
+   * Sans cette mesure initiale, le voile n'apparaîtrait qu'après que
+   * l'utilisateur a défilé — c'est-à-dire après qu'il a découvert tout seul ce
+   * que le voile est censé lui apprendre.
+   */
+  private readonly zoneDefilante = viewChild<ElementRef<HTMLElement>>('zone');
+
+  /** Recalcule les deux signaux depuis la position réelle de la zone. */
+  jaugerDebordement(zone: HTMLElement): void {
+    // La tolérance d'un pixel évite un scintillement en fin de course : la
+    // hauteur de défilement d'un tableau tombe rarement sur un entier.
+    const restant = zone.scrollHeight - zone.clientHeight - zone.scrollTop;
+    this.resteEnDessous.set(restant > 1);
+    this.resteAuDessus.set(zone.scrollTop > 1);
+  }
+
   // ── Templates projetés ──────────────────────────────────────────────────
   private readonly router = inject(Router);
 
@@ -176,6 +217,16 @@ export class DataTableComponent<T = unknown> {
     effect(() => {
       this.rows();
       untracked(() => this.page.set(0));
+    });
+
+    // Après chaque rendu qui change les lignes affichées : la hauteur du contenu
+    // vient de bouger, et avec elle la réponse à « reste-t-il quelque chose en
+    // dessous ? ». Les deux `set` sont sans effet quand la valeur ne change pas,
+    // donc ce rendu-ci ne peut pas en déclencher un autre indéfiniment.
+    afterRenderEffect(() => {
+      this.pagedRows();
+      const zone = this.zoneDefilante()?.nativeElement;
+      if (zone) this.jaugerDebordement(zone);
     });
   }
 
