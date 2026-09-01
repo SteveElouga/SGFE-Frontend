@@ -58,22 +58,24 @@
               </div>
               <div class="envoi__aside">
                 <app-badge [tone]="statutTone(e.statut)" [label]="'ENVOIS.STATUT.' + e.statut | translate" />
-                @if (e.statut === 'ECHEC') {
-                  <button
-                    type="button"
-                    class="envoi__resend"
-                    [disabled]="resending() === e.envoiId"
-                    [attr.aria-label]="('ENVOIS.RESEND' | translate) + ' — ' + e.destinataire"
-                    (click)="renvoyer(e)"
-                  >
-                    @if (resending() === e.envoiId) {
-                      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
-                    } @else {
-                      <i class="pi pi-refresh" aria-hidden="true"></i>
-                    }
-                    {{ 'ENVOIS.RESEND' | translate }}
-                  </button>
-                }
+                <!-- Sans condition, là où seuls les échecs en avaient un. Un
+                     envoi réussi se renvoie aussi : c'est le seul écran qui
+                     liste les reçus, et un reçu réussi est précisément celui
+                     qu'un abonné vient redemander au guichet. -->
+                <button
+                  type="button"
+                  class="envoi__resend"
+                  [disabled]="resending() === e.envoiId"
+                  [attr.aria-label]="(e.statut === 'ECHEC' ? 'COMMON.RETRY' : 'ENVOIS.RESEND' | translate) + ' — ' + e.destinataire"
+                  (click)="renvoyer(e)"
+                >
+                  @if (resending() === e.envoiId) {
+                    <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                  } @else {
+                    <i class="pi pi-refresh" aria-hidden="true"></i>
+                  }
+                  {{ (e.statut === 'ECHEC' ? 'COMMON.RETRY' : 'ENVOIS.RESEND') | translate }}
+                </button>
               </div>
             </div>
           }

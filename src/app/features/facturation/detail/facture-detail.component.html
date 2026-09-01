@@ -473,11 +473,21 @@
                   @if (e.dateEnvoi) {
                     <span class="journal-entry__date">{{ formatDate(e.dateEnvoi) }}</span>
                   }
-                  @if (e.erreur) {
-                    <button type="button" class="journal-entry__retry" (click)="rejouerEnvoi(e.envoiId)">
-                      <i aria-hidden="true" class="pi pi-replay"></i> {{ 'COMMON.RETRY' | translate }}
-                    </button>
-                  }
+                  <!-- Le bouton ne s'affichait que sur un échec. Un reçu bien
+                       envoyé que l'abonné redemande — message perdu, téléphone
+                       changé, copie demandée au guichet — n'avait donc aucun
+                       chemin de renvoi, sur cet écran ni sur aucun autre.
+                       Réessayer et renvoyer sont le même geste technique ; ils
+                       ne disent pas la même chose, d'où deux libellés. -->
+                  <button
+                    type="button"
+                    class="journal-entry__retry"
+                    [disabled]="renvoiEnCours() === e.envoiId"
+                    (click)="rejouerEnvoi(e.envoiId)"
+                  >
+                    <i aria-hidden="true" class="pi pi-replay"></i>
+                    {{ (e.erreur ? 'COMMON.RETRY' : 'ENVOIS.RESEND') | translate }}
+                  </button>
                 </span>
               </div>
               @if (e.erreur) {
