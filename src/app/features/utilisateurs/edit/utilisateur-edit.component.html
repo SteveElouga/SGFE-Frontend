@@ -22,7 +22,14 @@
   }
 </header>
 
-<div class="uedit-content">
+<!--
+  `page-scroll` marque la région qui défile — voir `styles/global.scss`.
+  Sans elle, l'en-tête étant sorti du flux, ce bloc ne rétrécissait pas sous la
+  hauteur de son contenu et se faisait rogner par l'`overflow: hidden` de la
+  coquille : le bas du formulaire était inatteignable. C'était le seul des vingt
+  écrans routés à ne pas la porter.
+-->
+<div class="uedit-content page-scroll">
 
   <!-- Chargement -->
   @if (loading()) {

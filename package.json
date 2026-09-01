@@ -8,6 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "verify:jointure": "node scripts/verifier-jointure-api.mjs",
+    "verify:defilement": "node scripts/verifier-defilement-pages.mjs",
+    "verify:liens": "node scripts/verifier-liens-routes.mjs",
+    "verify:ui": "npm run verify:defilement && npm run verify:liens",
     "e2e": "playwright test"
   },
   "private": true,
