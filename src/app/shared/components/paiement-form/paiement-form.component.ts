@@ -18,6 +18,7 @@ import { extractGqlError } from '../../../core/auth/auth.service';
 import { Facture, ModePaiement } from '../../models/facture.model';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { ToastService } from '../../services/toast.service';
+import type { FactureCible } from '../../../graphql/vues';
 
 /**
  * Fenêtre d'annulation (Gmail-style Undo Send) : l'utilisateur clique
@@ -49,7 +50,7 @@ const UNDO_WINDOW_MS = 5000;
 })
 export class PaiementFormComponent {
   /** Facture ciblée. Le parent doit passer une facture valide quand il monte le composant. */
-  readonly facture = input.required<Facture>();
+  readonly facture = input.required<FactureCible>();
   /** Solde restant à régler (loadé par le parent). Null pendant le chargement. */
   readonly soldeRestant = input<number | null>(null);
   /**
@@ -211,7 +212,7 @@ export class PaiementFormComponent {
   }
 
   /** Appel API effectif après la fenêtre d'annulation. */
-  private async actuallyEnregistrer(f: Facture): Promise<void> {
+  private async actuallyEnregistrer(f: FactureCible): Promise<void> {
     try {
       await this.facturesService.enregistrerPaiement({
         factureId: f.factureId,

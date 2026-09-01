@@ -29,6 +29,7 @@ import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
+import type { ConfigUpdatedSubscription, TarifUpdatedSubscription } from '../../graphql/generated';
 
 /** Étape de relance affichée dans l'onglet « Relances & Impayés ». */
 interface RelanceStep {
@@ -189,8 +190,7 @@ export class ConfigurationComponent implements OnInit {
    */
   private ecouterParametres(): void {
     this.apollo
-      .subscribe<{ configUpdated: ConfigParam }>({
-        query: CONFIG_UPDATED_SUB,
+      .subscribe<ConfigUpdatedSubscription>({ query: CONFIG_UPDATED_SUB,
         context: { silentError: true },
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -229,8 +229,7 @@ export class ConfigurationComponent implements OnInit {
    */
   private ecouterTarif(): void {
     this.apollo
-      .subscribe<{ tarifUpdated: Tarif }>({
-        query: TARIF_UPDATED_SUB,
+      .subscribe<TarifUpdatedSubscription>({ query: TARIF_UPDATED_SUB,
         context: { silentError: true },
       })
       .pipe(takeUntilDestroyed(this.destroyRef))

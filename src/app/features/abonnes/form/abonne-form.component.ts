@@ -19,7 +19,6 @@ import {
   UpdateAbonneInput,
   UpdateCompteurInput,
 } from '../../../core/abonnes/abonnes.service';
-import { Abonne } from '../../../shared/models/abonne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
@@ -29,6 +28,7 @@ import {
   normalizePhone,
   toLocalPhone,
 } from '../../../shared/utils/phone.utils';
+import type { AbonneDetail } from '../../../graphql/vues';
 
 type FormMode = 'create' | 'edit';
 
@@ -49,7 +49,7 @@ export class AbonneFormComponent implements OnInit {
   readonly mode: FormMode;
   readonly abonneId: string | null;
 
-  readonly abonne = signal<Abonne | null>(null);
+  readonly abonne = signal<AbonneDetail | null>(null);
   readonly pageLoading = signal(false);
   readonly saving = signal(false);
   readonly loadError = signal<string | null>(null);

@@ -4,9 +4,9 @@ import { firstValueFrom } from 'rxjs';
 import { GET_STATS_GLOBALES, GET_STATS_PAR_MOIS } from '../../graphql/queries/stats.queries';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { AgentAffecte, Campagne } from '../../shared/models/campagne.model';
-import { Facture, Paiement, SoldeFacture } from '../../shared/models/facture.model';
 import { CampagnesService } from '../campagnes/campagnes.service';
 import { FacturesService } from '../factures/factures.service';
+import type { GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery, GetStatsGlobalesQuery, GetStatsParMoisQuery } from '../../graphql/generated';
 
 /**
  * Données brutes issues du backend Reporting — cumulé "depuis toujours".
@@ -94,10 +94,10 @@ export class DashboardService {
   private cache: {
     stats: StatsGlobales | null;
     statsParMois: StatsMois[] | null;
-    campagnes: Campagne[] | null;
-    impayes: SoldeFacture[] | null;
-    paiements: Paiement[] | null;
-    factures: Facture[] | null;
+    campagnes: GetCampagnesQuery['campagnes'] | null;
+    impayes: GetImpayesQuery['impayes'] | null;
+    paiements: GetAllPaiementsQuery['paiements'] | null;
+    factures: GetFacturesQuery['factures'] | null;
     ts: number;
   } | null = null;
   private static readonly TTL_MS = 30_000;
@@ -112,10 +112,10 @@ export class DashboardService {
   async loadAll(): Promise<{
     stats: StatsGlobales | null;
     statsParMois: StatsMois[] | null;
-    campagnes: Campagne[] | null;
-    impayes: SoldeFacture[] | null;
-    paiements: Paiement[] | null;
-    factures: Facture[] | null;
+    campagnes: GetCampagnesQuery['campagnes'] | null;
+    impayes: GetImpayesQuery['impayes'] | null;
+    paiements: GetAllPaiementsQuery['paiements'] | null;
+    factures: GetFacturesQuery['factures'] | null;
   }> {
     if (this.cache && Date.now() - this.cache.ts < DashboardService.TTL_MS) {
       return this.cache;
@@ -144,10 +144,10 @@ export class DashboardService {
   ): Promise<{
     stats: StatsGlobales | null;
     statsParMois: StatsMois[] | null;
-    campagnes: Campagne[] | null;
-    impayes: SoldeFacture[] | null;
-    paiements: Paiement[] | null;
-    factures: Facture[] | null;
+    campagnes: GetCampagnesQuery['campagnes'] | null;
+    impayes: GetImpayesQuery['impayes'] | null;
+    paiements: GetAllPaiementsQuery['paiements'] | null;
+    factures: GetFacturesQuery['factures'] | null;
   }> {
     // Cache actuel comme base (les autres sources restent inchangées).
     const base = this.cache ?? {
@@ -177,8 +177,7 @@ export class DashboardService {
   private async loadStats(): Promise<StatsGlobales | null> {
     try {
       const res = await firstValueFrom(
-        this.apollo.query<{ statsGlobales: StatsGlobales }>({
-          query: GET_STATS_GLOBALES,
+        this.apollo.query<GetStatsGlobalesQuery>({ query: GET_STATS_GLOBALES,
           fetchPolicy: 'network-only',
           context: { silentError: true },
         }),
@@ -195,8 +194,7 @@ export class DashboardService {
   private async loadStatsParMois(): Promise<StatsMois[] | null> {
     try {
       const res = await firstValueFrom(
-        this.apollo.query<{ statsParMois: StatsMois[] }>({
-          query: GET_STATS_PAR_MOIS,
+        this.apollo.query<GetStatsParMoisQuery>({ query: GET_STATS_PAR_MOIS,
           variables: { nbMois: 12 },
           fetchPolicy: 'network-only',
           context: { silentError: true },
@@ -206,11 +204,10 @@ export class DashboardService {
     } catch { return null; }
   }
 
-  private async loadCampagnes(): Promise<Campagne[] | null> {
+  private async loadCampagnes(): Promise<GetCampagnesQuery['campagnes'] | null> {
     try {
       const res = await firstValueFrom(
-        this.apollo.query<{ campagnes: Campagne[] }>({
-          query: GET_CAMPAGNES,
+        this.apollo.query<GetCampagnesQuery>({ query: GET_CAMPAGNES,
           fetchPolicy: 'network-only',
           context: { silentError: true },
         }),
@@ -219,17 +216,17 @@ export class DashboardService {
     } catch { return null; }
   }
 
-  private async loadImpayes(): Promise<SoldeFacture[] | null> {
+  private async loadImpayes(): Promise<GetImpayesQuery['impayes'] | null> {
     try { return await this.facturesService.getImpayes(); }
     catch { return null; }
   }
 
-  private async loadPaiements(): Promise<Paiement[] | null> {
+  private async loadPaiements(): Promise<GetAllPaiementsQuery['paiements'] | null> {
     try { return await this.facturesService.getAllPaiements(); }
     catch { return null; }
   }
 
-  private async loadFactures(): Promise<Facture[] | null> {
+  private async loadFactures(): Promise<GetFacturesQuery['factures'] | null> {
     try { return await this.facturesService.getFactures(); }
     catch { return null; }
   }

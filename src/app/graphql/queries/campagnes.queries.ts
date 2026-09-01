@@ -1,33 +1,20 @@
 import { gql } from '@apollo/client/core';
+import { CAMPAGNE_FIELDS } from '../fragments';
 
 export const GET_CAMPAGNES = gql`
+  ${CAMPAGNE_FIELDS}
   query GetCampagnes {
     campagnes {
-      campagneId
-      nom
-      periodeMois
-      periodeAnnee
-      statut
-      datePlanifiee
-      dateCreation
-      dateCloture
-      createdBy
+      ...CampagneFields
     }
   }
 `;
 
 export const GET_CAMPAGNE = gql`
+  ${CAMPAGNE_FIELDS}
   query GetCampagne($campagneId: String!) {
     campagne(campagneId: $campagneId) {
-      campagneId
-      nom
-      periodeMois
-      periodeAnnee
-      statut
-      datePlanifiee
-      dateCreation
-      dateCloture
-      createdBy
+      ...CampagneFields
     }
   }
 `;

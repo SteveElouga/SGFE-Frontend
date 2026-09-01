@@ -27,8 +27,19 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
+      # `tsc --noEmit` seul ne vérifiait RIEN : `tsconfig.json` est un
+      # fichier-solution (`"files": []` plus des références de projet), donc le
+      # programme construit était vide — 0 fichier de `src/app` sur 179. Cette
+      # étape a été verte pendant toute la vie du dépôt sans lire une ligne. Le
+      # mode build (`-b`) suit les références et vérifie les deux projets.
       - name: TypeScript check
-        run: npx tsc --noEmit
+        run: npm run verify:types
+
+      # `generated.ts` est versionné : il peut donc vieillir. Un type qui décrit
+      # l'ancienne sélection d'une requête compile parfaitement et remet
+      # exactement la panne que le codegen est là pour empêcher.
+      - name: Types GraphQL à jour
+        run: npm run verify:codegen
 
       # Le proxy du serveur de dev et le nginx de production doivent desservir
       # les mêmes chemins d'API. Ils ont divergé de quatre familles — PDF, CSV,

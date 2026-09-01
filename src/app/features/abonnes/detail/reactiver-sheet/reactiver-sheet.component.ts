@@ -10,9 +10,10 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AbonnesService } from '../../../../core/abonnes/abonnes.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Abonne, StatutAbonne } from '../../../../shared/models/abonne.model';
+import { StatutAbonne } from '../../../../shared/models/abonne.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../../../shared/services/toast.service';
+import type { AbonneCible } from '../../../../graphql/vues';
 
 /**
  * Bottom-sheet de réactivation d'un abonné suspendu. Auto-contenu : appelle le
@@ -28,7 +29,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 })
 export class ReactiverSheetComponent {
   readonly open = input(false);
-  readonly abonne = input<Abonne | null>(null);
+  readonly abonne = input<AbonneCible | null>(null);
   readonly close = output<void>();
   readonly saved = output<StatutAbonne>();
 

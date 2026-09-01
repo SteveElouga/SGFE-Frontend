@@ -19,6 +19,7 @@ import { ZoneInput, formatPeriodeCampagne } from '../../../shared/models/campagn
 import { GET_ABONNES_ACTIFS } from '../../../graphql/queries/abonnes.queries';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import type { GetAbonnesActifsQuery } from '../../../graphql/generated';
 
 interface Agent {
   id: string;
@@ -192,8 +193,7 @@ export class CampagneFormComponent implements OnInit {
 
   private loadAbonnesActifs(): void {
     this.apollo
-      .watchQuery<{ abonnesActifs: AbonneActif[] }>({
-        query: GET_ABONNES_ACTIFS,
+      .watchQuery<GetAbonnesActifsQuery>({ query: GET_ABONNES_ACTIFS,
         // Bâtir une campagne sur une liste périmée y oublie des abonnés.
         fetchPolicy: 'cache-and-network',
       })

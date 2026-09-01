@@ -13,11 +13,12 @@ import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { LayoutService } from '../../services/layout.service';
 import { NavService } from '../../services/nav.service';
-import { Campagne, Progression, formatPeriodeCampagne } from '../../models/campagne.model';
+import { Progression, formatPeriodeCampagne } from '../../models/campagne.model';
 import {
   GET_CAMPAGNE_ACTIVE,
   GET_PROGRESSION,
 } from '../../../graphql/queries/campagnes.queries';
+import type { GetCampagneActiveQuery, GetProgressionQuery } from '../../../graphql/generated';
 
 interface SidebarCampagne {
   campagneId: string;
@@ -62,8 +63,7 @@ export class SidebarComponent implements OnInit {
   private async loadCampagneActive(): Promise<void> {
     try {
       const result = await firstValueFrom(
-        this.apollo.query<{ campagnes: Pick<Campagne, 'campagneId' | 'periodeMois' | 'periodeAnnee' | 'statut'>[] }>({
-          query: GET_CAMPAGNE_ACTIVE,
+        this.apollo.query<GetCampagneActiveQuery>({ query: GET_CAMPAGNE_ACTIVE,
           context: { silentError: true },
         }),
       );
@@ -71,8 +71,7 @@ export class SidebarComponent implements OnInit {
       if (!enCours) return;
 
       const progResult = await firstValueFrom(
-        this.apollo.query<{ progression: Progression }>({
-          query: GET_PROGRESSION,
+        this.apollo.query<GetProgressionQuery>({ query: GET_PROGRESSION,
           variables: { campagneId: enCours.campagneId },
           fetchPolicy: 'network-only',
           context: { silentError: true },

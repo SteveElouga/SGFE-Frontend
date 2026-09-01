@@ -12,9 +12,10 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AbonnesService } from '../../../../core/abonnes/abonnes.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Abonne, StatutAbonne } from '../../../../shared/models/abonne.model';
+import { StatutAbonne } from '../../../../shared/models/abonne.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../../../shared/services/toast.service';
+import type { AbonneCibleCompteur } from '../../../../graphql/vues';
 
 /**
  * Bottom-sheet de résiliation définitive d'un abonné (écran 31 · MC-05).
@@ -31,7 +32,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 })
 export class ResilierSheetComponent {
   readonly open = input(false);
-  readonly abonne = input<Abonne | null>(null);
+  readonly abonne = input<AbonneCibleCompteur | null>(null);
   readonly close = output<void>();
   readonly saved = output<StatutAbonne>();
 

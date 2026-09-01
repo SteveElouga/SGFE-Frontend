@@ -8,8 +8,20 @@ import type { BadgeTone } from '../components/badge/badge.component';
 export type StatutFacture = 'IMPAYEE' | 'PARTIELLE' | 'PAYEE' | 'ANNULEE';
 export type ModePaiement = 'ESPECES' | 'MOBILE_MONEY' | 'VIREMENT';
 
-/** Teinte de la puce de statut d'une facture (source unique pour tous les écrans). */
-export function factureStatutTone(statut: StatutFacture): BadgeTone {
+/**
+ * Teinte de la puce de statut d'une facture (source unique pour tous les écrans).
+ *
+ * Le paramètre est une `string`, pas `StatutFacture`, parce que c'est ce que la
+ * gateway rend : `Facture.statut` y est typé `String`, pas une énumération. Les
+ * quatre valeurs ci-dessous sont celles que le backend produit aujourd'hui,
+ * mais rien dans le schéma ne l'impose — et le prétendre dans la signature
+ * obligeait chaque écran à une conversion forcée qui ne vérifiait rien.
+ *
+ * Une valeur inconnue prend donc la teinte neutre et garde son libellé brut :
+ * un état que ce frontend ne connaît pas encore s'affiche tel quel, plutôt que
+ * d'emprunter l'apparence de l'un des quatre.
+ */
+export function factureStatutTone(statut: string): BadgeTone {
   switch (statut) {
     case 'PAYEE':
       return 'success';
@@ -21,6 +33,7 @@ export function factureStatutTone(statut: StatutFacture): BadgeTone {
     // porte aucune urgence. Lui donner une couleur d'alerte la ferait
     // ressortir d'une liste qu'elle n'a plus vocation à peupler.
     case 'ANNULEE':
+    default:
       return 'neutral';
   }
 }

@@ -11,10 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Envoi, Facture, SoldeFacture } from '../../../../shared/models/facture.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { formatFcfa } from '../../../../shared/pipes/fcfa.pipe';
+import type { EnvoiFacture, FactureDetail, SoldeDetail } from '../../../../graphql/vues';
+import type { RegenererFactureMutation } from '../../../../graphql/generated';
 
 /** Ce que le geste va faire : constater seulement, ou constater puis corriger. */
 export type ModeAnnulation = 'annuler' | 'regenerer';
@@ -50,14 +51,14 @@ export type ModeAnnulation = 'annuler' | 'regenerer';
 })
 export class AnnulerSheetComponent {
   readonly open = input(false);
-  readonly facture = input<Facture | null>(null);
-  readonly solde = input<SoldeFacture | null>(null);
+  readonly facture = input<FactureDetail | null>(null);
+  readonly solde = input<SoldeDetail | null>(null);
   /** Envois de cette facture — pour savoir si l'abonné l'a déjà reçue. */
-  readonly envois = input<readonly Envoi[]>([]);
+  readonly envois = input<readonly EnvoiFacture[]>([]);
 
   readonly close = output<void>();
   /** Émis après annulation ; porte la facture de remplacement s'il y en a une. */
-  readonly done = output<Facture | null>();
+  readonly done = output<RegenererFactureMutation['regenererFacture']['nouvelle'] | null>();
 
   private readonly facturesService = inject(FacturesService);
   private readonly toast = inject(ToastService);

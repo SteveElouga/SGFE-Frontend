@@ -1,21 +1,5 @@
 import { gql } from '@apollo/client/core';
-
-const ABONNE_LIST_FIELDS = gql`
-  fragment AbonneListFields on Abonne {
-    id
-    numeroAbonne
-    nom
-    prenom
-    statut
-    compteur {
-      id
-      numeroCompteur
-      quartier
-      camp
-      statut
-    }
-  }
-`;
+import { ABONNE_LIST_FIELDS } from '../fragments';
 
 export const CREATE_ABONNE = gql`
   mutation CreateAbonne($input: CreateAbonneInput!) {

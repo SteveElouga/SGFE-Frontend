@@ -31,6 +31,7 @@ import { ConfigurationService } from '../core/configuration/configuration.servic
 import { User } from '../shared/models/user.model';
 import { Facture, Paiement, Tarif } from '../shared/models/facture.model';
 import { ConfigParam, InfosSociete } from '../shared/models/configuration.model';
+import type { FactureLigne, PaiementJournal } from '../graphql/vues';
 
 /** Laisse se résoudre les `await` de `load()` avant que l'écoute ne démarre. */
 const laisserChargerPuisEcouter = () => new Promise((r) => setTimeout(r, 0));
@@ -46,25 +47,26 @@ const utilisateur = (p: Partial<User> = {}): User => ({
   ...p,
 });
 
-const facture = (p: Partial<Facture> = {}): Facture => ({
+// La fixture porte exactement `FactureLigneFields` : ce que la liste reçoit,
+// et rien de plus. Elle décrivait auparavant le type du schéma, donc des champs
+// (`prixM3`, `pdfPath`, `dateGeneration`) qu'aucune requête de liste ne
+// rapporte — un test qui vérifiait la conservation de valeurs que le code ne
+// voit jamais.
+const facture = (p: Partial<FactureLigne> = {}): FactureLigne => ({
   factureId: 'f1',
   numeroFacture: 'FACT-2026-08-0001',
   abonneId: 'a1',
-  campagneId: 'c1',
-  ancienIndex: 0,
-  nouveauIndex: 10,
-  consommation: 10,
-  prixM3: 500,
-  montant: 5000,
-  statut: 'IMPAYEE',
-  dateReleve: '2026-08-01',
-  dateLimitePaiement: '2026-09-01',
-  dateGeneration: '2026-08-02',
-  pdfPath: '/pdf/f1.pdf',
-  numeroMobileMoney: '655000000',
   abonneNom: 'Blandine',
   abonneNumero: 'AB-0007',
+  campagneId: 'c1',
   campagneNom: 'Août 2026',
+  campagnePeriodeMois: 8,
+  campagnePeriodeAnnee: 2026,
+  statut: 'IMPAYEE',
+  consommation: 10,
+  montant: 5000,
+  dateReleve: '2026-08-01',
+  dateLimitePaiement: '2026-09-01',
   ...p,
 });
 
@@ -119,7 +121,7 @@ describe('Flux temps réel branchés', () => {
 
   // ────────────────────────────────────────────────────────────────────────
   describe('/factures — factureUpdated', () => {
-    function setup(factures: Facture[]) {
+    function setup(factures: FactureLigne[]) {
       const flux = new Subject<{ data: { factureUpdated: Partial<Facture> } }>();
       TestBed.configureTestingModule({
         imports: [FacturesListComponent],
@@ -152,8 +154,8 @@ describe('Flux temps réel branchés', () => {
       const { component, flux } = setup([facture()]);
       await laisserChargerPuisEcouter();
 
-      // Exactement la sélection de FACTURE_UPDATED_SUB : ni prixM3, ni pdfPath,
-      // ni abonneNom. Remplacer la ligne les perdrait.
+      // Exactement la sélection de FACTURE_UPDATED_SUB : ni abonneNom, ni
+      // campagneNom, ni la période. Remplacer la ligne les perdrait.
       flux.next({
         data: {
           factureUpdated: {
@@ -173,8 +175,8 @@ describe('Flux temps réel branchés', () => {
       const [f] = component.factures();
       expect(f.statut).toBe('PAYEE');
       expect(f.abonneNom).toBe('Blandine');
-      expect(f.prixM3).toBe(500);
-      expect(f.pdfPath).toBe('/pdf/f1.pdf');
+      expect(f.campagneNom).toBe('Août 2026');
+      expect(f.campagnePeriodeMois).toBe(8);
     });
 
     it('ignore une facture absente de la liste affichée', async () => {
@@ -190,7 +192,7 @@ describe('Flux temps réel branchés', () => {
 
   // ────────────────────────────────────────────────────────────────────────
   describe('/paiements — paiementCree', () => {
-    function setup(paiements: Paiement[], factures: Facture[] = [facture()]) {
+    function setup(paiements: PaiementJournal[], factures: FactureLigne[] = [facture()]) {
       const flux = new Subject<{ data: { paiementCree: Partial<Paiement> } }>();
       TestBed.configureTestingModule({
         imports: [PaiementsListComponent],
@@ -230,14 +232,17 @@ describe('Flux temps réel branchés', () => {
 
       const [p] = component.paiements();
       expect(p.annule).toBe(false);
-      expect(p.annuleLe).toBeNull();
-      expect(p.motifAnnulation).toBeNull();
+      // La chaîne vide, et non `null` : la gateway type ces champs en `String`
+      // non nul. Le test attendait `null`, une valeur que le serveur ne rend
+      // jamais — et que le code fabriquait pour lui plaire.
+      expect(p.annuleLe).toBe('');
+      expect(p.motifAnnulation).toBe('');
       // `createdAt` n'est pas transmis : la date de paiement en tient lieu.
       expect(p.createdAt).toBe(evenement.datePaiement);
     });
 
     it('pose l’encaissement en tête — le journal est antichronologique', async () => {
-      const ancien: Paiement = {
+      const ancien: PaiementJournal = {
         paiementId: 'p1',
         factureId: 'f1',
         montant: 500,
@@ -246,9 +251,11 @@ describe('Flux temps réel branchés', () => {
         referenceTransaction: '',
         createdAt: '2026-07-01T00:00:00Z',
         annule: false,
-        annuleLe: null,
-        annulePar: null,
-        motifAnnulation: null,
+        // Chaînes vides, pas `null` : la gateway type ces trois champs en
+        // `String` non nul et rend `''` pour un versement non annulé.
+        annuleLe: '',
+        annulePar: '',
+        motifAnnulation: '',
       };
       const { component, flux } = setup([ancien]);
       await laisserChargerPuisEcouter();

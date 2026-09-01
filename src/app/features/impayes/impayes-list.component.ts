@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
-import { SoldeFacture, StatutFacture, SuiviImpaye } from '../../shared/models/facture.model';
+import { SuiviImpaye } from '../../shared/models/facture.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
@@ -26,6 +26,8 @@ import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { RouterLink } from '@angular/router';
 import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
 import { nomAbonne } from '../../shared/utils/abonne.utils';
+import type { GetAbonnesQuery } from '../../graphql/generated';
+import type { SoldeImpaye } from '../../graphql/vues';
 
 /** Fenêtre de pause des relances après réception d'un acompte (EF-IMP). */
 const PAUSE_ACOMPTE_JOURS = 5;
@@ -49,7 +51,7 @@ interface ImpayeRow {
   montantTotal: number;
   montantPaye: number;
   soldeRestant: number;
-  statut: StatutFacture;
+  statut: string;
   etapeActuelle: number | null;
   dateDepassement: string | null;
   retardJours: number | null;
@@ -240,8 +242,7 @@ export class ImpayesListComponent implements OnInit {
         this.service.getImpayes(),
         this.service.getFactures(),
         firstValueFrom(
-          this.apollo.query<{ abonnes: AbonneRef[] }>({
-            query: GET_ABONNES,
+          this.apollo.query<GetAbonnesQuery>({ query: GET_ABONNES,
             fetchPolicy: 'network-only',
           }),
         ),
@@ -285,7 +286,7 @@ export class ImpayesListComponent implements OnInit {
   }
 
   private toRow(
-    s: SoldeFacture,
+    s: SoldeImpaye,
     facturesMap: Map<string, { numeroFacture: string; abonneId: string }>,
     abonnesMap: Map<string, AbonneRef>,
     dernierPaiement: Map<string, string>,

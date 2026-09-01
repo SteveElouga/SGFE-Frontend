@@ -1,19 +1,11 @@
 import { gql } from '@apollo/client/core';
+import { PAIEMENT_FIELDS } from '../fragments';
 
 export const GET_ALL_PAIEMENTS = gql`
+  ${PAIEMENT_FIELDS}
   query GetAllPaiements {
     paiements {
-      paiementId
-      factureId
-      montant
-      datePaiement
-      modePaiement
-      referenceTransaction
-      createdAt
-      annule
-      annuleLe
-      annulePar
-      motifAnnulation
+      ...PaiementFields
     }
   }
 `;

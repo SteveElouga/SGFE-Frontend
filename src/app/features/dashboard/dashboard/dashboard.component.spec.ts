@@ -4,8 +4,8 @@ import { computed, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DashboardService, StatsMois } from '../../../core/dashboard/dashboard.service';
-import { Facture, SoldeFacture } from '../../../shared/models/facture.model';
 import { DashboardComponent } from './dashboard.component';
+import type { FactureLigne, SoldeImpaye } from '../../../graphql/vues';
 
 type Role = 'ADMIN' | 'COMPTABLE' | 'SUPERVISEUR';
 
@@ -24,28 +24,30 @@ function mois(partial: Partial<StatsMois>): StatsMois {
   };
 }
 
-function facture(partial: Partial<Facture>): Facture {
+// Exactement `FactureLigneFields` : ce que `GET_FACTURES` rapporte au tableau
+// de bord. La fixture portait avant `prixM3`, `pdfPath`, `dateGeneration` et
+// les deux index — des champs qu'aucune requête de liste ne demande.
+function facture(partial: Partial<FactureLigne>): FactureLigne {
   return {
     factureId: 'f1',
     numeroFacture: 'FA-0001',
     abonneId: 'a1',
+    abonneNom: 'Diallo',
+    abonneNumero: 'AB-0001',
     campagneId: 'c1',
-    ancienIndex: 0,
-    nouveauIndex: 10,
+    campagneNom: 'Juillet 2026',
+    campagnePeriodeMois: 7,
+    campagnePeriodeAnnee: 2026,
     consommation: 10,
-    prixM3: 500,
     montant: 5000,
     statut: 'IMPAYEE',
     dateReleve: '2026-07-01',
     dateLimitePaiement: '2026-07-31',
-    dateGeneration: '2026-07-02',
-    pdfPath: '',
-    numeroMobileMoney: '',
     ...partial,
   };
 }
 
-function solde(partial: Partial<SoldeFacture>): SoldeFacture {
+function solde(partial: Partial<SoldeImpaye>): SoldeImpaye {
   return {
     factureId: 'f1',
     montantTotal: 5000,

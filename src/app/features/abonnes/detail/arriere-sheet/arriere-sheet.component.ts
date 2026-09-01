@@ -11,11 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Abonne } from '../../../../shared/models/abonne.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { formatFcfa } from '../../../../shared/pipes/fcfa.pipe';
 import { nomAbonne } from '../../../../shared/utils/abonne.utils';
+import type { AbonneCible } from '../../../../graphql/vues';
 
 /**
  * Saisie d'une dette antérieure à la mise en service.
@@ -42,7 +42,7 @@ import { nomAbonne } from '../../../../shared/utils/abonne.utils';
 })
 export class ArriereSheetComponent {
   readonly open = input(false);
-  readonly abonne = input<Abonne | null>(null);
+  readonly abonne = input<AbonneCible | null>(null);
   readonly close = output<void>();
   /** Émis après création — le parent recharge sa dette et ses factures. */
   readonly saved = output<void>();

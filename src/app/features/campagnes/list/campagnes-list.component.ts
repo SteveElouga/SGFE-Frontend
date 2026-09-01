@@ -29,6 +29,7 @@ import { FiltersPanelComponent, FilterDefinition, FilterValues } from '../../../
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCellDirective, DataTableCardDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ToastService } from '../../../shared/services/toast.service';
+import type { GetCampagnesQuery } from '../../../graphql/generated';
 
 interface MiniProgression {
   nbReleves: number;
@@ -67,7 +68,7 @@ export class CampagnesListComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly auth = inject(AuthService);
 
-  private campagnesQuery!: QueryRef<{ campagnes: Campagne[] }>;
+  private campagnesQuery!: QueryRef<GetCampagnesQuery>;
 
   // ── État liste ─────────────────────────────────────────────────────────────
   readonly loading = signal(true);

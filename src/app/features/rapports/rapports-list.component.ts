@@ -22,6 +22,7 @@ import { CampagnesService } from '../../core/campagnes/campagnes.service';
 import { nomCampagneAffichable } from '../../shared/utils/campagne.utils';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
+import type { GetStatsGlobalesQuery } from '../../graphql/generated';
 
 interface HistCampagne {
   campagneId: string;
@@ -183,8 +184,7 @@ export class RapportsListComponent implements OnInit {
     this.error.set(null);
     try {
       const res = await firstValueFrom(
-        this.apollo.query<{ statsGlobales: StatsGlobales }>({
-          query: GET_STATS_GLOBALES,
+        this.apollo.query<GetStatsGlobalesQuery>({ query: GET_STATS_GLOBALES,
           fetchPolicy: 'network-only',
         }),
       );

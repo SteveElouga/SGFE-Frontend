@@ -8,7 +8,8 @@ import fr from '../../../../../../public/i18n/fr.json';
 import { AnnulerSheetComponent } from './annuler-sheet.component';
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-import { Envoi, Facture, SoldeFacture } from '../../../../shared/models/facture.model';
+import { Envoi, SoldeFacture } from '../../../../shared/models/facture.model';
+import type { FactureDetail } from '../../../../graphql/vues';
 
 /**
  * Annuler une facture efface une dette. C'est le geste le plus lourd de
@@ -20,7 +21,7 @@ import { Envoi, Facture, SoldeFacture } from '../../../../shared/models/facture.
  * aucune trace de la raison, le récapitulatif qui dit ce que devient l'argent
  * déjà versé, et l'avertissement quand l'abonné tient déjà la facture en main.
  */
-function facture(p: Partial<Facture> = {}): Facture {
+function facture(p: Partial<FactureDetail> = {}): FactureDetail {
   return {
     factureId: 'f-1',
     numeroFacture: 'FACT-2026-08-0001',
@@ -38,7 +39,7 @@ function facture(p: Partial<Facture> = {}): Facture {
     pdfPath: '',
     numeroMobileMoney: '',
     ...p,
-  } as Facture;
+  } as FactureDetail;
 }
 
 function solde(montantPaye = 0): SoldeFacture {
@@ -58,7 +59,7 @@ function envoi(statut: string): Envoi {
 }
 
 describe('AnnulerSheetComponent', () => {
-  function setup(over: Partial<{ f: Facture; s: SoldeFacture; e: Envoi[] }> = {}) {
+  function setup(over: Partial<{ f: FactureDetail; s: SoldeFacture; e: Envoi[] }> = {}) {
     const annulerFacture = vi.fn().mockResolvedValue(facture({ statut: 'ANNULEE' }));
     const regenererFacture = vi.fn().mockResolvedValue({
       annulee: facture({ statut: 'ANNULEE' }),
@@ -116,7 +117,7 @@ describe('AnnulerSheetComponent', () => {
 
   it('remonte la facture de remplacement, pour que l’écran la suive', async () => {
     const { c } = setup();
-    const recu: Array<Facture | null> = [];
+    const recu: Array<{ numeroFacture: string } | null> = [];
     c.done.subscribe((v) => recu.push(v));
     c.mode.set('regenerer');
     c.motif.set('Index corrigé');
@@ -126,7 +127,7 @@ describe('AnnulerSheetComponent', () => {
 
   it('ne remonte rien quand il n’y a pas de remplacement', async () => {
     const { c } = setup();
-    const recu: Array<Facture | null> = [];
+    const recu: Array<{ numeroFacture: string } | null> = [];
     c.done.subscribe((v) => recu.push(v));
     c.motif.set('Doublon');
     await c.submit();
@@ -205,7 +206,7 @@ describe('AnnulerSheetComponent', () => {
  * vérifier cet écran sans créer la dette qu'on prétend annuler.
  */
 describe('AnnulerSheetComponent · ce qui s’affiche', () => {
-  function monter(over: Partial<{ f: Facture; s: SoldeFacture; e: Envoi[] }> = {}) {
+  function monter(over: Partial<{ f: FactureDetail; s: SoldeFacture; e: Envoi[] }> = {}) {
     TestBed.configureTestingModule({
       imports: [AnnulerSheetComponent],
       providers: [

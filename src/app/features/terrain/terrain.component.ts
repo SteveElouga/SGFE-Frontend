@@ -16,12 +16,14 @@ import { ToastModule } from 'primeng/toast';
 import { CampagnesService } from '../../core/campagnes/campagnes.service';
 import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
-import { Campagne, Releve } from '../../shared/models/campagne.model';
+import { Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
 import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
+import type { GetCampagnesQuery } from '../../graphql/generated';
+import type { CampagneDetail, ReleveLigne } from '../../graphql/vues';
 
 /**
  * Plafond au-delà duquel une consommation devient suspecte (garde-fou soft :
@@ -50,7 +52,11 @@ interface AbonneInfo {
   camp: number | null;
 }
 
-type EntryStatus = 'A_RELEVER' | 'RELEVE' | 'ESTIME' | 'NON_RELEVE' | 'PENDING';
+// `PENDING` est le seul état posé par ce frontend (une saisie en file hors
+// ligne) ; les autres viennent de `Releve.statut`, que la gateway type `String`.
+// La chaîne ouverte dit donc la vérité du contrat, et un état inconnu du
+// serveur traverse l'écran sans être renommé en l'un de ceux d'ici.
+type EntryStatus = 'A_RELEVER' | 'RELEVE' | 'ESTIME' | 'NON_RELEVE' | 'PENDING' | (string & {});
 type Filtre = 'TOUS' | 'A_RELEVER' | 'RELEVE';
 type View = 'list' | 'saisie' | 'success';
 
@@ -94,8 +100,8 @@ export class TerrainComponent implements OnInit {
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly campagne = signal<Campagne | null>(null);
-  readonly releves = signal<Releve[]>([]);
+  readonly campagne = signal<CampagneDetail | null>(null);
+  readonly releves = signal<ReleveLigne[]>([]);
 
   readonly view = signal<View>('list');
   readonly filtre = signal<Filtre>('TOUS');
@@ -120,7 +126,7 @@ export class TerrainComponent implements OnInit {
    * désormais nom/n° abonné/compteur/zone. Repli sur l'id si champs vides
    * (best-effort backend : Abonné Service down → chaînes vides).
    */
-  private carteAbonne(r: Releve): { nom: string; info: AbonneInfo } {
+  private carteAbonne(r: ReleveLigne): { nom: string; info: AbonneInfo } {
     const prenom = r.abonnePrenom ?? '';
     const nom = r.abonneNom ?? '';
     const full = `${prenom} ${nom}`.trim();
@@ -198,7 +204,7 @@ export class TerrainComponent implements OnInit {
     return { status: 'NON_RELEVE', detail: q.observation || this.translate.instant('TERRAIN.NON_RELEVE') };
   }
 
-  private serverDetail(r: Releve): string {
+  private serverDetail(r: ReleveLigne): string {
     if (r.statut === 'RELEVE' || r.statut === 'ESTIME') {
       return this.translate.instant('TERRAIN.CARD_CONSO', { conso: r.consommation });
     }
@@ -291,8 +297,7 @@ export class TerrainComponent implements OnInit {
       // charger une carte d'abonnés (query `abonnes` de toute façon réservée
       // ADMIN). Voir carteAbonne().
       const campagnesRes = await firstValueFrom(
-        this.apollo.query<{ campagnes: Array<Campagne & { statut: string }> }>({
-          query: GET_CAMPAGNES,
+        this.apollo.query<GetCampagnesQuery>({ query: GET_CAMPAGNES,
           fetchPolicy: 'network-only',
         }),
       );
