@@ -224,3 +224,24 @@
   height: 40px;
   font-size: var(--texte-lg);
 }
+
+// ── Au-delà de 1024 px, c'est le TABLEAU qui défile, pas la page ────────────
+//
+// Sinon le tableau pousse la page et la pagination se retrouve au bas de
+// plusieurs milliers de pixels : il faut descendre toute la liste pour
+// atteindre « page suivante ». Mesuré : pagination à 2 494 px pour une fenêtre
+// de 800 sur soixante lignes.
+//
+// Ici on cesse donc de défiler et on cesse d'imposer une hauteur minimale : le
+// conteneur épouse exactement la place disponible, les filtres restent en tête,
+// et `app-data-table` prend le reste (voir son `:host`).
+//
+// En dessous de 1024 px, rien ne change : le tableau devient des cartes et la
+// page reprend son défilement naturel. Deux barres imbriquées sur un écran de
+// 320 px seraient un piège tactile.
+@media (min-width: 1024px) {
+  .users-content {
+    overflow: hidden;
+    min-height: 0;
+  }
+}
