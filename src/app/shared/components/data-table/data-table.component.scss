@@ -4,6 +4,21 @@
   display: block;
 }
 
+// Au-delà de 1024 px, l'hôte prend la hauteur restante de son parent : sans
+// cela, `.dt` n'a aucune hauteur de référence et son `overflow-y: auto` n'a
+// rien à faire défiler.
+//
+// `flex: 1` est inerte quand le parent n'est pas une colonne flex — les écrans
+// qui n'ont pas cette structure gardent exactement leur comportement.
+@media (min-width: 1024px) {
+  :host {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
 // ── États ──────────────────────────────────────────────────────────────────
 .dt__loading {
   display: flex;
@@ -26,7 +41,18 @@
   width: 100%;
   border-collapse: collapse;
 
+  // En-tête COLLANT : il reste lisible pendant qu'on descend les lignes.
+  //
+  // `position: sticky` s'ancre sur l'ancêtre défilant le plus proche, qui est
+  // désormais `.dt__scroll`. Le fond opaque n'est pas décoratif : sans lui, les
+  // lignes défileraient visiblement sous les libellés.
+  //
+  // `z-index` au-dessus des cellules, mais volontairement bas : les feuilles
+  // modales et les menus déroulants de PrimeNG doivent rester devant.
   thead > tr > th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     font-size: var(--texte-xs);
     font-weight: 600;
     text-transform: uppercase;
@@ -148,10 +174,77 @@
 // Contient un tableau trop large DANS sa carte (scroll horizontal interne) au
 // lieu de déborder la page — filet de sécurité mobile pour les listes sans
 // cartes (abonnés, campagnes, paiements, utilisateurs).
+// ── Le tableau défile À L'INTÉRIEUR, la pagination reste visible ────────────
+//
+// Avant : le tableau poussait la page, et la pagination se trouvait au bas de
+// deux mille pixels de contenu. Mesuré sur soixante lignes — pagination à
+// 2 494 px pour une fenêtre de 800. Il fallait descendre toute la liste pour
+// atteindre le bouton « page suivante » : exactement l'inverse de ce qu'on veut
+// d'une pagination.
+//
+// Désormais `.dt` borne sa hauteur, `.dt__scroll` porte le défilement, l'en-tête
+// y colle, et `.dt__footer` est hors du défilement — donc toujours à l'écran.
+//
+// Uniquement au-delà de 1024 px. En dessous, le tableau cède la place aux cartes
+// et la page reprend son défilement naturel : deux barres imbriquées sur un
+// écran de 320 px seraient un piège tactile, et le système de design pose le
+// mobile comme la référence, pas comme une adaptation.
+.dt {
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    // `min-height: 0` est ce qui autorise le rétrécissement — sans lui, un
+    // enfant flex refuse de descendre sous la hauteur de son contenu et rien
+    // ne défile.
+    min-height: 0;
+    flex: 1;
+  }
+}
+
 .dt__scroll {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   @include hide-scrollbar;
+
+  @media (min-width: 1024px) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+
+    // `hide-scrollbar` ci-dessus masque les DEUX axes (`width: 0; height: 0;
+    // display: none`). Il datait d'un temps où seul l'axe horizontal défilait
+    // ici. Maintenant que l'axe vertical porte le défilement des lignes, une
+    // zone défilante sans barre visible serait indécouvrable — et ce serait
+    // l'inverse de ce que la barre dessinée du projet a mis en place.
+    //
+    // On rétablit donc la barre avec exactement les jetons de la règle globale
+    // (`styles/global.scss`), que la spécificité de `.dt__scroll` écrasait.
+    scrollbar-width: thin;
+    scrollbar-color: var(--barre-curseur) var(--barre-piste);
+
+    &::-webkit-scrollbar {
+      display: block;
+      width: var(--barre-epaisseur);
+      height: var(--barre-epaisseur);
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--barre-piste);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--barre-curseur);
+      border-radius: 999px;
+      // Bordure transparente : le curseur paraît fin sans réduire la cible.
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--barre-curseur-survol);
+      background-clip: content-box;
+    }
+  }
 }
 
 // ── Cartes mobiles ──────────────────────────────────────────────────────────
@@ -173,6 +266,8 @@
 
 // ── Pagination ──────────────────────────────────────────────────────────────
 .dt__footer {
+  // Hors du conteneur défilant : elle ne doit jamais être poussée hors de vue.
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
