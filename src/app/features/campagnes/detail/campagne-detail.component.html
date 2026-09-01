@@ -1,5 +1,31 @@
 
-<!-- ── Topbar : bande navy standard (M-04/M-05) — remplace `.detail-topbar` desktop + `.detail-mheader` mobile ── -->
+<!--
+  ══ Détail d'une campagne — trois actes ═════════════════════════════════════
+
+  L'écran servait trois buts à la fois sans en distinguer aucun : quatre
+  représentations concurrentes du même avancement (un grand pourcentage, une
+  barre globale, une barre par agent, une barre par zone), quatre statistiques
+  écrites deux fois, et quatre blocs desktop/mobile dupliqués. Tout au même
+  niveau — donc rien qui ressorte. C'est ça qu'on lit comme « pas beau ».
+
+  Les trois buts restent, et sont tous portés. Ce qui change, c'est qu'ils ne se
+  disputent plus : chacun a son ACTE et son REGISTRE.
+
+    I  · La mesure      — « où en est-on, et qui prend du retard ? »
+                          une seule barre, segmentée, qui porte le pourcentage
+                          ET les quatre comptes ; puis les agents, du plus en
+                          retard au moins.
+    II · Les affectations — « quelle zone n'est couverte par personne ? »
+                          un seul tableau, les zones sans agent en tête.
+    III· Les relevés     — « quel index a été saisi pour cet abonné ? »
+                          le tableau partagé du projet, pleine largeur.
+
+  Les deux tableaux passent par `app-data-table`, comme les six autres écrans de
+  liste : il apporte le tri, l'état vide, la pagination et les cartes mobiles.
+  Cet écran était le seul à tout réécrire à la main, et c'est de là que venaient
+  ses 556 lignes de gabarit et ses 1 356 de SCSS.
+-->
+
 <app-page-topbar
   [title]="topbarTitle()"
   [subtitle]="topbarSubtitle()"
@@ -15,423 +41,354 @@
 
   @if (loading()) {
     <div class="detail-skeleton">
-      <app-skeleton height="88px" radius="14px" />
-      <app-skeleton height="160px" radius="14px" />
+      <app-skeleton height="72px" radius="14px" />
+      <app-skeleton height="180px" radius="14px" />
       <app-skeleton height="320px" radius="14px" />
     </div>
   } @else if (campagne()) {
     @let c = campagne()!;
 
-    <!-- En-tête -->
-    <div class="detail-header">
-      <div class="detail-header__left">
-        <div class="detail-header__title-row">
-          <!-- Le <h1> de la page est porté par <app-page-topbar>. -->
-          <h2 class="detail-header__nom">{{ c.nom }}</h2>
-          <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
-        </div>
-        <p class="detail-header__meta">
-          {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yyyy' }}
-          @if (c.datePlanifiee) {
-            <span class="meta-sep">·</span>
-            {{ 'CAMPAGNES.PLANIFIEE_LE' | translate }} {{ c.datePlanifiee | date:'dd/MM/yyyy' }}
-          }
-          @if (agentsLabel()) {
-            <span class="meta-sep">·</span>
-            {{ 'CAMPAGNES.DETAIL_AGENTS' | translate }} {{ agentsLabel() }}
-          }
-          @if (c.dateCloture) {
-            <span class="meta-sep">·</span>
-            {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yyyy' }}
-          }
-        </p>
+    <!-- ── Identité et actions ────────────────────────────────────────────
+         Un seul jeu de boutons. Il y en avait deux — `detail-header__actions`
+         pour le desktop, `mactions` pour le mobile — mêmes trois actions,
+         écrites deux fois. Un `flex-wrap` et une largeur pleine sous 640 px
+         font le même travail sans le second markup. -->
+    <header class="camp-head">
+      <div class="camp-head__id">
+        <h2 class="camp-head__nom">{{ c.nom }}</h2>
+        <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
       </div>
+
+      <p class="camp-head__meta">
+        {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yyyy' }}
+        @if (c.datePlanifiee) {
+          <span class="camp-head__sep">·</span>
+          {{ 'CAMPAGNES.PLANIFIEE_LE' | translate }} {{ c.datePlanifiee | date:'dd/MM/yyyy' }}
+        }
+        @if (c.dateCloture) {
+          <span class="camp-head__sep">·</span>
+          {{ 'CAMPAGNES.CLOTURE_LE' | translate }} {{ c.dateCloture | date:'dd/MM/yyyy' }}
+        }
+      </p>
+
       @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
-        <div class="detail-header__actions">
-          <button class="btn btn--outline" (click)="openAbonnesSheet()">
-            <i aria-hidden="true" class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
+        <div class="camp-head__actions">
+          <button type="button" class="btn btn--outline" (click)="openAbonnesSheet()">
+            <i aria-hidden="true" class="pi pi-user-plus"></i>
+            {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
           </button>
           @if (c.statut === 'PLANIFIEE') {
-            <button class="btn btn--primary" (click)="demarrer()" [disabled]="demarrant()">
-              @if (demarrant()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
-              <i aria-hidden="true" class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
+            <button type="button" class="btn btn--primary" (click)="demarrer()" [disabled]="demarrant()">
+              @if (demarrant()) {
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i aria-hidden="true" class="pi pi-play"></i>
+              }
+              {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
             </button>
           }
           @if (c.statut === 'EN_COURS') {
-            <button class="btn btn--danger" (click)="openClotureModal()">
-              <i aria-hidden="true" class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
+            <button type="button" class="btn btn--danger" (click)="openClotureModal()">
+              <i aria-hidden="true" class="pi pi-lock"></i>
+              {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
             </button>
           }
         </div>
       }
-    </div>
+    </header>
 
-    <!-- Carte progression -->
+    <!-- ══ ACTE I · La mesure ══════════════════════════════════════════════
+         Un seul objet remplace cinq : le grand pourcentage, la barre globale et
+         les quatre encadrés de statistiques — plus leur copie mobile.
+
+         La barre est SEGMENTÉE : les quatre statuts sont les parties d'un tout,
+         et une barre découpée les dit en une seule forme, avec leurs comptes en
+         légende juste dessous. Quatre encadrés côte à côte pour quatre nombres
+         qui s'additionnent, c'est du chart-junk — ce que le système de design
+         refuse explicitement.
+    -->
     @if (progression()) {
       @let p = progression()!;
-      <div class="progress-card">
-        <div class="progress-card__left">
-          <div class="progress-card__pct-wrap">
-            <span class="progress-card__pct">{{ pourcentageAffiche() }}</span>
-            <span class="progress-card__pct-symbol">%</span>
-          </div>
-          <div class="progress-card__sub">
-            {{ p.nbReleves }}&thinsp;/&thinsp;{{ p.totalAbonnes }}
-            {{ 'CAMPAGNES.ABONNES' | translate }}
-          </div>
-        </div>
-        <div class="progress-card__right">
-          <div class="progress-label-row">
-            <span class="progress-label">
-              <span class="u-desktop">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</span>
-              <span class="u-mobile">{{ 'CAMPAGNES.COL_PROGRESSION' | translate }}</span>
+      <section class="acte acte--mesure" aria-labelledby="acte-mesure-titre">
+        <h2 class="acte__titre" id="acte-mesure-titre">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</h2>
+
+        <div class="mesure">
+          <div class="mesure__chiffre">
+            <span class="mesure__pct">{{ pourcentageAffiche() }}<span class="mesure__pct-signe">%</span></span>
+            <span class="mesure__sur">
+              {{ p.nbReleves }}&thinsp;/&thinsp;{{ p.totalAbonnes }} {{ 'CAMPAGNES.ABONNES' | translate }}
             </span>
-            <!-- Le pourcentage était écrit deux fois dans la même carte : en
-                 grand à gauche, et ici en petit au bout du libellé. La barre
-                 en donne déjà la proportion à l'œil, et le chiffre exact est à
-                 quinze centimètres. Un seul suffit — le grand. -->
           </div>
-          <div class="progress-bar">
+
+          <div class="mesure__barre-bloc">
+            <!-- Une seule barre, quatre segments proportionnels. `aria-label`
+                 porte le détail : la forme est visuelle, le contenu doit être
+                 lisible sans elle. -->
             <div
-              class="progress-bar__fill"
-              [style.width.%]="pourcentageAffiche()"
-              [class.progress-bar__fill--complete]="pourcentageAffiche() === 100"
-            ></div>
-          </div>
-          <div class="stat-boxes">
-            <div class="stat-box stat-box--releve">
-              <span class="stat-box__value">{{ relevesByStatut().releve }}</span>
-              <span class="stat-box__label">{{ 'CAMPAGNES.KPI_RELEVES' | translate }}</span>
+              class="segbar"
+              role="img"
+              [attr.aria-label]="mesureAriaLabel()"
+            >
+              @for (s of segments(); track s.cle) {
+                @if (s.n > 0) {
+                  <span class="segbar__seg segbar__seg--{{ s.cle }}" [style.flex-grow]="s.n"></span>
+                }
+              }
             </div>
-            <div class="stat-box stat-box--estime">
-              <span class="stat-box__value">{{ relevesByStatut().estime }}</span>
-              <span class="stat-box__label">{{ 'CAMPAGNES.KPI_ESTIMES' | translate }}</span>
-            </div>
-            <div class="stat-box stat-box--non-releve">
-              <span class="stat-box__value">{{ relevesByStatut().nonReleve }}</span>
-              <span class="stat-box__label">{{ 'CAMPAGNES.KPI_NON_RELEVES' | translate }}</span>
-            </div>
-            <div class="stat-box stat-box--a-relever">
-              <span class="stat-box__value">{{ relevesByStatut().aRelever }}</span>
-              <span class="stat-box__label">{{ 'CAMPAGNES.KPI_RESTANTS' | translate }}</span>
-            </div>
+
+            <ul class="segleg">
+              @for (s of segments(); track s.cle) {
+                <li class="segleg__item">
+                  <span class="segleg__puce segleg__puce--{{ s.cle }}" aria-hidden="true"></span>
+                  <span class="segleg__n">{{ s.n }}</span>
+                  <span class="segleg__l">{{ s.libelle | translate }}</span>
+                </li>
+              }
+            </ul>
           </div>
         </div>
-      </div>
 
-      <!-- Grille 2×2 mobile (MB-02) : cartes séparées à liseré coloré -->
-      <div class="mstats">
-        <div class="mstat mstat--releve">
-          <span class="mstat__value">{{ relevesByStatut().releve }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_RELEVES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--estime">
-          <span class="mstat__value">{{ relevesByStatut().estime }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_ESTIMES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--non-releve">
-          <span class="mstat__value">{{ relevesByStatut().nonReleve }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_NON_RELEVES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--a-relever">
-          <span class="mstat__value">{{ relevesByStatut().aRelever }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_RESTANTS' | translate }}</span>
-        </div>
-      </div>
-    }
-
-    <!-- Agents affectés (cartes) — structure prête, peuplée dès que le backend
-         expose campagne.agents ; sinon état « en attente ». -->
-    @if (canActOnCampagne()) {
-      <section class="agents-section">
-        <div class="agents-section__head">
-          <h2 class="agents-section__title">{{ 'CAMPAGNES.AGENTS_TITLE' | translate }}</h2>
-          <button type="button" class="agents-section__add" (click)="openAgentsSheet()">
-            <i aria-hidden="true" class="pi pi-plus"></i> {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
-          </button>
-        </div>
-
-        @if (agentsAffectes().length > 0) {
-          <div class="agents-grid">
-            @for (a of agentsAffectes(); track a.id) {
-              <div class="agent-card">
-                <div class="agent-card__head">
-                  <span class="agent-card__avatar">{{ a.initials }}</span>
-                  <div class="agent-card__id">
-                    <div class="agent-card__name">{{ a.username }}</div>
-                    <div class="agent-card__user">&#64;{{ a.username }} · AGENT</div>
-                  </div>
-                  @if (a.statut) {
-                    <span class="agent-statut {{ agentStatutClass(a.statut) }}">
-                      <span class="agent-statut__dot"></span>{{ agentStatutLabel(a.statut) }}
-                    </span>
-                  }
-                </div>
-
-                <!-- Quatorze pastilles empilées, dont « Bastos · 1 » et
-                     « Bastos · 5 » : rien ne disait que le second nombre est le
-                     camp. Le tableau « Répartition par zone », plus bas, porte
-                     l'en-tête « ZONE · CAMP » et l'explique — mais il faut y
-                     descendre. La légende monte ici, une fois, au-dessus de la
-                     grappe, et chaque pastille le dit aussi à qui l'écoute. -->
-                <div class="agent-card__zones">
-                  @if (a.zones.length > 0) {
-                    <span class="agent-card__zones-legende">{{ 'CAMPAGNES.ZONE_CAMP_LEGENDE' | translate }}</span>
-                  }
-                  @for (z of a.zones; track z.nom) {
-                    <span
-                      class="agent-zone-tag"
-                      [attr.aria-label]="('CAMPAGNES.COL_ZONE' | translate) + ' ' + z.nom + ', ' + ('CAMPAGNES.CAMP' | translate) + ' ' + z.camp"
-                    >{{ z.nom }} · {{ z.camp }}</span>
-                  } @empty {
-                    <span class="agent-zone-tag agent-zone-tag--empty">
-                      {{ 'CAMPAGNES.ZONES_SHEET.NONE' | translate }}
-                    </span>
-                  }
-                  <button
-                    type="button"
-                    class="agent-zone-edit"
-                    (click)="openZonesSheet({ id: a.id, username: a.username })"
-                    [attr.aria-label]="'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate"
-                  >
-                    <i aria-hidden="true" class="pi pi-pencil"></i>
-                    <span>{{ 'CAMPAGNES.ZONES_SHEET.TRIGGER' | translate }}</span>
-                  </button>
-                </div>
-
-                <div class="agent-card__prog">
-                  <div class="agent-card__prog-row">
-                    <span class="agent-card__prog-label">{{ 'CAMPAGNES.COL_RELEVES' | translate }}</span>
-                    <span class="agent-card__prog-num">{{ a.nbReleves }} <span class="muted">/ {{ a.nbAbonnes }}</span></span>
-                  </div>
-                  <div class="zone-prog__track">
-                    <div class="zone-prog__fill" [style.--pct]="a.pct / 100"></div>
-                  </div>
-                </div>
-
-                <div class="agent-card__foot">
-                  <span class="agent-card__sync">{{ 'CAMPAGNES.SYNC_PREFIX' | translate }} {{ agentSyncLabel(a.syncLe) }}</span>
-                  <!-- Lien « Voir la tournée » retiré (#10) : aucune route
-                       /campagnes/:id/tournee/:agentId n'existe → le clic éjectait
-                       vers /login. À rebrancher quand l'écran de tournée
-                       ADMIN/SUPERVISEUR sera routé. -->
-                </div>
-              </div>
+        <!-- Les agents, du plus en retard au moins. C'est la seule question de
+             surveillance que la barre ne répond pas : « qui doit-on relancer ? »
+             Une liste, pas des cartes — un tri par risque se lit de haut en bas.
+             (Les cartes d'agents portaient en plus leurs zones et un bouton
+             d'édition : les zones sont désormais l'acte II, à leur place.) -->
+        @if (canActOnCampagne() && agentsParRetard().length > 0) {
+          <ul class="suivi">
+            @for (a of agentsParRetard(); track a.id) {
+              <li class="suivi__ligne" [class.suivi__ligne--alerte]="a.enRetard">
+                <span class="suivi__avatar" aria-hidden="true">{{ a.initials }}</span>
+                <span class="suivi__nom">{{ a.username }}</span>
+                <span class="suivi__piste">
+                  <span class="suivi__jauge" [style.width.%]="a.pct"></span>
+                </span>
+                <span class="suivi__pct">{{ a.pct }}%</span>
+                <span class="suivi__compte">{{ a.nbReleves }}<span class="suivi__sur"> / {{ a.nbAbonnes }}</span></span>
+                <span class="suivi__sync">{{ agentSyncLabel(a.syncLe) }}</span>
+              </li>
             }
-          </div>
-        } @else {
-          <div class="agents-pending">
-            <i aria-hidden="true" class="pi pi-users"></i>
-            <span>{{ 'CAMPAGNES.AGENTS_EMPTY' | translate }}</span>
-          </div>
+          </ul>
         }
       </section>
     }
 
-    <!-- Répartition par zone -->
-    @if (repartitionZones().length > 0) {
-      <section class="zone-section">
-        <h2 class="zone-section__title">{{ 'CAMPAGNES.REPARTITION_TITLE' | translate }}</h2>
-        <div class="zone-table-wrap">
-          <table class="zone-table">
-            <thead>
-              <tr>
-                <th>{{ 'CAMPAGNES.COL_ZONE' | translate }}</th>
-                <th>{{ 'CAMPAGNES.COL_AGENT' | translate }}</th>
-                <th class="col-num">{{ 'CAMPAGNES.COL_ABONNES' | translate }}</th>
-                <th class="col-num">{{ 'CAMPAGNES.COL_RELEVES' | translate }}</th>
-                <th class="col-prog">{{ 'CAMPAGNES.COL_PROGRESSION' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (z of repartitionZones(); track z.key) {
-                <tr>
-                  <td class="zone-name">{{ z.quartier }}@if (z.camp !== null) { · {{ z.camp }} }</td>
-                  <td>
-                    @if (z.agentUsername) {
-                      <span class="zone-agent">
-                        <span class="zone-agent__avatar">{{ z.agentInitials }}</span>
-                        <span class="zone-agent__name">{{ z.agentUsername }}</span>
-                      </span>
-                    } @else {
-                      <span class="zone-agent__none">—</span>
-                    }
-                  </td>
-                  <td class="col-num">{{ z.abonnes }}</td>
-                  <td class="col-num">{{ z.releves }}</td>
-                  <td class="col-prog">
-                    <div class="zone-prog">
-                      <div class="zone-prog__track">
-                        <div
-                          class="zone-prog__fill"
-                          [class.zone-prog__fill--full]="z.pct === 100"
-                          [class.zone-prog__fill--low]="z.pct < 80"
-                          [style.--pct]="z.pct / 100"
-                        ></div>
-                      </div>
-                      <span
-                        class="zone-prog__pct"
-                        [class.zone-prog__pct--full]="z.pct === 100"
-                        [class.zone-prog__pct--low]="z.pct < 80"
-                      >{{ z.pct }}%</span>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
+    <!-- ══ ACTE II · Les affectations ══════════════════════════════════════
+         Un tableau à la place d'une grille de cartes ET d'un tableau. Les deux
+         découpaient la même progression selon deux axes, l'un sous l'autre :
+         l'agent portait ses zones en pastilles, la zone portait son agent en
+         avatar. Une seule relation, deux représentations.
+
+         La zone est la clé de ligne, parce que c'est elle qui porte le manque :
+         une zone sans agent est la seule chose de cet acte sur laquelle on
+         agit. Elles remontent en tête, en ambre.
+    -->
+    @if (canActOnCampagne()) {
+      <section class="acte" aria-labelledby="acte-zones-titre">
+        <div class="acte__entete">
+          <h2 class="acte__titre" id="acte-zones-titre">{{ 'CAMPAGNES.REPARTITION_TITLE' | translate }}</h2>
+          @if (zonesSansAgent() > 0) {
+            <span class="acte__alerte">
+              <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
+              {{ 'CAMPAGNES.ZONES_SANS_AGENT' | pluriel:zonesSansAgent():{ n: zonesSansAgent() } }}
+            </span>
+          }
+          @if (c.statut !== 'CLOTUREE') {
+            <button type="button" class="acte__action" (click)="openAgentsSheet()">
+              <i aria-hidden="true" class="pi pi-plus"></i>
+              {{ 'CAMPAGNES.AGENTS_SHEET.TRIGGER' | translate }}
+            </button>
+          }
         </div>
+
+        <app-data-table
+          [columns]="colonnesZones"
+          [rows]="zonesTriees()"
+          [pageSize]="12"
+          [rowClass]="classeLigneZone"
+          trackKey="key"
+          pageInfoKey="CAMPAGNES.ZONES_PAGINATION_INFO"
+          emptyMessage="CAMPAGNES.AGENTS_EMPTY"
+        >
+          <ng-template appCol="zone" let-z>
+            <span class="cz-zone">{{ z.quartier }}</span>
+            @if (z.camp !== null) {
+              <span class="cz-camp">{{ 'CAMPAGNES.CAMP' | translate }} {{ z.camp }}</span>
+            }
+          </ng-template>
+
+          <ng-template appCol="agent" let-z>
+            @if (z.agentUsername) {
+              <span class="cz-agent">
+                <span class="cz-agent__avatar" aria-hidden="true">{{ z.agentInitials }}</span>
+                <span class="cz-agent__nom">{{ z.agentUsername }}</span>
+                @if (z.agentId && c.statut !== 'CLOTUREE') {
+                  <button
+                    type="button"
+                    class="cz-agent__edit"
+                    (click)="openZonesSheet({ id: z.agentId, username: z.agentUsername })"
+                    [attr.aria-label]="('CAMPAGNES.ZONES_SHEET.TRIGGER' | translate) + ' — ' + z.agentUsername"
+                  >
+                    <i aria-hidden="true" class="pi pi-pencil"></i>
+                  </button>
+                }
+              </span>
+            } @else {
+              <span class="cz-vide">
+                <i aria-hidden="true" class="pi pi-exclamation-triangle"></i>
+                {{ 'CAMPAGNES.NON_AFFECTEE' | translate }}
+              </span>
+            }
+          </ng-template>
+
+          <ng-template appCol="progression" let-z>
+            <span class="cz-prog">
+              <span class="cz-prog__piste">
+                <span
+                  class="cz-prog__jauge"
+                  [class.cz-prog__jauge--pleine]="z.pct === 100"
+                  [style.width.%]="z.pct"
+                ></span>
+              </span>
+              <span class="cz-prog__pct" [class.cz-prog__pct--pleine]="z.pct === 100">{{ z.pct }}%</span>
+            </span>
+          </ng-template>
+
+          <!-- Carte mobile : une seule déclaration, au lieu d'un second bloc de
+               markup à garder synchronisé avec le tableau. -->
+          <ng-template appCardRow let-z>
+            <div class="cz-carte">
+              <div class="cz-carte__haut">
+                <span class="cz-zone">{{ z.quartier }}</span>
+                @if (z.camp !== null) {
+                  <span class="cz-camp">{{ 'CAMPAGNES.CAMP' | translate }} {{ z.camp }}</span>
+                }
+                <span class="cz-carte__pct" [class.cz-prog__pct--pleine]="z.pct === 100">{{ z.pct }}%</span>
+              </div>
+              <div class="cz-carte__bas">
+                @if (z.agentUsername) {
+                  <span class="cz-agent__nom">{{ z.agentUsername }}</span>
+                } @else {
+                  <span class="cz-vide">{{ 'CAMPAGNES.NON_AFFECTEE' | translate }}</span>
+                }
+                <span class="cz-carte__compte">{{ z.releves }} / {{ z.abonnes }}</span>
+              </div>
+              <span class="cz-prog__piste">
+                <span class="cz-prog__jauge" [style.width.%]="z.pct"></span>
+              </span>
+            </div>
+          </ng-template>
+        </app-data-table>
       </section>
     }
 
-    <!-- Section relevés -->
-    <div class="releves-section">
-      <div class="releves-section__header">
-        <h2 class="releves-section__title">{{ 'CAMPAGNES.RELEVES_TITLE' | translate }}</h2>
-        <div class="releves-section__filters">
-          @if (quartiersDisponibles().length > 1) {
-            <p-select
-              [options]="quartiersDisponibles()"
-              [ngModel]="filtreQuartier()"
-              (ngModelChange)="filtreQuartier.set($event)"
-              optionLabel="label"
-              optionValue="value"
-            />
-          }
+    <!-- ══ ACTE III · Les relevés ══════════════════════════════════════════
+         Le tableau partagé du projet, pleine largeur. Il portait auparavant un
+         `<table>` écrit à la main ET une liste de cartes mobiles — mêmes lignes,
+         deux markups — ainsi que deux jeux de filtres, des `p-select` pour le
+         desktop et des pastilles pour le mobile.
+
+         Les pastilles restent, à toutes les tailles : quatre statuts se lisent
+         mieux alignés qu'enfermés dans un menu, et une cible tactile de 44 px
+         sert aussi une souris. Le sélecteur de quartier ne paraît que s'il y a
+         plus d'un quartier à départager.
+    -->
+    <section class="acte" aria-labelledby="acte-releves-titre">
+      <div class="acte__entete">
+        <h2 class="acte__titre" id="acte-releves-titre">{{ 'CAMPAGNES.RELEVES_TITLE' | translate }}</h2>
+        @if (quartiersDisponibles().length > 1) {
           <p-select
-            [options]="statutReleveOptions()"
-            [ngModel]="filtreReleveStatut()"
-            (ngModelChange)="filtreReleveStatut.set($event)"
+            styleClass="acte__select"
+            [options]="quartiersDisponibles()"
+            [ngModel]="filtreQuartier()"
+            (ngModelChange)="filtreQuartier.set($event)"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
           />
-        </div>
-
-        <!-- Chips de statut (mobile, pattern M-05) à la place des dropdowns -->
-        <div class="releves-chips">
-          <app-filter-chips
-            [options]="releveChips()"
-            [total]="releves().length"
-            [value]="releveChipValue()"
-            (valueChange)="onReleveChip($event)"
-          />
-        </div>
+        }
       </div>
 
-      <div class="releves-table-wrap">
-        <table class="releves-table">
-          <thead>
-            <tr>
-              <th>{{ 'CAMPAGNES.COL_ABONNE' | translate }}</th>
-              <th>{{ 'CAMPAGNES.COL_QUARTIER_CAMP' | translate }}</th>
-              <th class="col-num">{{ 'CAMPAGNES.COL_ANC_INDEX' | translate }}</th>
-              <th class="col-num">{{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }}</th>
-              <th class="col-num">{{ 'CAMPAGNES.COL_CONSO' | translate }}</th>
-              <th>{{ 'COMMON.STATUS' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (r of relevesFiltres(); track r.releveId) {
-              @let isReleve = r.statut === 'RELEVE' || r.statut === 'ESTIME';
-              @let isARelever = r.statut === 'A_RELEVER';
-              <tr [class.releves-table__row--muted]="isARelever">
-                <td class="col-abonne" [class.col-abonne--muted]="isARelever">
-                  @let nomAb = nomAbonne(r.abonnePrenom, r.abonneNom);
-                  @if (nomAb) {
-                    {{ nomAb }}@if (r.numeroAbonne) { <span class="id-fallback">{{ r.numeroAbonne }}</span> }
-                  } @else {
-                    <span class="id-fallback">{{ r.numeroAbonne || (r.abonneId | slice:0:8) }}…</span>
-                  }
-                </td>
-                <td class="col-meta">
-                  @if (r.quartier) {
-                    {{ r.quartier }}@if (r.camp !== null && r.camp !== undefined) { · {{ r.camp }} }
-                  } @else {
-                    {{ abonnesMap().get(r.abonneId) ?? '—' }}
-                  }
-                </td>
-                <td class="col-num col-anc-index">{{ r.ancienIndex | number:'1.0-0' }}</td>
-                <td class="col-num col-nouv-index">
-                  @if (isReleve) {
-                    {{ r.nouveauIndex | number:'1.0-0' }}
-                  } @else {
-                    <span class="col-dash">—</span>
-                  }
-                </td>
-                <td class="col-num col-conso">
-                  @if (isReleve) {
-                    {{ r.consommation | number:'1.0-0' }}
-                  } @else {
-                    <span class="col-dash">—</span>
-                  }
-                </td>
-                <td>
-                  <app-badge [tone]="releveStatutTone(r.statut)" [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate" />
-                </td>
-              </tr>
-            }
+      <app-filter-chips
+        [options]="releveChips()"
+        [total]="releves().length"
+        [value]="releveChipValue()"
+        (valueChange)="onReleveChip($event)"
+      />
 
-            @if (relevesFiltres().length === 0) {
-              <tr>
-                <td colspan="6" class="releves-empty-row">
-                  <i aria-hidden="true" class="pi pi-list"></i>
-                  {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-data-table
+        [columns]="colonnesReleves"
+        [rows]="relevesFiltres()"
+        [pageSize]="15"
+        [rowClass]="classeLigneReleve"
+        trackKey="releveId"
+        pageInfoKey="CAMPAGNES.RELEVES_PAGINATION_INFO"
+        emptyMessage="CAMPAGNES.RELEVES_EMPTY"
+      >
+        <ng-template appCol="abonne" let-r>
+          @let nomAb = nomAbonne(r.abonnePrenom, r.abonneNom);
+          @if (nomAb) {
+            <span class="cr-nom">{{ nomAb }}</span>
+            @if (r.numeroAbonne) { <span class="cr-ref">{{ r.numeroAbonne }}</span> }
+          } @else {
+            <span class="cr-ref">{{ r.numeroAbonne || (r.abonneId | slice:0:8) }}…</span>
+          }
+        </ng-template>
 
-      <!-- Relevés en cartes (mobile · MB-02) -->
-      <div class="releves-mobile">
-        @for (r of relevesFiltres(); track r.releveId) {
-          @let isReleve = r.statut === 'RELEVE' || r.statut === 'ESTIME';
-          <div class="rm-card">
-            <span class="rm-card__dot rm-card__dot--{{ r.statut | lowercase }}"></span>
-            <div class="rm-card__info">
-              @let nomCard = nomAbonne(r.abonnePrenom, r.abonneNom);   <!-- même ordre que le tableau -->
-              <span class="rm-card__nom">{{ nomCard || r.numeroAbonne || (r.abonneId | slice:0:8) }}</span>
-              <span class="rm-card__sub">
-                @if (isReleve) {
-                  {{ r.consommation | number:'1.0-0' }} m³ · {{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }} {{ r.nouveauIndex | number:'1.0-0' }}
+        <ng-template appCol="zone" let-r>
+          @if (r.quartier) {
+            {{ r.quartier }}@if (r.camp !== null && r.camp !== undefined) { · {{ r.camp }} }
+          } @else {
+            {{ abonnesMap().get(r.abonneId) ?? '—' }}
+          }
+        </ng-template>
+
+        <ng-template appCol="nouveauIndex" let-r>
+          @if (indexSaisi(r)) {
+            {{ r.nouveauIndex | number:'1.0-0' }}
+          } @else {
+            <span class="cr-tiret">—</span>
+          }
+        </ng-template>
+
+        <ng-template appCol="consommation" let-r>
+          @if (indexSaisi(r)) {
+            {{ r.consommation | number:'1.0-0' }}
+          } @else {
+            <span class="cr-tiret">—</span>
+          }
+        </ng-template>
+
+        <ng-template appCol="statut" let-r>
+          <app-badge
+            [tone]="releveStatutTone(r.statut)"
+            [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate"
+          />
+        </ng-template>
+
+        <ng-template appCardRow let-r>
+          <div class="cr-carte">
+            <span class="cr-carte__puce cr-carte__puce--{{ r.statut | lowercase }}" aria-hidden="true"></span>
+            <div class="cr-carte__info">
+              @let nomCard = nomAbonne(r.abonnePrenom, r.abonneNom);
+              <span class="cr-nom">{{ nomCard || r.numeroAbonne || (r.abonneId | slice:0:8) }}</span>
+              <span class="cr-carte__sous">
+                @if (indexSaisi(r)) {
+                  {{ r.consommation | number:'1.0-0' }} m³
+                  <span class="cr-carte__sep">·</span>
+                  {{ r.ancienIndex | number:'1.0-0' }} → {{ r.nouveauIndex | number:'1.0-0' }}
                 } @else {
                   {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
                 }
               </span>
             </div>
-            <span class="rm-card__statut rm-card__statut--{{ r.statut | lowercase }}">
-              {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
-            </span>
+            <app-badge
+              [tone]="releveStatutTone(r.statut)"
+              [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate"
+            />
           </div>
-        } @empty {
-          <div class="releves-mobile__empty">
-            <i aria-hidden="true" class="pi pi-list"></i>
-            {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
-          </div>
-        }
-      </div>
-    </div>
-
-    <!-- Actions mobiles (MB-02) : bouton pleine largeur en bas -->
-    @if (canActOnCampagne() && c.statut !== 'CLOTUREE') {
-      <div class="mactions">
-        <button type="button" class="mactions__btn mactions__btn--outline" (click)="openAbonnesSheet()">
-          <i aria-hidden="true" class="pi pi-user-plus"></i> {{ 'CAMPAGNES.ABONNES_SHEET.TRIGGER' | translate }}
-        </button>
-        @if (c.statut === 'PLANIFIEE') {
-          <button type="button" class="mactions__btn mactions__btn--primary" (click)="demarrer()" [disabled]="demarrant()">
-            @if (demarrant()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
-            <i aria-hidden="true" class="pi pi-play"></i> {{ 'CAMPAGNES.DEMARRER_CAMPAGNE' | translate }}
-          </button>
-        }
-        @if (c.statut === 'EN_COURS') {
-          <button type="button" class="mactions__btn mactions__btn--dark" (click)="openClotureModal()">
-            <i aria-hidden="true" class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
-          </button>
-        }
-      </div>
-    }
+        </ng-template>
+      </app-data-table>
+    </section>
   }
 
   @if (canActOnCampagne()) {

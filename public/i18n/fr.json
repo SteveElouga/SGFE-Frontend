@@ -607,6 +607,7 @@
     "WHATSAPP_QR_SCAN": "Scannez ce QR code",
     "WHATSAPP_QR_SCAN_STEPS": "Sur le téléphone du compte dédié : WhatsApp → Appareils connectés → Lier un appareil.",
     "WHATSAPP_QR_ROTATE": "Le code se régénère automatiquement toutes les quelques secondes — laissez cette fenêtre ouverte.",
+    "WHATSAPP_TEMPS_REEL_ROMPU": "Mise à jour en direct indisponible — le code se renouvelle toutes les 20 s.",
     "WHATSAPP_QR_WAITING": "QR indisponible pour l'instant — le service démarre. Nouvelle tentative…",
     "WHATSAPP_LINKED_TITLE": "Compte WhatsApp lié",
     "WHATSAPP_LINKED_DESC": "La session est active. Les factures et notifications partent automatiquement.",
