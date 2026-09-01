@@ -355,6 +355,15 @@
   overflow: hidden;
   align-items: stretch;
 
+  // Sous 1024px, `.detail-page` devient flex-column (voir `.releves-section`
+  // plus bas, même fichier, même piège) : sans `flex-shrink:0`, cette carte
+  // est candidate à la compression proportionnelle dès que le total des
+  // sections de la page dépasse la hauteur disponible — même si son propre
+  // contenu (pourcentage, barre, 4 pastilles) tient sans elle.
+  @media (max-width: 1023px) {
+    flex-shrink: 0;
+  }
+
   &__left {
     display: flex;
     flex-direction: column;
@@ -642,6 +651,16 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+  // Sous 1024px, `.detail-page` (= `.page-scroll`) devient flex-column ; sans
+  // ceci, la taille minimale automatique d'un flex-item retombe à 0 dès qu'il
+  // porte `overflow` autre que `visible` (spec Flexbox) — la section se
+  // faisait comprimer, les relevés tronqués net sans scrollbar pour
+  // compenser. Même piège que `.notif-card` (notifications) et
+  // `.abonnes-card` (liste abonnés) — ici scopé au mobile, seul contexte où
+  // `.detail-page` est flex-column.
+  @media (max-width: 1023px) {
+    flex-shrink: 0;
+  }
 
   &__header {
     display: flex;

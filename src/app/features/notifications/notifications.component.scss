@@ -96,6 +96,7 @@
   color: var(--encre-3);
   padding-left: var(--pas-1);
   margin-top: var(--pas-2);
+  flex-shrink: 0;
 
   &:first-child {
     margin-top: 0;
@@ -107,6 +108,15 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+  // `.notif-feed` est un flex column ; sans ceci, la taille minimale
+  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow`
+  // autre que `visible` (spec Flexbox). Le fil entier se faisait alors
+  // comprimer par la carte la plus grosse (« Plus ancien », des dizaines
+  // d'items) : les petits groupes récents (« Aujourd'hui », « Hier »)
+  // étaient réduits à quelques pixels, leur contenu tronqué net par ce
+  // même `overflow: hidden`. Les notifications les plus importantes —
+  // les plus récentes — étaient donc les plus illisibles.
+  flex-shrink: 0;
 }
 
 .notif-item {

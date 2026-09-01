@@ -162,6 +162,12 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+  // `.factures-content` est un flex-column ; sans ceci, la taille minimale
+  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow` autre
+  // que `visible` (spec Flexbox) — le wrap se faisait comprimer, la table
+  // tronquée net sans scrollbar pour compenser. Même piège que `.notif-card`
+  // (notifications) et `.abonnes-card` (abonnés).
+  flex-shrink: 0;
 
   // Mobile : wrapper transparent, cartes séparées (gap 9px — MB-04)
   @media (max-width: 1023px) {

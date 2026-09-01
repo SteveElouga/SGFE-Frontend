@@ -82,6 +82,12 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+  // `.abonnes-content` est un flex-column ; sans ceci, la taille minimale
+  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow`
+  // autre que `visible` (spec Flexbox) — la carte se faisait comprimer à
+  // ~40 % de sa hauteur réelle, la table tronquée net sans scrollbar ni
+  // pagination pour compenser. Même piège que `.notif-card`.
+  flex-shrink: 0;
 }
 
 // ── Cellules du tableau ───────────────────────────────────────────────────────
