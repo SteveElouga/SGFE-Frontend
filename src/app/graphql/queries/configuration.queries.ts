@@ -1,8 +1,33 @@
 import { gql } from '@apollo/client/core';
 
+// Statut de liaison WhatsApp — instantané en HTTP (ADMIN, type WhatsAppQr).
+//
+// Cette query avait été retirée quand la souscription est arrivée : « remplace le
+// polling de whatsappQr ». Pour les mises à jour en direct, oui. Mais elle était
+// aussi le SEUL chemin qui fonctionne sans WebSocket — et sans elle, un
+// WebSocket muet laisse l'écran sur « Récupération du QR code… » indéfiniment.
+//
+// Constaté en vrai : un serveur de développement démarré avant que `ws: true`
+// n'entre dans `proxy.conf.json` ne relaie pas la montée en WebSocket. Tout le
+// backend livrait le QR ; l'écran tournait dans le vide.
+//
+// Elle revient donc comme socle : on peint d'abord avec elle, la souscription
+// corrige ensuite. Le temps réel devient un supplément, pas un prérequis.
+export const WHATSAPP_QR_QUERY = gql`
+  query WhatsappQr {
+    whatsappQr {
+      ready
+      qr
+      number
+      phase
+      depuisMs
+    }
+  }
+`;
+
 // Statut de liaison WhatsApp poussé en temps réel (ADMIN, type WhatsAppQr).
 // Le gateway envoie un snapshot initial puis pousse à chaque changement d'état
-// (ready/qr/number) via WebSocket — remplace le polling de whatsappQr.
+// (ready/qr/number) via WebSocket.
 export const WHATSAPP_STATUS_SUB = gql`
   subscription WhatsappStatus {
     whatsappStatus {

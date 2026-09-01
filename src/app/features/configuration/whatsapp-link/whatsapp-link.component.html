@@ -51,6 +51,15 @@
         <span class="wa-link__pulse"></span>
         {{ 'CONFIGURATION.WHATSAPP_QR_ROTATE' | translate }}
       </div>
+      <!-- Le temps réel est tombé, l'écran se rafraîchit lui-même. Le dire :
+           un QR renouvelé toutes les vingt secondes paraît identique à un QR
+           poussé à l'instant, jusqu'au scan d'un code périmé. -->
+      @if (tempsReelRompu()) {
+        <div class="wa-link__degrade">
+          <i aria-hidden="true" class="pi pi-info-circle"></i>
+          {{ 'CONFIGURATION.WHATSAPP_TEMPS_REEL_ROMPU' | translate }}
+        </div>
+      }
     </div>
   </div>
 }

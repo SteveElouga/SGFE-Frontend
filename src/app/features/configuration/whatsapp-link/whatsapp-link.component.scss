@@ -148,6 +148,22 @@
     color: var(--encre-3);
   }
 
+  // Mention de fonctionnement dégradé. Même registre que `__hint` — c'est une
+  // note, pas une alerte : l'écran marche, il marche juste autrement. L'ambre
+  // le distingue du gris sans crier.
+  //
+  // `--attente-encre` et non `--attente` : ce dernier vaut `#f59e0b`, qui donne
+  // 2,15:1 sur blanc — inutilisable pour du texte de 11 px. Le jeton d'encre
+  // est là pour ça, à 7:1.
+  &__degrade {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    margin-top: var(--pas-2);
+    font-size: var(--texte-xs);
+    color: var(--attente-encre);
+  }
+
   &__pulse {
     width: 8px;
     height: 8px;
