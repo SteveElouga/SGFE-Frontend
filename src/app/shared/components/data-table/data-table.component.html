@@ -5,8 +5,13 @@
 } @else {
   <div class="dt" [class.dt--has-cards]="!!cardTemplate()">
 
-    <!-- ── Tableau : scroll horizontal interne si trop large (mobile) ────── -->
-    <div class="dt__scroll">
+    <!-- ── Tableau : défile à l'intérieur de sa zone (voir `resteEnDessous`) ─ -->
+    <div
+      class="dt__zone"
+      [class.dt__zone--reste-dessous]="resteEnDessous()"
+      [class.dt__zone--reste-dessus]="resteAuDessus()"
+    >
+    <div #zone class="dt__scroll" (scroll)="jaugerDebordement(zone)">
     <table class="dt__table" [class.dt__table--striped]="striped()">
       <thead>
         <tr>
@@ -85,6 +90,12 @@
       </tbody>
     </table>
     </div>
+      <!-- Les deux voiles : hors de la zone défilante, sinon ils défileraient
+           avec les lignes. Décoratifs — l'information qu'ils portent est aussi
+           dans le pied (« 1–15 sur 19 »), que les lecteurs d'écran annoncent. -->
+      <span class="dt__voile dt__voile--haut" aria-hidden="true"></span>
+      <span class="dt__voile dt__voile--bas" aria-hidden="true"></span>
+    </div>
 
     <!-- ── Cartes (mobile ≤ 720px, si un template appCardRow est fourni) ──── -->
     @if (cardTemplate(); as card) {
@@ -100,12 +111,18 @@
       </div>
     }
 
-    <!-- ── Pagination : seulement au-delà d'une page ─────────────────────── -->
-    @if (pageCount() > 1) {
+    <!-- ── Pied : le total dès qu'il y a des lignes, les pages au-delà d'une.
+         Le total ne s'affichait qu'en présence d'une seconde page. Sur une
+         liste qui tient sur une page mais dépasse la hauteur de sa zone, on
+         voyait donc douze lignes sans nulle part où lire qu'il y en avait
+         dix-neuf : la seule réponse à « combien y en a-t-il ? » disparaissait
+         précisément quand la vue ne pouvait pas y répondre d'elle-même. ─── -->
+    @if (total() > 0) {
       <div class="dt__footer">
         <span class="dt__page-info">
           {{ pageInfoKey() | translate: { start: rangeStart(), end: rangeEnd(), total: total() } }}
         </span>
+        @if (pageCount() > 1) {
         <div class="dt__pages">
           <button
             type="button"
@@ -134,6 +151,7 @@
             <i aria-hidden="true" class="pi pi-chevron-right"></i>
           </button>
         </div>
+        }
       </div>
     }
   </div>
