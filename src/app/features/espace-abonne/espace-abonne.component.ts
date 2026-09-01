@@ -185,6 +185,34 @@ export class EspaceAbonneComponent {
     window.open(this.svc.pdfUrl(this.token, factureId), '_blank', 'noopener');
   }
 
+  /** Télécharge le relevé de compte complet en CSV.
+   *
+   * Le SRS promet « export PDF et CSV » deux fois ; seul le PDF d'une facture
+   * existait. L'abonné pouvait télécharger une facture à la fois, jamais l'état
+   * de son compte.
+   */
+  telechargerCsv(): void {
+    window.open(this.svc.csvUrl(this.token), '_blank', 'noopener');
+  }
+
+  /**
+   * La ligne de vérification d'une facture : les index, et le prix du m³.
+   *
+   * Elle n'existait pas. L'abonné lisait un montant sans rien pour le
+   * rapprocher de quoi que ce soit — et un montant qu'on ne peut pas vérifier
+   * est un montant qu'on contestera.
+   *
+   * Rendue vide quand les index manquent (régularisation, ou facture d'avant
+   * l'exposition de ces champs) : mieux vaut pas de ligne qu'une ligne
+   * « 0 → 0 ».
+   */
+  releve(l: LigneEspace): string {
+    const { ancien_index: ancien, nouveau_index: nouveau, prix_m3: prix } = l.facture;
+    if (l.regularisation || ancien == null || nouveau == null || nouveau <= ancien) return '';
+    const index = `${ancien.toLocaleString('fr-FR')} → ${nouveau.toLocaleString('fr-FR')}`;
+    return prix ? `${index} · ${prix.toLocaleString('fr-FR')} FCFA/m³` : index;
+  }
+
   /**
    * Le badge dit l'état de la dette, pas seulement celui du statut.
    *

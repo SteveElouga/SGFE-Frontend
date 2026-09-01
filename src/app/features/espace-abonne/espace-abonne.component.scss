@@ -35,13 +35,24 @@
 
   &__content { width: 560px; max-width: 100%; }
 
+  // Le titre et le bouton d'export du relevé, sur la même ligne. Le titre perd
+  // ses marges : c'est la rangée qui les porte désormais.
+  &__heading-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--pas-3);
+    flex-wrap: wrap;
+    margin: var(--pas-5) 0 var(--pas-3);
+  }
+
   &__heading {
     font-size: var(--texte-md);
     font-weight: 600;
     letter-spacing: var(--badge-espace);
     text-transform: uppercase;
     color: var(--encre-3);
-    margin: var(--pas-5) 0 var(--pas-3);
+    margin: 0;
   }
 
   &__state {
@@ -341,6 +352,42 @@
   &--neutre { background: var(--surface-douce); color: var(--encre-3); }
 }
 
+// Le relevé de compte complet. Discret : c'est le PDF de chaque facture que
+// l'abonné vient chercher, celui-ci répond à « donne-moi tout » — un dossier,
+// une contestation. Il ne doit pas concurrencer le solde du haut de page.
+.ea-csv {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: 0 var(--pas-3);
+  font: inherit;
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  color: var(--action);
+  background: var(--surface);
+  border: 1px solid var(--action-trait);
+  border-radius: var(--rayon-sm);
+  cursor: pointer;
+  transition: background 160ms ease-out;
+
+  &:hover { background: var(--action-lueur); }
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
+}
+
+// La ligne de vérification : les deux index et le prix du m³. En petit et en
+// gris — c'est une justification, pas une information qu'on vient chercher.
+.ea-fac__releve {
+  margin: var(--pas-2) 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--pas-2);
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  font-variant-numeric: tabular-nums;
+}
+
 .ea-pdf {
   margin-top: var(--pas-4);
   width: 100%;
@@ -370,8 +417,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ea-btn, .ea-pdf { transition: none; }
-  .ea-btn:active, .ea-pdf:active { transform: none; }
+  .ea-btn, .ea-pdf, .ea-csv { transition: none; }
+  .ea-btn:active, .ea-pdf:active, .ea-csv:active { transform: none; }
 }
 
 @media (max-width: 420px) {

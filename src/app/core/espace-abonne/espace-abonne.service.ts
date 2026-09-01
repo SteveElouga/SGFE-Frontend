@@ -20,6 +20,22 @@ export interface EspaceAbonneFacture {
   nature?: string;
   /** Justification d'une régularisation — remplace le relevé absent. */
   motif?: string;
+
+  /**
+   * Ce qui justifie le montant : les deux index, les mètres cubes, le prix.
+   *
+   * L'abonné voyait des montants, jamais sa consommation. Il ne pouvait donc pas
+   * vérifier sa facture — un montant sans index n'est qu'un chiffre à croire. Le
+   * SRS le demande deux fois (EF-NOTIF-003 et §8.3) ; les champs existaient côté
+   * serveur, le payload ne les recopiait pas.
+   *
+   * Nuls sur une régularisation : aucun relevé ne la justifie, c'est le rôle de
+   * `motif`.
+   */
+  ancien_index?: number;
+  nouveau_index?: number;
+  consommation?: number;
+  prix_m3?: number;
 }
 
 /** Réponse de `GET /espace-abonne/<token>/`. */
@@ -64,5 +80,18 @@ export class EspaceAbonneService {
    */
   pdfUrl(token: string, factureId: string): string {
     return `/espace-abonne/${encodeURIComponent(token)}/facture/${encodeURIComponent(factureId)}/pdf/`;
+  }
+
+  /**
+   * URL du relevé de compte en CSV — toutes les factures de l'abonné.
+   *
+   * Le SRS promet « export PDF et CSV » à deux endroits ; seul le PDF d'UNE
+   * facture existait. L'abonné pouvait donc télécharger une facture à la fois,
+   * jamais l'état de son compte.
+   *
+   * Même mécanique que le PDF : navigation directe, le token porte l'identité.
+   */
+  csvUrl(token: string): string {
+    return `/espace-abonne/${encodeURIComponent(token)}/factures.csv`;
   }
 }
