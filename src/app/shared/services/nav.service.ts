@@ -4,8 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { NotificationsService } from '../../core/notifications/notifications.service';
 import { GET_IMPAYES } from '../../graphql/queries/paiements.queries';
-import { SoldeFacture } from '../models/facture.model';
 import { Role } from '../models/user.model';
+import type { GetImpayesQuery } from '../../graphql/generated';
 
 export interface NavItem {
   label: string;
@@ -91,8 +91,7 @@ export class NavService {
   private async loadImpayesDot(): Promise<void> {
     try {
       const res = await firstValueFrom(
-        this.apollo.query<{ impayes: SoldeFacture[] }>({
-          query: GET_IMPAYES,
+        this.apollo.query<GetImpayesQuery>({ query: GET_IMPAYES,
           fetchPolicy: 'network-only',
           context: { silentError: true },
         }),

@@ -16,10 +16,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AbonnesService, RemplacerCompteurInput } from '../../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Abonne, Compteur } from '../../../../shared/models/abonne.model';
+import { Compteur } from '../../../../shared/models/abonne.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { CompteurPipe } from '../../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../../shared/services/toast.service';
+import type { AbonneCibleCompteur } from '../../../../graphql/vues';
 
 /**
  * Bottom-sheet de remplacement du compteur d'un abonné (écran 19). Auto-contenu :
@@ -36,7 +37,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 })
 export class RemplacerCompteurSheetComponent {
   readonly open = input(false);
-  readonly abonne = input<Abonne | null>(null);
+  readonly abonne = input<AbonneCibleCompteur | null>(null);
   readonly close = output<void>();
   readonly saved = output<Compteur>();
 

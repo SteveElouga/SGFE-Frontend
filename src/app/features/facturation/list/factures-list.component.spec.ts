@@ -8,7 +8,8 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { FacturePdfService } from '../../../core/factures/facture-pdf.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { DetteAbonne, Facture } from '../../../shared/models/facture.model';
+import { DetteAbonne } from '../../../shared/models/facture.model';
+import type { FactureLigne } from '../../../graphql/vues';
 
 /**
  * La colonne « solde » ne parle que de la facture qu'on lit. Un abonné qui
@@ -19,7 +20,7 @@ import { DetteAbonne, Facture } from '../../../shared/models/facture.model';
  * que l'abonné doit ailleurs, et la distinction entre « pas encore chargé » et
  * « n'a pas pu être chargé », qui avaient jusqu'ici la même apparence.
  */
-function facture(p: Partial<Facture> = {}): Facture {
+function facture(p: Partial<FactureLigne> = {}): FactureLigne {
   return {
     factureId: 'f-1',
     abonneId: 'a-1',
@@ -27,7 +28,7 @@ function facture(p: Partial<Facture> = {}): Facture {
     montant: 20500,
     statut: 'IMPAYEE',
     ...p,
-  } as Facture;
+  } as FactureLigne;
 }
 
 function dette(p: Partial<DetteAbonne> = {}): DetteAbonne {

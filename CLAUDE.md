@@ -351,6 +351,50 @@ export const SAISIR_INDEX = gql`
 `;
 ```
 
+### Types générés — la requête est la source de vérité
+
+`src/app/graphql/generated.ts` est produit par `npm run codegen` depuis
+l'instantané d'introspection déjà versionné (`schema-introspection.json`, celui
+que `schema-contrat.spec.ts` valide). `npm run verify:codegen` échoue s'il a
+vieilli. **Ne jamais le modifier à la main.**
+
+Un type généré décrit ce que la requête **demande**, pas ce que le schéma
+pourrait rendre. C'est toute la différence, et c'est celle qui manquait :
+
+```ts
+// ❌ le modèle écrit à la main — tout ce que le serveur POURRAIT rendre
+export interface Facture { motifAnnulation?: string; /* … */ }
+
+// ✅ la vue — ce que CETTE requête rapporte
+export type FactureDetail = GetFactureQuery['facture'];
+```
+
+Avec l'interface, `@if (f.motifAnnulation)` compilait et valait `undefined` pour
+toujours : le champ existait dans le type, `GET_FACTURE` ne le demandait pas, et
+le bandeau d'annulation n'a jamais pu s'afficher. Cinq fonctionnalités vivaient
+ainsi. Avec la vue, le champ n'existe pas et le gabarit ne compile plus.
+
+**Les trois règles qui en découlent :**
+
+1. **Un écran type ses signaux avec une vue de `graphql/vues.ts`**, jamais avec
+   un modèle de `shared/models/`. Les modèles gardent les types de domaine
+   (`StatutFacture`, les entrées de mutation, les fonctions de teinte) — pas la
+   forme des données reçues.
+2. **Deux documents qui alimentent le même écran partagent un fragment**
+   (`graphql/fragments.ts`). Sans lui, l'un appauvrit ce que l'autre remplit :
+   `ABONNE_UPDATED_SUB` écrivait dans le cache de la liste une sélection amputée
+   de `numeroAbonne`, qui disparaissait donc de la ligne à la première mise à
+   jour temps réel.
+3. **Un composant partagé déclare ce qu'il lit**, pas la vue d'un de ses
+   appelants (`FactureCible`, `AbonneCible`). Sinon il devient inutilisable
+   depuis son second écran.
+
+Et un piège du contrat lui-même : la gateway type `statut`, `modePaiement` et
+`nature` en `String`, pas en énumération. Les unions du domaine restent utiles
+là où c'est **l'application** qui choisit la valeur ; sur une valeur **reçue**,
+la signature dit `string`, et une valeur inconnue prend la teinte neutre plutôt
+que d'emprunter l'apparence d'un état voisin.
+
 ### Utilisation dans un composant
 
 ```typescript
@@ -508,8 +552,20 @@ ng test
 ng test --coverage
 
 # Vérifier les types TypeScript
-npx tsc --noEmit
+npm run verify:types      # tsc -b --noEmit
+
+# Régénérer les types GraphQL, et vérifier qu'ils sont à jour
+npm run codegen
+npm run verify:codegen
 ```
+
+> ⚠️ **Corrigé le 1er septembre 2026.** Cette section indiquait `npx tsc
+> --noEmit`, qui **ne vérifie rien** dans ce dépôt : `tsconfig.json` est un
+> fichier-solution (`"files": []` plus des références vers `tsconfig.app.json`
+> et `tsconfig.spec.json`). Sans `-b`, `tsc` construit un programme vide —
+> mesuré : **0 fichier** de `src/app` contre **179** avec `-b`. La commande était
+> verte en permanence, y compris sur du code qui ne compilait pas ; c'est
+> `ng build` qui a tenu ce rôle en pratique, et lui seul vérifie les gabarits.
 
 ---
 

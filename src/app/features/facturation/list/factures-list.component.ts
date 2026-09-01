@@ -44,6 +44,8 @@ import {
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
 import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
+import type { FactureUpdatedSubscription } from '../../../graphql/generated';
+import type { CampagneDetail, FactureLigne } from '../../../graphql/vues';
 
 interface AbonneInfo {
   nom: string;
@@ -99,12 +101,12 @@ export class FacturesListComponent implements OnInit {
 
   readonly campagneId = signal('');
   readonly campagneNom = signal('');
-  readonly campagne = signal<Campagne | null>(null);
+  readonly campagne = signal<CampagneDetail | null>(null);
   readonly loading = signal(true);
   readonly generatingFactures = signal(false);
   readonly sendingWhatsapp = signal(false);
   readonly error = signal<string | null>(null);
-  readonly factures = signal<Facture[]>([]);
+  readonly factures = signal<FactureLigne[]>([]);
   readonly soldes = signal<Map<string, number>>(new Map());
   /**
    * Ce que chaque abonné doit au total, toutes factures confondues. Une entrée
@@ -147,7 +149,7 @@ export class FacturesListComponent implements OnInit {
       key: 'solde',
       header: 'FACTURATION.COL_SOLDE',
       sortable: true,
-      sortValue: (r) => this.soldeFor(r as Facture) ?? 0,
+      sortValue: (r) => this.soldeFor(r as FactureLigne) ?? 0,
     },
     {
       key: 'statut',
@@ -158,13 +160,13 @@ export class FacturesListComponent implements OnInit {
     { key: 'actions', header: 'FACTURATION.COL_ACTIONS' },
   ];
   /** Seules les factures non soldées sont cliquables (ouvre le panneau de paiement). */
-  readonly rowActivable = (f: Facture): boolean => f.statut !== 'PAYEE';
+  readonly rowActivable = (f: FactureLigne): boolean => f.statut !== 'PAYEE';
   /** Surligne la facture dont le panneau de paiement est ouvert. */
-  readonly rowClassFn = (f: Facture): string | null =>
+  readonly rowClassFn = (f: FactureLigne): string | null =>
     this.selectedFacture()?.factureId === f.factureId ? 'dt__row--selected' : null;
 
   /** Facture dont le panneau de paiement est ouvert (null = fermé). */
-  readonly selectedFacture = signal<Facture | null>(null);
+  readonly selectedFacture = signal<FactureLigne | null>(null);
 
   /** Confirmation d'envoi WhatsApp en masse (P0 batch 8 list). */
   readonly whatsappConfirmVisible = signal(false);
@@ -314,8 +316,7 @@ export class FacturesListComponent implements OnInit {
     >;
 
     this.apollo
-      .subscribe<{ factureUpdated: MajFacture }>({
-        query: FACTURE_UPDATED_SUB,
+      .subscribe<FactureUpdatedSubscription>({ query: FACTURE_UPDATED_SUB,
         context: { silentError: true },
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -323,7 +324,7 @@ export class FacturesListComponent implements OnInit {
         next: ({ data }) => {
           const maj = data?.factureUpdated;
           if (!maj) return;
-          let fusionnee: Facture | null = null;
+          let fusionnee: FactureLigne | null = null;
           this.factures.update((liste) =>
             liste.map((f) => {
               if (f.factureId !== maj.factureId) return f;
@@ -368,7 +369,7 @@ export class FacturesListComponent implements OnInit {
 
   /** Campagnes distinctes portées par un lot de factures enrichies, triées de la
    *  plus récente à la plus ancienne (le COMPTABLE n'a pas accès à `campagnes`). */
-  private campagnesDepuisFactures(factures: Facture[]): CampagneOption[] {
+  private campagnesDepuisFactures(factures: FactureLigne[]): CampagneOption[] {
     const map = new Map<string, { nom: string; mois: number; annee: number }>();
     for (const f of factures) {
       if (f.campagneId && !map.has(f.campagneId)) {
@@ -481,7 +482,7 @@ export class FacturesListComponent implements OnInit {
     }
   }
 
-  private async loadSoldes(factures: Facture[]): Promise<void> {
+  private async loadSoldes(factures: FactureLigne[]): Promise<void> {
     if (!factures.length) return;
     // `async` sur le callback : une erreur levée de façon synchrone devient une
     // promesse rejetée, que `allSettled` absorbe. Sans lui, elle échapperait à
@@ -512,7 +513,7 @@ export class FacturesListComponent implements OnInit {
    * distinct. Sert à répondre, sur chaque ligne, à la question que le solde
    * seul ne traite pas : « est-ce que c'est tout ce qu'il me doit ? »
    */
-  private async loadDettes(factures: Facture[]): Promise<void> {
+  private async loadDettes(factures: FactureLigne[]): Promise<void> {
     const abonneIds = [...new Set(factures.map((f) => f.abonneId).filter(Boolean))];
     if (!abonneIds.length) return;
     const results = await Promise.allSettled(
@@ -535,7 +536,7 @@ export class FacturesListComponent implements OnInit {
   // est accepté à la saisie, les avoirs deviennent courants — la supposition
   // se serait donc trompée de plus en plus souvent, et sur les factures les
   // plus délicates à expliquer au guichet.
-  soldeFor(f: Facture): number | null {
+  soldeFor(f: FactureLigne): number | null {
     if (f.statut === 'PAYEE') return 0;
     // Plus de repli sur `f.montant` pour les IMPAYEE : c'était une supposition,
     // fausse dès qu'un avoir avait réduit le solde. On rend `null` — la colonne
@@ -544,7 +545,7 @@ export class FacturesListComponent implements OnInit {
   }
 
   /** Le solde de cette facture n'a pas pu être chargé (rôle, réseau, 429). */
-  soldeEnErreur(f: Facture): boolean {
+  soldeEnErreur(f: FactureLigne): boolean {
     return this.soldesEnErreur().has(f.factureId);
   }
 
@@ -557,7 +558,7 @@ export class FacturesListComponent implements OnInit {
    * ou facture unique. Une annotation qui apparaîtrait partout ne serait plus
    * une annotation.
    */
-  autresDettesFor(f: Facture): number | null {
+  autresDettesFor(f: FactureLigne): number | null {
     const dette = this.dettes().get(f.abonneId);
     const solde = this.soldeFor(f);
     if (!dette || solde === null) return null;
@@ -566,7 +567,7 @@ export class FacturesListComponent implements OnInit {
   }
 
   /** Nombre de factures que l'abonné doit en plus de celle-ci. */
-  autresFacturesFor(f: Facture): number {
+  autresFacturesFor(f: FactureLigne): number {
     const dette = this.dettes().get(f.abonneId);
     if (!dette) return 0;
     return Math.max(0, dette.nbFactures - (f.statut === 'PAYEE' ? 0 : 1));
@@ -588,7 +589,7 @@ export class FacturesListComponent implements OnInit {
   }
 
   /** Ouvre le panneau de paiement pour une facture (chargement délégué au composant). */
-  openPanel(facture: Facture): void {
+  openPanel(facture: FactureLigne): void {
     this.selectedFacture.set(facture);
   }
 

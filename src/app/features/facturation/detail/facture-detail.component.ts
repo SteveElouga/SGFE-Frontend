@@ -20,16 +20,17 @@ import { RouterLink } from '@angular/router';
 import { AnnulerSheetComponent } from './annuler-sheet/annuler-sheet.component';
 import { AnnulerPaiementSheetComponent } from './annuler-paiement-sheet/annuler-paiement-sheet.component';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
-import { DetteAbonne, Envoi, Facture, Paiement, SoldeFacture, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import { DetteAbonne, Paiement, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
+import type { FactureDetail } from '../../../graphql/vues';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
-import { Abonne } from '../../../shared/models/abonne.model';
-import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
+import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { PaiementFormComponent } from '../../../shared/components/paiement-form/paiement-form.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { FcfaPipe } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
+import type { AbonneDetail, CampagneDetail, EnvoiFacture, PaiementFacture, SoldeDetail } from '../../../graphql/vues';
 
 @Component({
   imports: [
@@ -124,12 +125,12 @@ export class FactureDetailComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly pdfLoading = signal(false);
 
-  readonly facture = signal<Facture | null>(null);
-  readonly solde = signal<SoldeFacture | null>(null);
-  readonly paiements = signal<Paiement[]>([]);
-  readonly envois = signal<Envoi[]>([]);
-  readonly abonne = signal<Abonne | null>(null);
-  readonly campagne = signal<Campagne | null>(null);
+  readonly facture = signal<FactureDetail | null>(null);
+  readonly solde = signal<SoldeDetail | null>(null);
+  readonly paiements = signal<PaiementFacture[]>([]);
+  readonly envois = signal<EnvoiFacture[]>([]);
+  readonly abonne = signal<AbonneDetail | null>(null);
+  readonly campagne = signal<CampagneDetail | null>(null);
 
   /** Feuille d'annulation. Réservée à ADMIN : effacer une dette est le geste
    *  le plus lourd de l'application, plus lourd que d'en créer une. */
@@ -139,7 +140,7 @@ export class FactureDetailComponent implements OnInit {
   // La mutation est réservée à ADMIN et COMPTABLE côté gateway. On reflète la
   // règle ici plutôt que de laisser un agent découvrir l'interdit au clic.
   readonly annulPaiementOuverte = signal(false);
-  readonly paiementAAnnuler = signal<Paiement | null>(null);
+  readonly paiementAAnnuler = signal<PaiementFacture | null>(null);
   readonly peutAnnulerPaiement = computed(
     () => this.auth.isAdmin() || this.auth.isComptable(),
   );
@@ -259,7 +260,7 @@ export class FactureDetailComponent implements OnInit {
    * injoignable, l'écran s'affiche sans la ligne plutôt que d'échouer — même
    * dégradation gracieuse que la génération du PDF.
    */
-  private async loadSoldeAnterieur(facture: Facture): Promise<void> {
+  private async loadSoldeAnterieur(facture: FactureDetail): Promise<void> {
     if (!facture.abonneId) return;
     try {
       this.soldeAnterieur.set(
@@ -297,7 +298,7 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
-  private async loadRefs(f: Facture): Promise<void> {
+  private async loadRefs(f: FactureDetail): Promise<void> {
     const tasks: Promise<unknown>[] = [];
     if (f.abonneId) {
       tasks.push(
@@ -318,7 +319,7 @@ export class FactureDetailComponent implements OnInit {
     await Promise.allSettled(tasks);
   }
 
-  ouvrirAnnulationPaiement(p: Paiement): void {
+  ouvrirAnnulationPaiement(p: PaiementFacture): void {
     this.paiementAAnnuler.set(p);
     this.annulPaiementOuverte.set(true);
   }
@@ -452,7 +453,7 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
-  envoiClass(envoi: Envoi): string {
+  envoiClass(envoi: EnvoiFacture): string {
     if (envoi.erreur) return 'journal-entry--error';
     const t = envoi.typeEnvoi?.toUpperCase() ?? '';
     if (t.includes('RAPPEL') || t.includes('ETAPE_2')) return 'journal-entry--warn';
@@ -461,7 +462,7 @@ export class FactureDetailComponent implements OnInit {
   }
 
   /** Libellé du type d'envoi (ENVOIS.TYPE.*), repli sur la valeur brute. */
-  envoiTypeLabel(envoi: Envoi): string {
+  envoiTypeLabel(envoi: EnvoiFacture): string {
     const type = envoi.typeEnvoi ?? 'FACTURE';
     const key = `ENVOIS.TYPE.${type.toUpperCase()}`;
     const label = this.translate.instant(key) as string;
@@ -469,7 +470,7 @@ export class FactureDetailComponent implements OnInit {
   }
 
   /** Libellé du statut d'envoi (ENVOIS.STATUT.*), déduit de l'erreur à défaut. */
-  envoiStatutLabel(envoi: Envoi): string {
+  envoiStatutLabel(envoi: EnvoiFacture): string {
     const statut = envoi.statut || (envoi.erreur ? 'ECHEC' : 'ENVOYE');
     const key = `ENVOIS.STATUT.${statut.toUpperCase()}`;
     const label = this.translate.instant(key) as string;
@@ -494,7 +495,7 @@ export class FactureDetailComponent implements OnInit {
    * c'est elle qu'on voulait voir. Sans régénération, on recharge sur place —
    * la facture existe encore, elle a seulement changé d'état.
    */
-  async onAnnulationFaite(nouvelle: Facture | null): Promise<void> {
+  async onAnnulationFaite(nouvelle: { factureId: string } | null): Promise<void> {
     if (nouvelle) {
       // `/factures`, et non `/facturation` : aucune route de ce nom n'existe.
       // Le lien tombait donc dans `{ path: '**', redirectTo: 'login' }` — après

@@ -11,11 +11,11 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DashboardService, StatsGlobales, StatsMois, DeltaMois } from '../../../core/dashboard/dashboard.service';
-import { AgentAffecte, Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
-import { Facture, Paiement, SoldeFacture } from '../../../shared/models/facture.model';
+import { AgentAffecte, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
+import type { GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery } from '../../../graphql/generated';
 
 /**
  * Ligne "impayé le plus ancien" pour la liste top-5 Comptable.
@@ -95,10 +95,10 @@ export class DashboardComponent implements OnInit {
    * Remplace la dérivation approximative v3.2 qui répartissait proportionnellement.
    */
   readonly statsParMois = signal<StatsMois[] | null>(null);
-  readonly campagnes = signal<Campagne[] | null>(null);
-  readonly impayes = signal<SoldeFacture[] | null>(null);
-  readonly paiements = signal<Paiement[] | null>(null);
-  readonly factures = signal<Facture[] | null>(null);
+  readonly campagnes = signal<GetCampagnesQuery['campagnes'] | null>(null);
+  readonly impayes = signal<GetImpayesQuery['impayes'] | null>(null);
+  readonly paiements = signal<GetAllPaiementsQuery['paiements'] | null>(null);
+  readonly factures = signal<GetFacturesQuery['factures'] | null>(null);
   /** Agents affectés par campagne — chargés uniquement pour Superviseur. */
   readonly agentsByCampagne = signal<Map<string, AgentAffecte[]>>(new Map());
 

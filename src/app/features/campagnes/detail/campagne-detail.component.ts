@@ -21,17 +21,7 @@ import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { Tarif } from '../../../shared/models/facture.model';
-import {
-  AgentAffecte,
-  Campagne,
-  Progression,
-  Releve,
-  ResumeCloture,
-  ZoneRepartition,
-  campagneStatutTone,
-  formatPeriodeCampagne,
-  releveStatutTone,
-} from '../../../shared/models/campagne.model';
+import { AgentAffecte, Progression, ResumeCloture, ZoneRepartition, campagneStatutTone, formatPeriodeCampagne, releveStatutTone } from '../../../shared/models/campagne.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
@@ -43,6 +33,9 @@ import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bo
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
+import type { ProgressionUpdatedSubscription } from '../../../graphql/generated';
+import type { CampagneDetail, ReleveLigne } from '../../../graphql/vues';
+import type { GetCampagneQuery } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-campagne-detail',
@@ -91,7 +84,7 @@ export class CampagneDetailComponent implements OnInit {
   readonly auth = inject(AuthService);
 
   readonly campagneId: string;
-  private campagneQuery!: QueryRef<{ campagne: Campagne }>;
+  private campagneQuery!: QueryRef<GetCampagneQuery>;
 
   // ── Agents affectés & répartition (queries backend dédiées) ──────────────
   readonly showAgentsSheet = signal(false);
@@ -139,9 +132,9 @@ export class CampagneDetailComponent implements OnInit {
   // ── État ───────────────────────────────────────────────────────────────────
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly campagne = signal<Campagne | null>(null);
+  readonly campagne = signal<CampagneDetail | null>(null);
   readonly progression = signal<Progression | null>(null);
-  readonly releves = signal<Releve[]>([]);
+  readonly releves = signal<ReleveLigne[]>([]);
   readonly cloturant = signal(false);
   readonly demarrant = signal(false);
 
@@ -396,7 +389,7 @@ export class CampagneDetailComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ data }) => {
-          if (data?.campagne) this.campagne.set(data.campagne as Campagne);
+          if (data?.campagne) this.campagne.set(data.campagne as CampagneDetail);
         },
         error: (err: unknown) => {
           const { message } = extractGqlError(err);
@@ -416,8 +409,7 @@ export class CampagneDetailComponent implements OnInit {
     // Le flux existait des deux côtés depuis le début ; personne ne s'y était
     // abonné.
     this.apollo
-      .subscribe<{ progressionUpdated: Progression }>({
-        query: PROGRESSION_UPDATED_SUB,
+      .subscribe<ProgressionUpdatedSubscription>({ query: PROGRESSION_UPDATED_SUB,
         variables: { campagneId: this.campagneId },
         // Échec silencieux : une progression figée reste lisible, alors qu'un
         // bandeau d'erreur sur un flux d'agrément couvrirait l'écran pour rien.

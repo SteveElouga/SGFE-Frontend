@@ -3,19 +3,26 @@ import type { BadgeTone } from '../components/badge/badge.component';
 export type StatutCampagne = 'PLANIFIEE' | 'EN_COURS' | 'CLOTUREE';
 export type StatutReleve = 'A_RELEVER' | 'RELEVE' | 'NON_RELEVE' | 'ESTIME';
 
-/** Teinte de la puce de statut d'une campagne. */
-export function campagneStatutTone(statut: StatutCampagne): BadgeTone {
+/**
+ * Teinte de la puce de statut d'une campagne.
+ *
+ * `string` et non `StatutCampagne`, pour la raison exposée sur
+ * `factureStatutTone` : la gateway type `Campagne.statut` en `String`.
+ */
+export function campagneStatutTone(statut: string): BadgeTone {
   switch (statut) {
     case 'PLANIFIEE':
     case 'EN_COURS':
       return 'info';
     case 'CLOTUREE':
       return 'success';
+    default:
+      return 'neutral';
   }
 }
 
-/** Teinte de la puce de statut d'un relevé. */
-export function releveStatutTone(statut: StatutReleve): BadgeTone {
+/** Teinte de la puce de statut d'un relevé — même contrat que ci-dessus. */
+export function releveStatutTone(statut: string): BadgeTone {
   switch (statut) {
     case 'RELEVE':
       return 'success';
@@ -24,6 +31,7 @@ export function releveStatutTone(statut: StatutReleve): BadgeTone {
     case 'NON_RELEVE':
       return 'danger';
     case 'A_RELEVER':
+    default:
       return 'neutral';
   }
 }

@@ -1,39 +1,20 @@
 import { gql } from '@apollo/client/core';
+import { FACTURE_LIGNE_FIELDS, PAIEMENT_FIELDS } from '../fragments';
 
 export const GET_FACTURES_PAR_CAMPAGNE = gql`
+  ${FACTURE_LIGNE_FIELDS}
   query GetFacturesParCampagne($campagneId: String!) {
     facturesParCampagne(campagneId: $campagneId) {
-      factureId
-      numeroFacture
-      abonneId
-      abonneNom
-      abonneNumero
-      campagneNom
-      statut
-      consommation
-      montant
-      dateLimitePaiement
+      ...FactureLigneFields
     }
   }
 `;
 
 export const GET_FACTURES = gql`
+  ${FACTURE_LIGNE_FIELDS}
   query GetFactures($campagneId: String, $abonneId: String, $statut: String) {
     factures(campagneId: $campagneId, abonneId: $abonneId, statut: $statut) {
-      factureId
-      numeroFacture
-      abonneId
-      abonneNom
-      abonneNumero
-      campagneId
-      campagneNom
-      campagnePeriodeMois
-      campagnePeriodeAnnee
-      statut
-      consommation
-      montant
-      dateReleve
-      dateLimitePaiement
+      ...FactureLigneFields
     }
   }
 `;
@@ -59,6 +40,20 @@ export const GET_FACTURE = gql`
       dateGeneration
       pdfPath
       numeroMobileMoney
+      campagnePeriodeMois
+      campagnePeriodeAnnee
+      # Annulation : le bandeau de l'écran de détail testait ces quatre champs
+      # sans qu'aucun ne soit demandé. Il n'a jamais pu s'afficher.
+      motifAnnulation
+      dateAnnulation
+      annuleePar
+      remplaceeParId
+      remplaceId
+      # nature décide si l'annulation propose une régénération : une
+      # régularisation n'a pas de relevé, donc rien à régénérer. Non demandé,
+      # le test f.nature !== 'REGULARISATION' était toujours vrai.
+      nature
+      motif
     }
   }
 `;
@@ -90,15 +85,10 @@ export const GET_SOLDE_FACTURE = gql`
 `;
 
 export const GET_PAIEMENTS = gql`
+  ${PAIEMENT_FIELDS}
   query GetPaiements($factureId: String!, $abonneId: String) {
     paiements(factureId: $factureId, abonneId: $abonneId) {
-      paiementId
-      factureId
-      montant
-      datePaiement
-      modePaiement
-      referenceTransaction
-      createdAt
+      ...PaiementFields
     }
   }
 `;

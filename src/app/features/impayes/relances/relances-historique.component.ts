@@ -12,14 +12,14 @@ import { FacturesService } from '../../../core/factures/factures.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { Facture, SoldeFacture, SuiviImpaye } from '../../../shared/models/facture.model';
-import { Abonne } from '../../../shared/models/abonne.model';
-import { Campagne, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
+import { SuiviImpaye } from '../../../shared/models/facture.model';
+import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { formatFcfa } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
+import type { AbonneDetail, CampagneDetail, FactureDetail, SoldeDetail } from '../../../graphql/vues';
 
 /** Délais par défaut des relances graduées (configurables dans Paramètres). */
 const STAGES = [
@@ -73,10 +73,10 @@ export class RelancesHistoriqueComponent implements OnInit {
   /** Secondes restantes avant de pouvoir renvoyer à nouveau (garde-fou double-envoi). */
   readonly renvoiCooldown = signal(0);
 
-  readonly facture = signal<Facture | null>(null);
-  readonly solde = signal<SoldeFacture | null>(null);
-  readonly abonne = signal<Abonne | null>(null);
-  readonly campagne = signal<Campagne | null>(null);
+  readonly facture = signal<FactureDetail | null>(null);
+  readonly solde = signal<SoldeDetail | null>(null);
+  readonly abonne = signal<AbonneDetail | null>(null);
+  readonly campagne = signal<CampagneDetail | null>(null);
   readonly suivi = signal<SuiviImpaye | null>(null);
 
   readonly abonneNom = computed(() => {

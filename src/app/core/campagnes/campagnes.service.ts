@@ -1,23 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { Apollo, QueryRef } from 'apollo-angular';
-import {
-  AgentAffecte,
-  AgentDisponible,
-  AjouterAbonnesResult,
-  Campagne,
-  CorrigerReleveInput,
-  CreateCampagneInput,
-  DernierIndex,
-  MarquerNonReleveInput,
-  Progression,
-  Releve,
-  ResumeCloture,
-  SaisirIndexInput,
-  ZoneDisponible,
-  ZoneInput,
-  ZoneRepartition,
-} from '../../shared/models/campagne.model';
+import { CorrigerReleveInput, CreateCampagneInput, MarquerNonReleveInput, SaisirIndexInput, ZoneInput } from '../../shared/models/campagne.model';
 import {
   GET_AGENTS_CAMPAGNE,
   GET_AGENTS_DISPONIBLES,
@@ -42,6 +26,7 @@ import {
   MARQUER_NON_RELEVE,
   SAISIR_INDEX,
 } from '../../graphql/mutations/campagnes.mutations';
+import type { AffecterAgentMutation, AffecterZonesMutation, AjouterAbonnesCampagneMutation, CloturerCampagneMutation, CorrigerReleveMutation, CreerCampagneMutation, DemarrerCampagneMutation, GetAgentsCampagneQuery, GetAgentsDisponiblesQuery, GetCampagneQuery, GetCampagnesQuery, GetDernierIndexQuery, GetProgressionQuery, GetRelevesParAgentQuery, GetRelevesQuery, GetRepartitionZoneQuery, GetZonesDisponiblesQuery, MarquerNonReleveMutation, ResumeClotureQuery, SaisirIndexMutation } from '../../graphql/generated';
 
 /**
  * Accès GraphQL au domaine « campagnes de relevé » : cycle de vie des campagnes,
@@ -53,32 +38,29 @@ import {
 export class CampagnesService {
   private readonly apollo = inject(Apollo);
 
-  watchCampagnes(): QueryRef<{ campagnes: Campagne[] }> {
-    return this.apollo.watchQuery<{ campagnes: Campagne[] }>({
-      query: GET_CAMPAGNES,
+  watchCampagnes(): QueryRef<GetCampagnesQuery> {
+    return this.apollo.watchQuery<GetCampagnesQuery>({ query: GET_CAMPAGNES,
       fetchPolicy: 'cache-and-network',
     });
   }
 
-  watchCampagne(campagneId: string): QueryRef<{ campagne: Campagne }> {
-    return this.apollo.watchQuery<{ campagne: Campagne }>({
-      query: GET_CAMPAGNE,
+  watchCampagne(campagneId: string): QueryRef<GetCampagneQuery> {
+    return this.apollo.watchQuery<GetCampagneQuery>({ query: GET_CAMPAGNE,
       variables: { campagneId },
     });
   }
 
   /** Lecture ponctuelle de toutes les campagnes (désambiguïsation des homonymes). */
-  async getCampagnes(): Promise<Campagne[]> {
+  async getCampagnes(): Promise<GetCampagnesQuery['campagnes']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ campagnes: Campagne[] }>({ query: GET_CAMPAGNES }),
+      this.apollo.query<GetCampagnesQuery>({ query: GET_CAMPAGNES }),
     );
     return result.data!.campagnes;
   }
 
-  async getCampagne(campagneId: string): Promise<Campagne> {
+  async getCampagne(campagneId: string): Promise<GetCampagneQuery['campagne']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ campagne: Campagne }>({
-        query: GET_CAMPAGNE,
+      this.apollo.query<GetCampagneQuery>({ query: GET_CAMPAGNE,
         variables: { campagneId },
         // Statut, progression et affectations bougent pendant qu'on regarde.
         fetchPolicy: 'network-only',
@@ -87,20 +69,18 @@ export class CampagnesService {
     return result.data!.campagne;
   }
 
-  async getReleves(campagneId: string): Promise<Releve[]> {
+  async getReleves(campagneId: string): Promise<GetRelevesQuery['releves']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ releves: Releve[] }>({
-        query: GET_RELEVES,
+      this.apollo.query<GetRelevesQuery>({ query: GET_RELEVES,
         variables: { campagneId },
       }),
     );
     return result.data!.releves;
   }
 
-  async getProgression(campagneId: string): Promise<Progression> {
+  async getProgression(campagneId: string): Promise<GetProgressionQuery['progression']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ progression: Progression }>({
-        query: GET_PROGRESSION,
+      this.apollo.query<GetProgressionQuery>({ query: GET_PROGRESSION,
         variables: { campagneId },
       }),
     );
@@ -108,10 +88,9 @@ export class CampagnesService {
   }
 
   /** Ventilation autoritative pour la clôture (ADMIN + SUPERVISEUR uniquement). */
-  async getResumeCloture(campagneId: string): Promise<ResumeCloture> {
+  async getResumeCloture(campagneId: string): Promise<ResumeClotureQuery['resumeCloture']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ resumeCloture: ResumeCloture }>({
-        query: GET_RESUME_CLOTURE,
+      this.apollo.query<ResumeClotureQuery>({ query: GET_RESUME_CLOTURE,
         variables: { campagneId },
         fetchPolicy: 'network-only',
       }),
@@ -119,32 +98,29 @@ export class CampagnesService {
     return result.data!.resumeCloture;
   }
 
-  async getDernierIndex(abonneId: string): Promise<DernierIndex> {
+  async getDernierIndex(abonneId: string): Promise<GetDernierIndexQuery['dernierIndex']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ dernierIndex: DernierIndex }>({
-        query: GET_DERNIER_INDEX,
+      this.apollo.query<GetDernierIndexQuery>({ query: GET_DERNIER_INDEX,
         variables: { abonneId },
       }),
     );
     return result.data!.dernierIndex;
   }
 
-  async creerCampagne(input: CreateCampagneInput): Promise<Campagne> {
+  async creerCampagne(input: CreateCampagneInput): Promise<CreerCampagneMutation['creerCampagne']> {
     // Pas de refetch ici : la liste (watchCampagnes) est en cache-and-network,
     // elle refait la requête à chaque montage → fraîche après navigation.
     const result = await firstValueFrom(
-      this.apollo.mutate<{ creerCampagne: Campagne }>({
-        mutation: CREER_CAMPAGNE,
+      this.apollo.mutate<CreerCampagneMutation>({ mutation: CREER_CAMPAGNE,
         variables: { input },
       }),
     );
     return result.data!.creerCampagne;
   }
 
-  async affecterAgent(campagneId: string, agentId: string): Promise<Campagne> {
+  async affecterAgent(campagneId: string, agentId: string): Promise<AffecterAgentMutation['affecterAgent']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ affecterAgent: Campagne }>({
-        mutation: AFFECTER_AGENT,
+      this.apollo.mutate<AffecterAgentMutation>({ mutation: AFFECTER_AGENT,
         variables: { campagneId, agentId },
       }),
     );
@@ -158,10 +134,9 @@ export class CampagnesService {
   async ajouterAbonnesCampagne(
     campagneId: string,
     abonneIds: string[],
-  ): Promise<AjouterAbonnesResult> {
+  ): Promise<AjouterAbonnesCampagneMutation['ajouterAbonnesCampagne']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ ajouterAbonnesCampagne: AjouterAbonnesResult }>({
-        mutation: AJOUTER_ABONNES_CAMPAGNE,
+      this.apollo.mutate<AjouterAbonnesCampagneMutation>({ mutation: AJOUTER_ABONNES_CAMPAGNE,
         variables: { campagneId, abonneIds },
       }),
     );
@@ -170,38 +145,34 @@ export class CampagnesService {
 
   async cloturerCampagne(campagneId: string): Promise<void> {
     await firstValueFrom(
-      this.apollo.mutate<{ cloturerCampagne: Campagne }>({
-        mutation: CLOTURER_CAMPAGNE,
+      this.apollo.mutate<CloturerCampagneMutation>({ mutation: CLOTURER_CAMPAGNE,
         variables: { campagneId },
       }),
     );
   }
 
   /** Démarre à la demande une campagne PLANIFIEE (→ EN_COURS). */
-  async demarrerCampagne(campagneId: string): Promise<Campagne> {
+  async demarrerCampagne(campagneId: string): Promise<DemarrerCampagneMutation['demarrerCampagne']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ demarrerCampagne: Campagne }>({
-        mutation: DEMARRER_CAMPAGNE,
+      this.apollo.mutate<DemarrerCampagneMutation>({ mutation: DEMARRER_CAMPAGNE,
         variables: { campagneId },
       }),
     );
     return result.data!.demarrerCampagne;
   }
 
-  async saisirIndex(input: SaisirIndexInput): Promise<Releve> {
+  async saisirIndex(input: SaisirIndexInput): Promise<SaisirIndexMutation['saisirIndex']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ saisirIndex: Releve }>({
-        mutation: SAISIR_INDEX,
+      this.apollo.mutate<SaisirIndexMutation>({ mutation: SAISIR_INDEX,
         variables: { input },
       }),
     );
     return result.data!.saisirIndex;
   }
 
-  async marquerNonReleve(input: MarquerNonReleveInput): Promise<Releve> {
+  async marquerNonReleve(input: MarquerNonReleveInput): Promise<MarquerNonReleveMutation['marquerNonReleve']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ marquerNonReleve: Releve }>({
-        mutation: MARQUER_NON_RELEVE,
+      this.apollo.mutate<MarquerNonReleveMutation>({ mutation: MARQUER_NON_RELEVE,
         variables: { input },
       }),
     );
@@ -212,10 +183,9 @@ export class CampagnesService {
   // corrigerReleve / relevesParAgent (cf. RELEVE_AUDIT_READY côté UI).
 
   /** Corrige un index déjà RELEVE (ADMIN / SUPERVISEUR propriétaire). */
-  async corrigerReleve(input: CorrigerReleveInput): Promise<Releve> {
+  async corrigerReleve(input: CorrigerReleveInput): Promise<CorrigerReleveMutation['corrigerReleve']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ corrigerReleve: Releve }>({
-        mutation: CORRIGER_RELEVE,
+      this.apollo.mutate<CorrigerReleveMutation>({ mutation: CORRIGER_RELEVE,
         variables: { input },
       }),
     );
@@ -223,10 +193,9 @@ export class CampagnesService {
   }
 
   /** Agents affectés à une campagne (statut de tournée, zones, relevés). */
-  async getAgentsCampagne(campagneId: string): Promise<AgentAffecte[]> {
+  async getAgentsCampagne(campagneId: string): Promise<GetAgentsCampagneQuery['agentsCampagne']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ agentsCampagne: AgentAffecte[] }>({
-        query: GET_AGENTS_CAMPAGNE,
+      this.apollo.query<GetAgentsCampagneQuery>({ query: GET_AGENTS_CAMPAGNE,
         variables: { campagneId },
         fetchPolicy: 'network-only',
       }),
@@ -235,10 +204,9 @@ export class CampagnesService {
   }
 
   /** Répartition par zone d'une campagne (zone → agent → abonnés/relevés/%). */
-  async getRepartitionZone(campagneId: string): Promise<ZoneRepartition[]> {
+  async getRepartitionZone(campagneId: string): Promise<GetRepartitionZoneQuery['repartitionParZone']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ repartitionParZone: ZoneRepartition[] }>({
-        query: GET_REPARTITION_ZONE,
+      this.apollo.query<GetRepartitionZoneQuery>({ query: GET_REPARTITION_ZONE,
         variables: { campagneId },
         fetchPolicy: 'network-only',
       }),
@@ -247,10 +215,9 @@ export class CampagnesService {
   }
 
   /** Relevés d'un agent dans une campagne (écran « Voir la tournée »). */
-  async getRelevesParAgent(campagneId: string, agentId: string): Promise<Releve[]> {
+  async getRelevesParAgent(campagneId: string, agentId: string): Promise<GetRelevesParAgentQuery['relevesParAgent']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ relevesParAgent: Releve[] }>({
-        query: GET_RELEVES_PAR_AGENT,
+      this.apollo.query<GetRelevesParAgentQuery>({ query: GET_RELEVES_PAR_AGENT,
         variables: { campagneId, agentId },
         fetchPolicy: 'network-only',
       }),
@@ -259,10 +226,9 @@ export class CampagnesService {
   }
 
   /** Agents AGENT actifs affectables (ADMIN + SUPERVISEUR). */
-  async getAgentsDisponibles(): Promise<AgentDisponible[]> {
+  async getAgentsDisponibles(): Promise<GetAgentsDisponiblesQuery['agentsDisponibles']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ agentsDisponibles: AgentDisponible[] }>({
-        query: GET_AGENTS_DISPONIBLES,
+      this.apollo.query<GetAgentsDisponiblesQuery>({ query: GET_AGENTS_DISPONIBLES,
         // « Disponible » est un état, pas une propriété : il change sans nous.
         fetchPolicy: 'network-only',
       }),
@@ -271,10 +237,9 @@ export class CampagnesService {
   }
 
   /** Zones (quartier + camp) et nombre d'abonnés actifs par zone. */
-  async getZonesDisponibles(): Promise<ZoneDisponible[]> {
+  async getZonesDisponibles(): Promise<GetZonesDisponiblesQuery['zonesDisponibles']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ zonesDisponibles: ZoneDisponible[] }>({
-        query: GET_ZONES_DISPONIBLES,
+      this.apollo.query<GetZonesDisponiblesQuery>({ query: GET_ZONES_DISPONIBLES,
         fetchPolicy: 'network-only',
       }),
     );
@@ -286,10 +251,9 @@ export class CampagnesService {
     campagneId: string,
     agentId: string,
     zones: ZoneInput[],
-  ): Promise<AgentAffecte[]> {
+  ): Promise<AffecterZonesMutation['affecterZones']> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ affecterZones: AgentAffecte[] }>({
-        mutation: AFFECTER_ZONES,
+      this.apollo.mutate<AffecterZonesMutation>({ mutation: AFFECTER_ZONES,
         variables: { campagneId, agentId, zones },
       }),
     );

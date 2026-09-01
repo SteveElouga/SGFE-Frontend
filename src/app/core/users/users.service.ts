@@ -10,6 +10,7 @@ import {
 } from '../../graphql/mutations/users.mutations';
 import { GET_USERS } from '../../graphql/queries/users.queries';
 import { Role, User } from '../../shared/models/user.model';
+import type { CreateUserMutation, DeactivateUserMutation, GetUsersQuery, ReactivateUserMutation, ResetUserPasswordMutation, UpdateUserMutation } from '../../graphql/generated';
 
 export interface CreateUserInput {
   username: string;
@@ -33,10 +34,9 @@ export interface UpdateUserInput {
 export class UsersService {
   private readonly apollo = inject(Apollo);
 
-  async getUsers(): Promise<User[]> {
+  async getUsers(): Promise<GetUsersQuery['users']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ users: User[] }>({
-        query: GET_USERS,
+      this.apollo.query<GetUsersQuery>({ query: GET_USERS,
       }),
     );
     return result.data?.users ?? [];
@@ -44,8 +44,7 @@ export class UsersService {
 
   async createUser(input: CreateUserInput): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ createUser: User }>({
-        mutation: CREATE_USER,
+      this.apollo.mutate<CreateUserMutation>({ mutation: CREATE_USER,
         variables: input,
       }),
     );
@@ -56,8 +55,7 @@ export class UsersService {
 
   async updateUser(id: string, input: UpdateUserInput): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ updateUser: User }>({
-        mutation: UPDATE_USER,
+      this.apollo.mutate<UpdateUserMutation>({ mutation: UPDATE_USER,
         variables: { id, ...input },
       }),
     );
@@ -68,8 +66,7 @@ export class UsersService {
 
   async deactivateUser(id: string): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ deactivateUser: User }>({
-        mutation: DEACTIVATE_USER,
+      this.apollo.mutate<DeactivateUserMutation>({ mutation: DEACTIVATE_USER,
         variables: { id },
       }),
     );
@@ -81,8 +78,7 @@ export class UsersService {
   // PENDING BACKEND: cf. docs/BESOINS_API_utilisateurs.md
   async reactivateUser(id: string): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ reactivateUser: User }>({
-        mutation: REACTIVATE_USER,
+      this.apollo.mutate<ReactivateUserMutation>({ mutation: REACTIVATE_USER,
         variables: { id },
       }),
     );
@@ -95,8 +91,7 @@ export class UsersService {
   // Le backend choisit le canal (e-mail ADMIN / OTP WhatsApp sinon).
   async resetUserPassword(id: string): Promise<User> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ resetUserPassword: User }>({
-        mutation: RESET_USER_PASSWORD,
+      this.apollo.mutate<ResetUserPasswordMutation>({ mutation: RESET_USER_PASSWORD,
         variables: { id },
       }),
     );

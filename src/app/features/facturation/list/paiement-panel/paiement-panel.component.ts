@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { FacturesService } from '../../../../core/factures/factures.service';
-import { Facture } from '../../../../shared/models/facture.model';
 import { FcfaPipe } from '../../../../shared/pipes/fcfa.pipe';
 import { PaiementFormComponent } from '../../../../shared/components/paiement-form/paiement-form.component';
+import type { FactureCibleNommee } from '../../../../graphql/vues';
 
 /**
  * Panneau de saisie d'un paiement, affiché inline sous la liste des factures.
@@ -28,7 +28,7 @@ import { PaiementFormComponent } from '../../../../shared/components/paiement-fo
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaiementPanelComponent {
-  readonly facture = input<Facture | null>(null);
+  readonly facture = input<FactureCibleNommee | null>(null);
   readonly close = output<void>();
   readonly saved = output<void>();
 
@@ -57,7 +57,7 @@ export class PaiementPanelComponent {
     });
   }
 
-  private loadSolde(f: Facture): void {
+  private loadSolde(f: FactureCibleNommee): void {
     this.panelSolde.set(null);
     this.panelLoading.set(true);
     void this.facturesService.getSoldeFacture(f.factureId).then((s) => {

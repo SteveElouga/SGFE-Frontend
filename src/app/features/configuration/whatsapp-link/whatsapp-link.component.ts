@@ -13,6 +13,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { WHATSAPP_QR_QUERY, WHATSAPP_STATUS_SUB } from '../../../graphql/queries/configuration.queries';
 import { PhaseWhatsapp, WhatsappQr } from '../../../shared/models/configuration.model';
+import type { WhatsappQrQuery, WhatsappStatusSubscription } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-whatsapp-link',
@@ -111,8 +112,7 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
    */
   private instantane(): void {
     this.apollo
-      .query<{ whatsappQr: WhatsappQr }>({
-        query: WHATSAPP_QR_QUERY,
+      .query<WhatsappQrQuery>({ query: WHATSAPP_QR_QUERY,
         fetchPolicy: 'network-only',
         context: { silentError: true },
       })
@@ -135,8 +135,7 @@ export class WhatsappLinkComponent implements OnInit, OnDestroy {
    */
   private listen(): void {
     this.sub = this.apollo
-      .subscribe<{ whatsappStatus: WhatsappQr }>({
-        query: WHATSAPP_STATUS_SUB,
+      .subscribe<WhatsappStatusSubscription>({ query: WHATSAPP_STATUS_SUB,
         // Erreur affichée en local (bandeau + Réessayer) — pas de toast global.
         context: { silentError: true },
       })

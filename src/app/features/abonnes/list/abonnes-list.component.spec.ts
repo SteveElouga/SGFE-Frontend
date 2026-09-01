@@ -4,24 +4,24 @@ import { Apollo } from 'apollo-angular';
 import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AbonnesListComponent } from './abonnes-list.component';
-import { Abonne } from '../../../shared/models/abonne.model';
+import type { AbonneLigne } from '../../../graphql/vues';
 
-const mockAbonnes: Abonne[] = [
+// La fixture porte exactement `AbonneListFields` — la sélection de la liste.
+// Elle décrivait avant le type du schéma : elle remplissait `telephoneWhatsapp`,
+// `createdAt`, `indexInitial` et `datePose`, que `GET_ABONNES` ne demande pas.
+// Le test montait donc un composant nourri de champs qu'il ne reçoit jamais.
+const mockAbonnes: AbonneLigne[] = [
   {
     id: '1',
     numeroAbonne: 'AB-0001',
     nom: 'Diallo',
     prenom: 'Amadou',
     statut: 'ACTIF',
-    telephoneWhatsapp: '+225 07 11 22 33 44',
-    createdAt: '2025-07-01T00:00:00Z',
     compteur: {
       id: 'c1',
       numeroCompteur: 1042,
       quartier: 'Plateau',
       camp: 3,
-      indexInitial: 0,
-      datePose: '2025-07-01',
       statut: 'ACTIF',
     },
   },
@@ -31,15 +31,11 @@ const mockAbonnes: Abonne[] = [
     nom: 'Koné',
     prenom: 'Mariam',
     statut: 'ACTIF',
-    telephoneWhatsapp: '+225 07 22 33 44 55',
-    createdAt: '2025-07-01T00:00:00Z',
     compteur: {
       id: 'c2',
       numeroCompteur: 387,
       quartier: 'Centre',
       camp: 1,
-      indexInitial: 0,
-      datePose: '2025-07-01',
       statut: 'ACTIF',
     },
   },
@@ -49,15 +45,11 @@ const mockAbonnes: Abonne[] = [
     nom: 'Traoré',
     prenom: 'Seydou',
     statut: 'SUSPENDU',
-    telephoneWhatsapp: '+225 07 33 44 55 66',
-    createdAt: '2025-07-01T00:00:00Z',
     compteur: {
       id: 'c3',
       numeroCompteur: 122,
       quartier: 'Plateau',
       camp: 1,
-      indexInitial: 0,
-      datePose: '2025-07-01',
       statut: 'ACTIF',
     },
   },
@@ -66,7 +58,7 @@ const mockAbonnes: Abonne[] = [
 describe('AbonnesListComponent', () => {
   // Stub minimal de QueryRef renvoyé par apollo.watchQuery (le composant charge
   // via `valueChanges` dans ngOnInit et retente via `refetch`).
-  function makeQueryRef(abonnes: Abonne[], valueChanges = of({ data: { abonnes }, loading: false })) {
+  function makeQueryRef(abonnes: AbonneLigne[], valueChanges = of({ data: { abonnes }, loading: false })) {
     return {
       valueChanges,
       subscribeToMore: vi.fn(),
@@ -74,7 +66,7 @@ describe('AbonnesListComponent', () => {
     };
   }
 
-  function setup(abonnes: Abonne[] = [], valueChanges?: ReturnType<typeof of>) {
+  function setup(abonnes: AbonneLigne[] = [], valueChanges?: ReturnType<typeof of>) {
     const watchQuerySpy = vi.fn().mockReturnValue(makeQueryRef(abonnes, valueChanges));
     const mutateSpy = vi.fn();
 

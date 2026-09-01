@@ -14,7 +14,8 @@ import {
   RESET_PASSWORD,
   VERIFY_OTP_AND_SET_PASSWORD,
 } from '../../graphql/mutations/auth.mutations';
-import { AuthPayload, OtpSentPayload, User } from '../../shared/models/user.model';
+import { User } from '../../shared/models/user.model';
+import type { ActivateAccountMutation, LoginMutation, LogoutMutation, RefreshTokenMutation, RequestPasswordResetMutation, RequestPhoneOtpMutation, ResetPasswordMutation, VerifyOtpAndSetPasswordMutation } from '../../graphql/generated';
 
 // Patterns that indicate a technical backend/network message not suitable for display.
 // Return '' so callers fall back to their own user-friendly message.
@@ -95,8 +96,7 @@ export class AuthService {
   async login(identifier: string, password: string): Promise<void> {
     try {
       const result = await firstValueFrom(
-        this.apolloClient.mutate<{ login: AuthPayload }>({
-          mutation: LOGIN,
+        this.apolloClient.mutate<LoginMutation>({ mutation: LOGIN,
           variables: { identifier, password },
         }),
       );
@@ -122,8 +122,7 @@ export class AuthService {
 
   async requestPhoneOtp(phoneNumber: string): Promise<string> {
     const result = await firstValueFrom(
-      this.apolloClient.mutate<{ requestPhoneOtp: OtpSentPayload }>({
-        mutation: REQUEST_PHONE_OTP,
+      this.apolloClient.mutate<RequestPhoneOtpMutation>({ mutation: REQUEST_PHONE_OTP,
         variables: { phoneNumber },
       }),
     );
@@ -132,8 +131,7 @@ export class AuthService {
 
   async verifyOtpAndSetPassword(phoneNumber: string, otpCode: string, password: string): Promise<void> {
     await firstValueFrom(
-      this.apolloClient.mutate<{ verifyOtpAndSetPassword: boolean }>({
-        mutation: VERIFY_OTP_AND_SET_PASSWORD,
+      this.apolloClient.mutate<VerifyOtpAndSetPasswordMutation>({ mutation: VERIFY_OTP_AND_SET_PASSWORD,
         variables: { phoneNumber, otpCode, password },
       }),
     );
@@ -142,8 +140,7 @@ export class AuthService {
   async refreshToken(): Promise<void> {
     try {
       const result = await firstValueFrom(
-        this.apolloClient.mutate<{ refreshToken: AuthPayload }>({
-          mutation: REFRESH_TOKEN,
+        this.apolloClient.mutate<RefreshTokenMutation>({ mutation: REFRESH_TOKEN,
           // Best-effort : le refresh silencieux (bootstrap + retry 401) ne doit
           // jamais faire remonter d'erreur globale. Un cookie périmé/invalide
           // signifie simplement « pas de session » → on retombe sur le login.
@@ -170,7 +167,7 @@ export class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await firstValueFrom(this.apolloClient.mutate<{ logout: boolean }>({ mutation: LOGOUT }));
+      await firstValueFrom(this.apolloClient.mutate<LogoutMutation>({ mutation: LOGOUT }));
     } finally {
       this.clearSession();
     }
@@ -178,8 +175,7 @@ export class AuthService {
 
   async requestPasswordReset(email: string): Promise<void> {
     await firstValueFrom(
-      this.apolloClient.mutate<{ requestPasswordReset: boolean }>({
-        mutation: REQUEST_PASSWORD_RESET,
+      this.apolloClient.mutate<RequestPasswordResetMutation>({ mutation: REQUEST_PASSWORD_RESET,
         variables: { email },
       }),
     );
@@ -188,8 +184,7 @@ export class AuthService {
   /** Même règle que pour la réinitialisation : le serveur a révoqué l'avant. */
   async activateAccount(token: string, password: string): Promise<void> {
     await firstValueFrom(
-      this.apolloClient.mutate<{ activateAccount: boolean }>({
-        mutation: ACTIVATE_ACCOUNT,
+      this.apolloClient.mutate<ActivateAccountMutation>({ mutation: ACTIVATE_ACCOUNT,
         variables: { token, password },
       }),
     );
@@ -207,8 +202,7 @@ export class AuthService {
    */
   async resetPassword(token: string, password: string): Promise<void> {
     await firstValueFrom(
-      this.apolloClient.mutate<{ resetPassword: boolean }>({
-        mutation: RESET_PASSWORD,
+      this.apolloClient.mutate<ResetPasswordMutation>({ mutation: RESET_PASSWORD,
         variables: { token, password },
       }),
     );

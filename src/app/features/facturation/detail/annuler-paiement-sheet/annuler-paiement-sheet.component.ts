@@ -13,8 +13,9 @@ import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { extractGqlError } from '../../../../core/auth/auth.service';
-import { Paiement } from '../../../../shared/models/facture.model';
 import { FcfaPipe } from '../../../../shared/pipes/fcfa.pipe';
+import type { PaiementFacture } from '../../../../graphql/vues';
+import type { AnnulerPaiementMutation } from '../../../../graphql/generated';
 
 /**
  * Annulation d'un paiement saisi par erreur.
@@ -45,11 +46,11 @@ import { FcfaPipe } from '../../../../shared/pipes/fcfa.pipe';
 })
 export class AnnulerPaiementSheetComponent {
   readonly open = input(false);
-  readonly paiement = input<Paiement | null>(null);
+  readonly paiement = input<PaiementFacture | null>(null);
 
   readonly close = output<void>();
   /** Émet le paiement annulé — le parent recharge la facture et son solde. */
-  readonly done = output<Paiement>();
+  readonly done = output<AnnulerPaiementMutation['annulerPaiement']>();
 
   private readonly facturesService = inject(FacturesService);
   private readonly toast = inject(ToastService);

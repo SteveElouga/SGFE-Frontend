@@ -11,11 +11,12 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
-import { ModePaiement, SoldeFacture } from '../../models/facture.model';
+import { ModePaiement } from '../../models/facture.model';
 import { BottomSheetComponent } from '../bottom-sheet/bottom-sheet.component';
 import { ToastService } from '../../services/toast.service';
 import { formatFcfa } from '../../pipes/fcfa.pipe';
 import { PlurielPipe } from '../../pipes/pluriel.pipe';
+import type { SoldeDetail } from '../../../graphql/vues';
 
 /** Une part du versement, telle qu'elle sera imputée. */
 export interface PartImputee {
@@ -56,7 +57,7 @@ export class EncaissementSheetComponent {
   readonly abonneId = input.required<string>();
   readonly abonneNom = input('');
   /** Soldes non éteints de cet abonné — source de la prévisualisation. */
-  readonly soldes = input<readonly SoldeFacture[]>([]);
+  readonly soldes = input<readonly SoldeDetail[]>([]);
   /** Numéro de facture par identifiant, pour nommer les parts lisiblement. */
   readonly numerosParFacture = input<Record<string, string>>({});
   /**

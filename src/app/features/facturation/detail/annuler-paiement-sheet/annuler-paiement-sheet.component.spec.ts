@@ -3,7 +3,7 @@ import { provideTranslateService } from '@ngx-translate/core';
 import { AnnulerPaiementSheetComponent } from './annuler-paiement-sheet.component';
 import { FacturesService } from '../../../../core/factures/factures.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-import { Paiement } from '../../../../shared/models/facture.model';
+import type { PaiementFacture } from '../../../../graphql/vues';
 
 /**
  * Annuler un paiement rétablit une dette : l'impayé réapparaît, et l'abonné
@@ -15,7 +15,7 @@ import { Paiement } from '../../../../shared/models/facture.model';
  * requête est en vol, et le fait qu'un échec serveur ne fasse pas croire à un
  * succès.
  */
-function paiement(p: Partial<Paiement> = {}): Paiement {
+function paiement(p: Partial<PaiementFacture> = {}): PaiementFacture {
   return {
     paiementId: 'p-1',
     factureId: 'f-1',
@@ -29,7 +29,7 @@ function paiement(p: Partial<Paiement> = {}): Paiement {
     annulePar: null,
     motifAnnulation: null,
     ...p,
-  } as Paiement;
+  } as PaiementFacture;
 }
 
 describe('AnnulerPaiementSheetComponent', () => {

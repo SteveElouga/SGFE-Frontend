@@ -17,12 +17,8 @@ import {
   UPDATE_ABONNE,
   UPDATE_COMPTEUR,
 } from '../../graphql/mutations/abonnes.mutations';
-import {
-  Abonne,
-  Compteur,
-  HistoriqueCompteurEntry,
-  StatutAbonne,
-} from '../../shared/models/abonne.model';
+import { Abonne, Compteur, StatutAbonne } from '../../shared/models/abonne.model';
+import type { AbonneUpdatedSubscription, CreateAbonneMutation, GetAbonneQuery, GetAbonnesActifsQuery, GetAbonnesQuery, GetHistoriqueCompteurQuery, ReactiverAbonneMutation, RemplacerCompteurMutation, ResilierAbonneMutation, SuspendreAbonneMutation, UpdateAbonneMutation, UpdateCompteurMutation } from '../../graphql/generated';
 
 /**
  * Entrée de `remplacerCompteur`, alignée sur `RemplacerCompteurInput` de la
@@ -81,8 +77,7 @@ export class AbonnesService {
     type AbonneActifCache = { id: string; compteur?: { quartier: string; camp: number } | null };
 
     this.apollo
-      .subscribe<{ abonneUpdated: { id: string; statut: string; compteur?: { quartier: string; camp: number } } }>({
-        query: ABONNE_UPDATED_SUB,
+      .subscribe<AbonneUpdatedSubscription>({ query: ABONNE_UPDATED_SUB,
         context: { silentError: true },
       })
       .subscribe({
@@ -123,8 +118,7 @@ export class AbonnesService {
 
   async getAbonnesActifs(): Promise<Array<{ id: string; quartier: string | null; camp: number | null }>> {
     const result = await firstValueFrom(
-      this.apollo.query<{ abonnesActifs: Array<{ id: string; compteur?: { quartier: string; camp: number } | null }> }>({
-        query: GET_ABONNES_ACTIFS,
+      this.apollo.query<GetAbonnesActifsQuery>({ query: GET_ABONNES_ACTIFS,
         // C'est cette lecture qui affichait 17 abonnés au lieu de 18.
         fetchPolicy: 'network-only',
       }),
@@ -136,24 +130,21 @@ export class AbonnesService {
     }));
   }
 
-  watchAbonnes(statut?: StatutAbonne): QueryRef<{ abonnes: Abonne[] }> {
-    return this.apollo.watchQuery<{ abonnes: Abonne[] }>({
-      query: GET_ABONNES,
+  watchAbonnes(statut?: StatutAbonne): QueryRef<GetAbonnesQuery> {
+    return this.apollo.watchQuery<GetAbonnesQuery>({ query: GET_ABONNES,
       variables: statut ? { statut } : {},
     });
   }
 
-  watchAbonne(id: string): QueryRef<{ abonne: Abonne }> {
-    return this.apollo.watchQuery<{ abonne: Abonne }>({
-      query: GET_ABONNE,
+  watchAbonne(id: string): QueryRef<GetAbonneQuery> {
+    return this.apollo.watchQuery<GetAbonneQuery>({ query: GET_ABONNE,
       variables: { id },
     });
   }
 
-  async getAbonne(id: string): Promise<Abonne> {
+  async getAbonne(id: string): Promise<NonNullable<GetAbonneQuery['abonne']>> {
     const result = await firstValueFrom(
-      this.apollo.query<{ abonne: Abonne }>({
-        query: GET_ABONNE,
+      this.apollo.query<GetAbonneQuery>({ query: GET_ABONNE,
         variables: { id },
       }),
     );
@@ -162,10 +153,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async createAbonne(input: CreateAbonneInput): Promise<Abonne> {
+  async createAbonne(input: CreateAbonneInput): Promise<NonNullable<CreateAbonneMutation['createAbonne']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ createAbonne: Abonne }>({
-        mutation: CREATE_ABONNE,
+      this.apollo.mutate<CreateAbonneMutation>({ mutation: CREATE_ABONNE,
         variables: { input },
         // Sans cela, la liste garde son cache : un abonné créé n'apparaissait
         // pas dans `/abonnes` avant un rechargement forcé du navigateur.
@@ -180,10 +170,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async updateAbonne(id: string, input: UpdateAbonneInput): Promise<Abonne> {
+  async updateAbonne(id: string, input: UpdateAbonneInput): Promise<NonNullable<UpdateAbonneMutation['updateAbonne']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ updateAbonne: Abonne }>({
-        mutation: UPDATE_ABONNE,
+      this.apollo.mutate<UpdateAbonneMutation>({ mutation: UPDATE_ABONNE,
         variables: { id, input },
       }),
     );
@@ -192,10 +181,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async suspendreAbonne(id: string): Promise<Abonne> {
+  async suspendreAbonne(id: string): Promise<NonNullable<SuspendreAbonneMutation['suspendreAbonne']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ suspendreAbonne: Abonne }>({
-        mutation: SUSPENDRE_ABONNE,
+      this.apollo.mutate<SuspendreAbonneMutation>({ mutation: SUSPENDRE_ABONNE,
         variables: { id },
       }),
     );
@@ -204,10 +192,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async reactiverAbonne(id: string): Promise<Abonne> {
+  async reactiverAbonne(id: string): Promise<NonNullable<ReactiverAbonneMutation['reactiverAbonne']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ reactiverAbonne: Abonne }>({
-        mutation: REACTIVER_ABONNE,
+      this.apollo.mutate<ReactiverAbonneMutation>({ mutation: REACTIVER_ABONNE,
         variables: { id },
       }),
     );
@@ -216,10 +203,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async resilierAbonne(id: string): Promise<Abonne> {
+  async resilierAbonne(id: string): Promise<NonNullable<ResilierAbonneMutation['resilierAbonne']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ resilierAbonne: Abonne }>({
-        mutation: RESILIER_ABONNE,
+      this.apollo.mutate<ResilierAbonneMutation>({ mutation: RESILIER_ABONNE,
         variables: { id },
       }),
     );
@@ -228,10 +214,9 @@ export class AbonnesService {
     return abonne;
   }
 
-  async updateCompteur(abonneId: string, input: UpdateCompteurInput): Promise<Compteur> {
+  async updateCompteur(abonneId: string, input: UpdateCompteurInput): Promise<NonNullable<UpdateCompteurMutation['updateCompteur']>> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ updateCompteur: Compteur }>({
-        mutation: UPDATE_COMPTEUR,
+      this.apollo.mutate<UpdateCompteurMutation>({ mutation: UPDATE_COMPTEUR,
         variables: { abonneId, input },
       }),
     );
@@ -242,8 +227,7 @@ export class AbonnesService {
 
   async remplacerCompteur(abonneId: string, input: RemplacerCompteurInput): Promise<Compteur> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ remplacerCompteur: Compteur }>({
-        mutation: REMPLACER_COMPTEUR,
+      this.apollo.mutate<RemplacerCompteurMutation>({ mutation: REMPLACER_COMPTEUR,
         variables: { abonneId, input },
       }),
     );
@@ -252,10 +236,9 @@ export class AbonnesService {
     return compteur;
   }
 
-  async getHistoriqueCompteur(abonneId: string): Promise<HistoriqueCompteurEntry[]> {
+  async getHistoriqueCompteur(abonneId: string): Promise<GetHistoriqueCompteurQuery['historiqueCompteur']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ historiqueCompteur: HistoriqueCompteurEntry[] }>({
-        query: GET_HISTORIQUE_COMPTEUR,
+      this.apollo.query<GetHistoriqueCompteurQuery>({ query: GET_HISTORIQUE_COMPTEUR,
         variables: { id: abonneId },
       }),
     );

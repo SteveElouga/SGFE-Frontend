@@ -25,6 +25,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import type { UtilisateurUpdatedSubscription } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-utilisateurs-list',
@@ -169,8 +170,7 @@ export class UtilisateursListComponent implements OnInit {
    */
   private ecouterComptes(): void {
     this.apollo
-      .subscribe<{ utilisateurUpdated: User }>({
-        query: UTILISATEUR_UPDATED_SUB,
+      .subscribe<UtilisateurUpdatedSubscription>({ query: UTILISATEUR_UPDATED_SUB,
         // Échec silencieux : une liste figée reste juste et utilisable, alors
         // qu'un bandeau d'erreur sur un flux d'agrément couvrirait l'écran.
         context: { silentError: true },

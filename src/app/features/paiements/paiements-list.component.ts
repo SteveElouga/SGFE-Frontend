@@ -18,7 +18,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { PAIEMENT_CREE_SUB } from '../../graphql/queries/factures.queries';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
-import { Paiement, ModePaiement, StatutFacture } from '../../shared/models/facture.model';
+import { Paiement, ModePaiement } from '../../shared/models/facture.model';
 import { BadgeComponent, BadgeTone } from '../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
@@ -27,6 +27,8 @@ import { DataTableComponent, DataTableColumn } from '../../shared/components/dat
 import { DataTableCardDirective, DataTableCellDirective } from '../../shared/components/data-table/data-table.directives';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
+import type { PaiementCreeSubscription } from '../../graphql/generated';
+import type { GetAllPaiementsQuery } from '../../graphql/generated';
 
 interface CampagneItem {
   campagneId: string;
@@ -43,7 +45,8 @@ interface FactureRef {
   abonneNom: string;
   abonneNumero: string;
   campagneId: string;
-  statut: StatutFacture;
+  // `String` côté gateway : voir `factureStatutTone`.
+  statut: string;
 }
 
 interface PaiementRow {
@@ -53,9 +56,11 @@ interface PaiementRow {
   abonneNom: string;
   montant: number;
   datePaiement: string;
-  modePaiement: ModePaiement;
+  // La gateway type `modePaiement` en `String`, comme `statut` — le domaine
+  // n'a que trois valeurs, mais le contrat n'en promet aucune.
+  modePaiement: string;
   referenceTransaction: string;
-  statutFacture: StatutFacture | null;
+  statutFacture: string | null;
   annule: boolean;
   motifAnnulation: string | null;
 }
@@ -90,7 +95,7 @@ export class PaiementsListComponent implements OnInit {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
-  readonly paiements = signal<Paiement[]>([]);
+  readonly paiements = signal<GetAllPaiementsQuery['paiements']>([]);
   readonly campagnes = signal<CampagneItem[]>([]);
   readonly facturesMap = signal<Map<string, FactureRef>>(new Map());
 
@@ -256,8 +261,7 @@ export class PaiementsListComponent implements OnInit {
     >;
 
     this.apollo
-      .subscribe<{ paiementCree: MajPaiement }>({
-        query: PAIEMENT_CREE_SUB,
+      .subscribe<PaiementCreeSubscription>({ query: PAIEMENT_CREE_SUB,
         context: { silentError: true },
       })
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -269,13 +273,17 @@ export class PaiementsListComponent implements OnInit {
             // Le collègue qui vient d'encaisser reçoit aussi son propre
             // événement, après que sa mutation a déjà inséré la ligne.
             if (liste.some((x) => x.paiementId === p.paiementId)) return liste;
-            const nouveau: Paiement = {
+            const nouveau: GetAllPaiementsQuery['paiements'][number] = {
               ...p,
               createdAt: p.datePaiement,
               annule: false,
-              annuleLe: null,
-              annulePar: null,
-              motifAnnulation: null,
+              // La gateway type ces trois champs en `String` non nul : un
+              // paiement non annulé y porte la chaîne vide, jamais `null`.
+              // Les mettre à `null` fabriquait une valeur que le serveur ne
+              // produit pas — invisible tant que rien ne les lisait.
+              annuleLe: '',
+              annulePar: '',
+              motifAnnulation: '',
             };
             // Journal antichronologique : le plus récent en tête.
             return [nouveau, ...liste];

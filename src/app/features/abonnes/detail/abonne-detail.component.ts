@@ -32,6 +32,8 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
 import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
+import type { AbonneDetail, FactureLigne, SoldeDetail } from '../../../graphql/vues';
+import type { AbonneDetailUpdatedSubscription, GetAbonneQuery } from '../../../graphql/generated';
 
 @Component({
   imports: [
@@ -69,9 +71,9 @@ export class AbonneDetailComponent {
 
   /** Lu par le gabarit pour alimenter les feuilles d'action. */
   protected readonly abonneId: string;
-  private readonly abonneQuery: QueryRef<{ abonne: Abonne }>;
+  private readonly abonneQuery: QueryRef<GetAbonneQuery>;
 
-  readonly abonne = signal<Abonne | null>(null);
+  readonly abonne = signal<AbonneDetail | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly statutLoading = signal(false);
@@ -86,7 +88,7 @@ export class AbonneDetailComponent {
   readonly historiqueError = signal<string | null>(null);
 
   // Factures de l'abonné (KPIs + onglets Factures/Conso/Impayés)
-  readonly factures = signal<Facture[]>([]);
+  readonly factures = signal<FactureLigne[]>([]);
   readonly facturesLoading = signal(false);
 
   /** Factures triées de la plus récente à la plus ancienne. */
@@ -130,7 +132,7 @@ export class AbonneDetailComponent {
    * détail par facture, que `detteAbonne` n'expose pas — il ne renvoie qu'un
    * cumul.
    */
-  readonly soldesOuverts = signal<SoldeFacture[]>([]);
+  readonly soldesOuverts = signal<SoldeDetail[]>([]);
 
   /**
    * Avoir disponible : ce que la régie doit à l'abonné.
@@ -282,7 +284,7 @@ export class AbonneDetailComponent {
         next: ({ data, loading }) => {
           this.loading.set(loading);
           if (data?.abonne) {
-            this.abonne.set(data.abonne as Abonne);
+            this.abonne.set(data.abonne as AbonneDetail);
           } else if (!loading) {
             this.error.set(this.translate.instant('ERRORS.LOAD_ABONNE'));
           }
@@ -298,10 +300,10 @@ export class AbonneDetailComponent {
         },
       });
 
-    this.abonneQuery.subscribeToMore<{ abonneUpdated: Abonne }>({
+    this.abonneQuery.subscribeToMore<AbonneDetailUpdatedSubscription>({
       document: ABONNE_DETAIL_UPDATED_SUB,
       variables: { id: this.abonneId },
-      updateQuery: (_, { subscriptionData }): void | { abonne: Abonne } => {
+      updateQuery: (_, { subscriptionData }): void | GetAbonneQuery => {
         const updated = subscriptionData.data?.abonneUpdated;
         if (!updated) return;
         return { abonne: updated };
@@ -342,7 +344,7 @@ export class AbonneDetailComponent {
     this.avoir.set(a?.montant ?? 0);
   }
 
-  private async calculerSolde(factures: readonly Facture[]): Promise<void> {
+  private async calculerSolde(factures: readonly FactureLigne[]): Promise<void> {
     // Une facture annulee n'est plus une dette : la compter ici ferait
     // reapparaitre dans le solde un montant que personne ne doit plus.
     const impayees = factures.filter((f) => f.statut !== 'PAYEE' && f.statut !== 'ANNULEE');
@@ -355,14 +357,14 @@ export class AbonneDetailComponent {
         this.facturesService.getSoldeFacture(f.factureId).catch(() => null),
       ),
     );
-    const connus = soldes.filter((s): s is SoldeFacture => s !== null);
+    const connus = soldes.filter((s): s is SoldeDetail => s !== null);
     this.soldesOuverts.set(connus.filter((s) => (s.soldeRestant ?? 0) > 0));
     this.soldeImpaye.set(
       connus.length > 0 ? connus.reduce((a, s) => a + (s.soldeRestant ?? 0), 0) : null,
     );
   }
 
-  periodeFacture(f: Facture): string {
+  periodeFacture(f: FactureLigne): string {
     if (!f.dateReleve) return '—';
     const lang = this.translate.currentLang() ?? 'fr';
     const locale = lang === 'en' ? 'en-US' : 'fr-FR';

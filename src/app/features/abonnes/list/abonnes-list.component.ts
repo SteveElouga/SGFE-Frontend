@@ -25,6 +25,8 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ReactiverSheetComponent } from '../detail/reactiver-sheet/reactiver-sheet.component';
+import type { AbonneLigne } from '../../../graphql/vues';
+import type { AbonneUpdatedSubscription, GetAbonnesQuery } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-abonnes-list',
@@ -56,11 +58,11 @@ export class AbonnesListComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
 
-  private abonnesQuery!: QueryRef<{ abonnes: Abonne[] }>;
+  private abonnesQuery!: QueryRef<GetAbonnesQuery>;
 
-  readonly abonnes = signal<Abonne[]>([]);
+  readonly abonnes = signal<AbonneLigne[]>([]);
   readonly reactiverDialogVisible = signal(false);
-  readonly reactiverCible = signal<Abonne | null>(null);
+  readonly reactiverCible = signal<AbonneLigne | null>(null);
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly searchTerm = signal('');
@@ -171,7 +173,7 @@ export class AbonnesListComponent implements OnInit {
    * Variante de dégradé de l'avatar (M-05) : ambre pour un suspendu, gris pour
    * un résilié, sinon un dégradé stable dérivé du n° d'abonné.
    */
-  avatarVariant(abonne: Abonne): string {
+  avatarVariant(abonne: AbonneLigne): string {
     if (abonne.statut === 'SUSPENDU') return 'suspendu';
     if (abonne.statut === 'RESILIE') return 'resilie';
     const seed = [...(abonne.numeroAbonne ?? abonne.nom)].reduce((sum, ch) => sum + (ch.codePointAt(0) ?? 0), 0);
@@ -187,7 +189,12 @@ export class AbonnesListComponent implements OnInit {
         next: ({ data, loading }) => {
           this.loading.set(loading);
           if (data?.abonnes) {
-            this.abonnes.set(data.abonnes as Abonne[]);
+            // Apollo déclare `data` comme complet OU partiel : un cache
+            // incomplet peut alimenter la vue quand `returnPartialData` est
+            // demandé. Cette requête ne le demande pas — la conversion énonce
+            // l'invariant que la configuration garantit, et elle reste étroite
+            // exprès : c'est le seul endroit où elle vaut.
+            this.abonnes.set(data.abonnes as AbonneLigne[]);
           } else if (!loading) {
             this.error.set(this.translate.instant('ERRORS.LOAD_ABONNES'));
           }
@@ -199,16 +206,16 @@ export class AbonnesListComponent implements OnInit {
         },
       });
 
-    this.abonnesQuery.subscribeToMore<{ abonneUpdated: Abonne }>({
+    this.abonnesQuery.subscribeToMore<AbonneUpdatedSubscription>({
       document: ABONNE_UPDATED_SUB,
-      updateQuery: (prev, { subscriptionData }): void | { abonnes: Abonne[] } => {
+      updateQuery: (prev, { subscriptionData }): void | GetAbonnesQuery => {
         const updated = subscriptionData.data?.abonneUpdated;
         if (!updated) return;
         return {
           abonnes: (prev.abonnes ?? []).map((a) =>
             a?.id === updated.id ? updated : (a as Abonne),
           ),
-        } as { abonnes: Abonne[] };
+        } as GetAbonnesQuery;
       },
       onError: () => { /* Real-time sync unavailable — list still works via refetch */ },
     });
@@ -228,7 +235,7 @@ export class AbonnesListComponent implements OnInit {
     this.router.navigateByUrl(`/abonnes/${id}/modifier`);
   }
 
-  confirmReactiver(abonne: Abonne): void {
+  confirmReactiver(abonne: AbonneLigne): void {
     this.reactiverCible.set(abonne);
     this.reactiverDialogVisible.set(true);
   }

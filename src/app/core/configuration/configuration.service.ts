@@ -15,6 +15,7 @@ import {
   UPDATE_CONFIG,
   UPDATE_INFOS_SOCIETE,
 } from '../../graphql/mutations/configuration.mutations';
+import type { GetConfigsQuery, GetInfosSocieteQuery, RevoquerTokenAbonneMutation, RevoquerTousTokensAbonnesMutation, TesterEnvoiWhatsappMutation, UpdateConfigMutation, UpdateInfosSocieteMutation } from '../../graphql/generated';
 
 /**
  * Accès GraphQL aux paramètres de l'application : informations société, table de
@@ -25,10 +26,9 @@ import {
 export class ConfigurationService {
   private readonly apollo = inject(Apollo);
 
-  async getInfosSociete(): Promise<InfosSociete> {
+  async getInfosSociete(): Promise<GetInfosSocieteQuery['infosSociete']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ infosSociete: InfosSociete }>({
-        query: GET_INFOS_SOCIETE,
+      this.apollo.query<GetInfosSocieteQuery>({ query: GET_INFOS_SOCIETE,
         // network-only par défaut (apollo.config.ts) : ces valeurs s'impriment sur
         // les factures, une version périmée s'y retrouverait sans qu'on le voie.
       }),
@@ -36,10 +36,9 @@ export class ConfigurationService {
     return result.data!.infosSociete;
   }
 
-  async getConfigs(): Promise<ConfigParam[]> {
+  async getConfigs(): Promise<GetConfigsQuery['configs']> {
     const result = await firstValueFrom(
-      this.apollo.query<{ configs: ConfigParam[] }>({
-        query: GET_CONFIGS,
+      this.apollo.query<GetConfigsQuery>({ query: GET_CONFIGS,
         // network-only par défaut (apollo.config.ts)
       }),
     );
@@ -48,8 +47,7 @@ export class ConfigurationService {
 
   async updateInfosSociete(input: UpdateInfosSocieteInput): Promise<InfosSociete> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ updateInfosSociete: InfosSociete }>({
-        mutation: UPDATE_INFOS_SOCIETE,
+      this.apollo.mutate<UpdateInfosSocieteMutation>({ mutation: UPDATE_INFOS_SOCIETE,
         variables: { input },
       }),
     );
@@ -64,8 +62,7 @@ export class ConfigurationService {
 
   async updateConfig(cle: string, valeur: string): Promise<ConfigParam> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ updateConfig: ConfigParam }>({
-        mutation: UPDATE_CONFIG,
+      this.apollo.mutate<UpdateConfigMutation>({ mutation: UPDATE_CONFIG,
         variables: { cle, valeur },
       }),
     );
@@ -93,8 +90,7 @@ export class ConfigurationService {
    */
   async testerEnvoiWhatsapp(phoneNumber: string): Promise<TestEnvoiResult> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ testerEnvoiWhatsapp: TestEnvoiResult }>({
-        mutation: TESTER_ENVOI_WHATSAPP,
+      this.apollo.mutate<TesterEnvoiWhatsappMutation>({ mutation: TESTER_ENVOI_WHATSAPP,
         variables: { phoneNumber },
       }),
     );
@@ -106,8 +102,7 @@ export class ConfigurationService {
   /** Révoque en masse tous les tokens d'accès abonnés (ADMIN). Renvoie le nombre révoqué. */
   async revoquerTousTokensAbonnes(): Promise<number> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ revoquerTousTokensAbonnes: number }>({
-        mutation: REVOQUER_TOUS_TOKENS_ABONNES,
+      this.apollo.mutate<RevoquerTousTokensAbonnesMutation>({ mutation: REVOQUER_TOUS_TOKENS_ABONNES,
       }),
     );
     return result.data?.revoquerTousTokensAbonnes ?? 0;
@@ -116,8 +111,7 @@ export class ConfigurationService {
   /** Révoque un token d'accès abonné précis (ADMIN). */
   async revoquerTokenAbonne(tokenId: string): Promise<boolean> {
     const result = await firstValueFrom(
-      this.apollo.mutate<{ revoquerTokenAbonne: boolean }>({
-        mutation: REVOQUER_TOKEN_ABONNE,
+      this.apollo.mutate<RevoquerTokenAbonneMutation>({ mutation: REVOQUER_TOKEN_ABONNE,
         variables: { tokenId },
       }),
     );
