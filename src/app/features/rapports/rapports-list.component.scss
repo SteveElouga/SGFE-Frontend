@@ -78,13 +78,82 @@
 .rap-export-bar {
   display: flex;
   align-items: center;
-  gap: var(--pas-2);
+  gap: var(--pas-3);
   flex-wrap: wrap;
 
   &__label {
     font-size: var(--texte-sm);
     font-weight: 600;
     color: var(--encre-2);
+  }
+
+  // Le critère lui-même — sélecteur de campagne, ou les deux bornes de date.
+  // Sa propre boîte flex : les deux paires libellé/champ doivent rester
+  // solidaires quand la barre passe à la ligne sur un écran étroit.
+  &__critere {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    flex-wrap: wrap;
+  }
+
+  &__date {
+    // Un `input[type=date]` ne se dimensionne pas comme un champ texte : sans
+    // largeur explicite, Chrome le rend étroit au point de rogner l'année.
+    min-width: 10.5rem;
+  }
+
+  &__erreur {
+    margin: 0;
+    font-size: var(--texte-sm);
+    color: var(--danger);
+    flex-basis: 100%;
+  }
+}
+
+// Bascule campagne / période. Deux boutons plutôt qu'un `p-select` : le choix
+// n'a que deux valeurs, et les deux doivent être visibles d'un coup d'œil —
+// un sélecteur cacherait l'existence du second mode, qui est précisément
+// celui que personne ne savait possible.
+.rap-mode {
+  padding: var(--pas-1) var(--pas-3);
+  font: inherit;
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--encre-2);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  cursor: pointer;
+  transition:
+    background 160ms ease-out,
+    color 160ms ease-out;
+
+  &:first-child {
+    border-radius: 8px 0 0 8px;
+  }
+  &:last-child {
+    border-radius: 0 8px 8px 0;
+    margin-left: -1px;
+  }
+
+  &:hover:not(&--actif) {
+    background: var(--surface-douce);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &--actif {
+    color: var(--encre-inverse);
+    background: var(--bleu-riviere);
+    border-color: var(--bleu-riviere);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bleu-riviere);
+    outline-offset: 2px;
+    z-index: 1;
   }
 }
 

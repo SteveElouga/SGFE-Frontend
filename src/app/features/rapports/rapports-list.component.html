@@ -34,37 +34,92 @@
     <h2 class="rap__section-title">{{ 'RAPPORTS.EXPORTS_TITLE' | translate }}</h2>
 
     <div class="rap-export-bar">
-      <label class="rap-export-bar__label" for="rap-campagne">{{ 'RAPPORTS.SELECT_CAMPAGNE' | translate }}</label>
-      <p-select
-        inputId="rap-campagne"
-        [options]="campagneOptions()"
-        [ngModel]="selectedCampagneId()"
-        (ngModelChange)="selectedCampagneId.set($event)"
-        optionLabel="label"
-        optionValue="value"
-        [placeholder]="'RAPPORTS.SELECT_CAMPAGNE_PLACEHOLDER' | translate"
-        appendTo="body"
-      />
+      <!--
+        Le critère des exports CSV : une campagne, ou une période. Les bornes
+        sont facultatives — sans elles, l'export rend tout l'historique, ce qu'une
+        clôture d'exercice demande. Le libellé sous chaque bouton dit ce qui va
+        sortir, plutôt que de le laisser deviner.
+      -->
+      <div class="rap-export-bar__modes" role="group" [attr.aria-label]="'RAPPORTS.EXPORTS_TITLE' | translate">
+        <button
+          type="button"
+          class="rap-mode"
+          [class.rap-mode--actif]="modeExport() === 'campagne'"
+          [attr.aria-pressed]="modeExport() === 'campagne'"
+          (click)="modeExport.set('campagne')"
+        >
+          {{ 'RAPPORTS.MODE_CAMPAGNE' | translate }}
+        </button>
+        <button
+          type="button"
+          class="rap-mode"
+          [class.rap-mode--actif]="modeExport() === 'periode'"
+          [attr.aria-pressed]="modeExport() === 'periode'"
+          (click)="modeExport.set('periode')"
+        >
+          {{ 'RAPPORTS.MODE_PERIODE' | translate }}
+        </button>
+      </div>
+
+      @if (modeExport() === 'campagne') {
+        <div class="rap-export-bar__critere">
+          <label class="rap-export-bar__label" for="rap-campagne">{{ 'RAPPORTS.SELECT_CAMPAGNE' | translate }}</label>
+          <p-select
+            inputId="rap-campagne"
+            [options]="campagneOptions()"
+            [ngModel]="selectedCampagneId()"
+            (ngModelChange)="selectedCampagneId.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            [placeholder]="'RAPPORTS.SELECT_CAMPAGNE_PLACEHOLDER' | translate"
+            appendTo="body"
+          />
+        </div>
+      } @else {
+        <div class="rap-export-bar__critere">
+          <label class="rap-export-bar__label" for="rap-du">{{ 'RAPPORTS.DATE_DEBUT' | translate }}</label>
+          <input
+            pInputText
+            id="rap-du"
+            type="date"
+            class="rap-export-bar__date"
+            [ngModel]="dateDebut()"
+            (ngModelChange)="dateDebut.set($event)"
+          />
+          <label class="rap-export-bar__label" for="rap-au">{{ 'RAPPORTS.DATE_FIN' | translate }}</label>
+          <input
+            pInputText
+            id="rap-au"
+            type="date"
+            class="rap-export-bar__date"
+            [ngModel]="dateFin()"
+            (ngModelChange)="dateFin.set($event)"
+          />
+        </div>
+        @if (periodeInvalide()) {
+          <p class="rap-export-bar__erreur" role="alert">{{ 'RAPPORTS.PERIODE_INVERSEE' | translate }}</p>
+        }
+      }
     </div>
 
     <section class="rap-exports">
       <!-- Factures CSV (par campagne) -->
-      <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportFactures()">
+      <button type="button" class="export-card" [disabled]="!!exporting() || !csvPret()" (click)="exportFactures()">
         <span class="export-card__icon export-card__icon--blue"><i aria-hidden="true" class="pi pi-file"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_FACTURES' | translate }}</span>
-          <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
+          <span class="export-card__sub">CSV · {{ libelleCritere() }}</span>
         </span>
         <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'factures'"
            [class.pi-spinner]="exporting() === 'factures'" [class.pi-download]="exporting() !== 'factures'"></i>
       </button>
 
       <!-- Paiements CSV (par campagne) -->
-      <button type="button" class="export-card" [disabled]="!!exporting() || !selectedCampagneId()" (click)="exportPaiements()">
+      <button type="button" class="export-card" [disabled]="!!exporting() || !csvPret()" (click)="exportPaiements()">
         <span class="export-card__icon export-card__icon--green"><i aria-hidden="true" class="pi pi-credit-card"></i></span>
         <span class="export-card__text">
           <span class="export-card__title">{{ 'RAPPORTS.EXPORT_PAIEMENTS' | translate }}</span>
-          <span class="export-card__sub">CSV · {{ 'RAPPORTS.PAR_CAMPAGNE' | translate }}</span>
+          <span class="export-card__sub">CSV · {{ libelleCritere() }}</span>
         </span>
         <i aria-hidden="true" class="pi export-card__dl" [class.pi-spin]="exporting() === 'paiements'"
            [class.pi-spinner]="exporting() === 'paiements'" [class.pi-download]="exporting() !== 'paiements'"></i>

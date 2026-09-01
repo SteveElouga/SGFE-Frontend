@@ -16,19 +16,60 @@ import { fetchWithAuthRetry } from '../auth/rest-auth-retry';
  * on télécharge donc en `responseType: 'blob'` puis on déclenche l'enregistrement
  * via un Object URL. Chemins **relatifs** (proxy en dev, nginx en prod).
  */
+/**
+ * Critères d'un export CSV. Tous optionnels et cumulables.
+ *
+ * Aucun critère = tout l'historique, ce qu'une clôture d'exercice demande. Le
+ * `campagne_id` était auparavant obligatoire côté serveur (400 sinon) : aucun
+ * journal mensuel n'était possible, et les régularisations — créées sans
+ * campagne — étaient exportables par aucun chemin.
+ */
+export interface CriteresExport {
+  campagneId?: string;
+  /** Borne ISO `AAAA-MM-JJ`, incluse. */
+  dateDebut?: string;
+  /** Borne ISO `AAAA-MM-JJ`, incluse. */
+  dateFin?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ExportsService {
   private readonly http = inject(HttpClient);
   private readonly auth = inject(AuthService);
 
-  /** CSV des factures d'une campagne. */
-  facturesCsv(campagneId: string): Promise<void> {
-    return this.download('/rapports/factures.csv', { campagne_id: campagneId }, `factures-${campagneId}.csv`);
+  /** CSV des factures — par campagne, par période, ou tout l'historique. */
+  facturesCsv(criteres: CriteresExport = {}): Promise<void> {
+    return this.download('/rapports/factures.csv', ...this.parametres('factures', criteres));
   }
 
-  /** CSV des paiements d'une campagne. */
-  paiementsCsv(campagneId: string): Promise<void> {
-    return this.download('/rapports/paiements.csv', { campagne_id: campagneId }, `paiements-${campagneId}.csv`);
+  /** CSV des paiements — par campagne, par période, ou tout l'historique. */
+  paiementsCsv(criteres: CriteresExport = {}): Promise<void> {
+    return this.download('/rapports/paiements.csv', ...this.parametres('paiements', criteres));
+  }
+
+  /**
+   * Traduit les critères en query-string, et compose un nom de fichier de repli.
+   *
+   * Les bornes vides ne sont PAS envoyées : la vue distingue « pas de borne » d'une
+   * borne illisible, et refuse la seconde (400). Envoyer `date_debut=` ferait
+   * échouer un export qui n'en demandait pas.
+   *
+   * Le nom de repli porte le critère — trois exports du même mois dans le dossier
+   * des téléchargements doivent rester distinguables. Il ne sert que si le serveur
+   * n'a pas posé de `Content-Disposition` ; en pratique il en pose toujours un.
+   */
+  private parametres(base: string, c: CriteresExport): [Record<string, string>, string] {
+    const params: Record<string, string> = {};
+    if (c.campagneId) params['campagne_id'] = c.campagneId;
+    if (c.dateDebut) params['date_debut'] = c.dateDebut;
+    if (c.dateFin) params['date_fin'] = c.dateFin;
+
+    const suffixe = c.campagneId
+      ? c.campagneId
+      : c.dateDebut || c.dateFin
+        ? `${c.dateDebut || 'debut'}_${c.dateFin || 'fin'}`
+        : 'tout';
+    return [params, `${base}-${suffixe}.csv`];
   }
 
   /** PDF de synthèse chiffrée d'une campagne. */
