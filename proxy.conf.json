@@ -7,9 +7,15 @@
   "/graphql": {
     "target": "http://localhost:8080",
     "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "ws": true
   },
   "^/factures/[^/]+/pdf/": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "^/paiements/[^/]+/recu/pdf/": {
     "target": "http://localhost:8080",
     "secure": false,
     "changeOrigin": true

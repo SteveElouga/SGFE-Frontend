@@ -1,5 +1,26 @@
-# Stack complète pour développement local et staging
-# Production : utiliser docker-compose.prod.yml
+# Pile frontend — développement local et staging.
+# Production (canary) : voir `docker-compose.prod.yml`.
+#
+# ── Il n'y a PAS d'api-gateway ici, et c'est volontaire ──────────────────────
+#
+# Ce fichier déclarait un service `api-gateway` avec l'image
+# `placeholder/api-gateway:latest` et le commentaire « à remplacer par le service
+# réel ». Cette image n'existe pas : la pile ne pouvait pas démarrer, et le
+# `depends_on: condition: service_healthy` empêchait même le frontend de se lever.
+#
+# L'API n'appartient pas à ce dépôt. Elle est décrite par les 21 services du
+# compose de `SGFE-backend`, et la seule chose dont ce conteneur a besoin est de
+# pouvoir joindre le gateway par son nom. C'est le rôle du réseau `sgfe-edge`
+# ci-dessous — pas d'un service fantôme dupliqué ici, qui divergerait du vrai le
+# jour où le backend change.
+#
+# ── Ordre de démarrage ───────────────────────────────────────────────────────
+#
+#   1. cd SGFE-backend  && docker compose up -d      (crée le réseau sgfe-edge)
+#   2. cd SGFE-frontend && docker compose up -d
+#
+# Dans l'autre sens, l'étape 2 échoue en disant que le réseau n'existe pas. Un
+# échec lisible, préférable à un nginx qui démarre et sert des 502.
 
 services:
   frontend:
@@ -9,12 +30,11 @@ services:
     image: ghcr.io/steveelouga/sgfe-frontend:staging-latest
     ports:
       - "80:80"
-    environment:
-      - API_GATEWAY_HOST=api-gateway
-      - API_GATEWAY_PORT=8080
-    depends_on:
-      api-gateway:
-        condition: service_healthy
+    networks:
+      # `default` doit être répété : dès qu'un service déclare `networks`, il
+      # perd son adhésion implicite au réseau du projet.
+      - default
+      - sgfe-edge
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost/health"]
@@ -22,14 +42,10 @@ services:
       timeout: 5s
       retries: 3
 
-  # À remplacer par le service réel du backend AquaBill
-  api-gateway:
-    image: placeholder/api-gateway:latest
-    ports:
-      - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+networks:
+  # Créé par la pile backend, qui y raccroche son seul service `gateway`.
+  # `external: true` : ce dépôt le rejoint, il ne le possède pas — et surtout il
+  # ne le recrée pas vide dans son coin, ce qui donnerait un réseau homonyme sans
+  # gateway dedans et un 502 très difficile à expliquer.
+  sgfe-edge:
+    external: true

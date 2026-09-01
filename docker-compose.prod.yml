@@ -25,6 +25,9 @@ services:
     image: ${STABLE_IMAGE:-ghcr.io/steveelouga/sgfe-frontend:latest}
     expose:
       - "80"
+    networks:
+      - default      # pour que nginx-lb l'atteigne
+      - sgfe-edge    # pour qu'elle atteigne le gateway
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost/health"]
@@ -37,6 +40,9 @@ services:
     image: ${CANARY_IMAGE:-ghcr.io/steveelouga/sgfe-frontend:canary}
     expose:
       - "80"
+    networks:
+      - default
+      - sgfe-edge
     restart: unless-stopped
     profiles:
       - canary   # Démarré uniquement pendant les phases canary
@@ -45,3 +51,20 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
+# ── Réseaux ──────────────────────────────────────────────────────────────────
+#
+# Les deux versions du frontend doivent joindre le gateway, qui vit dans l'AUTRE
+# pile Compose (`SGFE-backend`) et donc, par défaut, sur un autre réseau étanche.
+# `sgfe-edge` est cette jointure : le backend le crée et y raccroche son seul
+# service `gateway` ; ici on le rejoint.
+#
+# Sans ce bloc, le nginx de ces conteneurs ne résout pas le nom `gateway` et
+# refuse de démarrer sur un « host not found in upstream » — le conteneur ne
+# devient jamais sain, et le canary ne bascule jamais.
+#
+# `nginx-lb` n'y adhère pas : il ne parle qu'aux deux frontends, sur le réseau
+# du projet. Moins de surface, et le rôle de chaque conteneur reste lisible.
+networks:
+  sgfe-edge:
+    external: true

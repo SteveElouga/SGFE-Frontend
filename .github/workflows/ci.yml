@@ -30,6 +30,16 @@ jobs:
       - name: TypeScript check
         run: npx tsc --noEmit
 
+      # Le proxy du serveur de dev et le nginx de production doivent desservir
+      # les mêmes chemins d'API. Ils ont divergé de quatre familles — PDF, CSV,
+      # synthèse, bilan — que la production renvoyait en `index.html` avec un
+      # code 200. Une divergence des deux fichiers est juste de chaque côté :
+      # seule une vérification qui les confronte peut l'attraper.
+      #
+      # Avant le build : c'est la vérification la moins chère du travail.
+      - name: Jointure API dev ⇄ production
+        run: npm run verify:jointure
+
       - name: Production build
         run: npx ng build --configuration production
 
