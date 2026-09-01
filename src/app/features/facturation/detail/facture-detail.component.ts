@@ -388,8 +388,20 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
-  /** Rejoue un envoi WhatsApp précis (échoué) depuis le journal. */
+  /** L'envoi en cours de renvoi, pour désactiver son seul bouton. */
+  readonly renvoiEnCours = signal<string | null>(null);
+
+  /**
+   * Renvoie un envoi WhatsApp précis depuis le journal.
+   *
+   * Réussi comme échoué : le bouton ne s'affichait que sur un échec, si bien
+   * qu'un reçu correctement envoyé n'avait aucun chemin de renvoi — ni ici, ni
+   * sur l'écran de suivi des envois, qui posait la même condition. La capacité
+   * existait côté serveur, aucune interface ne l'atteignait.
+   */
   async rejouerEnvoi(envoiId: string): Promise<void> {
+    if (this.renvoiEnCours()) return;
+    this.renvoiEnCours.set(envoiId);
     try {
       await this.facturesService.renvoyerEnvoi(envoiId);
       this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
@@ -397,6 +409,8 @@ export class FactureDetailComponent implements OnInit {
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.renvoiEnCours.set(null);
     }
   }
 
