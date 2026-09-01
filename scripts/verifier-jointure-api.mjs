@@ -33,6 +33,7 @@ const CHEMINS = [
   '/graphql',
   '/espace-abonne/tok123/',
   '/espace-abonne/tok123/facture/f1/pdf/',
+  '/espace-abonne/tok123/factures.csv',
   '/factures/f1/pdf/',
   '/paiements/p1/recu/pdf/',
   '/rapports/factures.csv',

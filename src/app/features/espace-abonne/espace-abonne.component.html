@@ -103,7 +103,16 @@
               <p class="ea-carte__desc">{{ 'ESPACE.AUCUNE_DESC' | translate }}</p>
             </div>
           } @else {
-            <h2 class="ea__heading">{{ 'ESPACE.HEADING' | translate }}</h2>
+            <div class="ea__heading-row">
+              <h2 class="ea__heading">{{ 'ESPACE.HEADING' | translate }}</h2>
+              <!-- Le relevé de compte entier. Le PDF de chaque facture reste sur
+                   sa ligne : celui-ci répond à une autre question — « donne-moi
+                   tout », pour un dossier ou une contestation. -->
+              <button type="button" class="ea-csv" (click)="telechargerCsv()">
+                <i class="pi pi-download" aria-hidden="true"></i>
+                {{ 'ESPACE.CSV' | translate }}
+              </button>
+            </div>
 
             <!-- Triées par exigibilité : ce qui est en tête est ce qu'un
                  versement éteindra en premier. -->
@@ -143,6 +152,17 @@
                       </div>
                     }
 
+                    <!-- Ce qui justifie le montant, avant le montant.
+                         L'abonné voyait des chiffres sans rien pour les
+                         rapprocher — et un montant qu'on ne peut pas vérifier
+                         est un montant qu'on contestera. -->
+                    @if (!l.regularisation && l.facture.consommation) {
+                      <div class="ea-fac__cell">
+                        <span class="ea-fac__k">{{ 'ESPACE.LABEL_CONSO' | translate }}</span>
+                        <span class="ea-fac__v">{{ l.facture.consommation }} m³</span>
+                      </div>
+                    }
+
                     <div class="ea-fac__cell">
                       <span class="ea-fac__k">{{ 'ESPACE.LABEL_MONTANT' | translate }}</span>
                       <span class="ea-fac__v">{{ l.facture.montant | fcfa }}</span>
@@ -173,6 +193,16 @@
                       </div>
                     }
                   </div>
+
+                  <!-- Les deux index et le prix : de quoi refaire le calcul.
+                       En petit, sous la grille — c'est une justification, pas
+                       une information qu'on vient chercher. -->
+                  @if (releve(l); as detail) {
+                    <p class="ea-fac__releve">
+                      <span class="ea-fac__k">{{ 'ESPACE.LABEL_INDEX' | translate }}</span>
+                      <span>{{ detail }}</span>
+                    </p>
+                  }
 
                   <!-- L'ancienneté est la raison d'être du rappel : elle se dit,
                        elle ne se déduit pas d'une date. -->

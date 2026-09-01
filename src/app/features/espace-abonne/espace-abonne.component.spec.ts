@@ -50,6 +50,10 @@ function facture(p: Partial<EspaceAbonneFacture> = {}): EspaceAbonneFacture {
     montant_paye: p.montant_paye ?? 0,
     nature: p.nature,
     motif: p.motif,
+    ancien_index: p.ancien_index,
+    nouveau_index: p.nouveau_index,
+    consommation: p.consommation,
+    prix_m3: p.prix_m3,
   };
 }
 
@@ -414,5 +418,90 @@ describe('EspaceAbonneComponent · lecture des dates', () => {
     // horodater sans prévenir — et ce serait alors muet.
     const c = avecEcheance('2026-08-27T14:30:00+01:00', '2026-08-28');
     expect(c.lignes()[0].joursDeRetard).toBe(1);
+  });
+});
+
+describe("EspaceAbonneComponent · ce qui justifie le montant", () => {
+  /**
+   * L'abonné voyait des montants, jamais ses mètres cubes. Il ne pouvait donc
+   * pas vérifier sa facture — et un montant qu'on ne peut pas vérifier est un
+   * montant qu'on contestera.
+   *
+   * EF-NOTIF-003 demande un « historique de consommation », §8.3 du SRS le
+   * redemande. Les champs existaient côté serveur ; le payload ne les recopiait
+   * pas, et l'écran ne les affichait donc pas.
+   */
+  function setup(f: EspaceAbonneFacture, token = 'tok-valide') {
+    const svc = {
+      getFactures: vi.fn().mockReturnValue(
+        of({ abonne_id: 'ab-1', token_expiration: jours(30), factures: [f] } as EspaceAbonneData),
+      ),
+      pdfUrl: vi.fn().mockReturnValue('/pdf'),
+      csvUrl: vi.fn().mockReturnValue('/espace-abonne/tok-valide/factures.csv'),
+    };
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => token } } } },
+      ],
+    });
+    const fixture = TestBed.createComponent(EspaceAbonneComponent);
+    fixture.detectChanges();
+    return { cmp: fixture.componentInstance, svc, fixture };
+  }
+
+  it('affiche les deux index et le prix du m³', () => {
+    const { cmp } = setup(
+      facture({ ancien_index: 1240, nouveau_index: 1283, consommation: 43, prix_m3: 500 }),
+    );
+    const texte = cmp.releve(cmp.lignes()[0]);
+
+    // Les attentes sont COMPOSÉES avec `toLocaleString`, jamais tapées à la
+    // main : en `fr-FR`, le séparateur de milliers est une espace fine
+    // insécable (U+202F), et « 1 240 » écrit au clavier ne correspond pas.
+    expect(texte).toContain((1240).toLocaleString('fr-FR'));
+    expect(texte).toContain((1283).toLocaleString('fr-FR'));
+    expect(texte).toContain('500 FCFA/m³');
+    expect(texte).toContain('→');
+  });
+
+  it('se tait sur une régularisation — aucun relevé ne la justifie', () => {
+    const { cmp } = setup(facture({ nature: 'REGULARISATION', motif: 'Arriéré 2025' }));
+    expect(cmp.releve(cmp.lignes()[0])).toBe('');
+  });
+
+  it("se tait plutôt que d'écrire « 0 → 0 » quand les index manquent", () => {
+    const { cmp } = setup(facture({ ancien_index: undefined, nouveau_index: undefined }));
+    expect(cmp.releve(cmp.lignes()[0])).toBe('');
+  });
+
+  it('se tait si les index sont incohérents plutôt que de les afficher', () => {
+    const { cmp } = setup(facture({ ancien_index: 1283, nouveau_index: 1240 }));
+    expect(cmp.releve(cmp.lignes()[0])).toBe('');
+  });
+
+  it('affiche les index sans le prix quand le prix manque', () => {
+    const { cmp } = setup(facture({ ancien_index: 100, nouveau_index: 143, prix_m3: undefined }));
+    const texte = cmp.releve(cmp.lignes()[0]);
+    expect(texte).toContain('100');
+    expect(texte).toContain('143');
+    expect(texte).not.toContain('FCFA');
+  });
+
+  it('le relevé de compte complet se télécharge — promis deux fois par le SRS', () => {
+    const ouvrir = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const { cmp, svc } = setup(facture({ consommation: 43 }));
+
+    cmp.telechargerCsv();
+
+    expect(svc.csvUrl).toHaveBeenCalledWith('tok-valide');
+    expect(ouvrir).toHaveBeenCalledWith(
+      '/espace-abonne/tok-valide/factures.csv',
+      '_blank',
+      'noopener',
+    );
+    ouvrir.mockRestore();
   });
 });
