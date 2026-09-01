@@ -82,12 +82,28 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+
   // `.abonnes-content` est un flex-column ; sans ceci, la taille minimale
-  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow`
-  // autre que `visible` (spec Flexbox) — la carte se faisait comprimer à
-  // ~40 % de sa hauteur réelle, la table tronquée net sans scrollbar ni
-  // pagination pour compenser. Même piège que `.notif-card`.
-  flex-shrink: 0;
+  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow` autre
+  // que `visible` (spec Flexbox) — la carte se faisait comprimer à ~40 % de
+  // sa hauteur réelle, la table tronquée net sans scrollbar pour compenser.
+  //
+  // `flex-shrink: 0` seul aurait *déplacé* le bug plutôt que de le résoudre :
+  // `.abonnes-content` passe volontairement en `overflow: hidden` au-delà de
+  // 1024px pour laisser `<app-data-table>` défiler en interne (voir son
+  // `:host`, qui exige un parent flex-column pour que son propre `flex: 1`
+  // ne soit pas inerte — commentaire déjà en place dans ce fichier). Sans
+  // `display: flex` ici, cette délégation n'a jamais pris : `scrollTop`
+  // programmatique déplaçait bien le contenu (ce qui a fait croire au
+  // correctif précédent qu'il fonctionnait), mais la molette/le doigt de
+  // l'utilisateur — bloqués par l'`overflow: hidden` du dessus — n'avaient
+  // nulle part où aller. Ce sont ces deux déclarations qui manquaient.
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 // ── Cellules du tableau ───────────────────────────────────────────────────────

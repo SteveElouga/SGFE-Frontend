@@ -148,12 +148,20 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
-  // `.impayes-content` est un flex-column ; sans ceci, la taille minimale
-  // automatique d'un flex-item retombe à 0 dès qu'il porte `overflow` autre
-  // que `visible` (spec Flexbox) — le wrap se faisait comprimer, la table
-  // tronquée net sans scrollbar pour compenser. Même piège que `.notif-card`
-  // (notifications) et `.abonnes-card` (abonnés).
-  flex-shrink: 0;
+
+  // `.impayes-content` passe volontairement en `overflow: hidden` au-delà
+  // de 1024px pour laisser `<app-data-table>` défiler en interne (voir son
+  // `:host`, qui exige un parent flex-column pour que son propre `flex: 1`
+  // ne soit pas inerte). Sans ce `display: flex` ici, la délégation ne
+  // prenait jamais : un `flex-shrink: 0` isolé aurait seulement déplacé le
+  // bug (page qui ne défile plus nulle part) plutôt que de le résoudre.
+  // Même correctif que `.abonnes-card` (abonnés).
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
 
   // Mobile : wrapper transparent, cartes séparées (MB-07)
   @media (max-width: 1023px) {
