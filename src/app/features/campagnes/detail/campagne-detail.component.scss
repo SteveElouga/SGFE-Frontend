@@ -21,8 +21,14 @@
 
 // Région défilante (`page-scroll`) : pleine largeur pour que la barre se pose
 // au bord de l'écran. Le plafond de lecture passe dans le rembourrage.
+//
+// Sans fond ni rembourrage haut, la carte d'en-tête blanche touchait
+// directement la topbar blanche : aucun repère visuel ne séparait les deux,
+// à la différence de tous les écrans voisins (abonne-detail, facture-detail,
+// campagnes-list...), qui posent un padding symétrique sur `--fond`.
 .detail-page {
-  padding: 0 max(var(--pas-6), calc((100% - 1100px) / 2)) var(--pas-6);
+  padding: var(--pas-5) max(var(--pas-6), calc((100% - 1100px) / 2)) var(--pas-6);
+  background: var(--fond);
 }
 
 // Header (fil d'ariane desktop + bande navy mobile) délégué à
@@ -34,7 +40,7 @@
   .detail-page {
     display: flex;
     flex-direction: column;
-    padding: 0 var(--pas-3) var(--pas-3);
+    padding: var(--pas-3) var(--pas-3);
   }
   .releves-section {
     order: 3;
