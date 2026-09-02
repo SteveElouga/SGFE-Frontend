@@ -883,7 +883,8 @@
       "TOUS": "All statuses",
       "IMPAYEE": "Unpaid",
       "PARTIELLE": "Partial",
-      "PAYEE": "Paid"
+      "PAYEE": "Paid",
+      "ANNULEE": "Cancelled"
     },
     "ACTION_VOIR": "View",
     "ACTION_PAIEMENT": "+ Payment",

@@ -883,7 +883,8 @@
       "TOUS": "Tous statuts",
       "IMPAYEE": "Impayée",
       "PARTIELLE": "Partielle",
-      "PAYEE": "Payée"
+      "PAYEE": "Payée",
+      "ANNULEE": "Annulée"
     },
     "ACTION_VOIR": "Voir",
     "ACTION_PAIEMENT": "+ Paiement",
