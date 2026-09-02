@@ -223,9 +223,16 @@ a:focus-visible,
 // restait à moitié cachée même une fois `.page-scroll` défilé jusqu'à son
 // `scrollTop` maximal — le défilement fonctionnait, la marge manquait.
 //
-// 70px couvre la hauteur réelle de la barre (mesurée ~68,5px : son padding
-// vertical, son icône 30px, son libellé) avec une petite marge ; `+
-// env(safe-area-inset-bottom, 0px)` reprend le même terme que le propre
+// 92px : la barre mesure 68,5px (vérifié identique sur un vrai téléphone
+// Android — devicePixelRatio 2,625, pas un artefact d'émulateur) plus une
+// marge délibérément généreuse. Une première version fixait ce chiffre à
+// 70px, soit 1,5px de marge réelle : mathématiquement suffisant pour ne rien
+// recouvrir, mais visuellement indiscernable de zéro — sur cet appareil,
+// l'espace attendu n'était tout simplement pas perceptible. Le chiffre doit
+// laisser un vrai blanc visible, pas seulement gagner de un pixel contre la
+// barre.
+//
+// `+ env(safe-area-inset-bottom, 0px)` reprend le même terme que le propre
 // padding de la barre, pour rester dégagé sur un appareil à indicateur
 // d'accueil (l'inset agrandit la barre d'autant, ce chiffre doit suivre).
 //
@@ -244,7 +251,7 @@ a:focus-visible,
 // `!important`.
 @media (max-width: 1023px) {
   .shell__content .page-scroll.page-scroll {
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
   }
 }
 
