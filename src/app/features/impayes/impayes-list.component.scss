@@ -509,7 +509,14 @@
     align-items: baseline;
     gap: var(--pas-4);
     padding: var(--pas-4) var(--pas-5);
-    flex-wrap: wrap;
+    // Pas de `flex-wrap: wrap` : un nom long (« Martin Nolla OUM NKENG »)
+    // faisait passer `__chiffres` à la ligne suivante — l'algorithme de
+    // retour à la ligne compare la taille hypothétique (non réduite) des
+    // deux blocs AVANT d'appliquer `flex-shrink`, donc le nom ne rétrécissait
+    // jamais, il faisait sauter toute la ligne. Résultat : montant recalé à
+    // gauche au lieu de rester aligné à droite, sur une carte qui semblait
+    // avoir un espacement différent des autres. Le nom tronque plutôt
+    // (`__nom` ci-dessous) ; le montant, lui, ne doit jamais rétrécir.
   }
 
   &__qui {
@@ -520,10 +527,14 @@
   }
 
   &__nom {
+    display: block;
     font-size: var(--texte-xl);
     font-weight: 700;
     color: var(--encre);
     text-decoration: none;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
@@ -549,6 +560,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: var(--pas-0);
+    flex-shrink: 0;
   }
 
   &__total {
