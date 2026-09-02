@@ -10,6 +10,20 @@
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
   color: var(--danger-encre);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duree-courte, 160ms) var(--ease-out),
+    transform var(--duree-courte, 160ms) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   &__icon { flex-shrink: 0; }
 

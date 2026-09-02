@@ -151,6 +151,26 @@ a:focus-visible,
   }
 }
 
+// ── Transition de route (View Transitions API, withViewTransitions) ──────────
+// Sans ceci, le navigateur applique son cross-fade par défaut (0.25s ease) :
+// un vocabulaire de mouvement qui lui est propre, distinct du nôtre. On
+// l'aligne sur nos propres jetons.
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--duree-moyenne, 220ms);
+  animation-timing-function: var(--ease-out);
+}
+
+// Les pseudo-éléments de la View Transitions API ne sont pas garantis
+// d'hériter du filet général ci-dessus sur tous les moteurs — filet dédié.
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 .container {
   padding: var(--pas-2);
 
