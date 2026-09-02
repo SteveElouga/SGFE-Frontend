@@ -15,7 +15,7 @@ import { AgentAffecte, formatPeriodeCampagne } from '../../../shared/models/camp
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
-import type { GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery } from '../../../graphql/generated';
+import type { GetAllEnvoisQuery, GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery } from '../../../graphql/generated';
 
 /**
  * Ligne "impayé le plus ancien" pour la liste top-5 Comptable.
@@ -99,6 +99,7 @@ export class DashboardComponent implements OnInit {
   readonly impayes = signal<GetImpayesQuery['impayes'] | null>(null);
   readonly paiements = signal<GetAllPaiementsQuery['paiements'] | null>(null);
   readonly factures = signal<GetFacturesQuery['factures'] | null>(null);
+  readonly envois = signal<GetAllEnvoisQuery['envois'] | null>(null);
   /** Agents affectés par campagne — chargés uniquement pour Superviseur. */
   readonly agentsByCampagne = signal<Map<string, AgentAffecte[]>>(new Map());
 
@@ -286,12 +287,13 @@ export class DashboardComponent implements OnInit {
   });
 
   // ── ADMIN — Ribbon 4 KPI cycle ─────────────────────────────────────────────
-  // Envois : backend a explicitement livré `statsParMois` SANS champs envois
-  // (voir v3.3 : statuts Envoi limités EN_ATTENTE/ENVOYE/ECHEC + pas de
-  // campagne_id → scope superviseur impossible sans migration). On reste sur
-  // null-first "Indisponible" jusqu'au ticket dédié envois. Le type explicite
-  // `RibbonStep | null` sur chaque champ permet au template d'utiliser
-  // `@if (ribbonCycle().envois; as r)` correctement (r narrowed en RibbonStep).
+  // Envois : comptait `null` en permanence — la query `envois` (déjà utilisée
+  // par l'écran Envois, ADMIN + COMPTABLE, sans filtre) donne le même niveau
+  // d'exactitude que ses trois voisins ci-dessous : un total, pas un compte
+  // scopé au mois ni à la campagne (aucun des quatre ne l'est réellement,
+  // malgré le titre "Cycle en cours"). Le type explicite `RibbonStep | null`
+  // sur chaque champ permet au template d'utiliser `@if (ribbonCycle().envois;
+  // as r)` correctement (r narrowed en RibbonStep).
   readonly ribbonCycle = computed<{
     releves: RibbonStep | null;
     factures: RibbonStep | null;
@@ -301,11 +303,12 @@ export class DashboardComponent implements OnInit {
     const cs = this.campagnes();
     const fs = this.factures();
     const ps = this.paiements();
+    const es = this.envois();
     const enCours = cs?.filter((c) => c.statut === 'EN_COURS') ?? [];
     return {
       releves: cs === null ? null : { count: enCours.length, label: 'CAMP_EN_COURS' },
       factures: fs === null ? null : { count: fs.length, label: 'FACTURES_EMISES' },
-      envois: null,
+      envois: es === null ? null : { count: es.length, label: 'ENVOIS_TOTAL' },
       paiements: ps === null ? null : { count: ps.length, label: 'PAIEMENTS_TOTAL' },
     };
   });
@@ -494,6 +497,7 @@ export class DashboardComponent implements OnInit {
     this.impayes.set(res.impayes);
     this.paiements.set(res.paiements);
     this.factures.set(res.factures);
+    this.envois.set(res.envois);
     // Superviseur : enrichit ses campagnes avec les agents (parallèle),
     // dégradation gracieuse si un fetch d'agents échoue (map vide).
     if (this.isSuperviseur()) {
@@ -511,7 +515,9 @@ export class DashboardComponent implements OnInit {
    * Fix v3 P1 : la version précédente faisait `reloadSource` puis `loadAll`,
    * soit 2 loadAll séquentiels. Ici on ne touche qu'à la source demandée.
    */
-  async retrySource(source: 'stats' | 'statsParMois' | 'campagnes' | 'impayes' | 'paiements' | 'factures'): Promise<void> {
+  async retrySource(
+    source: 'stats' | 'statsParMois' | 'campagnes' | 'impayes' | 'paiements' | 'factures' | 'envois',
+  ): Promise<void> {
     const res = await this.service.reloadSource(source);
     switch (source) {
       case 'stats': this.stats.set(res.stats); break;
@@ -520,6 +526,7 @@ export class DashboardComponent implements OnInit {
       case 'impayes': this.impayes.set(res.impayes); break;
       case 'paiements': this.paiements.set(res.paiements); break;
       case 'factures': this.factures.set(res.factures); break;
+      case 'envois': this.envois.set(res.envois); break;
     }
   }
 

@@ -6,7 +6,7 @@ import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
 import { AgentAffecte, Campagne } from '../../shared/models/campagne.model';
 import { CampagnesService } from '../campagnes/campagnes.service';
 import { FacturesService } from '../factures/factures.service';
-import type { GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery, GetStatsGlobalesQuery, GetStatsParMoisQuery } from '../../graphql/generated';
+import type { GetAllEnvoisQuery, GetAllPaiementsQuery, GetCampagnesQuery, GetFacturesQuery, GetImpayesQuery, GetStatsGlobalesQuery, GetStatsParMoisQuery } from '../../graphql/generated';
 
 /**
  * Données brutes issues du backend Reporting — cumulé "depuis toujours".
@@ -98,6 +98,7 @@ export class DashboardService {
     impayes: GetImpayesQuery['impayes'] | null;
     paiements: GetAllPaiementsQuery['paiements'] | null;
     factures: GetFacturesQuery['factures'] | null;
+    envois: GetAllEnvoisQuery['envois'] | null;
     ts: number;
   } | null = null;
   private static readonly TTL_MS = 30_000;
@@ -105,7 +106,7 @@ export class DashboardService {
   invalidate(): void { this.cache = null; }
 
   /**
-   * Charge en parallèle les 4 sources. Chacune est indépendante : une source
+   * Charge en parallèle les sources. Chacune est indépendante : une source
    * qui tombe (backend en panne, refusée par droits) renvoie `null` sans
    * bloquer les autres. Le composant décide comment afficher les gaps.
    */
@@ -116,19 +117,21 @@ export class DashboardService {
     impayes: GetImpayesQuery['impayes'] | null;
     paiements: GetAllPaiementsQuery['paiements'] | null;
     factures: GetFacturesQuery['factures'] | null;
+    envois: GetAllEnvoisQuery['envois'] | null;
   }> {
     if (this.cache && Date.now() - this.cache.ts < DashboardService.TTL_MS) {
       return this.cache;
     }
-    const [stats, statsParMois, campagnes, impayes, paiements, factures] = await Promise.all([
+    const [stats, statsParMois, campagnes, impayes, paiements, factures, envois] = await Promise.all([
       this.loadStats(),
       this.loadStatsParMois(),
       this.loadCampagnes(),
       this.loadImpayes(),
       this.loadPaiements(),
       this.loadFactures(),
+      this.loadEnvois(),
     ]);
-    this.cache = { stats, statsParMois, campagnes, impayes, paiements, factures, ts: Date.now() };
+    this.cache = { stats, statsParMois, campagnes, impayes, paiements, factures, envois, ts: Date.now() };
     return this.cache;
   }
 
@@ -140,7 +143,7 @@ export class DashboardService {
    * jour pour que le composant sette ses signals.
    */
   async reloadSource(
-    source: 'stats' | 'statsParMois' | 'campagnes' | 'impayes' | 'paiements' | 'factures',
+    source: 'stats' | 'statsParMois' | 'campagnes' | 'impayes' | 'paiements' | 'factures' | 'envois',
   ): Promise<{
     stats: StatsGlobales | null;
     statsParMois: StatsMois[] | null;
@@ -148,11 +151,12 @@ export class DashboardService {
     impayes: GetImpayesQuery['impayes'] | null;
     paiements: GetAllPaiementsQuery['paiements'] | null;
     factures: GetFacturesQuery['factures'] | null;
+    envois: GetAllEnvoisQuery['envois'] | null;
   }> {
     // Cache actuel comme base (les autres sources restent inchangées).
     const base = this.cache ?? {
       stats: null, statsParMois: null, campagnes: null,
-      impayes: null, paiements: null, factures: null, ts: 0,
+      impayes: null, paiements: null, factures: null, envois: null, ts: 0,
     };
     switch (source) {
       case 'stats': base.stats = await this.loadStats(); break;
@@ -161,6 +165,7 @@ export class DashboardService {
       case 'impayes': base.impayes = await this.loadImpayes(); break;
       case 'paiements': base.paiements = await this.loadPaiements(); break;
       case 'factures': base.factures = await this.loadFactures(); break;
+      case 'envois': base.envois = await this.loadEnvois(); break;
     }
     base.ts = Date.now();
     this.cache = base;
@@ -171,6 +176,7 @@ export class DashboardService {
       impayes: base.impayes,
       paiements: base.paiements,
       factures: base.factures,
+      envois: base.envois,
     };
   }
 
@@ -228,6 +234,11 @@ export class DashboardService {
 
   private async loadFactures(): Promise<GetFacturesQuery['factures'] | null> {
     try { return await this.facturesService.getFactures(); }
+    catch { return null; }
+  }
+
+  private async loadEnvois(): Promise<GetAllEnvoisQuery['envois'] | null> {
+    try { return await this.facturesService.getAllEnvois(); }
     catch { return null; }
   }
 

@@ -649,34 +649,6 @@
   &--paiements .dash-step__value {
     color: var(--vert-profond);
   } // Vert Profond (encaissé)
-
-  // Envois : backend v3.3 n'expose pas les stats (statuts limités +
-  // pas de campagne_id). État "Indisponible" honnête, non-cliquable.
-  &--unavailable {
-    // Le trait était en pointillés — la seule bordure ainsi de toute
-    // l'application. Un pointillé annonce une zone de dépôt ou un
-    // emplacement à remplir ; il criait l'erreur pour un état neutre.
-    // « Indisponible » n'est pas une panne : c'est un aveu honnête que le
-    // backend n'expose pas encore cette statistique. Le ton reste discret —
-    // même fond que les frères, trait plein très pâle, libellé en italique.
-    background: var(--surface-douce);
-    border-color: var(--filet-pale);
-    align-items: flex-start;
-    cursor: default;
-
-    .dash-step__label {
-      color: var(--encre-3);
-    }
-    // Fix v4 P1 : italique "Indisponible" passe var(--encre-faible) (2.45:1 FAIL) →
-    // var(--encre-2) Ardoise Encre (7.44:1 PASS AAA). L'aveu d'honnêteté v3.3
-    // devient enfin lisible.
-    .dash-step__unavail {
-      font-size: var(--texte-xs);
-      color: var(--encre-2);
-      font-style: italic;
-      margin-top: var(--pas-1);
-    }
-  }
 }
 
 // ── Chiffre Fort m³ — spécificité SGFE eau ─────────────────────────────────

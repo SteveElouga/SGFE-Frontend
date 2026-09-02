@@ -284,11 +284,6 @@
             <span class="dash-step__value">{{ r.count }}</span>
             <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
           </a>
-        } @else {
-          <div class="dash-step dash-step--unavailable">
-            <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
-            <span class="dash-step__unavail">{{ 'DASHBOARD.KPI_UNAVAILABLE' | translate }}</span>
-          </div>
         }
         @if (ribbonCycle().paiements; as r) {
           <a routerLink="/paiements" class="dash-step dash-step--paiements">
