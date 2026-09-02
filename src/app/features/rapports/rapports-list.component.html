@@ -7,7 +7,16 @@
   }
 
   @if (loading()) {
-    <div class="rap__loading"><i aria-hidden="true" class="pi pi-spin pi-spinner"></i></div>
+    <div class="rap-skeleton" aria-hidden="true">
+      <div class="rap-kpi">
+        <app-skeleton height="80px" radius="12px" />
+        <app-skeleton height="80px" radius="12px" />
+        <app-skeleton height="80px" radius="12px" />
+        <app-skeleton height="80px" radius="12px" />
+      </div>
+      <app-skeleton height="140px" radius="12px" />
+      <app-skeleton height="240px" radius="12px" />
+    </div>
   } @else if (stats(); as s) {
 
     <!-- KPI -->

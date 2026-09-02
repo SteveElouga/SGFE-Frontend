@@ -1,6 +1,49 @@
 @if (loading()) {
-  <div class="dt__loading">
-    <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+  <!-- Esquisse la forme réelle (en-têtes vrais, lignes/cartes en `aq-skeleton`)
+       plutôt qu'un spinner centré : sur une liste, celui-ci ne dit rien de ce
+       qui arrive ni de sa forme, et son remplacement brutal par le tableau
+       fait sursauter la mise en page une fois les données là. -->
+  <div class="dt" [class.dt--has-cards]="!!cardTemplate()" aria-hidden="true">
+    <div class="dt__zone">
+      <div class="dt__scroll">
+        <table class="dt__table">
+          <thead>
+            <tr>
+              @for (col of columns(); track col.key) {
+                <th
+                  scope="col"
+                  [class]="col.headerClass"
+                  [style.text-align]="col.align ?? 'left'"
+                  [style.width]="col.width"
+                >{{ col.header | translate }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of skeletonRows; track r) {
+              <tr>
+                @for (col of columns(); track col.key) {
+                  <td [style.text-align]="col.align ?? 'left'">
+                    <app-skeleton height="14px" width="70%" [style.margin-left]="col.align === 'right' ? 'auto' : null" />
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    @if (cardTemplate()) {
+      <div class="dt__cards">
+        @for (r of skeletonRows; track r) {
+          <div class="dt__skel-card">
+            <app-skeleton height="16px" width="55%" />
+            <app-skeleton height="12px" width="35%" />
+          </div>
+        }
+      </div>
+    }
   </div>
 } @else {
   <div class="dt" [class.dt--has-cards]="!!cardTemplate()">

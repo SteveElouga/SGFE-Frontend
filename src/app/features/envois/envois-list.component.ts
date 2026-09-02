@@ -13,6 +13,7 @@ import {
 } from '../../shared/components/filters-panel/filters-panel.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { NotificationsService } from '../../core/notifications/notifications.service';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 
 type StatutEnvoi = 'ENVOYE' | 'ECHEC' | 'EN_ATTENTE';
 
@@ -42,7 +43,7 @@ interface EnvoiGroupe {
 @Component({
   selector: 'app-envois-list',
   standalone: true,
-  imports: [TranslatePipe, BadgeComponent, ErrorBannerComponent, PageTopbarComponent, FiltersPanelComponent],
+  imports: [TranslatePipe, BadgeComponent, ErrorBannerComponent, PageTopbarComponent, FiltersPanelComponent, SkeletonComponent],
   templateUrl: './envois-list.component.html',
   styleUrl: './envois-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,6 +59,9 @@ export class EnvoisListComponent implements OnInit {
   readonly envois = signal<Envoi[]>([]);
   readonly resending = signal<string | null>(null);
   readonly filtre = signal<'TOUS' | StatutEnvoi>('TOUS');
+
+  /** Nombre fixe de cartes fictives pour l'état chargement. */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4, 5];
 
   /**
    * Le filtre, dans le panneau partagé plutôt qu'en liste déroulante nue.

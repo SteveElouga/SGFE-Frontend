@@ -17,12 +17,10 @@
   gap: var(--pas-4);
 }
 
-.rap__loading {
+.rap-skeleton {
   display: flex;
-  justify-content: center;
-  padding: var(--pas-7);
-  color: var(--action);
-  font-size: var(--texte-4xl);
+  flex-direction: column;
+  gap: var(--pas-3);
 }
 
 .rap__section-title {

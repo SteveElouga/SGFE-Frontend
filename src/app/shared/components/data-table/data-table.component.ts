@@ -19,6 +19,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DataTableCardDirective, DataTableCellDirective } from './data-table.directives';
+import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 /** Définition d'une colonne : structure + en-tête customisable par écran. */
 export interface DataTableColumn {
@@ -63,7 +64,7 @@ export interface SortState { key: string; direction: SortDirection; }
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [NgTemplateOutlet, RouterLink, TranslatePipe],
+  imports: [NgTemplateOutlet, RouterLink, TranslatePipe, SkeletonComponent],
   templateUrl: './data-table.component.html',
   styleUrl: './data-table.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -149,6 +150,14 @@ export class DataTableComponent<T = unknown> {
     return map;
   });
   readonly cardTemplate = computed(() => this.cardDirective()?.template ?? null);
+
+  /**
+   * Rangées fictives de l'état chargement — un nombre fixe plutôt qu'indexé
+   * sur `pageSize()` : ce dernier peut valoir 0 (pagination désactivée) ou un
+   * nombre arbitrairement grand, ni l'un ni l'autre n'étant une bonne mesure
+   * de la hauteur qu'un état de chargement doit occuper.
+   */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4, 5];
 
   // ── Tri (interne, client) ──────────────────────────────────────────────
   readonly sortState = signal<SortState | null>(null);
