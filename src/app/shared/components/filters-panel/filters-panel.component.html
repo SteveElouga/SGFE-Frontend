@@ -165,7 +165,7 @@
         class="fp__tag"
         role="listitem"
         (click)="removeTag(tag.key)"
-        [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + ' — ' + ('COMMON.REMOVE' | translate)"
+        [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + '. ' + ('COMMON.REMOVE' | translate)"
       >
         <span class="fp__tag-key">{{ tag.filterLabel }}</span>
         <span class="fp__tag-sep">:</span>
