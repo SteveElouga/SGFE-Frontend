@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import {
@@ -28,12 +29,13 @@ import {
   normalizePhone,
   toLocalPhone,
 } from '../../../shared/utils/phone.utils';
+import { toIsoDate } from '../../../shared/utils/date.utils';
 import type { AbonneDetail } from '../../../graphql/vues';
 
 type FormMode = 'create' | 'edit';
 
 @Component({
-  imports: [FormsModule, InputTextModule, SelectModule, TranslatePipe, ErrorBannerComponent, SkeletonComponent, PageTopbarComponent],
+  imports: [FormsModule, InputTextModule, SelectModule, DatePickerModule, TranslatePipe, ErrorBannerComponent, SkeletonComponent, PageTopbarComponent],
   providers: [DatePipe],
   templateUrl: './abonne-form.component.html',
   styleUrl: './abonne-form.component.scss',
@@ -63,7 +65,7 @@ export class AbonneFormComponent implements OnInit {
   readonly selectedStatut = signal<'ACTIF' | 'SUSPENDU'>('ACTIF');
   readonly quartier = signal('');
   readonly camp = signal('');
-  readonly datePose = signal(new Date().toISOString().slice(0, 10));
+  readonly datePose = signal<Date | null>(new Date());
   readonly numeroCompteur = signal('');
   readonly indexInitial = signal('0');
 
@@ -269,7 +271,7 @@ export class AbonneFormComponent implements OnInit {
           quartier: this.quartier().trim(),
           camp: Number.parseInt(this.camp(), 10),
           indexInitial: Number.parseFloat(this.indexInitial()) || 0,
-          datePose: this.datePose(),
+          datePose: toIsoDate(this.datePose()),
         };
         await this.abonnesService.createAbonne(input);
         this.toast.success(this.translate.instant('ABONNES.FORM.SUCCESS_CREATE_MSG'));

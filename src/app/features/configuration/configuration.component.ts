@@ -13,6 +13,7 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -28,6 +29,7 @@ import { BottomSheetComponent } from '../../shared/components/bottom-sheet/botto
 import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
+import { fromIsoDate, toIsoDate } from '../../shared/utils/date.utils';
 import { isValidCameroonPhone, normalizePhone, toLocalPhone } from '../../shared/utils/phone.utils';
 import type { ConfigUpdatedSubscription, TarifUpdatedSubscription } from '../../graphql/generated';
 
@@ -77,6 +79,7 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
     ConfirmDialogModule,
     BottomSheetComponent,
     TranslatePipe,
+    DatePickerModule,
   ],
   providers: [ConfirmationService],
   templateUrl: './configuration.component.html',
@@ -121,7 +124,7 @@ export class ConfigurationComponent implements OnInit {
   readonly tarifActuel = signal<Tarif | null>(null);
   readonly editingTarif = signal(false);
   readonly tarifPrixM3 = signal('');
-  readonly tarifDateEffet = signal('');
+  readonly tarifDateEffet = signal<Date | null>(null);
   readonly tarifSaving = signal(false);
   readonly tarifDirty = computed(() => {
     const t = this.tarifActuel();
@@ -129,7 +132,7 @@ export class ConfigurationComponent implements OnInit {
     if (Number.isNaN(prix) || prix <= 0) return false;
     if (!this.tarifDateEffet()) return false;
     if (!t) return true;
-    return prix !== t.prixM3 || this.tarifDateEffet() !== t.dateEffet;
+    return prix !== t.prixM3 || toIsoDate(this.tarifDateEffet()) !== t.dateEffet;
   });
 
   // ── Paramètres système mappés (relances, pause, tokens…) ────────────────────
@@ -245,7 +248,7 @@ export class ConfigurationComponent implements OnInit {
           this.tarifActuel.set(t);
           if (!saisieEnCours) {
             this.tarifPrixM3.set(String(t.prixM3));
-            this.tarifDateEffet.set(t.dateEffet);
+            this.tarifDateEffet.set(fromIsoDate(t.dateEffet));
           }
         },
         error: () => {
@@ -276,7 +279,7 @@ export class ConfigurationComponent implements OnInit {
       this.tarifActuel.set(tarif);
       if (tarif) {
         this.tarifPrixM3.set(String(tarif.prixM3));
-        this.tarifDateEffet.set(tarif.dateEffet);
+        this.tarifDateEffet.set(fromIsoDate(tarif.dateEffet));
       }
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
@@ -376,14 +379,14 @@ export class ConfigurationComponent implements OnInit {
   editTarif(): void {
     const t = this.tarifActuel();
     this.tarifPrixM3.set(t ? String(t.prixM3) : '');
-    this.tarifDateEffet.set(new Date().toISOString().slice(0, 10));
+    this.tarifDateEffet.set(new Date());
     this.editingTarif.set(true);
   }
 
   resetTarif(): void {
     const t = this.tarifActuel();
     this.tarifPrixM3.set(t ? String(t.prixM3) : '');
-    this.tarifDateEffet.set(t?.dateEffet ?? '');
+    this.tarifDateEffet.set(fromIsoDate(t?.dateEffet));
     this.editingTarif.set(false);
   }
 
@@ -393,7 +396,7 @@ export class ConfigurationComponent implements OnInit {
     try {
       const updated = await this.facturesService.updateTarif(
         Number.parseFloat(this.tarifPrixM3()),
-        this.tarifDateEffet(),
+        toIsoDate(this.tarifDateEffet()),
       );
       this.tarifActuel.set(updated);
       this.editingTarif.set(false);

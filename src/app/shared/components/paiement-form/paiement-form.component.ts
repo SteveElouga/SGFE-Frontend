@@ -12,12 +12,14 @@ import {
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { extractGqlError } from '../../../core/auth/auth.service';
 import { Facture, ModePaiement } from '../../models/facture.model';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 import { ToastService } from '../../services/toast.service';
+import { toIsoDate } from '../../utils/date.utils';
 import type { FactureCible } from '../../../graphql/vues';
 
 /**
@@ -43,7 +45,7 @@ const UNDO_WINDOW_MS = 5000;
 @Component({
   selector: 'app-paiement-form',
   standalone: true,
-  imports: [FormsModule, InputTextModule, SelectModule, TranslatePipe, TooltipDirective],
+  imports: [FormsModule, InputTextModule, SelectModule, DatePickerModule, TranslatePipe, TooltipDirective],
   templateUrl: './paiement-form.component.html',
   styleUrl: './paiement-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +72,7 @@ export class PaiementFormComponent {
 
   readonly pMontant = signal('');
   readonly pMode = signal<ModePaiement>('ESPECES');
-  readonly pDate = signal('');
+  readonly pDate = signal<Date | null>(null);
   readonly pRef = signal('');
   /** Vrai pendant la fenêtre d'annulation (5s) ET pendant l'appel API. */
   readonly submitting = signal(false);
@@ -152,7 +154,7 @@ export class PaiementFormComponent {
         this.cancelPending();                            // sécurité : facture change en cours d'undo
         this.pRef.set('');
         this.pMode.set('ESPECES');
-        this.pDate.set(new Date().toISOString().split('T')[0]);
+        this.pDate.set(new Date());
         this.pMontant.set(solde && solde > 0 ? String(solde) : '');
       } else if (f && solde !== null && solde > 0 && this.pMontant() === '') {
         // Solde arrivé après le mount (chargement async) : prefill si vide.
@@ -218,7 +220,7 @@ export class PaiementFormComponent {
         factureId: f.factureId,
         abonneId: f.abonneId,
         montant: Number.parseFloat(this.pMontant()),
-        datePaiement: this.pDate(),
+        datePaiement: toIsoDate(this.pDate()),
         modePaiement: this.pMode(),
         referenceTransaction: this.pRef() || undefined,
       });

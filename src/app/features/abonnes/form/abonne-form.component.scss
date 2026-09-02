@@ -173,25 +173,6 @@
   }
 }
 
-// ── Champ date avec icône ─────────────────────────────────────────────────────
-
-.af-date-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-
-  svg {
-    position: absolute;
-    left: 14px;
-    pointer-events: none;
-    flex-shrink: 0;
-  }
-
-  input[pInputText] {
-    padding-left: var(--pas-7);
-  }
-}
-
 // ── Affichage readonly ────────────────────────────────────────────────────────
 
 .af-readonly {

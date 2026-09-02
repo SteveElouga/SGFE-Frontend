@@ -43,15 +43,19 @@
           <label class="form-field__label" for="camp-date">
             {{ 'CAMPAGNES.FORM.DATE_PLANIFIEE' | translate }} *
           </label>
-          <input
-            id="camp-date"
-            type="date"
-            class="form-field__input"
+          <!-- Pas d'aria-describedby vers l'indice ci-dessous : posé sur une
+               balise composant, il atterrit sur le `<p-datepicker>` racine
+               (élément non focalisable), pas sur son `<input>` interne — un
+               lecteur d'écran ne l'annoncerait pas en focus. PrimeNG n'offre
+               pas de prop dédiée pour ce cas ; seul `pt` (passthrough)
+               atteindrait l'input, au prix d'un pattern qu'aucun autre écran
+               n'utilise ici pour un simple indice non bloquant. -->
+          <p-datepicker
+            inputId="camp-date"
             [ngModel]="formDatePlanifiee()"
             (ngModelChange)="formDatePlanifiee.set($event)"
-            required
-            aria-required="true"
-            aria-describedby="camp-date-hint"
+            [required]="true"
+            dateFormat="dd/mm/yy"
           />
           <span id="camp-date-hint" class="form-field__hint">{{ 'CAMPAGNES.FORM.DATE_HINT' | translate }}</span>
         </div>

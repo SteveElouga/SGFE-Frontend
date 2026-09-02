@@ -251,26 +251,18 @@
               {{ 'ABONNES.FORM.DATE_SOUSCRIPTION' | translate }} @if (mode === 'create') { * }
             </label>
             @if (mode === 'create') {
-              <div class="af-date-wrapper">
-                <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-                  <rect x="1" y="2" width="12" height="11" rx="1.5" stroke="#64748b" stroke-width="1.2"/>
-                  <path d="M5 1v2M9 1v2M1 6h12" stroke="#64748b" stroke-width="1.2" stroke-linecap="round"/>
-                </svg>
-                <input
-                  pInputText
-                  id="afDate"
-                  type="date"
-                  [ngModel]="datePose()"
-                  (ngModelChange)="datePose.set($event)"
-                  (blur)="datePoseTouched.set(true)"
-                  name="afDate"
-                  required
-                  aria-required="true"
-                  [attr.aria-invalid]="datePoseFieldError() ? 'true' : null"
-                  [attr.aria-describedby]="datePoseFieldError() ? 'afDate-err' : null"
-                  [class.ng-invalid]="datePoseFieldError()"
-                />
-              </div>
+              <p-datepicker
+                inputId="afDate"
+                name="afDate"
+                [ngModel]="datePose()"
+                (ngModelChange)="datePose.set($event)"
+                (onBlur)="datePoseTouched.set(true)"
+                [required]="true"
+                [invalid]="!!datePoseFieldError()"
+                [showIcon]="true"
+                icon="pi pi-calendar"
+                dateFormat="dd/mm/yy"
+              />
               @if (datePoseFieldError()) {
                 <span id="afDate-err" class="af-field__error" role="alert">{{ datePoseFieldError() }}</span>
               }
