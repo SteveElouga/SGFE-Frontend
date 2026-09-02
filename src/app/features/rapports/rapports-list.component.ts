@@ -12,6 +12,7 @@ import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
@@ -23,6 +24,7 @@ import { CampagnesService } from '../../core/campagnes/campagnes.service';
 import { nomCampagneAffichable } from '../../shared/utils/campagne.utils';
 import { FcfaPipe } from '../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../shared/services/toast.service';
+import { toIsoDate } from '../../shared/utils/date.utils';
 import type { GetStatsGlobalesQuery } from '../../graphql/generated';
 
 interface HistCampagne {
@@ -53,6 +55,7 @@ interface StatsGlobales {
     PageTopbarComponent,
     ErrorBannerComponent,
     FcfaPipe,
+    DatePickerModule,
     SkeletonComponent,
   ],
   templateUrl: './rapports-list.component.html',
@@ -124,8 +127,8 @@ export class RapportsListComponent implements OnInit {
   // La synthèse PDF et le bilan des impayés ne changent pas : le premier est par
   // nature une synthèse DE campagne, le second est déjà global.
   readonly modeExport = signal<'campagne' | 'periode'>('campagne');
-  readonly dateDebut = signal('');
-  readonly dateFin = signal('');
+  readonly dateDebut = signal<Date | null>(null);
+  readonly dateFin = signal<Date | null>(null);
 
   /** Bornes inversées : refusé côté serveur, autant le dire avant l'appel. */
   readonly periodeInvalide = computed(() => {
@@ -138,7 +141,7 @@ export class RapportsListComponent implements OnInit {
   readonly criteresExport = computed<CriteresExport>(() =>
     this.modeExport() === 'campagne'
       ? { campagneId: this.selectedCampagneId() ?? '' }
-      : { dateDebut: this.dateDebut(), dateFin: this.dateFin() },
+      : { dateDebut: toIsoDate(this.dateDebut()), dateFin: toIsoDate(this.dateFin()) },
   );
 
   /** Un export CSV est-il lançable ? */
@@ -157,9 +160,9 @@ export class RapportsListComponent implements OnInit {
     if (this.modeExport() === 'campagne') return this.translate.instant('RAPPORTS.PAR_CAMPAGNE');
     const d = this.dateDebut();
     const f = this.dateFin();
-    if (d && f) return `${d} → ${f}`;
-    if (d) return this.translate.instant('RAPPORTS.PERIODE_DEPUIS', { debut: d });
-    if (f) return this.translate.instant('RAPPORTS.PERIODE_JUSQU', { fin: f });
+    if (d && f) return `${d.toLocaleDateString('fr-FR')} → ${f.toLocaleDateString('fr-FR')}`;
+    if (d) return this.translate.instant('RAPPORTS.PERIODE_DEPUIS', { debut: d.toLocaleDateString('fr-FR') });
+    if (f) return this.translate.instant('RAPPORTS.PERIODE_JUSQU', { fin: f.toLocaleDateString('fr-FR') });
     return this.translate.instant('RAPPORTS.TOUT_HISTORIQUE');
   });
 

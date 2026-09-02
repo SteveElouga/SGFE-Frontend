@@ -43,13 +43,12 @@
 
   <div class="pf-field">
     <label class="pf-label" [attr.for]="dateId()">{{ 'FACTURATION.PANEL_DATE' | translate }}<span class="pf-required" aria-hidden="true">*</span></label>
-    <input
-      [id]="dateId()"
-      type="date"
-      pInputText
-      class="pf-input"
+    <p-datepicker
+      [inputId]="dateId()"
       [ngModel]="pDate()"
       (ngModelChange)="pDate.set($event)"
+      dateFormat="dd/mm/yy"
+      appendTo="body"
     />
   </div>
 

@@ -12,6 +12,7 @@ import { NomAbonnePipe } from '../../../../shared/pipes/nom-abonne.pipe';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AbonnesService, RemplacerCompteurInput } from '../../../../core/abonnes/abonnes.service';
 import { CampagnesService } from '../../../../core/campagnes/campagnes.service';
@@ -20,6 +21,7 @@ import { Compteur } from '../../../../shared/models/abonne.model';
 import { BottomSheetComponent } from '../../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { CompteurPipe } from '../../../../shared/pipes/compteur.pipe';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { toIsoDate } from '../../../../shared/utils/date.utils';
 import type { AbonneCibleCompteur } from '../../../../graphql/vues';
 
 /**
@@ -30,7 +32,7 @@ import type { AbonneCibleCompteur } from '../../../../graphql/vues';
  */
 @Component({
   selector: 'app-remplacer-compteur-sheet',
-  imports: [NomAbonnePipe, FormsModule, DatePipe, InputTextModule, TranslatePipe, BottomSheetComponent, CompteurPipe],
+  imports: [NomAbonnePipe, FormsModule, DatePipe, InputTextModule, DatePickerModule, TranslatePipe, BottomSheetComponent, CompteurPipe],
   templateUrl: './remplacer-compteur-sheet.component.html',
   styleUrl: './remplacer-compteur-sheet.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,7 +52,7 @@ export class RemplacerCompteurSheetComponent {
   readonly newQuartier = signal('');
   readonly newCamp = signal('');
   readonly newIndexInitial = signal('0');
-  readonly newDatePose = signal('');
+  readonly newDatePose = signal<Date | null>(null);
   readonly loading = signal(false);
   readonly dernierIndex = signal<number | null>(null);
   readonly dernierIndexLoading = signal(false);
@@ -77,7 +79,7 @@ export class RemplacerCompteurSheetComponent {
     this.newQuartier.set(c?.quartier ?? '');
     this.newCamp.set(c?.camp ? String(c.camp) : '');
     this.newIndexInitial.set('0');
-    this.newDatePose.set(new Date().toISOString().slice(0, 10));
+    this.newDatePose.set(new Date());
     this.dernierIndex.set(null);
     void this.loadDernierIndex();
   }
@@ -113,7 +115,7 @@ export class RemplacerCompteurSheetComponent {
       nouveauQuartier: this.newQuartier(),
       nouveauCamp: camp,
       nouvelIndexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
-      dateRemplacement: this.newDatePose(),
+      dateRemplacement: toIsoDate(this.newDatePose()),
     };
     try {
       const newCompteur = await this.abonnesService.remplacerCompteur(abonne.id, input);

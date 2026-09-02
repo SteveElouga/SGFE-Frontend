@@ -87,22 +87,22 @@
       } @else {
         <div class="rap-export-bar__critere">
           <label class="rap-export-bar__label" for="rap-du">{{ 'RAPPORTS.DATE_DEBUT' | translate }}</label>
-          <input
-            pInputText
-            id="rap-du"
-            type="date"
-            class="rap-export-bar__date"
+          <p-datepicker
+            inputId="rap-du"
             [ngModel]="dateDebut()"
             (ngModelChange)="dateDebut.set($event)"
+            dateFormat="dd/mm/yy"
+            [showClear]="true"
+            appendTo="body"
           />
           <label class="rap-export-bar__label" for="rap-au">{{ 'RAPPORTS.DATE_FIN' | translate }}</label>
-          <input
-            pInputText
-            id="rap-au"
-            type="date"
-            class="rap-export-bar__date"
+          <p-datepicker
+            inputId="rap-au"
             [ngModel]="dateFin()"
             (ngModelChange)="dateFin.set($event)"
+            dateFormat="dd/mm/yy"
+            [showClear]="true"
+            appendTo="body"
           />
         </div>
         @if (periodeInvalide()) {

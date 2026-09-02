@@ -169,7 +169,7 @@
                   </div>
                   <div class="form-field">
                     <label class="form-field__label" for="tarif-date">{{ 'CONFIGURATION.TARIF_DATE_EFFET' | translate }}</label>
-                    <input id="tarif-date" pInputText type="date" class="form-field__input" [ngModel]="tarifDateEffet()" (ngModelChange)="tarifDateEffet.set($event)" />
+                    <p-datepicker inputId="tarif-date" [ngModel]="tarifDateEffet()" (ngModelChange)="tarifDateEffet.set($event)" dateFormat="dd/mm/yy" appendTo="body" />
                   </div>
                 </div>
 

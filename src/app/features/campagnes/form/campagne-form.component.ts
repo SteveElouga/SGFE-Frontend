@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
+import { DatePickerModule } from 'primeng/datepicker';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CampagnesService } from '../../../core/campagnes/campagnes.service';
 import { BACKEND_CAPABILITIES } from '../../../core/config/backend-capabilities';
@@ -19,6 +20,7 @@ import { ZoneInput, formatPeriodeCampagne } from '../../../shared/models/campagn
 import { GET_ABONNES_ACTIFS } from '../../../graphql/queries/abonnes.queries';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { toIsoDate } from '../../../shared/utils/date.utils';
 import type { GetAbonnesActifsQuery } from '../../../graphql/generated';
 
 interface Agent {
@@ -37,7 +39,7 @@ interface AbonneActif {
 
 @Component({
   selector: 'app-campagne-form',
-  imports: [FormsModule, PageTopbarComponent, TranslatePipe],
+  imports: [FormsModule, PageTopbarComponent, DatePickerModule, TranslatePipe],
   templateUrl: './campagne-form.component.html',
   styleUrl: './campagne-form.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,7 +107,7 @@ export class CampagneFormComponent implements OnInit {
 
   // ── Identification ──────────────────────────────────────────────────────────
   readonly formNom = signal('');
-  readonly formDatePlanifiee = signal('');
+  readonly formDatePlanifiee = signal<Date | null>(null);
 
   // ── Abonnés sélection ───────────────────────────────────────────────────────
   readonly selectionMode = signal<'TOUS' | 'FILTRE'>('TOUS');
@@ -149,7 +151,7 @@ export class CampagneFormComponent implements OnInit {
 
   readonly formValid = computed(() => {
     const nomOk = this.formNom().trim().length > 0;
-    const dateOk = this.formDatePlanifiee().length > 0;
+    const dateOk = this.formDatePlanifiee() !== null;
     const abonnesOk =
       this.selectionMode() === 'TOUS' || this.selectedZones().size > 0;
     return nomOk && dateOk && abonnesOk && this.mobileMoneyValid();
@@ -169,7 +171,7 @@ export class CampagneFormComponent implements OnInit {
     const mois = next.getMonth() + 1;
     const annee = next.getFullYear();
     this.formNom.set(formatPeriodeCampagne(mois, annee));
-    this.formDatePlanifiee.set(next.toISOString().split('T')[0]);
+    this.formDatePlanifiee.set(next);
 
     void this.loadAgents();
     this.loadAbonnesActifs();
@@ -285,12 +287,12 @@ export class CampagneFormComponent implements OnInit {
       // natif atomique #11) → 2) rattacher les abonnés (crée leurs relevés
       // A_RELEVER, sinon « 0 abonné à relever ») → 3) affecter les agents.
       // Rattachement et affectation restent valides sur une campagne EN_COURS.
-      const date = new Date(this.formDatePlanifiee());
+      const date = this.formDatePlanifiee()!;
       const campagne = await this.service.creerCampagne({
         nom: this.formNom().trim(),
         periodeMois: date.getMonth() + 1,
         periodeAnnee: date.getFullYear(),
-        datePlanifiee: this.formDatePlanifiee(),
+        datePlanifiee: toIsoDate(date),
         numeroMobileMoney: this.formMobileMoney().trim(),
         genererFacturesAuto: this.genererFacturesAuto(),
         envoyerWhatsappAuto: this.envoyerWhatsappEffectif(),
