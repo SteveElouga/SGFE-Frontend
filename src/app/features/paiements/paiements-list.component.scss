@@ -376,3 +376,15 @@
     min-height: 0;
   }
 }
+
+// Sept colonnes de texte ne tenaient plus entre 1024 et 1280px : le Statut
+// (dernière colonne) se retrouvait poussé hors champ, atteignable uniquement
+// via la fine barre de défilement horizontale sans aucun indice qu'il y avait
+// plus à voir. La Référence reste consultable en ouvrant la ligne (la
+// colonne est cliquable — `rowClickable`) ; au-delà de 1280px, tout tient.
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .col-reference-header,
+  .col-reference-cell {
+    display: none;
+  }
+}

@@ -141,12 +141,30 @@
 
 .users-table__action-btn {
   @include action-ligne;
+  gap: var(--pas-1);
+
+  i {
+    font-size: var(--icone-xs);
+  }
 
   &--danger {
     @include action-ligne-danger;
   }
   &--success {
     @include action-ligne-succes;
+  }
+}
+
+// Voir le commentaire dans le gabarit : entre 1024 et 1280px, les trois
+// boutons de la colonne Actions ne tiennent plus avec leur libellé — seule
+// bande strictement desktop, où l'infobulle au survol reste une explication
+// réellement disponible.
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .users-table__action-label {
+    display: none;
+  }
+  .users-table__action-btn {
+    padding: 0 var(--pas-2);
   }
 }
 

@@ -112,7 +112,18 @@ export class PaiementsListComponent implements OnInit {
     { key: 'mode', header: 'PAIEMENTS.COL_MODE', sortable: true, sortValue: (r) => (r as PaiementRow).modePaiement },
     // Colonne « Référence » : donnée métier obligatoire (PRODUCT.md) pour
     // MOBILE_MONEY et VIREMENT. Anciennement « Opérateur » toujours vide.
-    { key: 'reference', header: 'PAIEMENTS.COL_REFERENCE', sortable: true, sortValue: (r) => (r as PaiementRow).referenceTransaction ?? '' },
+    {
+      key: 'reference',
+      header: 'PAIEMENTS.COL_REFERENCE',
+      sortable: true,
+      sortValue: (r) => (r as PaiementRow).referenceTransaction ?? '',
+      // Masquée entre 1024 et 1280px (voir le SCSS) : sept colonnes de texte
+      // ne tenaient plus à cette largeur et poussaient le Statut hors champ,
+      // atteignable uniquement via la fine barre de défilement horizontale.
+      // La référence reste consultable en ouvrant la ligne (fiche facture).
+      headerClass: 'col-reference-header',
+      cellClass: 'col-reference-cell',
+    },
     { key: 'statut', header: 'PAIEMENTS.COL_STATUT', sortable: true, sortValue: (r) => (r as PaiementRow).statutFacture ?? '' },
   ];
 

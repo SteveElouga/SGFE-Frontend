@@ -25,6 +25,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import type { UtilisateurUpdatedSubscription } from '../../../graphql/generated';
 
 @Component({
@@ -41,6 +42,7 @@ import type { UtilisateurUpdatedSubscription } from '../../../graphql/generated'
     PageTopbarComponent,
     FiltersPanelComponent,
     TranslatePipe,
+    TooltipDirective,
   ],
   providers: [ConfirmationService],
   templateUrl: './utilisateurs-list.component.html',

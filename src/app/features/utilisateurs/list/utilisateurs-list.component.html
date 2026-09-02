@@ -74,30 +74,43 @@
           <!-- Ces trois actions étaient des icônes seules — pinceau, interdiction,
                coche — quand les quatre autres listes de l'application nomment les
                leurs. Une icône de crayon veut dire « modifier » pour qui l'a déjà
-               rencontrée ; le mot le dit à tout le monde, et se lit sans survol. -->
+               rencontrée ; le mot le dit à tout le monde, et se lit sans survol.
+               Le libellé reste donc le comportement par défaut ici. Entre 1024 et
+               1280px seulement (voir le SCSS), il cède la place à l'icône seule
+               plus infobulle : au-delà de cette bande étroite les deux boutons ne
+               tenaient plus dans le tableau, et c'est une plage strictement
+               desktop — la souris y est garantie, donc l'infobulle reste une
+               vraie explication, pas un pis-aller tactile. -->
           <a
             class="users-table__action-btn"
             [routerLink]="['/utilisateurs', user.id]"
             [attr.aria-label]="('COMMON.SEE' | translate) + ' ' + user.username"
-            >{{ 'COMMON.SEE' | translate }}</a
+            [appTooltip]="'COMMON.SEE' | translate"
           >
+            <i aria-hidden="true" class="pi pi-pencil"></i>
+            <span class="users-table__action-label">{{ 'COMMON.SEE' | translate }}</span>
+          </a>
           @if (user.isActive) {
             <button
               type="button"
               class="users-table__action-btn users-table__action-btn--danger"
               [attr.aria-label]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
+              [appTooltip]="'UTILISATEURS.DESACTIVER' | translate"
               (click)="confirmDeactivate(user)"
             >
-              {{ 'UTILISATEURS.DESACTIVER' | translate }}
+              <i aria-hidden="true" class="pi pi-ban"></i>
+              <span class="users-table__action-label">{{ 'UTILISATEURS.DESACTIVER' | translate }}</span>
             </button>
           } @else {
             <button
               type="button"
               class="users-table__action-btn users-table__action-btn--success"
               [attr.aria-label]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
+              [appTooltip]="'UTILISATEURS.REACTIVER' | translate"
               (click)="reactivate(user)"
             >
-              {{ 'UTILISATEURS.REACTIVER' | translate }}
+              <i aria-hidden="true" class="pi pi-refresh"></i>
+              <span class="users-table__action-label">{{ 'UTILISATEURS.REACTIVER' | translate }}</span>
             </button>
           }
         </div>
