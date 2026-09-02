@@ -14,8 +14,11 @@
   }
 
   @if (loading()) {
-    <div class="detail-loading">
-      <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+    <div class="detail-skeleton" aria-hidden="true">
+      <app-skeleton height="100px" radius="12px" />
+      <app-skeleton height="140px" radius="12px" />
+      <app-skeleton height="220px" radius="12px" />
+      <app-skeleton height="160px" radius="12px" />
     </div>
   } @else if (facture(); as f) {
 

@@ -20,15 +20,6 @@
 }
 
 // ── États ──────────────────────────────────────────────────────────────────
-.dt__loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--pas-7);
-  color: var(--action);
-  font-size: var(--texte-3xl);
-}
-
 .dt__empty {
   text-align: center;
   padding: var(--pas-7);
@@ -320,6 +311,22 @@
       display: flex;
       flex-direction: column;
     }
+  }
+}
+
+// Carte de l'état chargement : `.dt__cards` n'a pas de forme propre (chaque
+// écran dessine la sienne via `appCardRow`), donc l'esquisse ne peut pas
+// l'emprunter. Séparateur en ligne, comme `tbody > tr > td`, plutôt qu'une
+// bordure propre à la carte qu'aucune carte réelle ne porte.
+.dt__skel-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  border-bottom: 1px solid var(--fond);
+
+  &:last-child {
+    border-bottom: none;
   }
 }
 

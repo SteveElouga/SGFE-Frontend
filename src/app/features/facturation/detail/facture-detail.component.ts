@@ -23,6 +23,7 @@ import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { DetteAbonne, Paiement, StatutFacture, factureStatutTone } from '../../../shared/models/facture.model';
 import type { FactureDetail } from '../../../graphql/vues';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
@@ -48,6 +49,7 @@ import type { AbonneDetail, CampagneDetail, EnvoiFacture, PaiementFacture, Solde
     AnnulerSheetComponent,
     AnnulerPaiementSheetComponent,
     BadgeComponent,
+    SkeletonComponent,
   ],
   templateUrl: './facture-detail.component.html',
   styleUrl: './facture-detail.component.scss',

@@ -15,6 +15,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
+import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { CriteresExport, ExportsService } from '../../core/rapports/exports.service';
 import { extractGqlError } from '../../core/auth/auth.service';
 import { GET_STATS_GLOBALES } from '../../graphql/queries/stats.queries';
@@ -52,6 +53,7 @@ interface StatsGlobales {
     PageTopbarComponent,
     ErrorBannerComponent,
     FcfaPipe,
+    SkeletonComponent,
   ],
   templateUrl: './rapports-list.component.html',
   styleUrl: './rapports-list.component.scss',
