@@ -248,6 +248,18 @@
   align-items: center;
   gap: var(--pas-2);
   color: var(--surface);
+  // Le réseau instable est une condition régulière du métier en tournée, pas
+  // un cas rare — la bannière mérite une entrée aussi soignée que le reste.
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duree-courte, 160ms) var(--ease-out),
+    transform var(--duree-courte, 160ms) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
 
   &__icon {
     font-size: var(--texte-lg);
@@ -261,6 +273,13 @@
     color: var(--encre-inverse-2);
     margin-top: 1px;
   } // 10px 0.75 → 11px 0.85
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-offline,
+  .sync-card {
+    transition: none;
+  }
 }
 
 // ── Corps liste ───────────────────────────────────────────────────────────────
@@ -280,6 +299,16 @@
   display: flex;
   align-items: center;
   gap: var(--pas-3);
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition:
+    opacity var(--duree-courte, 160ms) var(--ease-out),
+    transform var(--duree-courte, 160ms) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
 
   &__icon {
     width: 38px;
@@ -770,6 +799,21 @@
   align-items: center;
   gap: var(--pas-3);
   min-height: 48px;
+  // La Règle du Vert Rare (DESIGN.md) réserve cette couleur au moment où un
+  // relevé est pris — un agent revoit cette carte des dizaines de fois par
+  // tournée (flux 3 taps max), et chaque `@case('success')` est un vrai
+  // remontage : l'entrée ci-dessous rejoue à chaque occurrence, pas
+  // seulement à la première.
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duree-moyenne, 220ms) var(--ease-out),
+    transform var(--duree-moyenne, 220ms) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
 
   &__check {
     width: 34px;
@@ -780,6 +824,19 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    // Décalé après la carte (stagger 70ms) : elle arrive, puis le check
+    // confirme — pas les deux d'un bloc. Courbe à léger dépassement,
+    // l'équivalent CSS d'un ressort discret, réservé à ce moment de délice.
+    transform: scale(1);
+    opacity: 1;
+    transition:
+      transform 260ms cubic-bezier(0.34, 1.56, 0.64, 1) 70ms,
+      opacity 160ms var(--ease-out) 70ms;
+
+    @starting-style {
+      transform: scale(0.6);
+      opacity: 0;
+    }
   }
   &__body {
     flex: 1;
@@ -811,6 +868,13 @@
     color: var(--encre-inverse-3);
     font-weight: 500;
     margin: 0 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .succ-head,
+  .succ-head__check {
+    transition: none;
   }
 }
 

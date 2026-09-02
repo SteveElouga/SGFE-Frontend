@@ -10,6 +10,17 @@
   letter-spacing: var(--badge-espace);
   text-transform: var(--badge-casse);
   white-space: nowrap;
+  // Un statut qui bascule en direct (ex. PARTIELLE → PAYÉE après un
+  // encaissement) sautait d'une teinte à l'autre sans transition, sur des
+  // écrans qui gèrent de l'argent réel.
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
 
   &--md { padding: var(--pas-1) var(--pas-2); font-size: var(--badge-texte); }
   &--lg { padding: var(--pas-2) var(--pas-4); font-size: var(--texte-lg); letter-spacing: 0.4px; }  // Héro : statut dominant (facturation PAYÉE)

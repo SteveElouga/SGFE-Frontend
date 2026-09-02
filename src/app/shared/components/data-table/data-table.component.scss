@@ -192,6 +192,23 @@
   }
 }
 
+// Le squelette épouse déjà la forme réelle (mêmes en-têtes/colonnes) pour
+// éviter un sursaut de mise en page ; seul le contenu réel (pas le
+// squelette) reçoit un fondu d'entrée, pour ne pas remplacer brutalement
+// l'un par l'autre.
+.dt:not(.dt--squelette) {
+  opacity: 1;
+  transition: opacity var(--duree-moyenne, 220ms) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
 // Enveloppe non défilante de la zone : c'est elle qui ancre les deux voiles.
 // Un élément absolu placé DANS le conteneur défilant défilerait avec les
 // lignes et ne marquerait donc jamais le bord.
