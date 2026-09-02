@@ -8,6 +8,7 @@ export interface Compteur {
   camp: number;
   indexInitial: number;
   datePose: string;
+  position: string;
   statut: StatutCompteur;
 }
 
@@ -16,6 +17,7 @@ export interface CompteurSnapshot {
   quartier: string;
   camp: number;
   indexInitial: number;
+  position: string;
 }
 
 export interface HistoriqueCompteurEntry {

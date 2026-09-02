@@ -51,6 +51,7 @@ export class RemplacerCompteurSheetComponent {
   readonly newNumeroCompteur = signal('');
   readonly newQuartier = signal('');
   readonly newCamp = signal('');
+  readonly newPosition = signal('');
   readonly newIndexInitial = signal('0');
   readonly newDatePose = signal<Date | null>(null);
   readonly loading = signal(false);
@@ -78,6 +79,7 @@ export class RemplacerCompteurSheetComponent {
     this.newNumeroCompteur.set('');
     this.newQuartier.set(c?.quartier ?? '');
     this.newCamp.set(c?.camp ? String(c.camp) : '');
+    this.newPosition.set(c?.position ?? '');
     this.newIndexInitial.set('0');
     this.newDatePose.set(new Date());
     this.dernierIndex.set(null);
@@ -116,6 +118,7 @@ export class RemplacerCompteurSheetComponent {
       nouveauCamp: camp,
       nouvelIndexInitial: Number.isNaN(indexInitial) ? 0 : indexInitial,
       dateRemplacement: toIsoDate(this.newDatePose()),
+      nouvellePosition: this.newPosition().trim(),
     };
     try {
       const newCompteur = await this.abonnesService.remplacerCompteur(abonne.id, input);

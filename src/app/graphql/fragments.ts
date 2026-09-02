@@ -61,6 +61,7 @@ export const ABONNE_DETAIL_FIELDS = gql`
       camp
       indexInitial
       datePose
+      position
       statut
     }
   }

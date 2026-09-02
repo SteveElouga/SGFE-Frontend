@@ -224,6 +224,8 @@
       "NUMERO_COMPTEUR": "N° compteur",
       "QUARTIER": "Quartier",
       "CAMP": "Camp",
+      "POSITION": "Emplacement dans le camp",
+      "POSITION_HINT": "Facultatif : un repère pour retrouver le compteur (numéro de parcelle, description...)",
       "INDEX_INITIAL": "Index initial (m³)",
       "DATE_POSE": "Date de pose",
       "NOM_HINT": "Lettres, espaces et tirets uniquement",

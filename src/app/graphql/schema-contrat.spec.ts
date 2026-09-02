@@ -211,6 +211,7 @@ describe('contrat GraphQL', () => {
       'nouveauNumeroCompteur',
       'nouveauQuartier',
       'nouvelIndexInitial',
+      'nouvellePosition',
     ]);
   });
 });
