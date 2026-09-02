@@ -26,8 +26,15 @@
   }
 
   @if (loading()) {
-    <div class="envois__loading" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">
-      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+    <div class="envois__list" role="status" [attr.aria-label]="'COMMON.LOADING' | translate">
+      @for (r of skeletonRows; track r) {
+        <div class="envoi envoi--skel" aria-hidden="true">
+          <div class="envoi__body">
+            <app-skeleton height="16px" width="45%" />
+            <app-skeleton height="12px" width="30%" />
+          </div>
+        </div>
+      }
     </div>
   } @else if (rows().length === 0) {
     <div class="envois__empty">{{ 'ENVOIS.EMPTY' | translate }}</div>

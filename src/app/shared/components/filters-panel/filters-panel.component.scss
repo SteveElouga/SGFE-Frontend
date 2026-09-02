@@ -142,6 +142,145 @@ $fp-chip-h: 44px;
   }
 }
 
+// ── Bouton « Filtres » + feuille mobile (batch 13) ──────────────────────────
+//
+// `display: contents` sur le porteur des selects en ligne : il ne doit pas
+// devenir lui-même un item flex de `.fp__controls`, sinon chaque select perd
+// son wrap individuel et se retrouve emballé dans une seule boîte large. Ses
+// enfants (`.fp__filter`) restent les vrais items flex, comme avant l'ajout
+// de ce porteur.
+.fp__selects-inline {
+  display: contents;
+
+  @media (max-width: $fp-mobile-max) { display: none; }
+}
+
+// Sélecteur composé (et non `.fp__chipsets--inline` seul) : la règle non
+// conditionnelle `.fp__chipsets { display: flex }` / `.fp__meta { display: flex }`
+// est déclarée plus bas dans ce fichier avec la même spécificité (une classe).
+// À spécificité égale, la règle la plus tardive dans la source l'emporte —
+// sans le doublement de classe ici, la base flex regagnait la main sur mobile
+// malgré le media query.
+.fp__chipsets.fp__chipsets--inline,
+.fp__meta.fp__meta--inline {
+  @media (max-width: $fp-mobile-max) { display: none; }
+}
+
+.fp__filters-trigger {
+  display: none;
+
+  @media (max-width: $fp-mobile-max) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--pas-2);
+    flex: 0 0 auto;
+    height: $fp-input-h;
+    padding: 0 var(--pas-4);
+    border-radius: var(--rayon-md);
+    border: 1px solid var(--filet);
+    background: var(--surface-douce);
+    color: var(--encre);
+    font-size: var(--texte-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover { border-color: var(--filet-pale); }
+    }
+    &:focus-visible {
+      outline: var(--focus-epaisseur) solid var(--focus-anneau);
+      outline-offset: var(--focus-decalage);
+    }
+
+    i { font-size: var(--icone-xs); }
+  }
+}
+
+.fp__filters-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--navy-nuit);
+  color: var(--surface);
+  font-size: var(--texte-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Contenu de la feuille ────────────────────────────────────────────────
+.fp__sheet-titre {
+  margin: 0 0 var(--pas-4);
+  font-size: var(--texte-xl);
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.fp__sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-4);
+}
+
+// Pleine largeur et empilés : la feuille est étroite, un select à 180px min
+// flotterait au milieu sans rien pour justifier l'espace autour.
+.fp__sheet-selects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+
+  .fp__filter { width: 100%; }
+  .fp__select { width: 100%; min-width: 0; }
+}
+
+.fp__sheet-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--pas-3);
+  margin-top: var(--pas-4);
+  padding-top: var(--pas-3);
+  border-top: 1px dashed var(--filet);
+
+  // `.fp__meta` projeté ici vient d'un contexte flex-row + margin-right:auto
+  // pensé pour le desktop ; dans la feuille étroite, les tags et le bouton
+  // Effacer s'empilent comme le reste des contrôles.
+  .fp__meta,
+  .fp__tags {
+    margin-right: 0;
+  }
+  .fp__clear-all { align-self: flex-start; }
+}
+
+.fp__sheet-voir {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
+  border: none;
+  background: var(--action);
+  color: var(--surface);
+  font-size: var(--texte-lg);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--action-survol); }
+  }
+  &:focus-visible {
+    outline: var(--focus-epaisseur) solid var(--focus-anneau);
+    outline-offset: var(--focus-decalage);
+  }
+}
+
 // P-select — même palette que search input (unité visuelle)
 .fp__select {
   min-width: 180px;

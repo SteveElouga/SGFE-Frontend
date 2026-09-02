@@ -15,12 +15,13 @@
   padding: var(--pas-4) max(var(--pas-4), calc((100% - 820px) / 2));
 }
 
-.envois__loading {
+// État chargement : mêmes cartes que la liste réelle, contenu en `aq-skeleton`
+// plutôt qu'un spinner centré, pour ne pas faire sursauter la mise en page à
+// l'arrivée des données.
+.envoi--skel .envoi__body {
   display: flex;
-  justify-content: center;
-  padding: var(--pas-7);
-  color: var(--action);
-  font-size: var(--texte-3xl);
+  flex-direction: column;
+  gap: var(--pas-2);
 }
 
 .envois__empty {
