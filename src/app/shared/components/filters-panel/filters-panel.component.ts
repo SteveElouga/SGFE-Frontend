@@ -11,6 +11,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -19,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../services/toast.service';
+import { BottomSheetComponent } from '../bottom-sheet/bottom-sheet.component';
 
 /** Une option d'un filtre (label déjà résolu ou clé i18n si `translateLabels`). */
 export interface FilterOption {
@@ -99,7 +101,16 @@ export type FilterValues = Record<string, string | null>;
 @Component({
   selector: 'app-filters-panel',
   standalone: true,
-  imports: [FormsModule, IconFieldModule, InputIconModule, InputTextModule, SelectModule, TranslatePipe],
+  imports: [
+    FormsModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    SelectModule,
+    TranslatePipe,
+    NgTemplateOutlet,
+    BottomSheetComponent,
+  ],
   templateUrl: './filters-panel.component.html',
   styleUrl: './filters-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -186,6 +197,46 @@ export class FiltersPanelComponent {
       .filter((f) => v[f.key] !== null && v[f.key] !== undefined && v[f.key] !== '')
       .length;
   });
+
+  // ── Feuille mobile (batch 13) ─────────────────────────────────────────────
+  //
+  // En dessous de $fp-mobile-max, les selects et chipsets empilés verticalement
+  // pouvaient pousser le héro-compteur hors du premier écran sur un filtre à
+  // 3-4 dimensions (ex. /paiements : statut + méthode + campagne). Le bouton
+  // « Filtres » les déplace dans une feuille à la demande ; la recherche reste
+  // sur place, seul geste qu'on répète assez pour vouloir l'atteindre sans un
+  // tap de plus.
+  //
+  // Les mêmes gabarits (`selectsTpl`/`chipsTpl`/`metaTpl`) sont projetés à la
+  // fois en ligne (desktop) et dans la feuille (mobile) via `ngTemplateOutlet` :
+  // dupliquer leur DOM en deux endroits et le montrer/cacher au media query
+  // suit la même convention que `visibilityClass()` ci-dessous, plutôt que
+  // d'ajouter un second mécanisme piloté par `matchMedia` en JS.
+  readonly sheetOpen = signal(false);
+
+  readonly hasSecondaryFilters = computed(
+    () => this.selectFilters().length > 0 || this.chipFilters().length > 0,
+  );
+
+  readonly filtresTriggerLabel = computed(() => {
+    const lang = this.translate.currentLang() ?? undefined;
+    const base = this.translate.instant('COMMON.FILTER', {}, lang);
+    const n = this.activeCount();
+    return n > 0 ? `${base} (${n})` : base;
+  });
+
+  readonly voirResultatsLabel = computed(() => {
+    const lang = this.translate.currentLang() ?? undefined;
+    return this.translate.instant('COMMON.SEE_RESULTS', { count: this.resultCount() ?? 0 }, lang);
+  });
+
+  openSheet(): void {
+    this.sheetOpen.set(true);
+  }
+
+  closeSheet(): void {
+    this.sheetOpen.set(false);
+  }
 
   /**
    * Sous-titre héro : "sur {total}" + résumé des filtres clearables actifs.

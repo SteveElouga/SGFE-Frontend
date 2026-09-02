@@ -38,114 +38,179 @@
          il appartient à la carte de filtres, pas au fond de page. -->
     <ng-content select="[fp-extra]" />
 
-    @for (f of selectFilters(); track f.key) {
-      <div class="fp__filter" [class]="visibilityClass(f)">
-        <p-select
-          class="fp__select fp__select--{{ renderMode(f) }}"
-          [class.fp__select--active]="valueOf(f.key) !== null"
-          [options]="asMutableOptions(f.options)"
-          [ngModel]="valueOf(f.key)"
-          (ngModelChange)="setFilterValue(f.key, $event)"
-          optionLabel="label"
-          optionValue="value"
-          [placeholder]="f.label | translate"
-          [showClear]="f.clearable !== false"
-          [attr.aria-label]="f.label | translate"
-        />
-      </div>
+    <!-- Bouton « Filtres », mobile uniquement (≤$fp-mobile-max) : ouvre la
+         feuille du bas qui porte les mêmes selects/chips qu'en desktop. Sans
+         lui, un filtre à 3-4 dimensions poussait le héro-compteur hors du
+         premier écran une fois tout empilé verticalement. -->
+    @if (hasSecondaryFilters()) {
+      <button
+        type="button"
+        class="fp__filters-trigger"
+        (click)="openSheet()"
+        [attr.aria-label]="filtresTriggerLabel()"
+      >
+        <i class="pi pi-filter" aria-hidden="true"></i>
+        <span>{{ 'COMMON.FILTER' | translate }}</span>
+        @if (activeCount() > 0) {
+          <span class="fp__filters-badge" aria-hidden="true">{{ activeCount() }}</span>
+        }
+      </button>
     }
+
+    <div class="fp__selects-inline">
+      <ng-container [ngTemplateOutlet]="selectsTpl" />
+    </div>
   </div>
 
   <!-- ── Chipsets : filtres à chips (mode chips ou auto ≤5 options) ─────── -->
   @if (chipFilters().length > 0) {
-    <div class="fp__chipsets">
-      @for (f of chipFilters(); track f.key) {
-        <div class="fp__chipset" [class]="visibilityClass(f)"
-             role="radiogroup" [attr.aria-label]="f.label | translate">
-          <!-- Le nom du groupe n'apparaît que si plusieurs rangées coexistent.
-               Sur /utilisateurs, l'une filtre le rôle et l'autre le statut :
-               elles s'ouvraient sur deux pastilles « Tous » identiques, sans
-               rien pour les distinguer à l'œil. Le lecteur d'écran, lui, avait
-               déjà le nom par l'aria-label du radiogroup. -->
-          @if (chipFilters().length > 1) {
-            <span class="fp__chipset-nom" aria-hidden="true">{{ f.label | translate }}</span>
-          }
-          @if (f.clearable !== false) {
-            <button
-              type="button"
-              class="fp__chip"
-              [class.fp__chip--active]="valueOf(f.key) === null"
-              role="radio"
-              [attr.aria-checked]="valueOf(f.key) === null"
-              [attr.tabindex]="valueOf(f.key) === null ? 0 : -1"
-              (click)="setFilterValue(f.key, null)"
-              (keydown)="onChipKeydown($event, f, null)"
-            >
-            {{ 'COMMON.ALL' | translate }}
-            <!-- « Tous » n'affichait pas son compte quand ses trois voisines
-                 l'affichaient : la rangée se lisait comme trois filtres chiffrés
-                 posés à côté d'un bouton d'une autre nature. Le total est la
-                 somme des options, il n'a pas à être fourni deux fois. -->
-            @if (totalOptions(f) !== null) {
-              <span class="fp__chip-count">({{ totalOptions(f) }})</span>
-            }
-          </button>
-          }
-          @for (opt of f.options; track opt.value) {
-            <button
-              type="button"
-              class="fp__chip"
-              [class.fp__chip--active]="valueOf(f.key) === opt.value"
-              [class.fp__chip--empty]="opt.count === 0"
-              [attr.aria-disabled]="opt.count === 0 ? 'true' : null"
-              [attr.tabindex]="opt.count === 0 ? -1 : (valueOf(f.key) === opt.value ? 0 : -1)"
-              role="radio"
-              [attr.aria-checked]="valueOf(f.key) === opt.value"
-              (click)="setFilterValue(f.key, opt.value)"
-              (keydown)="onChipKeydown($event, f, opt.value)"
-            >
-              {{ f.translateLabels ? (opt.label | translate) : opt.label }}
-              @if (opt.count !== undefined) {
-                <span class="fp__chip-count">({{ opt.count }})</span>
-              }
-            </button>
-          }
-        </div>
-      }
+    <div class="fp__chipsets fp__chipsets--inline">
+      <ng-container [ngTemplateOutlet]="chipsTpl" />
     </div>
   }
 
   <!-- ── Meta : tags dismissables + effacer ─────────────────────────────── -->
   @if (activeCount() > 0) {
-    <div class="fp__meta">
-      @if (activeTags().length > 0) {
-      <div class="fp__tags" role="list" [attr.aria-label]="'COMMON.ACTIVE_FILTERS' | translate">
-        @for (tag of activeTags(); track tag.key) {
-          <button
-            type="button"
-            class="fp__tag"
-            role="listitem"
-            (click)="removeTag(tag.key)"
-            [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + ' — ' + ('COMMON.REMOVE' | translate)"
-          >
-            <span class="fp__tag-key">{{ tag.filterLabel }}</span>
-            <span class="fp__tag-sep">:</span>
-            <span class="fp__tag-val">{{ tag.valueLabel }}</span>
-            <i class="pi pi-times fp__tag-close" aria-hidden="true"></i>
-          </button>
-        }
-      </div>
-      }
-
-      <button
-        type="button"
-        class="fp__clear-all"
-        (click)="clearAll()"
-      >
-        <i class="pi pi-eraser" aria-hidden="true"></i>
-        <span>{{ clearAllLabel() | translate }}</span>
-      </button>
+    <div class="fp__meta fp__meta--inline">
+      <ng-container [ngTemplateOutlet]="metaTpl" />
     </div>
   }
 
 </div>
+
+<!-- ── Gabarits partagés desktop ↔ feuille mobile ───────────────────────────
+     Un seul balisage pour les selects/chips/meta : la même logique (a11y,
+     compteurs, clear) ne doit exister qu'une fois. -->
+<ng-template #selectsTpl>
+  @for (f of selectFilters(); track f.key) {
+    <div class="fp__filter" [class]="visibilityClass(f)">
+      <p-select
+        class="fp__select fp__select--{{ renderMode(f) }}"
+        [class.fp__select--active]="valueOf(f.key) !== null"
+        [options]="asMutableOptions(f.options)"
+        [ngModel]="valueOf(f.key)"
+        (ngModelChange)="setFilterValue(f.key, $event)"
+        optionLabel="label"
+        optionValue="value"
+        [placeholder]="f.label | translate"
+        [showClear]="f.clearable !== false"
+        [attr.aria-label]="f.label | translate"
+      />
+    </div>
+  }
+</ng-template>
+
+<ng-template #chipsTpl>
+  @for (f of chipFilters(); track f.key) {
+    <div class="fp__chipset" [class]="visibilityClass(f)"
+         role="radiogroup" [attr.aria-label]="f.label | translate">
+      <!-- Le nom du groupe n'apparaît que si plusieurs rangées coexistent.
+           Sur /utilisateurs, l'une filtre le rôle et l'autre le statut :
+           elles s'ouvraient sur deux pastilles « Tous » identiques, sans
+           rien pour les distinguer à l'œil. Le lecteur d'écran, lui, avait
+           déjà le nom par l'aria-label du radiogroup. -->
+      @if (chipFilters().length > 1) {
+        <span class="fp__chipset-nom" aria-hidden="true">{{ f.label | translate }}</span>
+      }
+      @if (f.clearable !== false) {
+        <button
+          type="button"
+          class="fp__chip"
+          [class.fp__chip--active]="valueOf(f.key) === null"
+          role="radio"
+          [attr.aria-checked]="valueOf(f.key) === null"
+          [attr.tabindex]="valueOf(f.key) === null ? 0 : -1"
+          (click)="setFilterValue(f.key, null)"
+          (keydown)="onChipKeydown($event, f, null)"
+        >
+        {{ 'COMMON.ALL' | translate }}
+        <!-- « Tous » n'affichait pas son compte quand ses trois voisines
+             l'affichaient : la rangée se lisait comme trois filtres chiffrés
+             posés à côté d'un bouton d'une autre nature. Le total est la
+             somme des options, il n'a pas à être fourni deux fois. -->
+        @if (totalOptions(f) !== null) {
+          <span class="fp__chip-count">({{ totalOptions(f) }})</span>
+        }
+      </button>
+      }
+      @for (opt of f.options; track opt.value) {
+        <button
+          type="button"
+          class="fp__chip"
+          [class.fp__chip--active]="valueOf(f.key) === opt.value"
+          [class.fp__chip--empty]="opt.count === 0"
+          [attr.aria-disabled]="opt.count === 0 ? 'true' : null"
+          [attr.tabindex]="opt.count === 0 ? -1 : (valueOf(f.key) === opt.value ? 0 : -1)"
+          role="radio"
+          [attr.aria-checked]="valueOf(f.key) === opt.value"
+          (click)="setFilterValue(f.key, opt.value)"
+          (keydown)="onChipKeydown($event, f, opt.value)"
+        >
+          {{ f.translateLabels ? (opt.label | translate) : opt.label }}
+          @if (opt.count !== undefined) {
+            <span class="fp__chip-count">({{ opt.count }})</span>
+          }
+        </button>
+      }
+    </div>
+  }
+</ng-template>
+
+<ng-template #metaTpl>
+  @if (activeTags().length > 0) {
+  <div class="fp__tags" role="list" [attr.aria-label]="'COMMON.ACTIVE_FILTERS' | translate">
+    @for (tag of activeTags(); track tag.key) {
+      <button
+        type="button"
+        class="fp__tag"
+        role="listitem"
+        (click)="removeTag(tag.key)"
+        [attr.aria-label]="tag.filterLabel + ' : ' + tag.valueLabel + ' — ' + ('COMMON.REMOVE' | translate)"
+      >
+        <span class="fp__tag-key">{{ tag.filterLabel }}</span>
+        <span class="fp__tag-sep">:</span>
+        <span class="fp__tag-val">{{ tag.valueLabel }}</span>
+        <i class="pi pi-times fp__tag-close" aria-hidden="true"></i>
+      </button>
+    }
+  </div>
+  }
+
+  <button
+    type="button"
+    class="fp__clear-all"
+    (click)="clearAll()"
+  >
+    <i class="pi pi-eraser" aria-hidden="true"></i>
+    <span>{{ clearAllLabel() | translate }}</span>
+  </button>
+</ng-template>
+
+<!-- ── Feuille mobile : mêmes contrôles, à la demande ──────────────────────── -->
+<app-bottom-sheet [open]="sheetOpen()" labelledBy="fp-sheet-titre" (close)="closeSheet()">
+  <div class="fp__sheet">
+    <h2 id="fp-sheet-titre" class="fp__sheet-titre">{{ 'COMMON.FILTER' | translate }}</h2>
+
+    <div class="fp__sheet-body">
+      @if (selectFilters().length > 0) {
+        <div class="fp__sheet-selects">
+          <ng-container [ngTemplateOutlet]="selectsTpl" />
+        </div>
+      }
+      @if (chipFilters().length > 0) {
+        <div class="fp__chipsets">
+          <ng-container [ngTemplateOutlet]="chipsTpl" />
+        </div>
+      }
+    </div>
+
+    <div class="fp__sheet-actions">
+      @if (activeCount() > 0) {
+        <ng-container [ngTemplateOutlet]="metaTpl" />
+      }
+      <button type="button" class="fp__sheet-voir" (click)="closeSheet()">
+        {{ voirResultatsLabel() }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

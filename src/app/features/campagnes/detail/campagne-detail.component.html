@@ -330,14 +330,17 @@
         <div class="releves-section__filters">
           @if (quartiersDisponibles().length > 1) {
             <p-select
+              class="releves-filter releves-filter--quartier"
               [options]="quartiersDisponibles()"
               [ngModel]="filtreQuartier()"
               (ngModelChange)="filtreQuartier.set($event)"
               optionLabel="label"
               optionValue="value"
+              [placeholder]="'CAMPAGNES.FILTRE_QUARTIER' | translate"
             />
           }
           <p-select
+            class="releves-filter releves-filter--statut"
             [options]="statutReleveOptions()"
             [ngModel]="filtreReleveStatut()"
             (ngModelChange)="filtreReleveStatut.set($event)"
