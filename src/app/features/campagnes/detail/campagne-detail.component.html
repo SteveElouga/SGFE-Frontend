@@ -366,6 +366,9 @@
               <th class="col-num">{{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }}</th>
               <th class="col-num">{{ 'CAMPAGNES.COL_CONSO' | translate }}</th>
               <th>{{ 'COMMON.STATUS' | translate }}</th>
+              @if (canActOnCampagne()) {
+                <th class="col-actions">{{ 'CAMPAGNES.COL_ACTIONS' | translate }}</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -406,12 +409,27 @@
                 <td>
                   <app-badge [tone]="releveStatutTone(r.statut)" [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate" />
                 </td>
+                @if (canActOnCampagne()) {
+                  <td class="col-actions">
+                    @if (r.statut === 'RELEVE') {
+                      <button
+                        type="button"
+                        class="releves-table__corriger-btn"
+                        (click)="openCorrigerReleveSheet(r)"
+                        [attr.aria-label]="'CAMPAGNES.CORRIGER_RELEVE.ACTION_ARIA' | translate: { nom: nomAbonne(r.abonnePrenom, r.abonneNom) || r.numeroAbonne }"
+                      >
+                        <i class="pi pi-pencil" aria-hidden="true"></i>
+                        {{ 'CAMPAGNES.CORRIGER_RELEVE.ACTION' | translate }}
+                      </button>
+                    }
+                  </td>
+                }
               </tr>
             }
 
             @if (relevesFiltres().length === 0) {
               <tr>
-                <td colspan="6" class="releves-empty-row">
+                <td [attr.colspan]="canActOnCampagne() ? 7 : 6" class="releves-empty-row">
                   <i aria-hidden="true" class="pi pi-list"></i>
                   {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
                 </td>
@@ -441,6 +459,16 @@
             <span class="rm-card__statut rm-card__statut--{{ r.statut | lowercase }}">
               {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
             </span>
+            @if (canActOnCampagne() && r.statut === 'RELEVE') {
+              <button
+                type="button"
+                class="rm-card__corriger-btn"
+                (click)="openCorrigerReleveSheet(r)"
+                [attr.aria-label]="'CAMPAGNES.CORRIGER_RELEVE.ACTION_ARIA' | translate: { nom: nomAbonne(r.abonnePrenom, r.abonneNom) || r.numeroAbonne }"
+              >
+                <i class="pi pi-pencil" aria-hidden="true"></i>
+              </button>
+            }
           </div>
         } @empty {
           <div class="releves-mobile__empty">
@@ -499,6 +527,14 @@
         (saved)="onZonesSaved()"
       />
     }
+
+    <app-corriger-releve-sheet
+      [open]="showCorrigerReleveSheet()"
+      [campagneId]="campagneId"
+      [releve]="releveACorrig()"
+      (close)="closeCorrigerReleveSheet()"
+      (saved)="onReleveCorrige($event)"
+    />
   }
 
   <!-- ── Cloture — bottom-sheet mobile / dialog desktop (v2 : migration du custom modal) ── -->

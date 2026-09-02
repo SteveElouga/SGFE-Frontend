@@ -1,0 +1,70 @@
+<!-- ══ Corriger un index relevé — bottom sheet mobile / dialog desktop ══ -->
+<app-bottom-sheet [open]="open()" labelledBy="corriger-releve-title" (close)="close.emit()">
+  <div class="cr-body">
+
+    <!-- En-tête -->
+    <div class="cr-header">
+      <div class="cr-header__icon" aria-hidden="true">
+        <i class="pi pi-pencil"></i>
+      </div>
+      <div>
+        <h3 class="cr-header__title" id="corriger-releve-title">{{ 'CAMPAGNES.CORRIGER_RELEVE.TITRE' | translate }}</h3>
+        @if (releve(); as r) {
+          <p class="cr-header__sub">{{ nomCible() }} · {{ r.numeroAbonne }}</p>
+        }
+      </div>
+    </div>
+
+    @if (releve(); as r) {
+      <!-- Valeurs actuelles (lecture seule, pour contexte) -->
+      <div class="cr-current-card">
+        <div class="cr-current-card__row">
+          <span class="cr-current-card__key">{{ 'CAMPAGNES.COL_ANC_INDEX' | translate }}</span>
+          <span class="cr-current-card__val">{{ r.ancienIndex | number:'1.0-0' }}</span>
+        </div>
+        <div class="cr-current-card__row">
+          <span class="cr-current-card__key">{{ 'CAMPAGNES.CORRIGER_RELEVE.INDEX_ACTUEL' | translate }}</span>
+          <span class="cr-current-card__val cr-current-card__val--actuel">{{ r.nouveauIndex | number:'1.0-0' }}</span>
+        </div>
+      </div>
+
+      <!-- Nouvelle valeur -->
+      <div class="edit-field">
+        <label class="edit-label" for="crNouvelIndex">{{ 'CAMPAGNES.CORRIGER_RELEVE.NOUVEL_INDEX' | translate }}</label>
+        <input pInputText id="crNouvelIndex" type="number" [min]="r.ancienIndex" step="0.001"
+          [ngModel]="nouvelIndex()" (ngModelChange)="nouvelIndex.set($event)" name="crNouvelIndex"
+          [attr.aria-invalid]="erreur() ? true : null" />
+        @if (erreur(); as e) {
+          <span class="cr-field-erreur">{{ e | translate: { ancien: r.ancienIndex } }}</span>
+        }
+      </div>
+
+      <div class="edit-field">
+        <label class="edit-label" for="crObservation">{{ 'CAMPAGNES.CORRIGER_RELEVE.OBSERVATION' | translate }}</label>
+        <textarea id="crObservation" class="cr-textarea" rows="2"
+          [ngModel]="observation()" (ngModelChange)="observation.set($event)" name="crObservation"
+          [placeholder]="'CAMPAGNES.CORRIGER_RELEVE.OBSERVATION_PLACEHOLDER' | translate"></textarea>
+      </div>
+
+      <!-- Note informative -->
+      <div class="cr-info-note">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        {{ 'CAMPAGNES.CORRIGER_RELEVE.NOTE' | translate }}
+      </div>
+    }
+
+    <!-- Actions -->
+    <div class="cr-footer">
+      <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="!peutValider()">
+        @if (loading()) {
+          {{ 'CAMPAGNES.CORRIGER_RELEVE.CHARGEMENT' | translate }}
+        } @else {
+          {{ 'CAMPAGNES.CORRIGER_RELEVE.CONFIRMER' | translate }}
+        }
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>
