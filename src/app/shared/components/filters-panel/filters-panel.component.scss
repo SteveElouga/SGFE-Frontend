@@ -111,6 +111,12 @@ $fp-chip-h: 44px;
     position: absolute;
     left: 12px;
     top: 50%;
+    // PrimeNG pose son propre `margin-top` négatif sur `p-inputicon` (pensé
+    // pour son positionnement par défaut, pas pour celui-ci) : il s'ajoutait
+    // au `translateY(-50%)` ci-dessous et remontait l'icône de 8px au-dessus
+    // du centre réel du champ. Ce positionnement est déjà entièrement piloté
+    // par `top`/`transform` — la marge de PrimeNG n'a rien à y faire.
+    margin-top: 0;
     transform: translateY(-50%);
     color: var(--encre-3);
     font-size: var(--texte-lg);
