@@ -570,10 +570,17 @@
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 
-.toggle {
+.toggle-switch {
   // La piste est un objet dessiné : la grandir la déformerait. C'est la
   // zone tactile qu'on étend, par un pseudo-élément centré qui déborde sans
   // se voir — le doigt l'attrape, l'œil ne le voit pas.
+  //
+  // Le filet WCAG global (`global.scss`) impose `min-height: 44px` à tout
+  // `<button>`, sauf exclusion nommée par classe — `.toggle-switch`, déjà
+  // utilisée par Configuration. Ce composant portait la même piste sous le
+  // nom `.toggle`, non exclu : le filet gagnait sur la hauteur de 24px et
+  // rendait un carré de 44×44 avec le curseur logé dans un coin, plutôt
+  // que la gélule attendue.
   &::after {
     content: '';
     position: absolute;
@@ -584,13 +591,16 @@
     transform: translate(-50%, -50%);
   }
 
-  width: 44px;
-  height: 24px;
-  border-radius: var(--rayon-lg);
+  position: relative;
+  width: 40px;
+  height: 22px;
+  // `--rayon-lg` donnait une piste presque carrée au lieu de la gélule
+  // attendue d'un toggle — même repli que `--rayon-rond` déjà choisi par
+  // Configuration pour ce composant (chips, avatars).
+  border-radius: var(--rayon-rond);
   background: var(--filet-pale);
   border: none;
   cursor: pointer;
-  position: relative;
   flex-shrink: 0;
   transition: background 0.2s;
   padding: 0;
@@ -600,19 +610,19 @@
   }
 }
 
-.toggle__thumb {
+.toggle-switch__thumb {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--surface);
   transition: transform 0.2s;
   pointer-events: none;
 
-  .toggle--on & {
-    transform: translateX(20px);
+  .toggle-switch--on & {
+    transform: translateX(18px);
   }
 }
 
