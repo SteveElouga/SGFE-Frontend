@@ -162,8 +162,10 @@
               <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
                 <span class="dash-list__nom">{{ item.nom }}</span>
                 <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
-                <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
-                <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+                <span class="dash-list__soldewrap">
+                  <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
+                  <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+                </span>
               </a>
             </li>
           }
@@ -344,8 +346,10 @@
               <a [routerLink]="['/factures', item.factureId]" class="dash-list__link">
                 <span class="dash-list__nom">{{ item.nom }}</span>
                 <span class="dash-list__meta">@if (item.numeroAbonne) { {{ item.numeroAbonne }} · }{{ item.jours }}j</span>
-                <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
-                <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+                <span class="dash-list__soldewrap">
+                  <span class="dash-list__solde">{{ formatFCFA(item.solde) }} FCFA</span>
+                  <i class="pi pi-chevron-right dash-list__chev" aria-hidden="true"></i>
+                </span>
               </a>
             </li>
           }

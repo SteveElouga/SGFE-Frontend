@@ -522,6 +522,30 @@
     }
   }
 
+  // Sur mobile, `meta` (ligne 1) et `chev` (ligne 2) partagent la même
+  // colonne « auto » — sa largeur suit donc le plus large des deux. Mesuré :
+  // « AB-0016 · 37j » (~95px) impose sa largeur à la colonne, alors que le
+  // chevron seul ferait ~16px. Le solde, aligné à droite dans la colonne
+  // opposée (1fr), s'arrêtait donc bien avant le vrai bord droit de la
+  // carte — décalé vers le centre au lieu d'être sous le chevron.
+  //
+  // `display: contents` sur desktop : solde et chevron redeviennent des
+  // enfants directs de la grille 4 colonnes, comportement inchangé.
+  // En dessous de 640px, le conteneur devient une ligne flex qui s'étend sur
+  // toute la largeur (`grid-column: 1 / -1`) — plus de colonne partagée avec
+  // `meta`, le couple solde + chevron atteint enfin le bord droit réel.
+  &__soldewrap {
+    display: contents;
+
+    @media (max-width: 639px) {
+      display: flex;
+      align-items: center;
+      gap: var(--pas-2);
+      justify-content: flex-end;
+      grid-column: 1 / -1;
+    }
+  }
+
   &__nom {
     font-size: var(--texte-lg);
     font-weight: 600;
