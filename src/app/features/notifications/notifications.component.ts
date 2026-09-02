@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
@@ -38,6 +38,17 @@ export class NotificationsComponent {
 
   readonly filter = signal<NotifFilter>('ALL');
 
+  /**
+   * Rendu progressif au défilement, pas de vraie pagination serveur : le fil
+   * est entièrement dérivé côté client de trois requêtes déjà chargées en une
+   * fois (voir `NotificationsService.charger`), sans curseur ni offset côté
+   * gateway. Rendre les 110+ éléments d'un coup dans le DOM alourdissait le
+   * premier rendu et le défilement pour un gain nul — l'utilisateur ne voit
+   * jamais plus qu'un écran ou deux à la fois.
+   */
+  private static readonly PAGE_SIZE = 20;
+  private readonly visibleCount = signal(NotificationsComponent.PAGE_SIZE);
+
   readonly unreadCount = this.service.unreadCount;
   readonly total = this.service.total;
 
@@ -69,19 +80,50 @@ export class NotificationsComponent {
     }
   });
 
+  /** Tranche réellement rendue dans le DOM — grandit au défilement. */
+  private readonly visibleItems = computed(() => this.filtered().slice(0, this.visibleCount()));
+
+  /** Reste-t-il des éléments filtrés au-delà de ce qui est rendu ? */
+  readonly hasMore = computed(() => this.visibleCount() < this.filtered().length);
+
   readonly groups = computed((): FeedGroup[] => {
     const order: NotifGroup[] = ['TODAY', 'YESTERDAY', 'WEEK', 'OLDER'];
-    const filtered = this.filtered();
+    const visible = this.visibleItems();
     return order
       .map((g) => ({
         key: g,
         labelKey: `NOTIFICATIONS.GROUP.${g}`,
-        items: filtered.filter((n) => this.service.groupOf(n.createdAt) === g),
+        items: visible.filter((n) => this.service.groupOf(n.createdAt) === g),
       }))
       .filter((grp) => grp.items.length > 0);
   });
 
   readonly isEmpty = computed(() => this.filtered().length === 0);
+
+  constructor() {
+    // Un changement de filtre repart du même écran qu'un premier chargement :
+    // sans ce reset, passer de "Tous" à "Non lues" pouvait laisser une
+    // tranche déjà large qui masquait l'intérêt du défilement progressif.
+    effect(() => {
+      this.filter();
+      untracked(() => this.visibleCount.set(NotificationsComponent.PAGE_SIZE));
+    });
+  }
+
+  /**
+   * Déclenché par le défilement de `.notif-feed`. Le seuil (300px) laisse le
+   * temps au lot suivant de s'afficher avant que l'utilisateur n'atteigne
+   * réellement le bas — sans quoi le défilement marque une pause visible le
+   * temps du rendu.
+   */
+  onFeedScroll(event: Event): void {
+    if (!this.hasMore()) return;
+    const el = event.target as HTMLElement;
+    const resteAvantBas = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (resteAvantBas < 300) {
+      this.visibleCount.update((n) => n + NotificationsComponent.PAGE_SIZE);
+    }
+  }
 
   chipCount(chip: FilterChip): number | null {
     if (chip.count === 'total') return this.total();
