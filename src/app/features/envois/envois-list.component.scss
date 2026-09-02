@@ -159,6 +159,80 @@
   color: var(--encre-3);
 }
 
+// ── Pagination (même motif visuel que .dt__footer de <app-data-table>) ───────
+.envois__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-3);
+  margin-top: var(--pas-5);
+  padding-top: var(--pas-4);
+  border-top: 1px solid var(--filet);
+  flex-wrap: wrap;
+}
+
+.envois__page-info {
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}
+
+.envois__pages {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-1);
+}
+
+.envois__page-btn {
+  min-width: 44px;
+  min-height: 44px; // WCAG 2.5.5
+  width: auto;
+  height: 30px;
+  padding: 0 var(--pas-2);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--surface);
+  font-size: var(--texte-sm);
+  font-weight: 500;
+  color: var(--encre-2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background 0.1s,
+    border-color 0.1s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) {
+      background: var(--surface-douce);
+      border-color: var(--action);
+      color: var(--action);
+    }
+  }
+
+  &--active {
+    background: var(--action);
+    border-color: var(--action);
+    color: var(--surface);
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: var(--action);
+        color: var(--surface);
+      }
+    }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  i {
+    font-size: var(--icone-xs);
+  }
+}
+
 // Le compte d'échecs quitte la barre d'outils pour devenir une ligne à part :
 // c'est la seule chose que le support cherche en arrivant, et elle ne doit pas
 // se disputer la place avec un filtre.
