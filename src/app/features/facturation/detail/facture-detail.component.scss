@@ -65,6 +65,28 @@
   margin-bottom: var(--pas-1);
 }
 
+// Abonné et campagne étaient du texte simple : aucun moyen d'atteindre la
+// fiche depuis la facture. Même vocabulaire que `.dt__lien` (couleur
+// d'action, pas de soulignement au repos).
+.detail-card__lien {
+  color: var(--action);
+  font-weight: 600;
+  text-decoration: none;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--action) 40%, transparent);
+    outline-offset: 2px;
+    border-radius: var(--rayon-xs);
+  }
+}
+
 .detail-card__mm {
   display: inline-flex;
   align-items: center;

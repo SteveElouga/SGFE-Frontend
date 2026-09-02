@@ -45,9 +45,12 @@
           <div class="detail-card__numero">{{ f.numeroFacture }}</div>
           <div class="detail-card__meta">
             @if (abonneLabel()) {
-              {{ abonneLabel() }}@if (abonne()?.numeroAbonne) { · {{ abonne()!.numeroAbonne }} }
+              <a class="detail-card__lien" [routerLink]="['/abonnes', f.abonneId]">{{ abonneLabel() }}</a>@if (abonne()?.numeroAbonne) { · {{ abonne()!.numeroAbonne }} }
             }
-            @if (campagneLabel()) { · {{ 'FACTURATION.DETAIL.CAMPAGNE' | translate }} {{ campagneLabel() }} }
+            @if (campagneLabel()) {
+              · {{ 'FACTURATION.DETAIL.CAMPAGNE' | translate }}
+              <a class="detail-card__lien" [routerLink]="['/campagnes', f.campagneId]">{{ campagneLabel() }}</a>
+            }
           </div>
           <div class="detail-card__meta">
             {{ 'FACTURATION.DETAIL.EMISE_LE' | translate }} {{ formatDate(f.dateGeneration) }}
