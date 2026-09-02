@@ -413,7 +413,15 @@ export class FacturesListComponent implements OnInit {
       // courants : la supposition se trompait de plus en plus souvent.
       const nonSoldees = factures.filter((f) => f.statut !== 'PAYEE');
       void this.loadSoldes(nonSoldees);
-      void this.loadDettes(nonSoldees);
+      // Pas `nonSoldees` ici : contrairement au solde (toujours 0 pour une
+      // facture payée, donc inutile à charger), la dette « ailleurs » reste
+      // à vérifier même pour un abonné dont CETTE facture-ci est soldée —
+      // rien n'empêche qu'il en doive une autre, dans une autre campagne,
+      // invisible de cet écran. Se limiter aux non-soldées faisait
+      // disparaître l'alerte dès que la seule ligne visible d'un abonné
+      // passait PAYÉE, silencieusement, alors que sa dette réelle n'avait
+      // pas bougé.
+      void this.loadDettes(factures);
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.error.set(message || this.translate.instant('FACTURATION.ERROR_LOAD'));
