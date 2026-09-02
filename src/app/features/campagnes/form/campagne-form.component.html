@@ -56,6 +56,7 @@
             (ngModelChange)="formDatePlanifiee.set($event)"
             [required]="true"
             dateFormat="dd/mm/yy"
+            appendTo="body"
           />
           <span id="camp-date-hint" class="form-field__hint">{{ 'CAMPAGNES.FORM.DATE_HINT' | translate }}</span>
         </div>

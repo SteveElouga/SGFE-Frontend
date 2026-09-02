@@ -78,7 +78,7 @@
         <div class="edit-field">
           <label class="edit-label" for="newDatePose">{{ 'ABONNES.DETAIL.DATE_POSE_LABEL' | translate }}</label>
           <p-datepicker inputId="newDatePose" name="newDatePose"
-            [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" dateFormat="dd/mm/yy" />
+            [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" dateFormat="dd/mm/yy" appendTo="body" />
         </div>
       </div>
 

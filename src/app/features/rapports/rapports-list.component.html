@@ -84,6 +84,7 @@
             (ngModelChange)="dateDebut.set($event)"
             dateFormat="dd/mm/yy"
             [showClear]="true"
+            appendTo="body"
           />
           <label class="rap-export-bar__label" for="rap-au">{{ 'RAPPORTS.DATE_FIN' | translate }}</label>
           <p-datepicker
@@ -92,6 +93,7 @@
             (ngModelChange)="dateFin.set($event)"
             dateFormat="dd/mm/yy"
             [showClear]="true"
+            appendTo="body"
           />
         </div>
         @if (periodeInvalide()) {
