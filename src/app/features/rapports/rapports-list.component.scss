@@ -274,6 +274,16 @@
     background: var(--surface-douce);
     border-bottom: 1.5px solid var(--filet);
     white-space: nowrap;
+
+    // `.col-num` seul perd contre ce sélecteur une fois compilé : Angular
+    // ajoute un attribut de scoping `[_ngcontent]` à chaque maillon
+    // (`thead`, `tr`, `th`), ce qui lui donne plus de spécificité qu'une
+    // simple classe — l'en-tête restait aligné à gauche pendant que sa
+    // colonne l'était à droite. Il faut regagner la spécificité ici, pas
+    // dans `.col-num`.
+    &.col-num {
+      text-align: right;
+    }
   }
   tbody > tr > td {
     padding: var(--pas-3) var(--pas-4);

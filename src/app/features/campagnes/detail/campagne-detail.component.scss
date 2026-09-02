@@ -1255,6 +1255,14 @@
     background: var(--surface-douce);
     border-bottom: 1.5px solid var(--filet);
     white-space: nowrap;
+
+    // `.col-num` seul perd contre ce sélecteur une fois compilé : Angular
+    // ajoute un attribut de scoping à chaque maillon (`thead`, `tr`, `th`),
+    // ce qui lui donne plus de spécificité qu'une simple classe — l'en-tête
+    // restait à gauche pendant que la colonne l'était à droite.
+    &.col-num {
+      text-align: right;
+    }
   }
 
   tbody > tr > td {
