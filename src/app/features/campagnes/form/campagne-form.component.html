@@ -267,13 +267,14 @@
           </div>
           <button
             type="button"
-            class="toggle"
-            [class.toggle--on]="genererFacturesAuto()"
+            class="toggle-switch"
+            [class.toggle-switch--on]="genererFacturesAuto()"
             (click)="genererFacturesAuto.set(!genererFacturesAuto())"
-            [attr.aria-pressed]="genererFacturesAuto()"
+            role="switch"
+            [attr.aria-checked]="genererFacturesAuto()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_FACTURES' | translate"
           >
-            <span class="toggle__thumb"></span>
+            <span class="toggle-switch__thumb"></span>
           </button>
         </div>
 
@@ -284,14 +285,15 @@
           </div>
           <button
             type="button"
-            class="toggle"
-            [class.toggle--on]="envoyerWhatsappEffectif()"
+            class="toggle-switch"
+            [class.toggle-switch--on]="envoyerWhatsappEffectif()"
             [disabled]="!genererFacturesAuto()"
             (click)="envoyerWhatsappAuto.set(!envoyerWhatsappAuto())"
-            [attr.aria-pressed]="envoyerWhatsappEffectif()"
+            role="switch"
+            [attr.aria-checked]="envoyerWhatsappEffectif()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_WHATSAPP' | translate"
           >
-            <span class="toggle__thumb"></span>
+            <span class="toggle-switch__thumb"></span>
           </button>
         </div>
 
@@ -302,13 +304,14 @@
           </div>
           <button
             type="button"
-            class="toggle"
-            [class.toggle--on]="demarrerMaintenant()"
+            class="toggle-switch"
+            [class.toggle-switch--on]="demarrerMaintenant()"
             (click)="demarrerMaintenant.set(!demarrerMaintenant())"
-            [attr.aria-pressed]="demarrerMaintenant()"
+            role="switch"
+            [attr.aria-checked]="demarrerMaintenant()"
             [attr.aria-label]="'CAMPAGNES.FORM.OPT_DEMARRER' | translate"
           >
-            <span class="toggle__thumb"></span>
+            <span class="toggle-switch__thumb"></span>
           </button>
         </div>
       </div>
