@@ -121,6 +121,7 @@ export interface AbonneCibleCompteur extends AbonneCible {
     quartier: string;
     camp: number;
     datePose: string;
+    position: string;
   } | null;
 }
 

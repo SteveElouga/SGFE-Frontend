@@ -253,6 +253,12 @@
                   <span class="abonne-info-row__label">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
                   <span class="abonne-info-row__value abonne-info-row__value--muted">{{ a.compteur.datePose ? (a.compteur.datePose | date:'dd/MM/yyyy') : '—' }}</span>
                 </div>
+                @if (a.compteur.position) {
+                  <div class="abonne-info-row">
+                    <span class="abonne-info-row__label">{{ 'ABONNES.FORM.POSITION' | translate }}</span>
+                    <span class="abonne-info-row__value">{{ a.compteur.position }}</span>
+                  </div>
+                }
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">{{ 'COMMON.STATUS' | translate }}</span>
                   <span class="abonne-badge abonne-badge--{{ a.compteur.statut.toLowerCase() }}" style="font-size:11px;padding:2px 8px">{{ a.compteur.statut }}</span>

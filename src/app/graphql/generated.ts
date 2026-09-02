@@ -16,6 +16,7 @@ export type CreateAbonneInput = {
   indexInitial: number;
   nom: string;
   numeroCompteur: number;
+  position?: string | null | undefined;
   prenom: string;
   quartier: string;
   telephoneWhatsapp: string;
@@ -47,6 +48,7 @@ export type RemplacerCompteurInput = {
   nouveauNumeroCompteur: number;
   nouveauQuartier: string;
   nouvelIndexInitial: number;
+  nouvellePosition?: string;
 };
 
 export type Role =
@@ -83,6 +85,7 @@ export type UpdateCompteurInput = {
   camp?: number | null | undefined;
   datePose?: string | null | undefined;
   indexInitial?: number | null | undefined;
+  position?: string | null | undefined;
   quartier?: string | null | undefined;
 };
 
@@ -100,7 +103,7 @@ export type ZoneInput = {
 
 export type AbonneListFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null };
 
-export type AbonneDetailFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, statut: StatutCompteur } | null };
+export type AbonneDetailFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null };
 
 export type FactureLigneFieldsFragment = { factureId: string, numeroFacture: string, abonneId: string, abonneNom: string, abonneNumero: string, campagneId: string, campagneNom: string, campagnePeriodeMois: number, campagnePeriodeAnnee: number, statut: string, consommation: number, montant: number, dateReleve: string, dateLimitePaiement: string };
 
@@ -150,7 +153,7 @@ export type UpdateCompteurMutationVariables = Exact<{
 }>;
 
 
-export type UpdateCompteurMutation = { updateCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, statut: StatutCompteur } };
+export type UpdateCompteurMutation = { updateCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } };
 
 export type RemplacerCompteurMutationVariables = Exact<{
   abonneId: string | number;
@@ -158,7 +161,7 @@ export type RemplacerCompteurMutationVariables = Exact<{
 }>;
 
 
-export type RemplacerCompteurMutation = { remplacerCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, statut: StatutCompteur } };
+export type RemplacerCompteurMutation = { remplacerCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } };
 
 export type UserFieldsFragment = { id: string, username: string, email: string, phoneNumber: string, role: Role, isActive: boolean, createdAt: string };
 
@@ -492,7 +495,7 @@ export type AbonneDetailUpdatedSubscriptionVariables = Exact<{
 }>;
 
 
-export type AbonneDetailUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, statut: StatutCompteur } | null } };
+export type AbonneDetailUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null } };
 
 export type GetAbonnesQueryVariables = Exact<{
   statut?: StatutAbonne | null | undefined;
@@ -511,14 +514,14 @@ export type GetHistoriqueCompteurQueryVariables = Exact<{
 }>;
 
 
-export type GetHistoriqueCompteurQuery = { historiqueCompteur: Array<{ id: string, indexFermeture: number, dateRemplacement: string, createdAt: string, ancienCompteur: { numeroCompteur: number, quartier: string, camp: number, indexInitial: number }, nouveauCompteur: { numeroCompteur: number, quartier: string, camp: number, indexInitial: number } }> };
+export type GetHistoriqueCompteurQuery = { historiqueCompteur: Array<{ id: string, indexFermeture: number, dateRemplacement: string, createdAt: string, ancienCompteur: { numeroCompteur: number, quartier: string, camp: number, indexInitial: number, position: string }, nouveauCompteur: { numeroCompteur: number, quartier: string, camp: number, indexInitial: number, position: string } }> };
 
 export type GetAbonneQueryVariables = Exact<{
   id: string | number;
 }>;
 
 
-export type GetAbonneQuery = { abonne: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, statut: StatutCompteur } | null } | null };
+export type GetAbonneQuery = { abonne: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

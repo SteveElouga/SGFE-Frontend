@@ -62,6 +62,7 @@ export const UPDATE_COMPTEUR = gql`
       camp
       indexInitial
       datePose
+      position
       statut
     }
   }
@@ -76,6 +77,7 @@ export const REMPLACER_COMPTEUR = gql`
       camp
       indexInitial
       datePose
+      position
       statut
     }
   }

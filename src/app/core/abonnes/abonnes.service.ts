@@ -41,6 +41,8 @@ export interface RemplacerCompteurInput {
   dateRemplacement: string;
   /** Motif du remplacement (ex. « Compteur défectueux »). Optionnel. */
   motif?: string;
+  /** Emplacement du nouveau compteur dans le camp. Optionnel. */
+  nouvellePosition?: string;
 }
 
 export interface CreateAbonneInput {
@@ -53,6 +55,8 @@ export interface CreateAbonneInput {
   camp: number;
   indexInitial: number;
   datePose: string;
+  /** Emplacement du compteur dans le camp (texte libre). Optionnel. */
+  position?: string;
 }
 
 export interface UpdateAbonneInput {
@@ -67,6 +71,7 @@ export interface UpdateCompteurInput {
   camp?: number;
   indexInitial?: number;
   datePose?: string;
+  position?: string;
 }
 
 @Injectable({ providedIn: 'root' })

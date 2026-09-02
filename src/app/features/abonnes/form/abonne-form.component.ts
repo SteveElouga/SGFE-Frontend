@@ -65,6 +65,7 @@ export class AbonneFormComponent implements OnInit {
   readonly selectedStatut = signal<'ACTIF' | 'SUSPENDU'>('ACTIF');
   readonly quartier = signal('');
   readonly camp = signal('');
+  readonly position = signal('');
   readonly datePose = signal<Date | null>(new Date());
   readonly numeroCompteur = signal('');
   readonly indexInitial = signal('0');
@@ -238,6 +239,7 @@ export class AbonneFormComponent implements OnInit {
       if (a.compteur) {
         this.quartier.set(a.compteur.quartier);
         this.camp.set(String(a.compteur.camp));
+        this.position.set(a.compteur.position);
       }
     } catch (err: unknown) {
       const { code, message } = extractGqlError(err);
@@ -272,6 +274,7 @@ export class AbonneFormComponent implements OnInit {
           camp: Number.parseInt(this.camp(), 10),
           indexInitial: Number.parseFloat(this.indexInitial()) || 0,
           datePose: toIsoDate(this.datePose()),
+          position: this.position().trim() || undefined,
         };
         await this.abonnesService.createAbonne(input);
         this.toast.success(this.translate.instant('ABONNES.FORM.SUCCESS_CREATE_MSG'));
@@ -302,12 +305,16 @@ export class AbonneFormComponent implements OnInit {
         if (original) {
           const newQuartier = this.quartier().trim();
           const newCamp = Number.parseInt(this.camp(), 10);
+          const newPosition = this.position().trim();
           const compteurInput: UpdateCompteurInput = {};
           if (newQuartier && newQuartier !== original.quartier) {
             compteurInput.quartier = newQuartier;
           }
           if (!Number.isNaN(newCamp) && newCamp !== original.camp) {
             compteurInput.camp = newCamp;
+          }
+          if (newPosition !== original.position) {
+            compteurInput.position = newPosition;
           }
           if (Object.keys(compteurInput).length > 0) {
             await this.abonnesService.updateCompteur(id, compteurInput);

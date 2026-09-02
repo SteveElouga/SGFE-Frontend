@@ -224,6 +224,8 @@
       "NUMERO_COMPTEUR": "Meter #",
       "QUARTIER": "Area",
       "CAMP": "Camp",
+      "POSITION": "Location within the camp",
+      "POSITION_HINT": "Optional: a landmark to find the meter (plot number, description...)",
       "INDEX_INITIAL": "Initial index (m³)",
       "DATE_POSE": "Installation date",
       "NOM_HINT": "Letters, spaces and hyphens only",

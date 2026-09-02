@@ -192,6 +192,21 @@
             }
           </div>
 
+          <!-- Position dans le camp (pleine largeur, optionnelle, texte libre) -->
+          <div class="af-field af-field--full">
+            <label class="af-label" for="afPosition">{{ 'ABONNES.FORM.POSITION' | translate }}</label>
+            <input
+              pInputText
+              id="afPosition"
+              type="text"
+              [ngModel]="position()"
+              (ngModelChange)="position.set($event)"
+              name="afPosition"
+              placeholder="ex. 3e maison à gauche, parcelle 12"
+            />
+            <span class="af-field__hint">{{ 'ABONNES.FORM.POSITION_HINT' | translate }}</span>
+          </div>
+
           <!-- Adresse (pleine largeur, optionnelle) -->
           <div class="af-field af-field--full">
             <label class="af-label" for="afAdresse">{{ 'ABONNES.FORM.ADRESSE' | translate }}</label>

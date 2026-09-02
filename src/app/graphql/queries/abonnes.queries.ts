@@ -47,8 +47,8 @@ export const GET_HISTORIQUE_COMPTEUR = gql`
       indexFermeture
       dateRemplacement
       createdAt
-      ancienCompteur { numeroCompteur quartier camp indexInitial }
-      nouveauCompteur { numeroCompteur quartier camp indexInitial }
+      ancienCompteur { numeroCompteur quartier camp indexInitial position }
+      nouveauCompteur { numeroCompteur quartier camp indexInitial position }
     }
   }
 `;

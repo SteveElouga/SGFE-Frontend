@@ -80,6 +80,12 @@
           <p-datepicker inputId="newDatePose" name="newDatePose"
             [ngModel]="newDatePose()" (ngModelChange)="newDatePose.set($event)" dateFormat="dd/mm/yy" appendTo="body" />
         </div>
+        <div class="edit-field">
+          <label class="edit-label" for="newPosition">{{ 'ABONNES.FORM.POSITION' | translate }}</label>
+          <input pInputText id="newPosition" type="text"
+            [ngModel]="newPosition()" (ngModelChange)="newPosition.set($event)" name="newPosition"
+            placeholder="ex. 3e maison à gauche" />
+        </div>
       </div>
 
       <!-- Localisation reprise (lecture seule) -->
