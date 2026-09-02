@@ -11,14 +11,13 @@ import { DecimalPipe, LowerCasePipe } from '@angular/common';
 import { Apollo } from 'apollo-angular';
 import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 import { CampagnesService } from '../../core/campagnes/campagnes.service';
 import { AuthService, extractGqlError } from '../../core/auth/auth.service';
 import { OfflineSaisieService } from '../../core/terrain/offline-saisie.service';
 import { Releve } from '../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
+import { ToastService } from '../../shared/services/toast.service';
 import { FilterChipsComponent, FilterChip } from '../../shared/components/filter-chips/filter-chips.component';
 import { M07SheetComponent, M07Result } from './m07-sheet/m07-sheet.component';
 import { GET_CAMPAGNES } from '../../graphql/queries/campagnes.queries';
@@ -83,9 +82,8 @@ interface SuccessInfo {
 }
 
 @Component({
-  imports: [FormsModule, DecimalPipe, LowerCasePipe, ToastModule, TranslatePipe, ErrorBannerComponent,
+  imports: [FormsModule, DecimalPipe, LowerCasePipe, TranslatePipe, ErrorBannerComponent,
     PageTopbarComponent, FilterChipsComponent, M07SheetComponent],
-  providers: [MessageService],
   templateUrl: './terrain.component.html',
   styleUrl: './terrain.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -94,7 +92,7 @@ export class TerrainComponent implements OnInit {
   private readonly campagnesService = inject(CampagnesService);
   private readonly apollo = inject(Apollo);
   private readonly auth = inject(AuthService);
-  private readonly messageService = inject(MessageService);
+  private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   readonly offline = inject(OfflineSaisieService);
 
@@ -440,13 +438,12 @@ export class TerrainComponent implements OnInit {
   }
 
   private toastSaved(nom: string): void {
-    this.messageService.add({
-      severity: 'success',
-      summary: this.translate.instant(
+    this.toast.success(
+      this.translate.instant(
         this.offline.online() ? 'TERRAIN.TOAST_SAVED' : 'TERRAIN.TOAST_SAVED_OFFLINE',
       ),
-      detail: nom,
-    });
+      nom,
+    );
   }
 
   formatTime(ts: number): string {
