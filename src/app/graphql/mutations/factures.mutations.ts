@@ -80,6 +80,20 @@ export const RENVOYER_ENVOI = gql`
   }
 `;
 
+// Envoi direct depuis l'écran du versement — marche même pour un versement
+// dont le reçu, envoyé avant que le journal ne garde ce lien, ne peut pas
+// être renvoyé depuis le journal WhatsApp (RENVOYER_ENVOI).
+export const ENVOYER_RECU_PAIEMENT = gql`
+  mutation EnvoyerRecuPaiement($paiementId: String!, $factureId: String!, $abonneId: String!) {
+    envoyerRecuPaiement(paiementId: $paiementId, factureId: $factureId, abonneId: $abonneId) {
+      envoiId
+      statut
+      dateEnvoi
+      erreur
+    }
+  }
+`;
+
 export const UPDATE_STATUT_FACTURE = gql`
   mutation UpdateStatutFacture($factureId: String!, $statut: String!) {
     updateStatutFacture(factureId: $factureId, statut: $statut) {

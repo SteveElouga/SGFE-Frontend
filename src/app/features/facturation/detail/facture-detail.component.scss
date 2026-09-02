@@ -391,6 +391,18 @@
     gap: var(--pas-2);
     font-size: var(--texte-sm);
   }
+
+  &__recu {
+    @include action-ligne;
+    @include action-ligne-succes;
+    gap: var(--pas-2);
+    font-size: var(--texte-sm);
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
 }
 
 .paiement-badge {

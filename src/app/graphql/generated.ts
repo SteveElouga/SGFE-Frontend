@@ -372,6 +372,15 @@ export type RenvoyerEnvoiMutationVariables = Exact<{
 
 export type RenvoyerEnvoiMutation = { renvoyerEnvoi: { envoiId: string, statut: string, dateEnvoi: string, erreur: string } };
 
+export type EnvoyerRecuPaiementMutationVariables = Exact<{
+  paiementId: string;
+  factureId: string;
+  abonneId: string;
+}>;
+
+
+export type EnvoyerRecuPaiementMutation = { envoyerRecuPaiement: { envoiId: string, statut: string, dateEnvoi: string, erreur: string } };
+
 export type UpdateStatutFactureMutationVariables = Exact<{
   factureId: string;
   statut: string;

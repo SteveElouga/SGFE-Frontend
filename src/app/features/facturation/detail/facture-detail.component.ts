@@ -326,6 +326,30 @@ export class FactureDetailComponent implements OnInit {
     this.annulPaiementOuverte.set(true);
   }
 
+  /**
+   * Envoie le reçu de ce versement directement depuis sa ligne — marche
+   * toujours, y compris pour un reçu émis avant que le journal WhatsApp ne
+   * garde le lien vers son versement (auquel cas son propre bouton « Renvoyer »
+   * refuse et renvoie ici).
+   */
+  readonly envoiRecuEnCours = signal<string | null>(null);
+
+  async envoyerRecuPourPaiement(p: PaiementFacture): Promise<void> {
+    const f = this.facture();
+    if (!f || this.envoiRecuEnCours()) return;
+    this.envoiRecuEnCours.set(p.paiementId);
+    try {
+      await this.facturesService.envoyerRecuPaiement(p.paiementId, f.factureId, f.abonneId);
+      this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
+      await this.reload();
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.envoiRecuEnCours.set(null);
+    }
+  }
+
   fermerAnnulationPaiement(): void {
     this.annulPaiementOuverte.set(false);
     this.paiementAAnnuler.set(null);

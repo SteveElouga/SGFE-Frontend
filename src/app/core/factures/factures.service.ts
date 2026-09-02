@@ -21,6 +21,7 @@ import {
 import {
   ENREGISTRER_PAIEMENT,
   ENVOYER_FACTURE_WHATSAPP,
+  ENVOYER_RECU_PAIEMENT,
   ENVOYER_TOUTES_FACTURES_WHATSAPP,
   GENERER_FACTURES,
   RENVOYER_ENVOI,
@@ -35,7 +36,7 @@ import {
   CREDITER_AVOIR,
 } from '../../graphql/mutations/factures.mutations';
 import { Avoir, EnregistrerPaiementInput, StatutFacture, Tarif } from '../../shared/models/facture.model';
-import type { AnnulerFactureMutation, AnnulerPaiementMutation, CrediterAvoirMutation, CreerRegularisationMutation, EnregistrerPaiementAbonneMutation, EnregistrerPaiementMutation, EnvoyerFactureWhatsappMutation, GenererFacturesMutation, GetAllEnvoisQuery, GetAllPaiementsQuery, GetAvoirAbonneQuery, GetDetteAbonneQuery, GetEnvoisQuery, GetFactureQuery, GetFacturesParCampagneQuery, GetFacturesQuery, GetImpayesQuery, GetPaiementsQuery, GetSoldeFactureQuery, GetSuiviImpayeQuery, GetTarifActuelQuery, RegenererFactureMutation, RenvoyerEnvoiMutation, RenvoyerFactureWhatsappMutation, UpdateStatutFactureMutation, UpdateTarifMutation } from '../../graphql/generated';
+import type { AnnulerFactureMutation, AnnulerPaiementMutation, CrediterAvoirMutation, CreerRegularisationMutation, EnregistrerPaiementAbonneMutation, EnregistrerPaiementMutation, EnvoyerFactureWhatsappMutation, EnvoyerRecuPaiementMutation, GenererFacturesMutation, GetAllEnvoisQuery, GetAllPaiementsQuery, GetAvoirAbonneQuery, GetDetteAbonneQuery, GetEnvoisQuery, GetFactureQuery, GetFacturesParCampagneQuery, GetFacturesQuery, GetImpayesQuery, GetPaiementsQuery, GetSoldeFactureQuery, GetSuiviImpayeQuery, GetTarifActuelQuery, RegenererFactureMutation, RenvoyerEnvoiMutation, RenvoyerFactureWhatsappMutation, UpdateStatutFactureMutation, UpdateTarifMutation } from '../../graphql/generated';
 
 /**
  * Accès GraphQL au domaine facturation & encaissement : factures (par campagne,
@@ -265,6 +266,26 @@ export class FacturesService {
     );
     this.invalidateFacturesCache();
     return result.data!.renvoyerEnvoi;
+  }
+
+  /**
+   * Envoie le reçu d'un versement directement depuis l'écran du versement.
+   * Marche toujours, y compris pour un versement dont le reçu — envoyé avant
+   * que le journal ne garde le lien vers son versement — ne peut pas être
+   * renvoyé depuis le journal WhatsApp (`renvoyerEnvoi`).
+   */
+  async envoyerRecuPaiement(
+    paiementId: string,
+    factureId: string,
+    abonneId: string,
+  ): Promise<EnvoyerRecuPaiementMutation['envoyerRecuPaiement']> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<EnvoyerRecuPaiementMutation>({ mutation: ENVOYER_RECU_PAIEMENT,
+        variables: { paiementId, factureId, abonneId },
+      }),
+    );
+    this.invalidateFacturesCache();
+    return result.data!.envoyerRecuPaiement;
   }
 
   async enregistrerPaiement(input: EnregistrerPaiementInput): Promise<EnregistrerPaiementMutation['enregistrerPaiement']> {
