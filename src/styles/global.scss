@@ -216,6 +216,38 @@ a:focus-visible,
   overflow-y: auto;
 }
 
+// Sous 1024px, `app-bottom-tabs` (barre d'onglets) se fixe en bas de l'écran
+// par-dessus tout le reste (`position: fixed`, voir bottom-tabs.component.scss).
+// Sans dégagement, elle recouvre en permanence la fin de toute liste longue :
+// mesuré, la dernière carte d'« Impayés les plus anciens » du tableau de bord
+// restait à moitié cachée même une fois `.page-scroll` défilé jusqu'à son
+// `scrollTop` maximal — le défilement fonctionnait, la marge manquait.
+//
+// 70px couvre la hauteur réelle de la barre (mesurée ~68,5px : son padding
+// vertical, son icône 30px, son libellé) avec une petite marge ; `+
+// env(safe-area-inset-bottom, 0px)` reprend le même terme que le propre
+// padding de la barre, pour rester dégagé sur un appareil à indicateur
+// d'accueil (l'inset agrandit la barre d'autant, ce chiffre doit suivre).
+//
+// `.shell__content .page-scroll.page-scroll` (ancêtre + classe doublée), pas
+// `.page-scroll` seul : chacun des vingt gabarits qui posent cette classe lui
+// associe la sienne propre (`.dash-content.page-scroll`,
+// `.detail-page.page-scroll`…) et lui fixe SON padding-bottom — l'encapsulation
+// de vue d'Angular réécrit ce sélecteur de composant en lui ajoutant un
+// attribut `[_ngcontent-*]` (mesuré : `.dash-content[_ngcontent-ng-c…]`),
+// ce qui le porte à DEUX sélecteurs de spécificité. `.page-scroll.page-scroll`
+// seul n'égalait donc cette règle qu'à égalité — et elle l'emportait quand
+// même, chargée après ce fichier. `.shell__content` (le conteneur du
+// routeur, ancêtre réel de toute page) ajoute un troisième niveau, qui gagne
+// sans dépendre de l'ordre de chargement. Même remède qu'ailleurs dans ce
+// fichier pour `[hidden]` : monter la spécificité plutôt que recourir à
+// `!important`.
+@media (max-width: 1023px) {
+  .shell__content .page-scroll.page-scroll {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 // ── Desktop : une barre de défilement dessinée, pas celle du système ──────────
 //
 // Jusqu'ici le dépôt n'avait qu'un seul traitement des barres : les masquer.
