@@ -44,11 +44,11 @@
       <ng-template appCol="username" let-user>
         <div class="users-table__user" [class.users-table__user--off]="!user.isActive">
           <span class="users-table__avatar">{{ initial(user) }}</span>
-          <span class="users-table__username">{{ user.username }}</span>
+          <span class="users-table__username" [title]="user.username">{{ user.username }}</span>
         </div>
       </ng-template>
 
-      <ng-template appCol="email" let-user><span class="users-table__email">{{ user.email || '—' }}</span></ng-template>
+      <ng-template appCol="email" let-user><span class="users-table__email" [title]="user.email || null">{{ user.email || '—' }}</span></ng-template>
 
       <ng-template appCol="role" let-user>
         <span class="role-pill role-pill--{{ user.role.toLowerCase() }}" [class.role-pill--off]="!user.isActive">
@@ -108,13 +108,13 @@
           <span class="users-table__avatar">{{ initial(user) }}</span>
           <div class="ucard__body">
             <div class="ucard__head">
-              <span class="users-table__username ucard__name">{{ user.username }}</span>
+              <span class="users-table__username ucard__name" [title]="user.username">{{ user.username }}</span>
               <span class="role-pill role-pill--{{ user.role.toLowerCase() }}" [class.role-pill--off]="!user.isActive">
                 {{ 'UTILISATEURS.ROLES.' + user.role | translate }}
               </span>
             </div>
             @if (user.email) {
-              <span class="ucard__email">{{ user.email }}</span>
+              <span class="ucard__email" [title]="user.email">{{ user.email }}</span>
             }
             <span class="statut-dot" [class.statut-dot--off]="!user.isActive">
               <span class="statut-dot__mark"></span>

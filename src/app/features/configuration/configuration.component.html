@@ -223,6 +223,7 @@
                       class="step-delay__input"
                       [attr.aria-label]="step.labelKey | translate"
                       [disabled]="!hasParam(step.logical)"
+                      [appTooltip]="hasParam(step.logical) ? '' : ('CONFIGURATION.PARAM_INDISPONIBLE' | translate)"
                       [ngModel]="getParam(step.logical)"
                       (ngModelChange)="setParam(step.logical, $event)"
                     />
@@ -245,6 +246,7 @@
                 role="switch"
                 [attr.aria-checked]="isBoolOn('suspensionAuto')"
                 [attr.aria-label]="'CONFIGURATION.RELANCE.SUSPENSION_AUTO' | translate"
+                [appTooltip]="hasParam('suspensionAuto') ? '' : ('CONFIGURATION.PARAM_INDISPONIBLE' | translate)"
               >
                 <span class="toggle-switch__thumb"></span>
               </button>
@@ -259,6 +261,7 @@
                   class="days-box__input"
                   [attr.aria-label]="'CONFIGURATION.RELANCE.PAUSE_VERSEMENT' | translate"
                   [disabled]="!hasParam('pauseVersement')"
+                  [appTooltip]="hasParam('pauseVersement') ? '' : ('CONFIGURATION.PARAM_INDISPONIBLE' | translate)"
                   [ngModel]="getParam('pauseVersement')"
                   (ngModelChange)="setParam('pauseVersement', $event)"
                 />
@@ -283,6 +286,7 @@
                 role="switch"
                 [attr.aria-checked]="isBoolOn('notifAdminActives')"
                 [attr.aria-label]="'CONFIGURATION.NOTIF_ADMIN.ACTIVE' | translate"
+                [appTooltip]="hasParam('notifAdminActives') ? '' : ('CONFIGURATION.PARAM_INDISPONIBLE' | translate)"
               >
                 <span class="toggle-switch__thumb"></span>
               </button>

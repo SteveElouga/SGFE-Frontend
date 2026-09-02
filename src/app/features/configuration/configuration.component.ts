@@ -26,6 +26,7 @@ import { ErrorBannerComponent } from '../../shared/components/error-banner/error
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { BottomSheetComponent } from '../../shared/components/bottom-sheet/bottom-sheet.component';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { WhatsappLinkComponent } from './whatsapp-link/whatsapp-link.component';
 import { ToastService } from '../../shared/services/toast.service';
 import { extractGqlError } from '../../core/auth/auth.service';
@@ -78,6 +79,7 @@ const normKey = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '')
     WhatsappLinkComponent,
     ConfirmDialogModule,
     BottomSheetComponent,
+    TooltipDirective,
     TranslatePipe,
     DatePickerModule,
   ],
