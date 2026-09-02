@@ -686,15 +686,26 @@
   }
 }
 
-// Chips de statut des relevés : mobile uniquement (pattern M-05),
-// les dropdowns restent le filtre desktop.
+// Chips de statut des relevés : mobile uniquement (pattern M-05). Le select
+// Statut desktop devient donc redondant sous 1024px et se masque — mais le
+// select Quartier, lui, n'a pas d'équivalent chips : le masquer purement et
+// simplement rendait le filtre par quartier inaccessible en mobile dès qu'une
+// campagne portait plusieurs quartiers (aucune alternative n'existait dans le
+// DOM). Il reste donc visible, seul, à côté des chips de statut.
 .releves-chips {
   display: none;
 }
 
 @media (max-width: 1023px) {
-  .releves-section__filters {
+  .releves-filter--statut {
     display: none;
+  }
+  // Pleine largeur, comme les chips en dessous : un select posé à sa largeur
+  // de contenu à côté du titre se serrait sur une ligne trop étroite pour le
+  // pouce (la même raison que `.fp__sheet-selects` dans le panneau partagé).
+  .releves-filter--quartier {
+    flex: 1 1 100%;
+    min-width: 0;
   }
   .releves-chips {
     display: block;
