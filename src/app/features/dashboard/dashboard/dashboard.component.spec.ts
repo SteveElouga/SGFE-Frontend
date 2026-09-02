@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../../core/auth/auth.service';
 import { DashboardService, StatsMois } from '../../../core/dashboard/dashboard.service';
 import { DashboardComponent } from './dashboard.component';
+import type { GetAllEnvoisQuery } from '../../../graphql/generated';
 import type { FactureLigne, SoldeImpaye } from '../../../graphql/vues';
 
 type Role = 'ADMIN' | 'COMPTABLE' | 'SUPERVISEUR';
@@ -43,6 +44,20 @@ function facture(partial: Partial<FactureLigne>): FactureLigne {
     statut: 'IMPAYEE',
     dateReleve: '2026-07-01',
     dateLimitePaiement: '2026-07-31',
+    ...partial,
+  };
+}
+
+function envoi(partial: Partial<GetAllEnvoisQuery['envois'][number]>): GetAllEnvoisQuery['envois'][number] {
+  return {
+    envoiId: 'e1',
+    abonneId: 'a1',
+    factureId: 'f1',
+    typeEnvoi: 'FACTURE',
+    statut: 'ENVOYE',
+    dateEnvoi: '2026-07-01',
+    erreur: '',
+    raisonEchec: '',
     ...partial,
   };
 }
@@ -173,5 +188,21 @@ describe('DashboardComponent', () => {
     ]);
 
     expect(component.kpiImpayes()).toEqual({ count: 2, total: 8_000 });
+  });
+
+  it('keeps the ribbon "envois" step null while its source is degraded', () => {
+    const { component } = setup('ADMIN');
+    expect(component.ribbonCycle().envois).toBeNull();
+  });
+
+  it('counts the ribbon "envois" step once its source is loaded', () => {
+    const { component } = setup('ADMIN');
+    component.envois.set([
+      envoi({ envoiId: 'e1' }),
+      envoi({ envoiId: 'e2' }),
+      envoi({ envoiId: 'e3', statut: 'ECHEC' }),
+    ]);
+
+    expect(component.ribbonCycle().envois).toEqual({ count: 3, label: 'ENVOIS_TOTAL' });
   });
 });
