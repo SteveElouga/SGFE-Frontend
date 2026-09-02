@@ -351,8 +351,11 @@ textarea,
 // Filet de sécurité : un <button> est une cible tactile. Les traquer un par un
 // dans 68 feuilles laissait toujours passer les sélecteurs imbriqués ; la règle
 // vaut donc par défaut, et se lève explicitement là où le bouton n'est pas une
-// cible autonome (une puce dans une phrase, un chevron de tri).
-button:not(.dt__sort-btn):not(.correction-annuler):not(.nb__mark) {
+// cible autonome (une puce dans une phrase, un chevron de tri), ou porte déjà
+// sa propre cible tactile sans grandir sa piste visible (.toggle-switch : la
+// zone de 44×44 vit dans son ::after, la piste doit rester à 22px de haut —
+// sans l'exclusion elle rendait à 40×44, presque carrée).
+button:not(.dt__sort-btn):not(.correction-annuler):not(.nb__mark):not(.toggle-switch) {
   min-height: 44px;
 }
 
