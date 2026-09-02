@@ -559,6 +559,7 @@
     "LOGO_PATH_PLACEHOLDER": "File path on the server",
     "SAVE": "Save",
     "SAVING": "Saving…",
+    "PARAM_INDISPONIBLE": "Setting unavailable: not loaded from Configuration",
     "EDIT": "Edit",
     "UPDATED_AT": "Last updated:",
     "SUCCESS_SOCIETE": "Company information updated",
