@@ -578,7 +578,7 @@ après avoir cherché le gaspillage plutôt que de déplacer le seuil.
 | Budget | Alerte | Erreur | Mesuré ce jour-là |
 |---|---|---|---|
 | `initial` | 680 kB | 800 kB | **652,68 kB** (165,14 kB transférés) |
-| `anyComponentStyle` | 21 kB | 26 kB | **20,10 kB** (`campagne-detail`) |
+| `anyComponentStyle` | 22 kB | 26 kB | **21,11 kB** (`campagne-detail`, 1er septembre 2026) |
 
 **Pourquoi 680 et non 500.** Le bundle initial est à 96 % du framework :
 Angular 282 kB (core, router, common), Apollo + GraphQL 152 kB, runtime PrimeNG
@@ -602,6 +602,19 @@ compilé : 19,48 → 20,10 kB. Le gaspillage a été cherché avant de toucher a
 seuil, comme la règle ci-dessous l'exige : 938 lignes, une seule répétition de
 quatre déclarations, aucune duplication à retirer. Le dépassement est le prix
 exact de la migration, pas une dérive.
+
+**Pourquoi 22 et non 21, le 1er septembre 2026.** `.zone-table` (répartition par
+zone, 5 colonnes + piste de progression 220px) n'avait pas de repli mobile :
+sous 1024px elle restait un tableau en `overflow-x: auto`, scrollbar masquée —
+l'anti-pattern exact qu'interdit la Règle du 320 (DESIGN.md), alors que
+`.releves-table` juste au-dessus bascule déjà en cartes empilées depuis
+longtemps. Ajout de `.zone-mobile`/`.zm-card`, même idiome que `.rm-card`. Le
+gaspillage a été cherché avant de toucher au seuil : fusion de `.zone-mobile`
+avec les propriétés déjà déclarées sur `.zone-table-wrap`, fusion de
+`&__head`/`&__foot`, et le sélecteur `.muted` (dupliqué avec
+`.agent-card__prog-num .muted`) remonté en règle unique — 21,34 → 21,11 kB.
+Le reste est le prix exact d'un vrai repli mobile, pas une dérive : 20,10 →
+21,11 kB.
 
 Un budget sert de fil de détente contre les régressions, pas de vœu pieux : ces
 seuils laissent ~4 % de marge sur le mesuré, donc toute dérive réelle les fait

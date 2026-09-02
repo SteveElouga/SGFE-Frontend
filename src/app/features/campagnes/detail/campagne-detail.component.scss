@@ -1018,7 +1018,9 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--succes), var(--succes-encre));
+    // Même dégradé identité que sidebar/user-menu/abonnes-list/utilisateurs-list
+    // (voir zone-agent__avatar plus bas) — celui-ci divergeait en vert plein.
+    background: linear-gradient(135deg, var(--action), var(--succes));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1067,10 +1069,6 @@
     font-size: var(--texte-sm);
     font-weight: 700;
     color: var(--encre);
-    .muted {
-      color: var(--encre-3);
-      font-weight: 500;
-    }
   }
 
   &__foot {
@@ -1211,10 +1209,14 @@
   }
 }
 
-.zone-table-wrap {
+.zone-table-wrap,
+.zone-mobile {
   background: var(--surface);
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
+}
+
+.zone-table-wrap {
   overflow-x: auto;
   @include hide-scrollbar;
 }
@@ -1260,6 +1262,64 @@
   }
 }
 
+// Bascule mobile (MB-02) : 5 colonnes + piste de progression 220px ne rentrent
+// pas sous 1024px. `.releves-table` juste au-dessus bascule déjà en cartes ;
+// celle-ci restait en scroll horizontal, scrollbar masquée en prime — l'exact
+// anti-pattern qu'interdit la Règle du 320 (DESIGN.md : jamais de scroll
+// horizontal exposé au doigt). Cartes empilées, même idiome que `.rm-card`.
+@media (max-width: 1023px) {
+  .zone-table-wrap {
+    display: none;
+  }
+}
+
+.zone-mobile {
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 1023px) {
+    display: flex;
+  }
+}
+
+.zm-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  border-bottom: 1px solid var(--fond);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__head,
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pas-2);
+  }
+
+  &__count {
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-2);
+    white-space: nowrap;
+  }
+
+  &__prog {
+    flex: 1;
+  }
+}
+
+// Suffixe atténué (« / total ») — partagé par la carte agent et la carte zone.
+.muted {
+  color: var(--encre-3);
+  font-weight: 500;
+}
+
 .zone-name {
   font-weight: 600;
   white-space: nowrap;
@@ -1274,7 +1334,7 @@
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--succes), var(--action));
+    background: linear-gradient(135deg, var(--action), var(--succes));
     color: var(--surface);
     font-size: var(--texte-xs);
     font-weight: 700;

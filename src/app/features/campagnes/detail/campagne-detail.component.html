@@ -281,6 +281,45 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Répartition par zone en cartes (mobile · MB-02) -->
+        <div class="zone-mobile">
+          @for (z of repartitionZones(); track z.key) {
+            <div class="zm-card">
+              <div class="zm-card__head">
+                <span class="zone-name">{{ z.quartier }}@if (z.camp !== null) { · {{ z.camp }} }</span>
+                @if (z.agentUsername) {
+                  <span class="zone-agent">
+                    <span class="zone-agent__avatar">{{ z.agentInitials }}</span>
+                    <span class="zone-agent__name">{{ z.agentUsername }}</span>
+                  </span>
+                } @else {
+                  <span class="zone-agent__none">—</span>
+                }
+              </div>
+              <div class="zm-card__foot">
+                <span class="zm-card__count">
+                  {{ z.releves }}<span class="muted"> / {{ z.abonnes }}</span> {{ 'CAMPAGNES.COL_RELEVES' | translate | lowercase }}
+                </span>
+                <div class="zone-prog zm-card__prog">
+                  <div class="zone-prog__track">
+                    <div
+                      class="zone-prog__fill"
+                      [class.zone-prog__fill--full]="z.pct === 100"
+                      [class.zone-prog__fill--low]="z.pct < 80"
+                      [style.--pct]="z.pct / 100"
+                    ></div>
+                  </div>
+                  <span
+                    class="zone-prog__pct"
+                    [class.zone-prog__pct--full]="z.pct === 100"
+                    [class.zone-prog__pct--low]="z.pct < 80"
+                  >{{ z.pct }}%</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
       </section>
     }
 
