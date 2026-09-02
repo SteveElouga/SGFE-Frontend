@@ -296,6 +296,16 @@
                   @if (peutAnnulerPaiement()) {
                     <button
                       type="button"
+                      class="paiement-row__recu"
+                      [disabled]="envoiRecuEnCours() === p.paiementId"
+                      (click)="envoyerRecuPourPaiement(p)"
+                      [attr.aria-label]="'FACTURATION.ENVOYER_RECU.ARIA' | translate: { montant: (p.montant | fcfa) }"
+                    >
+                      <i aria-hidden="true" class="pi" [class.pi-spin]="envoiRecuEnCours() === p.paiementId" [class.pi-spinner]="envoiRecuEnCours() === p.paiementId" [class.pi-send]="envoiRecuEnCours() !== p.paiementId"></i>
+                      <span>{{ 'FACTURATION.ENVOYER_RECU.ACTION' | translate }}</span>
+                    </button>
+                    <button
+                      type="button"
                       class="paiement-row__annuler"
                       (click)="ouvrirAnnulationPaiement(p)"
                       [attr.aria-label]="'FACTURATION.ANNUL_PAIEMENT.ARIA' | translate: { montant: (p.montant | fcfa) }"

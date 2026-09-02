@@ -1035,6 +1035,10 @@
       "ANNULE": "Cancelled",
       "ACTION": "Cancel",
       "ARIA": "Cancel the payment of {{montant}}"
+    },
+    "ENVOYER_RECU": {
+      "ACTION": "Send receipt",
+      "ARIA": "Send the receipt for the payment of {{montant}}"
     }
   },
   "PAIEMENTS": {

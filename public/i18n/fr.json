@@ -1035,6 +1035,10 @@
       "ANNULE": "Annulé",
       "ACTION": "Annuler",
       "ARIA": "Annuler le paiement de {{montant}}"
+    },
+    "ENVOYER_RECU": {
+      "ACTION": "Envoyer le reçu",
+      "ARIA": "Envoyer le reçu du paiement de {{montant}}"
     }
   },
   "PAIEMENTS": {
