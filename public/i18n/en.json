@@ -860,8 +860,9 @@
     "CHIP_PLANIFIEES": "Planned",
     "CHIP_EN_COURS": "In progress",
     "CHIP_CLOTUREES": "Closed",
-    "ZONE_CAMP_LEGENDE": "District · camp",
-    "CAMP": "camp"
+    "CAMP": "camp",
+    "ZONES_REDUIRE": "Collapse",
+    "ZONES_VOIR_PLUS": "Show {{n}} more zone(s)"
   },
   "FACTURATION": {
     "TITLE": "Invoices",

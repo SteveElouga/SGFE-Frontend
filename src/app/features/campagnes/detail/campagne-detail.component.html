@@ -98,6 +98,10 @@
               [class.progress-bar__fill--complete]="pourcentageAffiche() === 100"
             ></div>
           </div>
+          <!-- Même bloc à toutes les tailles (fond teinté, 4 → 2 colonnes sous
+               1024px) : il portait deux traitements visuels différents pour
+               les quatre mêmes nombres (fond teinté ici, liseré coloré en
+               dessous de 1024px), au prix d'un doublon de gabarit. -->
           <div class="stat-boxes">
             <div class="stat-box stat-box--releve">
               <span class="stat-box__value">{{ relevesByStatut().releve }}</span>
@@ -116,26 +120,6 @@
               <span class="stat-box__label">{{ 'CAMPAGNES.KPI_RESTANTS' | translate }}</span>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Grille 2×2 mobile (MB-02) : cartes séparées à liseré coloré -->
-      <div class="mstats">
-        <div class="mstat mstat--releve">
-          <span class="mstat__value">{{ relevesByStatut().releve }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_RELEVES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--estime">
-          <span class="mstat__value">{{ relevesByStatut().estime }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_ESTIMES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--non-releve">
-          <span class="mstat__value">{{ relevesByStatut().nonReleve }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_NON_RELEVES' | translate }}</span>
-        </div>
-        <div class="mstat mstat--a-relever">
-          <span class="mstat__value">{{ relevesByStatut().aRelever }}</span>
-          <span class="mstat__label">{{ 'CAMPAGNES.KPI_RESTANTS' | translate }}</span>
         </div>
       </div>
     }
@@ -168,22 +152,34 @@
                   }
                 </div>
 
-                <!-- Quatorze pastilles empilées, dont « Bastos · 1 » et
-                     « Bastos · 5 » : rien ne disait que le second nombre est le
-                     camp. Le tableau « Répartition par zone », plus bas, porte
-                     l'en-tête « ZONE · CAMP » et l'explique — mais il faut y
-                     descendre. La légende monte ici, une fois, au-dessus de la
-                     grappe, et chaque pastille le dit aussi à qui l'écoute. -->
+                <!-- Une pastille par quartier, ses camps listés ensemble
+                     (« Bastos · 1, 5 ») plutôt qu'une pastille par camp — un
+                     agent sur 14 zones affichait 14 pastilles quasi
+                     identiques. Au-delà de zonesVisibles, un repli évite
+                     qu'une seule carte n'avale tout l'écran mobile. -->
                 <div class="agent-card__zones">
-                  @if (a.zones.length > 0) {
-                    <span class="agent-card__zones-legende">{{ 'CAMPAGNES.ZONE_CAMP_LEGENDE' | translate }}</span>
-                  }
-                  @for (z of a.zones; track z.nom) {
-                    <span
-                      class="agent-zone-tag"
-                      [attr.aria-label]="('CAMPAGNES.COL_ZONE' | translate) + ' ' + z.nom + ', ' + ('CAMPAGNES.CAMP' | translate) + ' ' + z.camp"
-                    >{{ z.nom }} · {{ z.camp }}</span>
-                  } @empty {
+                  @if (a.zonesGroupees.length > 0) {
+                    @let visibles = agentZonesEstEtendu(a.id) ? a.zonesGroupees : a.zonesGroupees.slice(0, zonesVisibles);
+                    @for (g of visibles; track g.nom) {
+                      <span
+                        class="agent-zone-tag"
+                        [attr.aria-label]="('CAMPAGNES.COL_ZONE' | translate) + ' ' + g.nom + ', ' + ('CAMPAGNES.CAMP' | translate) + ' ' + g.camps.join(', ')"
+                      >{{ g.nom }}<span class="agent-zone-tag__camps"> · {{ g.camps.join(', ') }}</span></span>
+                    }
+                    @if (a.zonesGroupees.length > zonesVisibles) {
+                      <button
+                        type="button"
+                        class="agent-zone-more"
+                        (click)="basculerAgentZones(a.id)"
+                        [attr.aria-expanded]="agentZonesEstEtendu(a.id)"
+                        [attr.aria-label]="agentZonesEstEtendu(a.id)
+                          ? ('CAMPAGNES.ZONES_REDUIRE' | translate)
+                          : ('CAMPAGNES.ZONES_VOIR_PLUS' | translate:{ n: a.zonesGroupees.length - zonesVisibles })"
+                      >
+                        {{ agentZonesEstEtendu(a.id) ? ('CAMPAGNES.ZONES_REDUIRE' | translate) : '+' + (a.zonesGroupees.length - zonesVisibles) }}
+                      </button>
+                    }
+                  } @else {
                     <span class="agent-zone-tag agent-zone-tag--empty">
                       {{ 'CAMPAGNES.ZONES_SHEET.NONE' | translate }}
                     </span>

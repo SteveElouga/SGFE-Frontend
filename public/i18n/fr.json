@@ -860,8 +860,9 @@
     "CHIP_PLANIFIEES": "Planifiées",
     "CHIP_EN_COURS": "En cours",
     "CHIP_CLOTUREES": "Clôturées",
-    "ZONE_CAMP_LEGENDE": "Quartier · camp",
-    "CAMP": "camp"
+    "CAMP": "camp",
+    "ZONES_REDUIRE": "Réduire",
+    "ZONES_VOIR_PLUS": "Afficher {{n}} zone(s) de plus"
   },
   "FACTURATION": {
     "TITLE": "Factures",

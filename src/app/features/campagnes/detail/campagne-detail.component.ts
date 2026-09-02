@@ -253,12 +253,13 @@ export class CampagneDetailComponent implements OnInit {
         .filter((z) => z.agentId === a.agentId)
         .reduce((s, z) => s + (z.nbAbonnes ?? 0), 0);
       const done = a.nbReleves ?? 0;
+      const zones = (a.zones ?? []).map((z) => ({ nom: z.quartier, camp: z.camp }));
       return {
         id: a.agentId,
         username: a.username,
         initials: this.agentInitials(a.username),
         statut: a.statut,
-        zones: (a.zones ?? []).map((z) => ({ nom: z.quartier, camp: z.camp })),
+        zonesGroupees: this.grouperZonesParQuartier(zones),
         nbReleves: done,
         nbAbonnes: total,
         pct: total ? Math.round((done / total) * 100) : 0,
@@ -271,6 +272,39 @@ export class CampagneDetailComponent implements OnInit {
     const parts = username.split(/[._\- ]/).filter(Boolean);
     const s = parts.length >= 2 ? parts[0][0] + parts[1][0] : username.slice(0, 2);
     return s.toUpperCase();
+  }
+
+  /**
+   * Un agent avec 5 camps dans le même quartier affichait 5 pastilles
+   * identiques hormis un chiffre (« Bastos · 1 », « Bastos · 5 »...). Une
+   * pastille par quartier, ses camps listés ensemble (« Bastos · 1, 5 »),
+   * porte la même information en une fraction de l'espace.
+   */
+  private grouperZonesParQuartier(
+    zones: { nom: string; camp: number | null }[],
+  ): { nom: string; camps: (number | null)[] }[] {
+    const parCamp = new Map<string, (number | null)[]>();
+    for (const z of zones) {
+      const camps = parCamp.get(z.nom);
+      if (camps) camps.push(z.camp);
+      else parCamp.set(z.nom, [z.camp]);
+    }
+    return [...parCamp.entries()].map(([nom, camps]) => ({ nom, camps }));
+  }
+
+  // ── Repli des zones d'un agent au-delà de zonesVisibles (carte agent) ────
+  protected readonly zonesVisibles = 6;
+  private readonly agentsZonesEtendues = signal<ReadonlySet<string>>(new Set());
+
+  agentZonesEstEtendu(agentId: string): boolean {
+    return this.agentsZonesEtendues().has(agentId);
+  }
+
+  basculerAgentZones(agentId: string): void {
+    const next = new Set(this.agentsZonesEtendues());
+    if (next.has(agentId)) next.delete(agentId);
+    else next.add(agentId);
+    this.agentsZonesEtendues.set(next);
   }
 
   // Statut de tournée : le backend renvoie une chaîne libre → normalisation

@@ -417,8 +417,8 @@
   }
 
   // Mobile (MB-02) : carte simple « Progression | 84% » + barre + sous-texte ;
-  // le gros pourcentage et les stat-boxes internes laissent place à la grille
-  // 2×2 séparée (.mstats).
+  // le gros pourcentage cède la place, .stat-boxes reste et repasse en 2×2
+  // (règle définie plus bas, commune aux deux tailles).
   @media (max-width: 1023px) {
     flex-direction: column;
     margin-bottom: var(--pas-3);
@@ -446,10 +446,6 @@
       order: 1;
       padding: var(--pas-4) var(--pas-4) var(--pas-2);
       gap: var(--pas-2);
-    }
-
-    .stat-boxes {
-      display: none;
     }
   }
 }
@@ -522,69 +518,7 @@
   }
 }
 
-// ── Grille 2×2 mobile (MB-02) : cartes séparées à liseré coloré ──────────────
-
-.mstats {
-  display: none;
-}
-
-@media (max-width: 1023px) {
-  .mstats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--pas-2);
-    margin-bottom: var(--pas-3);
-  }
-}
-
-.mstat {
-  background: var(--surface);
-  border: 1px solid var(--filet);
-  border-radius: var(--rayon-lg);
-  padding: var(--pas-3) var(--pas-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--pas-1);
-
-  &__value {
-    font-size: var(--texte-3xl);
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  &__label {
-    font-size: var(--texte-xs);
-    font-weight: 500;
-    color: var(--encre-3);
-  }
-
-  &--releve {
-    border-top: 3px solid var(--succes);
-    .mstat__value {
-      color: var(--succes-encre);
-    }
-  }
-  &--estime {
-    border-top: 3px solid var(--attente);
-    .mstat__value {
-      color: var(--ambre-attente);
-    }
-  }
-  &--non-releve {
-    border-top: 3px solid var(--danger);
-    .mstat__value {
-      color: var(--danger-encre);
-    }
-  }
-  &--a-relever {
-    border-top: 3px solid var(--filet-pale);
-    .mstat__value {
-      color: var(--encre-2);
-    }
-  }
-}
-
-// ── Boîtes de statistiques ────────────────────────────────────────────────────
+// ── Boîtes de statistiques (4 colonnes desktop → 2 sous 1024px) ──────────────
 
 .stat-boxes {
   display: grid;
@@ -1133,11 +1067,35 @@
   color: var(--encre-2);
   white-space: nowrap;
 
+  &__camps {
+    font-weight: 500;
+    color: var(--encre-3);
+  }
+
   &--empty {
     background: transparent;
     border: 1px dashed var(--filet-pale);
     color: var(--encre-3);
     font-weight: 500;
+  }
+}
+
+.agent-zone-more {
+  border: 1px dashed var(--filet-pale);
+  background: transparent;
+  color: var(--action);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
+  font-family: inherit;
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--action-lueur);
+    }
   }
 }
 
@@ -1441,14 +1399,4 @@
   .detail-header {
     display: none;
   }
-}
-
-// Légende de la grappe de zones : « quartier · camp », dite une fois.
-.agent-card__zones-legende {
-  flex-basis: 100%;
-  font-size: var(--texte-xs);
-  color: var(--encre-3);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: var(--pas-1);
 }
