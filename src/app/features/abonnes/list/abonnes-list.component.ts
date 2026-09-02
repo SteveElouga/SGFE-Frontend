@@ -25,6 +25,7 @@ import { ToastService } from '../../../shared/services/toast.service';
 import { DataTableComponent, DataTableColumn } from '../../../shared/components/data-table/data-table.component';
 import { DataTableCardDirective, DataTableCellDirective } from '../../../shared/components/data-table/data-table.directives';
 import { ReactiverSheetComponent } from '../detail/reactiver-sheet/reactiver-sheet.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import type { AbonneLigne } from '../../../graphql/vues';
 import type { AbonneUpdatedSubscription, GetAbonnesQuery } from '../../../graphql/generated';
 
@@ -43,6 +44,7 @@ import type { AbonneUpdatedSubscription, GetAbonnesQuery } from '../../../graphq
     NomAbonnePipe,
     TranslatePipe,
     ReactiverSheetComponent,
+    TooltipDirective,
   ],
   templateUrl: './abonnes-list.component.html',
   styleUrl: './abonnes-list.component.scss',

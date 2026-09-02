@@ -101,22 +101,35 @@
             class="abonnes-table__action-btn"
             [routerLink]="['/abonnes', abonne.id]"
             [attr.aria-label]="('ABONNES.VOIR' | translate) + ' ' + abonne.numeroAbonne"
-          >{{ 'ABONNES.VOIR' | translate }}</a>
+            [appTooltip]="'ABONNES.VOIR' | translate"
+          >
+            <i aria-hidden="true" class="pi pi-eye"></i>
+            <span class="abonnes-table__action-label">{{ 'ABONNES.VOIR' | translate }}</span>
+          </a>
 
           @if (abonne.statut === 'ACTIF') {
             <a
               class="abonnes-table__action-btn"
               [routerLink]="['/abonnes', abonne.id, 'modifier']"
               [attr.aria-label]="('ABONNES.MODIFIER' | translate) + ' ' + abonne.numeroAbonne"
-            >{{ 'ABONNES.MODIFIER' | translate }}</a>
+              [appTooltip]="'ABONNES.MODIFIER' | translate"
+            >
+              <i aria-hidden="true" class="pi pi-pencil"></i>
+              <span class="abonnes-table__action-label">{{ 'ABONNES.MODIFIER' | translate }}</span>
+            </a>
           }
 
           @if (abonne.statut === 'SUSPENDU') {
             <button
               type="button"
               class="abonnes-table__action-btn abonnes-table__action-btn--reactiver"
+              [attr.aria-label]="('ABONNES.REACTIVER' | translate) + ' ' + abonne.numeroAbonne"
+              [appTooltip]="'ABONNES.REACTIVER' | translate"
               (click)="confirmReactiver(abonne)"
-            >{{ 'ABONNES.REACTIVER' | translate }}</button>
+            >
+              <i aria-hidden="true" class="pi pi-refresh"></i>
+              <span class="abonnes-table__action-label">{{ 'ABONNES.REACTIVER' | translate }}</span>
+            </button>
           }
         </div>
       </ng-template>

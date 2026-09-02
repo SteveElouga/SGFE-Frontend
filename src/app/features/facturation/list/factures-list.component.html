@@ -148,19 +148,39 @@
 
       <ng-template appCol="actions" let-f>
         <div class="row-actions">
-          <button class="btn-action" (click)="viewDetail(f.factureId, $event)">
-            {{ 'FACTURATION.ACTION_VOIR' | translate }}
+          <!-- Entre 1024 et 1280px (voir le SCSS), le libellé cède la place à
+               l'icône seule + infobulle : deux ou trois boutons nommés ne
+               tenaient plus dans le tableau à cette largeur. Bande strictement
+               desktop, où l'infobulle reste une explication réellement
+               disponible — comme pour le bouton WhatsApp ci-dessous. -->
+          <button
+            class="btn-action"
+            [attr.aria-label]="'FACTURATION.ACTION_VOIR' | translate"
+            [appTooltip]="'FACTURATION.ACTION_VOIR' | translate"
+            (click)="viewDetail(f.factureId, $event)"
+          >
+            <i aria-hidden="true" class="pi pi-eye"></i>
+            <span class="btn-action__label" aria-hidden="true">{{ 'FACTURATION.ACTION_VOIR' | translate }}</span>
           </button>
           @if (f.statut === 'PAYEE') {
-            <button class="btn-action" (click)="openPdf(f.factureId, $event)">
-              {{ 'FACTURATION.ACTION_PDF' | translate }}
+            <button
+              class="btn-action"
+              [attr.aria-label]="'FACTURATION.ACTION_PDF' | translate"
+              [appTooltip]="'FACTURATION.ACTION_PDF' | translate"
+              (click)="openPdf(f.factureId, $event)"
+            >
+              <i aria-hidden="true" class="pi pi-file-pdf"></i>
+              <span class="btn-action__label" aria-hidden="true">{{ 'FACTURATION.ACTION_PDF' | translate }}</span>
             </button>
           } @else {
             <button
               class="btn-action btn-action--primary"
+              [attr.aria-label]="'FACTURATION.ACTION_PAIEMENT' | translate"
+              [appTooltip]="'FACTURATION.ACTION_PAIEMENT' | translate"
               (click)="openPanel(f); $event.stopPropagation()"
             >
-              {{ 'FACTURATION.ACTION_PAIEMENT' | translate }}
+              <i aria-hidden="true" class="pi pi-credit-card"></i>
+              <span class="btn-action__label" aria-hidden="true">{{ 'FACTURATION.ACTION_PAIEMENT' | translate }}</span>
             </button>
           }
           @if (f.statut === 'IMPAYEE') {

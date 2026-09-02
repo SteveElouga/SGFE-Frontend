@@ -368,14 +368,18 @@
 
 .btn-action {
   @include action-ligne;
+  gap: var(--pas-1);
+
+  i {
+    font-size: var(--icone-xs);
+  }
 
   // Le renvoi WhatsApp n'a pas de mot assez court pour tenir en bout de
-  // ligne : c'est la seule action iconique de l'application.
+  // ligne : c'était la seule action iconique de l'application (elle reste la
+  // seule à l'être en permanence — voir la bande étroite 1024-1280px plus bas
+  // pour l'exception qui touche les autres boutons).
   &--icon {
     @include action-ligne-icone;
-    i {
-      font-size: var(--icone-xs);
-    }
   }
 
   // L'action principale d'une ligne impayée : encaisser.
@@ -399,6 +403,19 @@
 @media (max-width: 639px) {
   .btn-whatsapp-tous {
     display: none;
+  }
+}
+
+// Voir le commentaire dans le gabarit : entre 1024 et 1280px, deux ou trois
+// boutons nommés ne tenaient plus dans la colonne Actions — seule bande
+// strictement desktop, où l'infobulle au survol reste une explication
+// réellement disponible.
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .btn-action__label {
+    display: none;
+  }
+  .btn-action {
+    padding: 0 var(--pas-2);
   }
 }
 

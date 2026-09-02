@@ -178,9 +178,35 @@
 
 .abonnes-table__action-btn {
   @include action-ligne;
+  gap: var(--pas-1);
+
+  i {
+    font-size: var(--icone-xs);
+  }
 
   &--reactiver {
     @include action-ligne-succes;
+  }
+}
+
+// Entre 1024 et 1280px, les deux boutons de la colonne Actions (avec leurs
+// libellés) ne tenaient plus dans la largeur du tableau : le second restait
+// à moitié hors champ, atteignable uniquement via la fine barre de défilement
+// horizontale — sans aucun indice qu'il y avait plus à voir. Au-delà de
+// 1280px les deux tiennent ; en dessous de 1024px, les cartes mobiles
+// prennent le relais et n'ont pas ce problème.
+//
+// Le libellé texte est le choix par défaut de l'application (voir le
+// commentaire équivalent dans utilisateurs-list) ; cette bande étroite est
+// la seule exception, et seulement parce qu'elle est strictement desktop —
+// la souris y est garantie, donc l'infobulle au survol (`appTooltip`) reste
+// une explication réellement disponible, pas un pis-aller tactile.
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .abonnes-table__action-label {
+    display: none;
+  }
+  .abonnes-table__action-btn {
+    padding: 0 var(--pas-2);
   }
 }
 
