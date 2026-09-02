@@ -509,6 +509,7 @@
       "RELEVES": "active campaigns",
       "FACTURES": "invoices issued",
       "ENVOIS": "WhatsApp sent",
+      "ENVOIS_A_VENIR": "Tracking coming soon",
       "PAIEMENTS": "payments received"
     },
     "CAMPAIGNS": {

@@ -285,9 +285,14 @@
             <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
           </a>
         } @else {
+          <!-- Ni une panne ni un chargement : ce chiffre n'existe simplement
+               pas encore côté backend (statsParMois ne porte pas de champ
+               envois scopé par campagne). Réutiliser KPI_UNAVAILABLE — le
+               même mot qu'une vraie panne réseau réessayable, juste
+               au-dessus — laissait croire qu'un rechargement suffirait. -->
           <div class="dash-step dash-step--unavailable">
             <span class="dash-step__label">{{ 'DASHBOARD.RIBBON.ENVOIS' | translate }}</span>
-            <span class="dash-step__unavail">{{ 'DASHBOARD.KPI_UNAVAILABLE' | translate }}</span>
+            <span class="dash-step__unavail">{{ 'DASHBOARD.RIBBON.ENVOIS_A_VENIR' | translate }}</span>
           </div>
         }
         @if (ribbonCycle().paiements; as r) {

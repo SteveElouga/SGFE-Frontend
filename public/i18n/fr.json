@@ -509,6 +509,7 @@
       "RELEVES": "campagnes en cours",
       "FACTURES": "factures émises",
       "ENVOIS": "envois WhatsApp",
+      "ENVOIS_A_VENIR": "Suivi à venir",
       "PAIEMENTS": "paiements reçus"
     },
     "CAMPAIGNS": {
