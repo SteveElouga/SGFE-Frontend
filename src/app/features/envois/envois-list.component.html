@@ -82,5 +82,44 @@
         </div>
       </section>
     }
+
+    <!-- Pied : même motif que <app-data-table> (COMMON.PAGINATION_INFO,
+         COMMON.PREV_PAGE/NEXT_PAGE) — 155 envois d'un coup ne laissaient ni
+         repère de position ni moyen d'atteindre directement le bas du journal. -->
+    <div class="envois__footer">
+      <span class="envois__page-info">
+        {{ 'ENVOIS.PAGINATION_INFO' | translate: { start: rangeStart(), end: rangeEnd(), total: total() } }}
+      </span>
+      @if (pageCount() > 1) {
+        <div class="envois__pages">
+          <button
+            type="button"
+            class="envois__page-btn"
+            [disabled]="safePage() === 0"
+            (click)="goPage(safePage() - 1)"
+            [attr.aria-label]="'COMMON.PREV_PAGE' | translate"
+          >
+            <i aria-hidden="true" class="pi pi-chevron-left"></i>
+          </button>
+          @for (p of visiblePages(); track p) {
+            <button
+              type="button"
+              class="envois__page-btn"
+              [class.envois__page-btn--active]="p === safePage()"
+              (click)="goPage(p)"
+            >{{ p + 1 }}</button>
+          }
+          <button
+            type="button"
+            class="envois__page-btn"
+            [disabled]="safePage() >= pageCount() - 1"
+            (click)="goPage(safePage() + 1)"
+            [attr.aria-label]="'COMMON.NEXT_PAGE' | translate"
+          >
+            <i aria-hidden="true" class="pi pi-chevron-right"></i>
+          </button>
+        </div>
+      }
+    </div>
   }
 </div>

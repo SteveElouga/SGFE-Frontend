@@ -1356,7 +1356,8 @@
     "DESTINATAIRE_INCONNU": "Unknown recipient",
     "FILTRE_ARIA": "Filter by status",
     "FILTRE_LABEL": "Status",
-    "RESULTS_HERO": "message"
+    "RESULTS_HERO": "message",
+    "PAGINATION_INFO": "Showing {{start}}–{{end}} of {{total}} sends"
   },
   "RAPPORTS": {
     "TITLE": "Reports",

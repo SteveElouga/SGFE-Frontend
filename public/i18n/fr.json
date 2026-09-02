@@ -1356,7 +1356,8 @@
     "DESTINATAIRE_INCONNU": "Destinataire inconnu",
     "FILTRE_ARIA": "Filtrer par statut",
     "FILTRE_LABEL": "Statut",
-    "RESULTS_HERO": "envoi"
+    "RESULTS_HERO": "envoi",
+    "PAGINATION_INFO": "Affichage {{start}}–{{end}} de {{total}} envois"
   },
   "RAPPORTS": {
     "TITLE": "Rapports",

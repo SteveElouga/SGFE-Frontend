@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
@@ -126,11 +126,42 @@ export class EnvoisListComponent implements OnInit {
     });
   });
 
-  /** Lignes groupées par jour, du plus récent au plus ancien. */
+  /**
+   * Pagination (interne, cliente — même motif que `<app-data-table>`, voir
+   * son `data-table.component.ts`). L'écran ne l'utilisait pas : il rendait
+   * les 155 envois d'un coup, un seul long défilement sans repère de
+   * position ni moyen d'atteindre directement le bas du journal.
+   */
+  private readonly pageSize = 30;
+  private readonly page = signal(0);
+  readonly total = computed(() => this.rows().length);
+  readonly pageCount = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
+  /** Page bornée : protège d'un débordement après filtrage. */
+  readonly safePage = computed(() => Math.min(this.page(), this.pageCount() - 1));
+  readonly rangeStart = computed(() => (this.total() === 0 ? 0 : this.safePage() * this.pageSize + 1));
+  readonly rangeEnd = computed(() => Math.min((this.safePage() + 1) * this.pageSize, this.total()));
+  /** Fenêtre de numéros de page (max 5). */
+  readonly visiblePages = computed(() => {
+    const count = this.pageCount();
+    const cur = this.safePage();
+    const MAX = 5;
+    if (count <= MAX) return Array.from({ length: count }, (_, i) => i);
+    let start = Math.max(0, cur - 2);
+    const end = Math.min(count - 1, start + MAX - 1);
+    start = Math.max(0, end - MAX + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  });
+
+  private readonly pagedRows = computed(() => {
+    const start = this.safePage() * this.pageSize;
+    return this.rows().slice(start, start + this.pageSize);
+  });
+
+  /** Lignes de la page courante, groupées par jour du plus récent au plus ancien. */
   readonly groupes = computed((): EnvoiGroupe[] => {
     const out: EnvoiGroupe[] = [];
     let courant: EnvoiGroupe | null = null;
-    for (const l of this.rows()) {
+    for (const l of this.pagedRows()) {
       const cle = (l.dateEnvoi ?? '').slice(0, 10);
       if (!courant || courant.cle !== cle) {
         courant = { cle, libelle: this.libelleJour(cle), lignes: [] };
@@ -140,6 +171,18 @@ export class EnvoisListComponent implements OnInit {
     }
     return out;
   });
+
+  goPage(target: number): void {
+    if (target >= 0 && target < this.pageCount()) this.page.set(target);
+  }
+
+  constructor() {
+    // Retour en page 1 dès que le jeu de lignes change (filtre / rechargement).
+    effect(() => {
+      this.rows();
+      untracked(() => this.page.set(0));
+    });
+  }
 
   /** Nombre d'échecs affichés — ce que le support cherche en premier. */
   readonly nbEchecs = computed(() => this.rows().filter((e) => e.statut === 'ECHEC').length);
