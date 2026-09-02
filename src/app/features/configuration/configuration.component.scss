@@ -866,7 +866,10 @@
   position: relative;
   width: 40px;
   height: 22px;
-  border-radius: var(--rayon-md);
+  // `--rayon-md` (8px, pensé pour une carte) donnait une piste presque
+  // carrée au lieu de la gélule attendue d'un toggle — le seul repli
+  // arrondi du système (`--rayon-rond`, déjà celui des chips et avatars).
+  border-radius: var(--rayon-rond);
   border: none;
   cursor: pointer;
   background: var(--filet-pale);
