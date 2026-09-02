@@ -195,7 +195,7 @@
             @if (tarifActuel(); as t) {
               <div class="hist-list">
                 <div class="hist-row hist-row--active">
-                  <span>{{ t.prixM3 | number:'1.0-0' }} FCFA/m³ — {{ 'CONFIGURATION.TARIF_ACTIF' | translate }}</span>
+                  <span>{{ t.prixM3 | number:'1.0-0' }} FCFA/m³ · {{ 'CONFIGURATION.TARIF_ACTIF' | translate }}</span>
                   <span class="hist-row__meta">{{ 'CONFIGURATION.DEPUIS' | translate }} {{ t.dateEffet | date:'dd/MM/yyyy' }}</span>
                 </div>
               </div>

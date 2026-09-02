@@ -73,7 +73,7 @@
                   type="button"
                   class="envoi__resend"
                   [disabled]="resending() === e.envoiId"
-                  [attr.aria-label]="(e.statut === 'ECHEC' ? 'COMMON.RETRY' : 'ENVOIS.RESEND' | translate) + ' — ' + e.destinataire"
+                  [attr.aria-label]="(e.statut === 'ECHEC' ? 'COMMON.RETRY' : 'ENVOIS.RESEND' | translate) + ' : ' + e.destinataire"
                   (click)="renvoyer(e)"
                 >
                   @if (resending() === e.envoiId) {

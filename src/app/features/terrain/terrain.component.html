@@ -94,7 +94,7 @@
                 [class.row--pending]="e.status === 'PENDING'"
                 [class.row--action]="clickable"
                 [disabled]="!clickable"
-                [attr.aria-label]="e.nom + ' — ' + ('TERRAIN.STATUT.' + e.status | translate)"
+                [attr.aria-label]="e.nom + ' : ' + ('TERRAIN.STATUT.' + e.status | translate)"
                 (click)="openSaisie(e)"
               >
                 @if (e.status === 'PENDING') {
