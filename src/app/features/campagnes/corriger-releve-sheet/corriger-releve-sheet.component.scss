@@ -1,0 +1,158 @@
+@use '../../../../styles/buttons' as *;
+
+.cr-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-4);
+  // Le padding est fourni par app-bottom-sheet (.bs-sheet__body).
+}
+
+.cr-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pas-3);
+
+  &__icon {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--rayon-md);
+    background: var(--action-lueur);
+    border: 1px solid var(--action-trait);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i { font-size: var(--icone-md); color: var(--action); }
+  }
+
+  &__title {
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-1);
+  }
+
+  &__sub {
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    margin: 0;
+  }
+}
+
+.cr-current-card {
+  background: var(--fond);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--pas-2);
+  }
+
+  &__key {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  }
+
+  &__val {
+    font-size: var(--texte-md);
+    font-weight: 600;
+    color: var(--encre-2);
+    font-variant-numeric: tabular-nums;
+
+    &--actuel { color: var(--danger-encre); } // c'est la valeur fautive qu'on remplace
+  }
+}
+
+.cr-textarea {
+  width: 100%;
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
+  font-family: inherit;
+  font-size: var(--texte-md);
+  color: var(--encre);
+  resize: vertical;
+
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 1px;
+  }
+}
+
+.cr-field-erreur {
+  font-size: var(--texte-sm);
+  color: var(--danger-encre);
+}
+
+.cr-info-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pas-2);
+  background: var(--action-lueur);
+  border: 1px solid var(--action-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-3);
+  font-size: var(--texte-sm);
+  line-height: 1.6;
+  color: var(--action-survol);
+
+  i { flex-shrink: 0; margin-top: 2px; }
+}
+
+.cr-footer {
+  display: flex;
+  flex-direction: column-reverse; // « Confirmer » au-dessus, Annuler dessous
+  gap: var(--pas-2);
+  padding-top: var(--pas-1);
+
+  .dialog-btn { width: 100%; justify-content: center; }
+}
+
+// ── Champs de formulaire (mêmes conventions que remplacer-compteur-sheet) ──────
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+
+  input[pInputText] { width: 100%; }
+}
+
+.edit-label {
+  font-size: var(--texte-md);
+  font-weight: 500;
+  color: var(--encre-2);
+}
+
+// ── Boutons de dialogue ───────────────────────────────────────────────────────
+
+.dialog-btn {
+  min-height: 44px;                    // WCAG 2.5.5
+  padding: 0 var(--pas-4);
+  border-radius: var(--rayon-md);
+  font-size: var(--texte-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  &--ghost {
+    @include btn-variant(none, var(--encre-2), $border: 1px solid var(--filet), $hover-bg: var(--surface-douce));
+  }
+
+  &--primary {
+    @include btn-variant(
+      linear-gradient(135deg, var(--action), var(--action-survol)), var(--surface),
+      $shadow: var(--ombre-action), $hover-opacity: 0.9
+    );
+  }
+}

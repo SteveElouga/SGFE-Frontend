@@ -29,13 +29,14 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
 import { AbonnesSheetComponent } from '../abonnes-sheet/abonnes-sheet.component';
+import { CorrigerReleveSheetComponent } from '../corriger-releve-sheet/corriger-releve-sheet.component';
 import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
 import type { ProgressionUpdatedSubscription } from '../../../graphql/generated';
 import type { CampagneDetail, ReleveLigne } from '../../../graphql/vues';
-import type { GetCampagneQuery } from '../../../graphql/generated';
+import type { CorrigerReleveMutation, GetCampagneQuery } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-campagne-detail',
@@ -51,6 +52,7 @@ import type { GetCampagneQuery } from '../../../graphql/generated';
     AgentsSheetComponent,
     ZonesSheetComponent,
     AbonnesSheetComponent,
+    CorrigerReleveSheetComponent,
     BottomSheetComponent,
     PageTopbarComponent,
     TranslatePipe,
@@ -116,6 +118,33 @@ export class CampagneDetailComponent implements OnInit {
   /** Recharge agents + répartition après affectation des zones. */
   onZonesSaved(): void {
     void this.loadAgents();
+  }
+
+  // ── Correction d'un index déjà relevé ────────────────────────────────────────
+  readonly showCorrigerReleveSheet = signal(false);
+  readonly releveACorrig = signal<ReleveLigne | null>(null);
+
+  openCorrigerReleveSheet(r: ReleveLigne): void {
+    this.releveACorrig.set(r);
+    this.showCorrigerReleveSheet.set(true);
+  }
+
+  closeCorrigerReleveSheet(): void {
+    this.showCorrigerReleveSheet.set(false);
+  }
+
+  /** Applique localement le résultat de la correction — pas de rechargement
+   * complet nécessaire, la mutation renvoie déjà l'état final du relevé. */
+  onReleveCorrige(result: CorrigerReleveMutation['corrigerReleve']): void {
+    this.releves.update((list) =>
+      list.map((r) =>
+        r.abonneId === this.releveACorrig()?.abonneId
+          ? { ...r, nouveauIndex: result.nouveauIndex, consommation: result.consommation, statut: result.statut }
+          : r,
+      ),
+    );
+    this.showCorrigerReleveSheet.set(false);
+    this.toast.success(this.translate.instant('CAMPAGNES.CORRIGER_RELEVE.SUCCESS'));
   }
 
   // ── Rattachement d'abonnés à une campagne déjà créée (#6) ─────────────────

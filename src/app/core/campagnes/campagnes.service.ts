@@ -179,9 +179,6 @@ export class CampagnesService {
     return result.data!.marquerNonReleve;
   }
 
-  // PENDING DEPLOY (PR #68) — ne pas appeler tant que le Gateway n'expose pas
-  // corrigerReleve / relevesParAgent (cf. RELEVE_AUDIT_READY côté UI).
-
   /** Corrige un index déjà RELEVE (ADMIN / SUPERVISEUR propriétaire). */
   async corrigerReleve(input: CorrigerReleveInput): Promise<CorrigerReleveMutation['corrigerReleve']> {
     const result = await firstValueFrom(
