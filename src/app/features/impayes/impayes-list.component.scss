@@ -161,6 +161,14 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
+
+    // La vue « Par abonné » masque ce tableau via l'attribut `[hidden]`, dont
+    // la règle par défaut du navigateur (`display: none`) a la même
+    // spécificité que `.table-wrap` — et perd contre elle à cause de l'ordre
+    // de cascade : le tableau restait visible sous la liste par abonné.
+    &[hidden] {
+      display: none;
+    }
   }
 
   // Mobile : wrapper transparent, cartes séparées (MB-07)
@@ -487,6 +495,13 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   overflow: hidden;
+  // `.imp-groupes` (flex-column) défile en interne au-delà de 1024px (voir
+  // plus bas) : sans ceci, la taille minimale automatique d'une carte tombe à
+  // 0 dès qu'elle porte `overflow` autre que `visible` (spec Flexbox) — les
+  // cartes se faisaient toutes comprimer à quelques pixels plutôt que de
+  // laisser le conteneur défiler. Même piège que `.releves-section` et
+  // `.zone-section` (détail de campagne), `.notif-card` et `.abonnes-card`.
+  flex-shrink: 0;
 
   &__tete {
     display: flex;
