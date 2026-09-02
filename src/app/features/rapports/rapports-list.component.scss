@@ -251,6 +251,12 @@
   border-radius: var(--rayon-lg);
   overflow-x: auto;
   @include hide-scrollbar;
+  // `.rap` est un flex-column ; sans ceci, la taille minimale automatique
+  // d'un flex-item retombe à 0 dès qu'il porte `overflow` autre que
+  // `visible` (spec Flexbox) — le wrap se faisait comprimer, l'historique
+  // des campagnes tronqué net sans scrollbar pour compenser. Même piège
+  // que `.notif-card` (notifications) et `.abonnes-card` (abonnés).
+  flex-shrink: 0;
 }
 
 .rap-table {

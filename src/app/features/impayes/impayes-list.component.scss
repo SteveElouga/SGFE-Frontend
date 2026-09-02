@@ -149,6 +149,20 @@
   border-radius: var(--rayon-lg);
   overflow: hidden;
 
+  // `.impayes-content` passe volontairement en `overflow: hidden` au-delà
+  // de 1024px pour laisser `<app-data-table>` défiler en interne (voir son
+  // `:host`, qui exige un parent flex-column pour que son propre `flex: 1`
+  // ne soit pas inerte). Sans ce `display: flex` ici, la délégation ne
+  // prenait jamais : un `flex-shrink: 0` isolé aurait seulement déplacé le
+  // bug (page qui ne défile plus nulle part) plutôt que de le résoudre.
+  // Même correctif que `.abonnes-card` (abonnés).
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
   // Mobile : wrapper transparent, cartes séparées (MB-07)
   @media (max-width: 1023px) {
     background: transparent;
@@ -607,5 +621,16 @@
   .impayes-content {
     overflow: hidden;
     min-height: 0;
+  }
+
+  // La vue « Par abonné » (.imp-groupes) n'a pas d'équivalent à `app-data-table`
+  // pour défiler en interne — `.impayes-content` ci-dessus lui retire pourtant
+  // le défilement de page. Mesuré : 231px de groupes tronqués net, sans
+  // scrollbar, sur cinq abonnés de démo (bien pire à l'échelle réelle). Elle
+  // reçoit donc son propre défilement interne, sur le même principe.
+  .imp-groupes {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 }
