@@ -1,0 +1,124 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// `.carte` (fond/bordure) vient de styles/global.scss ; `.detail-card`
+// (rembourrage/mise en page) est local à l'écran facture — dupliqué ici, même
+// convention que `campagne-detail` → `agents-panel`/`releves-panel`.
+.detail-card {
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+}
+
+// `.calc-title` : partagée avec la carte de calcul et l'historique des
+// paiements (deux autres cartes de l'écran) — même style de titre.
+.calc-title {
+  font-size: var(--texte-lg);
+  font-weight: 700;
+  color: var(--encre);
+}
+
+// ── WhatsApp journal ──────────────────────────────────────────────────────────
+
+.journal-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.journal-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  padding: var(--pas-2) var(--pas-3);
+  background: var(--surface-douce);
+  border: 1px solid var(--fond);
+  border-radius: var(--rayon-md);
+
+  &--warn {
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+
+    .journal-entry__text {
+      color: var(--ambre-attente);
+      font-weight: 500;
+    }
+  }
+
+  &--error {
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+
+    .journal-entry__text {
+      color: var(--danger-encre);
+      font-weight: 600;
+    }
+  }
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--pas-3);
+  }
+
+  &__text {
+    font-size: var(--texte-sm);
+    color: var(--encre-2);
+    min-width: 0;
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    flex-shrink: 0;
+  }
+
+  &__date {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    white-space: nowrap;
+  }
+
+  &__retry {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-1);
+    background: var(--surface);
+    border: 1px solid var(--danger-trait);
+    color: var(--danger-encre);
+    border-radius: var(--rayon-sm);
+    padding: var(--pas-1) var(--pas-2);
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: var(--danger-fond);
+      }
+    }
+    i {
+      font-size: var(--icone-xs);
+    }
+  }
+
+  // Détail technique de l'erreur : petit, tronqué à 2 lignes (message complet
+  // au survol via `title`), les URLs longues cassées proprement.
+  &__err {
+    color: var(--danger-encre);
+    font-size: var(--texte-xs);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

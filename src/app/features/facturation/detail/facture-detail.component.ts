@@ -27,10 +27,11 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
-import { PaiementFormComponent } from '../../../shared/components/paiement-form/paiement-form.component';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { FcfaPipe } from '../../../shared/pipes/fcfa.pipe';
 import { ToastService } from '../../../shared/services/toast.service';
+import { PaiementsPanelComponent } from './paiements-panel/paiements-panel.component';
+import { EnvoisPanelComponent } from './envois-panel/envois-panel.component';
 import type { AbonneDetail, CampagneDetail, EnvoiFacture, PaiementFacture, SoldeDetail } from '../../../graphql/vues';
 
 @Component({
@@ -42,7 +43,6 @@ import type { AbonneDetail, CampagneDetail, EnvoiFacture, PaiementFacture, Solde
     TranslatePipe,
     ErrorBannerComponent,
     PageTopbarComponent,
-    PaiementFormComponent,
     TooltipDirective,
     FcfaPipe,
     RouterLink,
@@ -50,6 +50,8 @@ import type { AbonneDetail, CampagneDetail, EnvoiFacture, PaiementFacture, Solde
     AnnulerPaiementSheetComponent,
     BadgeComponent,
     SkeletonComponent,
+    PaiementsPanelComponent,
+    EnvoisPanelComponent,
   ],
   templateUrl: './facture-detail.component.html',
   styleUrl: './facture-detail.component.scss',
@@ -493,39 +495,8 @@ export class FactureDetailComponent implements OnInit {
     }
   }
 
-  envoiClass(envoi: EnvoiFacture): string {
-    if (envoi.erreur) return 'journal-entry--error';
-    const t = envoi.typeEnvoi?.toUpperCase() ?? '';
-    if (t.includes('RAPPEL') || t.includes('ETAPE_2')) return 'journal-entry--warn';
-    if (t.includes('AVERT') || t.includes('ETAPE_3')) return 'journal-entry--error';
-    return '';
-  }
-
-  /** Libellé du type d'envoi (ENVOIS.TYPE.*), repli sur la valeur brute. */
-  envoiTypeLabel(envoi: EnvoiFacture): string {
-    const type = envoi.typeEnvoi ?? 'FACTURE';
-    const key = `ENVOIS.TYPE.${type.toUpperCase()}`;
-    const label = this.translate.instant(key) as string;
-    return label === key ? type : label;
-  }
-
-  /** Libellé du statut d'envoi (ENVOIS.STATUT.*), déduit de l'erreur à défaut. */
-  envoiStatutLabel(envoi: EnvoiFacture): string {
-    const statut = envoi.statut || (envoi.erreur ? 'ECHEC' : 'ENVOYE');
-    const key = `ENVOIS.STATUT.${statut.toUpperCase()}`;
-    const label = this.translate.instant(key) as string;
-    return label === key ? statut : label;
-  }
-
-  /**
-   * Nettoie un message d'erreur technique pour l'affichage : retire les URLs
-   * (traces de la librairie WhatsApp) et tronque — le message complet reste
-   * disponible au survol (`title`).
-   */
-  cleanErreur(erreur: string): string {
-    const sansUrl = erreur.replace(/\s*\(?https?:\/\/\S*\)?/g, '').replace(/\s{2,}/g, ' ').trim();
-    return sansUrl.length > 120 ? `${sansUrl.slice(0, 119)}…` : sansUrl;
-  }
+  // `envoiClass`/`envoiTypeLabel`/`envoiStatutLabel`/`cleanErreur` vivent
+  // désormais dans <app-envois-panel>, seule à en avoir besoin.
 
   /**
    * Après une annulation.

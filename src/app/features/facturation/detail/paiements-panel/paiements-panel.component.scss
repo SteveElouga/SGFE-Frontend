@@ -1,0 +1,318 @@
+@use '../../../../../styles/variables' as *;
+@use '../../../../../styles/buttons' as *;
+
+:host {
+  display: block;
+}
+
+// `.carte` (fond/bordure) vient de styles/global.scss ; `.detail-card`
+// (rembourrage/mise en page) est local à l'écran facture — dupliqué ici, même
+// convention que `campagne-detail` → `agents-panel`/`releves-panel`.
+.detail-card {
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+}
+
+// ── Bouton « Enregistrer » (sous-ensemble de `.btn` utilisé ici) ─────────────
+
+.btn {
+  @include btn-reset;
+  gap: var(--pas-1);
+  padding: var(--pas-2) var(--pas-3);
+  border-radius: var(--rayon-md);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  transition:
+    background 0.15s,
+    opacity 0.15s;
+
+  &:disabled {
+    opacity: 0.45;
+  }
+
+  &--primary {
+    @include btn-variant(
+      var(--action),
+      var(--surface),
+      $shadow: var(--ombre-action),
+      $hover-bg: var(--action-survol)
+    );
+  }
+}
+
+// `.calc-title` : partagée avec la carte de calcul (parent) et le journal
+// WhatsApp (`envois-panel`) — trois cartes, trois titres, même style.
+.calc-title {
+  font-size: var(--texte-lg);
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.card-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-3);
+}
+
+// ── Payment history ───────────────────────────────────────────────────────────
+
+.empty-hint {
+  font-size: var(--texte-md);
+  color: var(--encre-3);
+  text-align: center;
+  padding: var(--pas-4) 0;
+}
+
+.paiements-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.paiement-row {
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--pas-3);
+
+  &__amount {
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+    margin-bottom: var(--pas-1);
+  }
+
+  &__meta {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+  }
+
+  // Le badge et l'action d'annulation partagent la colonne de droite : le
+  // statut se lit d'abord, le geste correctif reste discret à côté.
+  &__aside {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-2);
+    flex-shrink: 0;
+  }
+
+  // Discret par défaut : annuler un paiement est rare, et une ligne
+  // d'historique ne doit pas ressembler à un appel à l'action.
+  &__annuler {
+    @include action-ligne;
+    @include action-ligne-danger;
+    gap: var(--pas-2);
+    font-size: var(--texte-sm);
+  }
+
+  &__recu {
+    @include action-ligne;
+    @include action-ligne-succes;
+    gap: var(--pas-2);
+    font-size: var(--texte-sm);
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.paiement-badge {
+  background: var(--succes-fond);
+  border: 1px solid var(--succes-trait);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  color: var(--succes-encre);
+  white-space: nowrap;
+
+  // Un paiement annulé reste dans la liste — c'est la trace de la correction.
+  // Ton neutre : ni succès, ni alerte, il ne compte simplement plus.
+  &--annule {
+    background: var(--surface-douce);
+    border-color: var(--filet);
+    color: var(--encre-3);
+    text-decoration: line-through;
+  }
+
+  // Un versement qui solde la facture n'est pas un acompte.
+  &--solde {
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    color: var(--succes-encre);
+  }
+}
+
+.progress-bar {
+  &__track {
+    background: var(--fond);
+    height: 8px;
+    border-radius: var(--rayon-xs);
+    overflow: hidden;
+    margin-bottom: var(--pas-2);
+  }
+
+  &__fill {
+    background: linear-gradient(90deg, var(--action), var(--action-survol));
+
+    // Soldée : le Vert Nappe est la couleur de ce que l'application confirme.
+    &--solde {
+      background: linear-gradient(90deg, var(--succes), var(--vert-profond));
+    }
+    height: 100%;
+    border-radius: var(--rayon-xs);
+    transform: scaleX(var(--pct, 0)); // scaleX (non layout) au lieu de width animée
+    transform-origin: left center;
+    transition: transform 0.4s var(--ease-out);
+    will-change: transform;
+  }
+
+  &__labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--texte-sm);
+    font-weight: 600;
+  }
+
+  &__paid {
+    color: var(--action);
+  }
+  &__remaining {
+    color: var(--danger-encre);
+  }
+}
+
+.paiement-form {
+  border-top: 1px solid var(--fond);
+  padding-top: var(--pas-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  // Le contenu du formulaire (grid + champs + submit) vit dans
+  // <app-paiement-form> shared (batch 7 facturation).
+}
+
+// ── Paiement en bottom sheet (mobile · MB-06) ─────────────────────────────────
+.paiement-form__backdrop {
+  display: none;
+}
+.paiement-form__grip {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .paiement-form__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--voile);
+    z-index: 99;
+  }
+  .paiement-form {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-radius: 24px 24px 0 0; // rounded.sheet — conforme signature mobile bottom-sheet
+    padding: var(--pas-3) var(--pas-4) calc(var(--pas-5) + env(safe-area-inset-bottom, 0px));
+    margin: 0;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: var(--ombre-panneau);
+  }
+  .paiement-form__grip {
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--filet);
+    border-radius: var(--rayon-xs);
+    margin: 0 auto var(--pas-4);
+  }
+}
+
+// ── Paiements MB-05 : check vert + mode + montant vert ───────────────────────
+.mpaiements {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mpaiements {
+    display: block;
+
+    &__row {
+      display: flex;
+      align-items: center;
+      gap: var(--pas-2);
+      padding: var(--pas-2) 0;
+      border-bottom: 1px solid var(--fond);
+    }
+
+    &__check {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--succes-fond);
+      color: var(--succes-encre);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--texte-xs);
+      flex-shrink: 0;
+    }
+
+    &__body {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    &__mode {
+      font-size: var(--texte-sm);
+      font-weight: 600;
+      color: var(--encre);
+    }
+    &__meta {
+      font-size: var(--texte-xs);
+      color: var(--encre-3);
+    }
+    &__montant {
+      font-size: var(--texte-md);
+      font-weight: 700;
+      color: var(--succes-encre);
+      flex-shrink: 0;
+    }
+
+    &__reste {
+      display: flex;
+      justify-content: space-between;
+      padding-top: var(--pas-2);
+      font-size: var(--texte-xs);
+      font-weight: 500;
+      color: var(--encre-3);
+    }
+    &__reste-montant {
+      font-size: var(--texte-sm);
+      font-weight: 700;
+      color: var(--danger-encre);
+    }
+  }
+}
+
+// ── Masquage des équivalents desktop (MB-05) ─────────────────────────────────
+@media (max-width: 1023px) {
+  .paiements-list,
+  .progress-bar,
+  .card-row-header .btn {
+    display: none;
+  }
+}
