@@ -62,6 +62,9 @@ export class AbonnesListComponent implements OnInit {
 
   private abonnesQuery!: QueryRef<GetAbonnesQuery>;
 
+  /** Taille de page — partagée entre le calcul d'`offset` et `app-data-table`. */
+  readonly PAGE_SIZE = 25;
+
   readonly abonnes = signal<AbonneLigne[]>([]);
   readonly reactiverDialogVisible = signal(false);
   readonly reactiverCible = signal<AbonneLigne | null>(null);
@@ -70,6 +73,50 @@ export class AbonnesListComponent implements OnInit {
   readonly searchTerm = signal('');
   readonly statutFilter = signal<StatutAbonne | null>(null);
   readonly quartierFilter = signal<string | null>(null);
+
+  /** Page courante (0-based) — n'a d'effet que côté serveur, voir `modeServeur`. */
+  readonly pageIndex = signal(0);
+  /** Total réel côté serveur pour le statut filtré (mode serveur uniquement). */
+  readonly totalCount = signal(0);
+  /**
+   * Compteurs globaux par statut, indépendants de la page affichée — la
+   * gateway ne connaît que `statut` comme filtre serveur ; ni la recherche
+   * texte ni le quartier n'existent côté contrat GraphQL. Servent au résumé
+   * d'en-tête et aux puces de filtre, qui doivent parler du parc entier, pas
+   * de la page à l'écran.
+   */
+  readonly countsParStatut = signal<Record<StatutAbonne, number>>({ ACTIF: 0, SUSPENDU: 0, RESILIE: 0 });
+  /**
+   * Quartiers disponibles pour le filtre — dérivés de `abonnesActifs` (léger,
+   * déjà utilisé ailleurs) plutôt que de la page affichée : sinon, en mode
+   * serveur, le menu ne proposerait que les quartiers de la page 1.
+   * Connu défaut : ne couvre que les abonnés ACTIF (les SUSPENDU/RESILIE d'un
+   * quartier autrement absent de la page 1 n'y apparaîtraient pas).
+   */
+  readonly quartiersDisponibles = signal<string[]>([]);
+
+  /**
+   * `true` : pagination serveur réelle (`limit`/`offset` + `abonnesCount`),
+   * le cas courant. `false` : recherche texte ou quartier actifs — deux
+   * filtres que la gateway n'expose pas (`abonnes(statut)` est son seul
+   * argument de filtrage) — et l'écran retombe sur l'ancien comportement :
+   * tout le statut chargé, filtré et paginé côté client par `app-data-table`.
+   * Un compromis assumé, pas une approximation : les deux filtres restent
+   * exacts sur l'ensemble du parc, seule la pagination serveur s'efface le
+   * temps qu'ils sont actifs.
+   */
+  readonly modeServeur = computed(() => !this.searchTerm().trim() && !this.quartierFilter());
+
+  /** Total du parc, tous statuts confondus — pour le « … sur N » du bandeau. */
+  readonly totalParc = computed(() => {
+    const c = this.countsParStatut();
+    return c.ACTIF + c.SUSPENDU + c.RESILIE;
+  });
+  /** Nombre de résultats correspondant aux filtres actifs, plein périmètre
+   *  (pas seulement la page à l'écran) — pour le « N sur M » du bandeau. */
+  readonly resultCount = computed(() =>
+    this.modeServeur() ? this.totalCount() : this.filteredAbonnes().length,
+  );
 
   readonly columns: DataTableColumn[] = [
     { key: 'numero', header: 'ABONNES.NUMERO', sortable: true, sortValue: (r) => (r as Abonne).numeroAbonne },
@@ -107,9 +154,9 @@ export class AbonnesListComponent implements OnInit {
 
   readonly statutSummary = computed(() => {
     const lang = this.translate.currentLang() ?? undefined;
-    const all = this.abonnes();
-    const actifs = all.filter((a) => a.statut === 'ACTIF').length;
-    const suspendus = all.filter((a) => a.statut === 'SUSPENDU').length;
+    const counts = this.countsParStatut();
+    const actifs = counts.ACTIF;
+    const suspendus = counts.SUSPENDU;
     const parts: string[] = [];
     if (actifs > 0) {
       parts.push(this.translate.instant(
@@ -129,19 +176,12 @@ export class AbonnesListComponent implements OnInit {
   /** Filtres unifiés (batch 10) : statut auto-chips + quartier select. */
   readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
-    const all = this.abonnes();
+    const counts = this.countsParStatut();
     const chips: Array<{ key: string; value: StatutAbonne }> = [
       { key: 'ABONNES.CHIP_ACTIFS', value: 'ACTIF' },
       { key: 'ABONNES.CHIP_SUSPENDUS', value: 'SUSPENDU' },
       { key: 'ABONNES.CHIP_RESILIES', value: 'RESILIE' },
     ];
-    const quartiers = [
-      ...new Set(
-        this.abonnes()
-          .map((a) => a.compteur?.quartier)
-          .filter((q): q is string => !!q),
-      ),
-    ].sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
     return [
       {
         key: 'statut',
@@ -149,13 +189,13 @@ export class AbonnesListComponent implements OnInit {
         options: chips.map((c) => ({
           label: this.translate.instant(c.key, {}, lang),
           value: c.value,
-          count: all.filter((a) => a.statut === c.value).length,
+          count: counts[c.value],
         })),
       },
       {
         key: 'quartier',
         label: 'ABONNES.QUARTIER_FILTER',
-        options: quartiers.map((q) => ({ label: q, value: q })),
+        options: this.quartiersDisponibles().map((q) => ({ label: q, value: q })),
         render: 'select',
       },
     ];
@@ -169,6 +209,71 @@ export class AbonnesListComponent implements OnInit {
   onFiltersChange(v: FilterValues): void {
     this.statutFilter.set((v['statut'] as StatutAbonne | null) ?? null);
     this.quartierFilter.set(v['quartier']);
+    this.pageIndex.set(0);
+    this.appliquerFiltres();
+  }
+
+  /** Câblé sur `(searchChange)` — la recherche change aussi la clé de re-fetch
+   *  (elle bascule le mode serveur/client, voir `modeServeur`). */
+  onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.pageIndex.set(0);
+    this.appliquerFiltres();
+  }
+
+  /** Câblé sur `(pageChange)` de `app-data-table`, mode serveur uniquement. */
+  onPageChange(page: number): void {
+    this.pageIndex.set(page);
+    this.appliquerFiltres();
+  }
+
+  /** Variables de la requête `abonnes` pour l'état courant des filtres. */
+  private variablesCourantes(): { statut?: StatutAbonne; limit?: number; offset?: number } {
+    const statut = this.statutFilter() ?? undefined;
+    if (!this.modeServeur()) return { statut };
+    return { statut, limit: this.PAGE_SIZE, offset: this.pageIndex() * this.PAGE_SIZE };
+  }
+
+  /** Repropage les variables courantes sur la requête déjà ouverte, et
+   *  recharge le total serveur quand la pagination serveur est active. */
+  private appliquerFiltres(): void {
+    if (!this.abonnesQuery) return;
+    this.loading.set(true);
+    void this.abonnesQuery.setVariables(this.variablesCourantes());
+    if (this.modeServeur()) void this.chargerTotalCount();
+  }
+
+  private async chargerTotalCount(): Promise<void> {
+    try {
+      this.totalCount.set(await this.abonnesService.getAbonnesCount(this.statutFilter() ?? undefined));
+    } catch {
+      // Non-bloquant : la pagination reste sur la dernière valeur connue.
+    }
+  }
+
+  private async chargerCountsGlobaux(): Promise<void> {
+    const [actif, suspendu, resilie] = await Promise.allSettled([
+      this.abonnesService.getAbonnesCount('ACTIF'),
+      this.abonnesService.getAbonnesCount('SUSPENDU'),
+      this.abonnesService.getAbonnesCount('RESILIE'),
+    ]);
+    this.countsParStatut.set({
+      ACTIF: actif.status === 'fulfilled' ? actif.value : 0,
+      SUSPENDU: suspendu.status === 'fulfilled' ? suspendu.value : 0,
+      RESILIE: resilie.status === 'fulfilled' ? resilie.value : 0,
+    });
+  }
+
+  /** Quartiers pour le filtre — voir la note sur `quartiersDisponibles`. */
+  private async chargerQuartiers(): Promise<void> {
+    try {
+      const actifs = await this.abonnesService.getAbonnesActifs();
+      const quartiers = [...new Set(actifs.map((a) => a.quartier).filter((q): q is string => !!q))]
+        .sort((a, b) => a.localeCompare(b, 'fr', { sensitivity: 'base' }));
+      this.quartiersDisponibles.set(quartiers);
+    } catch {
+      // Non-bloquant : le filtre quartier reste vide plutôt que de casser l'écran.
+    }
   }
 
   /**
@@ -183,7 +288,10 @@ export class AbonnesListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.abonnesQuery = this.abonnesService.watchAbonnes();
+    this.abonnesQuery = this.abonnesService.watchAbonnes(this.variablesCourantes());
+    if (this.modeServeur()) void this.chargerTotalCount();
+    void this.chargerCountsGlobaux();
+    void this.chargerQuartiers();
 
     this.abonnesQuery.valueChanges
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -227,6 +335,7 @@ export class AbonnesListComponent implements OnInit {
     this.error.set(null);
     try {
       await this.abonnesQuery.refetch();
+      if (this.modeServeur()) await this.chargerTotalCount();
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.error.set(message || 'Impossible de charger la liste des abonnés.');
@@ -254,6 +363,10 @@ export class AbonnesListComponent implements OnInit {
     this.abonnes.update((list) =>
       list.map((a) => (a.id === abonne.id ? { ...a, statut: newStatut } : a)),
     );
+    // Un SUSPENDU devient ACTIF : les compteurs globaux (résumé, puces) sont
+    // désormais faux tant qu'on ne les recharge pas — ils ne dérivent plus de
+    // la page affichée.
+    void this.chargerCountsGlobaux();
     this.reactiverDialogVisible.set(false);
     this.toast.success(
       this.translate.instant('ABONNES.DETAIL.TOAST_REACTIVATED'),

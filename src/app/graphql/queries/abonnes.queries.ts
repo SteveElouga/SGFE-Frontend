@@ -21,10 +21,21 @@ export const ABONNE_DETAIL_UPDATED_SUB = gql`
 
 export const GET_ABONNES = gql`
   ${ABONNE_LIST_FIELDS}
-  query GetAbonnes($statut: StatutAbonne) {
-    abonnes(statut: $statut) {
+  query GetAbonnes($statut: StatutAbonne, $limit: Int, $offset: Int) {
+    abonnes(statut: $statut, limit: $limit, offset: $offset) {
       ...AbonneListFields
     }
+  }
+`;
+
+/**
+ * Total réel côté serveur pour la pagination — `abonnes-list` ne peut pas
+ * déduire le nombre de pages de `abonnes()` puisque celle-ci ne renvoie plus
+ * qu'une page à la fois dès que `limit`/`offset` sont fournis.
+ */
+export const GET_ABONNES_COUNT = gql`
+  query GetAbonnesCount($statut: StatutAbonne) {
+    abonnesCount(statut: $statut)
   }
 `;
 
