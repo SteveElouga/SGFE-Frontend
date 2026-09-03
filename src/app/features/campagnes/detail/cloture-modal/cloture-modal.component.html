@@ -1,0 +1,90 @@
+<!-- ── Cloture — bottom-sheet mobile / dialog desktop (v2 : migration du custom modal) ── -->
+<app-bottom-sheet
+  [open]="open()"
+  labelledBy="cloture-sheet-title"
+  (close)="close.emit()"
+>
+  <div class="cloture-body">
+    <div class="cloture-body__head">
+      <div class="cloture-body__icon" aria-hidden="true"><i aria-hidden="true" class="pi pi-lock"></i></div>
+      <div>
+        <h3 id="cloture-sheet-title" class="cloture-body__title">{{ 'CAMPAGNES.CLOTURE.TITLE' | translate:{ nom: periode() } }}</h3>
+        <p class="cloture-body__desc">
+          {{ 'CAMPAGNES.CLOTURE.DESC_1' | translate }}
+          <strong class="cloture-body__irr">{{ 'CAMPAGNES.CLOTURE.IRREVERSIBLE' | translate }}</strong>
+          {{ 'CAMPAGNES.CLOTURE.DESC_2' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <div class="cloture-stats">
+      <div class="cloture-stat cloture-stat--ok">
+        <span class="cloture-stat__n">{{ clotureStats().releve }}</span>
+        <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RELEVES' | translate }}</span>
+      </div>
+      <div class="cloture-stat cloture-stat--est">
+        <span class="cloture-stat__n">{{ clotureStats().estime }}</span>
+        <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.ESTIMES' | translate }}</span>
+      </div>
+      <div class="cloture-stat cloture-stat--nr">
+        <span class="cloture-stat__n">{{ clotureStats().nonReleve }}</span>
+        <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.NON_RELEVES' | translate }}</span>
+      </div>
+      <div class="cloture-stat cloture-stat--rest">
+        <span class="cloture-stat__n">{{ clotureStats().aRelever }}</span>
+        <span class="cloture-stat__l">{{ 'CAMPAGNES.CLOTURE.RESTANTS' | translate }}</span>
+      </div>
+    </div>
+
+    @if (sansReleve() > 0) {
+      <div class="cloture-warn" role="alert">
+        <i class="pi pi-exclamation-triangle cloture-warn__icon" aria-hidden="true"></i>
+        <span>{{ 'CAMPAGNES.CLOTURE.WARN' | translate:{ sans: sansReleve(), restants: clotureStats().aRelever, nonReleves: clotureStats().nonReleve, estimes: clotureStats().estime } }}</span>
+      </div>
+    }
+
+    <div class="cloture-summary">
+      <div class="cloture-summary__row">
+        <span>{{ 'CAMPAGNES.CLOTURE.SUM_FACTURES' | translate }}</span>
+        <span class="cloture-summary__v">{{ facturesAGenerer() }}</span>
+      </div>
+      <div class="cloture-summary__row">
+        <span>{{ 'CAMPAGNES.CLOTURE.SUM_PDF' | translate }}</span>
+        <span class="cloture-summary__v">{{ facturesAGenerer() }}</span>
+      </div>
+      <div class="cloture-summary__row">
+        <span>{{ 'CAMPAGNES.CLOTURE.SUM_WA' | translate }}</span>
+        <span class="cloture-summary__v" [class.cloture-summary__v--green]="envoyerWhatsappAuto()">
+          {{ (envoyerWhatsappAuto() ? 'CAMPAGNES.CLOTURE.ACTIVE' : 'CAMPAGNES.CLOTURE.INACTIVE') | translate }}
+        </span>
+      </div>
+      @if (tarifActuel(); as t) {
+        <div class="cloture-summary__row">
+          <span>{{ 'CAMPAGNES.CLOTURE.SUM_TARIF' | translate }}</span>
+          <span class="cloture-summary__v">{{ t.prixM3 | number:'1.0-0' }} FCFA/m³</span>
+        </div>
+      }
+    </div>
+
+    <label class="cloture-check">
+      <input type="checkbox" [ngModel]="clotureConfirme()" (ngModelChange)="clotureConfirme.set($event)" />
+      <span>{{ 'CAMPAGNES.CLOTURE.CONFIRM' | translate:{ nom: periode() } }}</span>
+    </label>
+
+    <div class="cloture-actions">
+      <button type="button" class="btn btn--outline cloture-actions__cancel" (click)="close.emit()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="btn btn--dark cloture-actions__confirm"
+        [disabled]="!clotureConfirme() || cloturant()"
+        [attr.aria-busy]="cloturant()"
+        (click)="cloturer()"
+      >
+        @if (cloturant()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+        <i class="pi pi-lock" aria-hidden="true"></i> {{ 'CAMPAGNES.CLOTURE.CONFIRM_BTN' | pluriel:facturesAGenerer():{ n: facturesAGenerer() } }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

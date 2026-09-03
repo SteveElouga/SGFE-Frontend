@@ -1,0 +1,159 @@
+<!-- Section relevés -->
+<div class="releves-section">
+  <div class="releves-section__header">
+    <h2 class="releves-section__title">{{ 'CAMPAGNES.RELEVES_TITLE' | translate }}</h2>
+    <div class="releves-section__filters">
+      @if (quartiersDisponibles().length > 1) {
+        <p-select
+          class="releves-filter releves-filter--quartier"
+          [options]="quartiersDisponibles()"
+          [ngModel]="filtreQuartier()"
+          (ngModelChange)="filtreQuartier.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          [placeholder]="'CAMPAGNES.FILTRE_QUARTIER' | translate"
+        />
+      }
+      <p-select
+        class="releves-filter releves-filter--statut"
+        [options]="statutReleveOptions()"
+        [ngModel]="filtreReleveStatut()"
+        (ngModelChange)="filtreReleveStatut.set($event)"
+        optionLabel="label"
+        optionValue="value"
+      />
+    </div>
+
+    <!-- Chips de statut (mobile, pattern M-05) à la place des dropdowns -->
+    <div class="releves-chips">
+      <app-filter-chips
+        [options]="releveChips()"
+        [total]="releves().length"
+        [value]="releveChipValue()"
+        (valueChange)="onReleveChip($event)"
+      />
+    </div>
+  </div>
+
+  <div class="releves-table-wrap">
+    <table class="releves-table">
+      <thead>
+        <tr>
+          <th>{{ 'CAMPAGNES.COL_ABONNE' | translate }}</th>
+          <th>{{ 'CAMPAGNES.COL_QUARTIER_CAMP' | translate }}</th>
+          <th class="col-num">{{ 'CAMPAGNES.COL_ANC_INDEX' | translate }}</th>
+          <th class="col-num">{{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }}</th>
+          <th class="col-num">{{ 'CAMPAGNES.COL_CONSO' | translate }}</th>
+          <th>{{ 'COMMON.STATUS' | translate }}</th>
+          @if (canActOnCampagne()) {
+            <th class="col-actions">{{ 'CAMPAGNES.COL_ACTIONS' | translate }}</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of relevesFiltres(); track r.releveId) {
+          @let isReleve = r.statut === 'RELEVE' || r.statut === 'ESTIME';
+          @let isARelever = r.statut === 'A_RELEVER';
+          <tr [class.releves-table__row--muted]="isARelever">
+            <td class="col-abonne" [class.col-abonne--muted]="isARelever">
+              @let nomAb = nomAbonne(r.abonnePrenom, r.abonneNom);
+              @if (nomAb) {
+                {{ nomAb }}@if (r.numeroAbonne) { <span class="id-fallback">{{ r.numeroAbonne }}</span> }
+              } @else {
+                <span class="id-fallback">{{ r.numeroAbonne || (r.abonneId | slice:0:8) }}…</span>
+              }
+            </td>
+            <td class="col-meta">
+              @if (r.quartier) {
+                {{ r.quartier }}@if (r.camp !== null && r.camp !== undefined) { · {{ r.camp }} }
+              } @else {
+                {{ abonnesMap().get(r.abonneId) ?? '—' }}
+              }
+            </td>
+            <td class="col-num col-anc-index">{{ r.ancienIndex | number:'1.0-0' }}</td>
+            <td class="col-num col-nouv-index">
+              @if (isReleve) {
+                {{ r.nouveauIndex | number:'1.0-0' }}
+              } @else {
+                <span class="col-dash">—</span>
+              }
+            </td>
+            <td class="col-num col-conso">
+              @if (isReleve) {
+                {{ r.consommation | number:'1.0-0' }}
+              } @else {
+                <span class="col-dash">—</span>
+              }
+            </td>
+            <td>
+              <app-badge [tone]="releveStatutTone(r.statut)" [label]="'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate" />
+            </td>
+            @if (canActOnCampagne()) {
+              <td class="col-actions">
+                @if (r.statut === 'RELEVE') {
+                  <button
+                    type="button"
+                    class="releves-table__corriger-btn"
+                    (click)="corriger.emit(r)"
+                    [attr.aria-label]="'CAMPAGNES.CORRIGER_RELEVE.ACTION_ARIA' | translate: { nom: nomAbonne(r.abonnePrenom, r.abonneNom) || r.numeroAbonne }"
+                  >
+                    <i class="pi pi-pencil" aria-hidden="true"></i>
+                    {{ 'CAMPAGNES.CORRIGER_RELEVE.ACTION' | translate }}
+                  </button>
+                }
+              </td>
+            }
+          </tr>
+        }
+
+        @if (relevesFiltres().length === 0) {
+          <tr>
+            <td [attr.colspan]="canActOnCampagne() ? 7 : 6" class="releves-empty-row">
+              <i aria-hidden="true" class="pi pi-list"></i>
+              {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Relevés en cartes (mobile · MB-02) -->
+  <div class="releves-mobile">
+    @for (r of relevesFiltres(); track r.releveId) {
+      @let isReleve = r.statut === 'RELEVE' || r.statut === 'ESTIME';
+      <div class="rm-card">
+        <span class="rm-card__dot rm-card__dot--{{ r.statut | lowercase }}"></span>
+        <div class="rm-card__info">
+          @let nomCard = nomAbonne(r.abonnePrenom, r.abonneNom);   <!-- même ordre que le tableau -->
+          <span class="rm-card__nom">{{ nomCard || r.numeroAbonne || (r.abonneId | slice:0:8) }}</span>
+          <span class="rm-card__sub">
+            @if (isReleve) {
+              {{ r.consommation | number:'1.0-0' }} m³ · {{ 'CAMPAGNES.COL_NOUV_INDEX' | translate }} {{ r.nouveauIndex | number:'1.0-0' }}
+            } @else {
+              {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
+            }
+          </span>
+        </div>
+        <span class="rm-card__statut rm-card__statut--{{ r.statut | lowercase }}">
+          {{ 'CAMPAGNES.RELEVE_STATUT.' + r.statut | translate }}
+        </span>
+        @if (canActOnCampagne() && r.statut === 'RELEVE') {
+          <button
+            type="button"
+            class="rm-card__corriger-btn"
+            (click)="corriger.emit(r)"
+            [attr.aria-label]="'CAMPAGNES.CORRIGER_RELEVE.ACTION_ARIA' | translate: { nom: nomAbonne(r.abonnePrenom, r.abonneNom) || r.numeroAbonne }"
+          >
+            <i class="pi pi-pencil" aria-hidden="true"></i>
+          </button>
+        }
+      </div>
+    } @empty {
+      <div class="releves-mobile__empty">
+        <i aria-hidden="true" class="pi pi-list"></i>
+        {{ 'CAMPAGNES.RELEVES_EMPTY' | translate }}
+      </div>
+    }
+  </div>
+</div>

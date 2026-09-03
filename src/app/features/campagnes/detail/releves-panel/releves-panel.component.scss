@@ -1,0 +1,319 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// ── Section relevés ───────────────────────────────────────────────────────────
+
+.releves-section {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  overflow: hidden;
+  // Sous 1024px, `.detail-page` (= `.page-scroll`, chez le parent) devient
+  // flex-column ; sans ceci, la taille minimale automatique d'un flex-item
+  // retombe à 0 dès qu'il porte `overflow` autre que `visible` (spec Flexbox)
+  // — la section se faisait comprimer, les relevés tronqués net sans
+  // scrollbar pour compenser. Même piège que `.notif-card` (notifications) et
+  // `.abonnes-card` (liste abonnés) — ici scopé au mobile, seul contexte où
+  // `.detail-page` est flex-column.
+  @media (max-width: 1023px) {
+    flex-shrink: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--pas-4) var(--pas-5);
+    border-bottom: 1px solid var(--fond);
+    flex-wrap: wrap;
+    gap: var(--pas-2);
+  }
+
+  &__title {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0;
+  }
+
+  &__filters {
+    display: flex;
+    gap: var(--pas-2);
+    flex-wrap: wrap;
+  }
+}
+
+// Chips de statut des relevés : mobile uniquement (pattern M-05). Le select
+// Statut desktop devient donc redondant sous 1024px et se masque — mais le
+// select Quartier, lui, n'a pas d'équivalent chips : le masquer purement et
+// simplement rendait le filtre par quartier inaccessible en mobile dès qu'une
+// campagne portait plusieurs quartiers (aucune alternative n'existait dans le
+// DOM). Il reste donc visible, seul, à côté des chips de statut.
+.releves-chips {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .releves-filter--statut {
+    display: none;
+  }
+  // Pleine largeur, comme les chips en dessous : un select posé à sa largeur
+  // de contenu à côté du titre se serrait sur une ligne trop étroite pour le
+  // pouce (la même raison que `.fp__sheet-selects` dans le panneau partagé).
+  .releves-filter--quartier {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  .releves-chips {
+    display: block;
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+}
+
+// ── Table relevés ─────────────────────────────────────────────────────────────
+
+.releves-table-wrap {
+  overflow-x: auto;
+  @include hide-scrollbar;
+}
+
+.releves-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texte-md);
+
+  thead th {
+    padding: var(--pas-2) var(--pas-4);
+    font-weight: 600;
+    font-size: var(--texte-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--encre-3);
+    background: var(--surface-douce);
+    border-bottom: 1px solid var(--filet);
+    white-space: nowrap;
+    text-align: left;
+  }
+
+  tbody td {
+    padding: var(--pas-3) var(--pas-4);
+    border-bottom: 1px solid var(--fond);
+    color: var(--encre);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    tbody tr:hover td {
+      background: var(--surface-douce);
+    }
+  }
+
+  &__row--muted td {
+    color: var(--encre-3);
+  }
+}
+
+.col-abonne {
+  font-weight: 500;
+  min-width: 140px;
+
+  &--muted {
+    color: var(--encre-3) !important;
+    font-weight: 400;
+  }
+}
+
+.col-meta {
+  color: var(--encre-3);
+  white-space: nowrap;
+}
+
+.col-num {
+  text-align: left !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.col-anc-index {
+  color: var(--encre-3);
+}
+
+.col-nouv-index,
+.col-conso {
+  font-weight: 700;
+  color: var(--encre);
+}
+
+.col-dash {
+  color: var(--encre-3);
+}
+
+.col-actions {
+  white-space: nowrap;
+}
+
+.releves-table__corriger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-1);
+  min-height: 36px;
+  padding: 0 var(--pas-3);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  background: var(--surface);
+  color: var(--encre-2);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action); }
+  }
+}
+
+.rm-card__corriger-btn {
+  flex-shrink: 0;
+  min-width: 44px;                  // WCAG 2.5.5
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--encre-3);
+  cursor: pointer;
+
+  i { font-size: var(--icone-sm); }
+}
+
+.id-fallback {
+  font-family: 'Courier New', monospace;
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}
+
+.releves-empty-row {
+  text-align: center !important;
+  padding: var(--pas-7) !important;
+  color: var(--encre-3);
+
+  .pi {
+    display: block;
+    font-size: var(--icone-xl);
+    margin-bottom: var(--pas-2);
+  }
+}
+
+// ── Relevés en cartes (mobile · MB-02) ────────────────────────────────────────
+// Lignes dans la carte blanche de la section, séparées par un filet 1px.
+.releves-mobile {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .releves-table-wrap {
+    display: none;
+  }
+  .releves-mobile {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.releves-mobile__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-7) var(--pas-4);
+  color: var(--encre-3);
+  font-size: var(--texte-md);
+  .pi {
+    font-size: var(--icone-lg);
+  }
+}
+
+.rm-card {
+  background: var(--surface);
+  border-bottom: 1px solid var(--fond);
+  padding: var(--pas-3) var(--pas-3);
+  display: flex;
+  align-items: center;
+  gap: var(--pas-3);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--filet-pale);
+    &--releve {
+      background: var(--succes);
+    }
+    &--estime {
+      background: var(--attente);
+    }
+    &--non_releve {
+      background: var(--danger);
+    }
+    &--a_relever {
+      background: var(--filet-pale);
+    }
+  }
+  &__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  &__nom {
+    font-size: var(--texte-md);
+    font-weight: 600;
+    color: var(--encre);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__sub {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Statut en texte coloré (MB-02), à la place d'un badge
+  &__statut {
+    flex-shrink: 0;
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-3);
+
+    &--releve {
+      color: var(--succes-encre);
+    }
+    &--estime {
+      color: var(--ambre-attente);
+    }
+    &--non_releve {
+      color: var(--danger-encre);
+    }
+    &--a_relever {
+      color: var(--encre-3);
+    }
+  }
+}

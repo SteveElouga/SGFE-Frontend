@@ -7,12 +7,9 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { DatePipe, DecimalPipe, LowerCasePipe, SlicePipe } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
+import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Apollo, QueryRef } from 'apollo-angular';
 import { PROGRESSION_UPDATED_SUB } from '../../../graphql/queries/campagnes.queries';
@@ -21,59 +18,47 @@ import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { AuthService, extractGqlError } from '../../../core/auth/auth.service';
 import { Tarif } from '../../../shared/models/facture.model';
-import { AgentAffecte, Progression, ResumeCloture, ZoneRepartition, campagneStatutTone, formatPeriodeCampagne, releveStatutTone } from '../../../shared/models/campagne.model';
+import { AgentAffecte, Progression, ResumeCloture, ZoneRepartition, campagneStatutTone, formatPeriodeCampagne } from '../../../shared/models/campagne.model';
 import { BadgeComponent } from '../../../shared/components/badge/badge.component';
 import { ErrorBannerComponent } from '../../../shared/components/error-banner/error-banner.component';
-import { FilterChipsComponent, FilterChip } from '../../../shared/components/filter-chips/filter-chips.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { AgentsSheetComponent } from '../agents-sheet/agents-sheet.component';
 import { ZonesSheetComponent } from '../zones-sheet/zones-sheet.component';
 import { AbonnesSheetComponent } from '../abonnes-sheet/abonnes-sheet.component';
 import { CorrigerReleveSheetComponent } from '../corriger-releve-sheet/corriger-releve-sheet.component';
-import { BottomSheetComponent } from '../../../shared/components/bottom-sheet/bottom-sheet.component';
 import { PageTopbarComponent } from '../../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../../shared/services/toast.service';
-import { PlurielPipe } from '../../../shared/pipes/pluriel.pipe';
+import { ClotureModalComponent } from './cloture-modal/cloture-modal.component';
+import { RelevesPanelComponent } from './releves-panel/releves-panel.component';
+import { AgentsPanelComponent } from './agents-panel/agents-panel.component';
 import type { ProgressionUpdatedSubscription } from '../../../graphql/generated';
 import type { CampagneDetail, ReleveLigne } from '../../../graphql/vues';
 import type { CorrigerReleveMutation, GetCampagneQuery } from '../../../graphql/generated';
 
 @Component({
   selector: 'app-campagne-detail',
-  imports: [PlurielPipe, 
+  imports: [
     DatePipe,
-    DecimalPipe,
-    LowerCasePipe,
-    SlicePipe,
-    FormsModule,
-    SelectModule,
     ErrorBannerComponent,
-    FilterChipsComponent,
     AgentsSheetComponent,
     ZonesSheetComponent,
     AbonnesSheetComponent,
     CorrigerReleveSheetComponent,
-    BottomSheetComponent,
     PageTopbarComponent,
     TranslatePipe,
     BadgeComponent,
     SkeletonComponent,
+    ClotureModalComponent,
+    RelevesPanelComponent,
+    AgentsPanelComponent,
   ],
   templateUrl: './campagne-detail.component.html',
   styleUrl: './campagne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    // Fermeture au clavier de la modale de clôture (équivalent du clic sur le fond).
-    '(document:keydown.escape)': 'onEscape()',
-  },
 })
 export class CampagneDetailComponent implements OnInit {
-  /** Ordre d'affichage unique du nom d'abonné — voir `abonne.utils.ts`. */
-  protected readonly nomAbonne = nomAbonne;
-
-  /** Exposés au template pour la teinte des puces de statut. */
+  /** Exposé au template pour la teinte du badge de statut de la campagne. */
   protected readonly campagneStatutTone = campagneStatutTone;
-  protected readonly releveStatutTone = releveStatutTone;
 
   private readonly apollo = inject(Apollo);
 
@@ -164,51 +149,17 @@ export class CampagneDetailComponent implements OnInit {
   readonly campagne = signal<CampagneDetail | null>(null);
   readonly progression = signal<Progression | null>(null);
   readonly releves = signal<ReleveLigne[]>([]);
-  readonly cloturant = signal(false);
   readonly demarrant = signal(false);
 
   // ── Modal de clôture (écran 18) ──────────────────────────────────────────────
+  // Le contenu (stats, confirmation, action de clôture) vit dans
+  // <app-cloture-modal> — ce composant garde seulement l'ouverture/fermeture
+  // et les données pré-chargées qu'elle consomme en entrée.
   readonly clotureModalVisible = signal(false);
-  readonly clotureConfirme = signal(false);
   readonly tarifActuel = signal<Tarif | null>(null);
   /** Ventilation autoritative chargée à l'ouverture de la modale (null → repli heuristique). */
   readonly resumeCloture = signal<ResumeCloture | null>(null);
 
-  /**
-   * Compteurs de la modale de clôture : privilégie `resumeCloture` (backend
-   * autoritatif, écran 18) et retombe sur l'agrégat client `relevesByStatut`
-   * si absent (non chargé ou rôle sans accès).
-   */
-  readonly clotureStats = computed(() => {
-    const r = this.resumeCloture();
-    if (r) {
-      return {
-        releve: r.nbReleves,
-        estime: r.nbEstimes,
-        nonReleve: r.nbNonReleves,
-        aRelever: r.nbRestants,
-        facturesAGenerer: r.nbFacturesAGenerer,
-      };
-    }
-    const h = this.relevesByStatut();
-    return {
-      releve: h.releve,
-      estime: h.estime,
-      nonReleve: h.nonReleve,
-      aRelever: h.aRelever,
-      facturesAGenerer: h.releve + h.estime,
-    };
-  });
-
-  readonly facturesAGenerer = computed(() => this.clotureStats().facturesAGenerer);
-  readonly sansReleve = computed(() => {
-    const s = this.clotureStats();
-    return s.aRelever + s.nonReleve;
-  });
-
-  // ── Filtres relevés ────────────────────────────────────────────────────────
-  readonly filtreReleveStatut = signal('TOUS');
-  readonly filtreQuartier = signal<string | null>(null);
   // abonneId → quartier, populated after load
   readonly abonnesMap = signal<Map<string, string>>(new Map());
   // abonneId → zone (quartier + camp), pour la répartition par zone
@@ -273,173 +224,12 @@ export class CampagneDetailComponent implements OnInit {
     return agents.length ? agents.map((a) => a.username).join(' · ') : null;
   });
 
-  // Cartes « Agents affectés » — alimentées par la query `agentsCampagne`
-  // (total abonnés par agent dérivé de la répartition par zone).
-  readonly agentsAffectes = computed(() => {
-    const repart = this.repartData();
-    return this.agentsData().map((a) => {
-      const total = repart
-        .filter((z) => z.agentId === a.agentId)
-        .reduce((s, z) => s + (z.nbAbonnes ?? 0), 0);
-      const done = a.nbReleves ?? 0;
-      const zones = (a.zones ?? []).map((z) => ({ nom: z.quartier, camp: z.camp }));
-      return {
-        id: a.agentId,
-        username: a.username,
-        initials: this.agentInitials(a.username),
-        statut: a.statut,
-        zonesGroupees: this.grouperZonesParQuartier(zones),
-        nbReleves: done,
-        nbAbonnes: total,
-        pct: total ? Math.round((done / total) * 100) : 0,
-        syncLe: a.derniereActivite,
-      };
-    });
-  });
-
-  private agentInitials(username: string): string {
-    const parts = username.split(/[._\- ]/).filter(Boolean);
-    const s = parts.length >= 2 ? parts[0][0] + parts[1][0] : username.slice(0, 2);
-    return s.toUpperCase();
-  }
-
-  /**
-   * Un agent avec 5 camps dans le même quartier affichait 5 pastilles
-   * identiques hormis un chiffre (« Bastos · 1 », « Bastos · 5 »...). Une
-   * pastille par quartier, ses camps listés ensemble (« Bastos · 1, 5 »),
-   * porte la même information en une fraction de l'espace.
-   */
-  private grouperZonesParQuartier(
-    zones: { nom: string; camp: number | null }[],
-  ): { nom: string; camps: (number | null)[] }[] {
-    const parCamp = new Map<string, (number | null)[]>();
-    for (const z of zones) {
-      const camps = parCamp.get(z.nom);
-      if (camps) camps.push(z.camp);
-      else parCamp.set(z.nom, [z.camp]);
-    }
-    return [...parCamp.entries()].map(([nom, camps]) => ({ nom, camps }));
-  }
-
-  // ── Repli des zones d'un agent au-delà de zonesVisibles (carte agent) ────
-  protected readonly zonesVisibles = 6;
-  private readonly agentsZonesEtendues = signal<ReadonlySet<string>>(new Set());
-
-  agentZonesEstEtendu(agentId: string): boolean {
-    return this.agentsZonesEtendues().has(agentId);
-  }
-
-  basculerAgentZones(agentId: string): void {
-    const next = new Set(this.agentsZonesEtendues());
-    if (next.has(agentId)) next.delete(agentId);
-    else next.add(agentId);
-    this.agentsZonesEtendues.set(next);
-  }
-
-  // Statut de tournée : le backend renvoie une chaîne libre → normalisation
-  // tolérante (variantes de casse/format).
-  agentStatutClass(statut: string | null): string {
-    const s = (statut ?? '').toUpperCase();
-    if (s.includes('TOURN')) return 'agent-statut--tournee';
-    if (s.includes('RETARD')) return 'agent-statut--retard';
-    if (s.includes('ACTIF') || s.includes('ACTIVE')) return 'agent-statut--actif';
-    return 'agent-statut--inactif';
-  }
-
-  agentStatutLabel(statut: string | null): string {
-    const s = (statut ?? '').toUpperCase();
-    let key: string | null = null;
-    if (s.includes('TOURN')) key = 'EN_TOURNEE';
-    else if (s.includes('RETARD')) key = 'EN_RETARD';
-    else if (s.includes('ACTIF') || s.includes('ACTIVE')) key = 'ACTIF';
-    else if (!s || s.includes('INACTIF')) key = 'INACTIF';
-    return key ? this.translate.instant(`CAMPAGNES.AGENT_STATUT.${key}`) : (statut ?? '');
-  }
-
-  agentSyncLabel(iso: string | null): string {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return '—';
-    const diff = Date.now() - d.getTime();
-    const lang = this.translate.currentLang() ?? undefined;
-    const min = Math.floor(diff / 60000);
-    if (min < 1) return this.translate.instant('CAMPAGNES.SYNC_NOW', {}, lang);
-    if (min < 60) return this.translate.instant('CAMPAGNES.SYNC_MIN', { n: min }, lang);
-    const h = Math.floor(min / 60);
-    if (h < 24) return this.translate.instant('CAMPAGNES.SYNC_HOUR', { n: h }, lang);
-    return this.translate.instant('CAMPAGNES.SYNC_DAY', { n: Math.floor(h / 24) }, lang);
-  }
-
-  readonly statutReleveOptions = computed(() => [
-    { label: this.translate.instant('CAMPAGNES.FILTRE_STATUT_RELEVE'), value: 'TOUS' },
-    { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.RELEVE'), value: 'RELEVE' },
-    { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.ESTIME'), value: 'ESTIME' },
-    { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.NON_RELEVE'), value: 'NON_RELEVE' },
-    { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.A_RELEVER'), value: 'A_RELEVER' },
-  ]);
-
-  /** Chips de statut des relevés (mobile, pattern M-05) : pluriels + compteurs. */
-  readonly releveChips = computed((): FilterChip[] => {
-    const lang = this.translate.currentLang() ?? undefined;
-    const h = this.relevesByStatut();
-    return [
-      { label: this.translate.instant('CAMPAGNES.KPI_RELEVES', {}, lang), value: 'RELEVE', count: h.releve },
-      { label: this.translate.instant('CAMPAGNES.KPI_ESTIMES', {}, lang), value: 'ESTIME', count: h.estime },
-      { label: this.translate.instant('CAMPAGNES.KPI_NON_RELEVES', {}, lang), value: 'NON_RELEVE', count: h.nonReleve },
-      { label: this.translate.instant('CAMPAGNES.RELEVE_STATUT.A_RELEVER', {}, lang), value: 'A_RELEVER', count: h.aRelever },
-    ];
-  });
-
-  /** Valeur des chips : `null` = « Tous » (le signal utilise 'TOUS'). */
-  readonly releveChipValue = computed(() => {
-    const statut = this.filtreReleveStatut();
-    return statut === 'TOUS' ? null : statut;
-  });
-
-  onReleveChip(value: string | null): void {
-    this.filtreReleveStatut.set(value ?? 'TOUS');
-  }
-
-  readonly quartiersDisponibles = computed(() => {
-    const map = this.abonnesMap();
-    const releves = this.releves();
-    const set = new Set<string>();
-    releves.forEach((r) => {
-      const q = map.get(r.abonneId);
-      if (q) set.add(q);
-    });
-    const lang = this.translate.currentLang() ?? undefined;
-    return [
-      { label: this.translate.instant('CAMPAGNES.FILTRE_QUARTIER', {}, lang), value: null },
-      ...[...set].sort((a, b) => a.localeCompare(b, 'fr')).map((q) => ({ label: q, value: q })),
-    ];
-  });
-
-  // Répartition par zone — query backend `repartitionParZone` (inclut l'agent).
-  readonly repartitionZones = computed(() =>
-    this.repartData().map((z) => ({
-      key: `${z.quartier}·${z.camp ?? '—'}·${z.agentId ?? ''}`,
-      quartier: z.quartier,
-      camp: z.camp,
-      agentUsername: z.agentUsername,
-      agentInitials: z.agentUsername ? this.agentInitials(z.agentUsername) : null,
-      abonnes: z.nbAbonnes,
-      releves: z.nbReleves,
-      pct: Math.round(z.pct ?? 0),
-    })),
-  );
-
-  readonly relevesFiltres = computed(() => {
-    let list = this.releves();
-    const statut = this.filtreReleveStatut();
-    if (statut !== 'TOUS') list = list.filter((r) => r.statut === statut);
-    const quartier = this.filtreQuartier();
-    if (quartier) {
-      const map = this.abonnesMap();
-      list = list.filter((r) => map.get(r.abonneId) === quartier);
-    }
-    return list;
-  });
+  // Les cartes agents, la répartition par zone (<app-agents-panel>) et les
+  // filtres/table des relevés (<app-releves-panel>) sont désormais des
+  // sous-composants — ce composant garde `agentsData`/`repartData`/`releves`/
+  // `abonnesMap`, qui servent aussi ailleurs (agentsLabel, assignedUsernames,
+  // la carte progression, la modale de clôture), et se contente de les
+  // passer en entrée.
 
   constructor(route: ActivatedRoute) {
     this.campagneId = route.snapshot.paramMap.get('id')!;
@@ -558,7 +348,6 @@ export class CampagneDetailComponent implements OnInit {
   }
 
   openClotureModal(): void {
-    this.clotureConfirme.set(false);
     this.resumeCloture.set(null);
     this.clotureModalVisible.set(true);
     // Ventilation autoritative (non bloquant : la modale reste utilisable via l'heuristique).
@@ -574,25 +363,12 @@ export class CampagneDetailComponent implements OnInit {
     this.clotureModalVisible.set(false);
   }
 
-  /** Escape ferme la modale de clôture (accessibilité clavier). */
-  onEscape(): void {
-    if (this.clotureModalVisible()) this.closeClotureModal();
-  }
-
-  async cloturer(): Promise<void> {
-    if (this.cloturant() || !this.clotureConfirme()) return;
-    this.cloturant.set(true);
-    try {
-      await this.service.cloturerCampagne(this.campagneId);
-      this.clotureModalVisible.set(false);
-      await this.load();
-      this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CLOTUREE'));
-    } catch (err: unknown) {
-      const { message } = extractGqlError(err);
-      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
-    } finally {
-      this.cloturant.set(false);
-    }
+  /** Clôture réussie (remontée par `<app-cloture-modal>`) : ferme, recharge,
+   *  puis affiche le succès — même ordre que l'ancien `cloturer()` local. */
+  async onCloture(): Promise<void> {
+    this.clotureModalVisible.set(false);
+    await this.load();
+    this.toast.success(this.translate.instant('CAMPAGNES.SUCCESS_CLOTUREE'));
   }
 
   /** Démarre à la demande une campagne PLANIFIEE (débloque la saisie des relevés). */
