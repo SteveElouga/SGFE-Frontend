@@ -168,7 +168,7 @@
   justify-content: center;
   font-size: var(--texte-2xl);
   font-weight: 700;
-  color: var(--surface);
+  color: var(--encre-inverse);
   flex-shrink: 0;
   background: linear-gradient(135deg, var(--action), var(--succes));
 
@@ -431,7 +431,7 @@
   &--primary {
     background: linear-gradient(135deg, var(--action), var(--action-survol));
     border: none;
-    color: var(--surface);
+    color: var(--encre-inverse);
     box-shadow: var(--ombre-action);
 
     @media (hover: hover) and (pointer: fine) {
@@ -473,7 +473,7 @@
   &--success {
     background: linear-gradient(135deg, var(--succes-encre), var(--succes-encre));
     border: none;
-    color: var(--surface);
+    color: var(--encre-inverse);
     box-shadow: var(--ombre-carte);
 
     @media (hover: hover) and (pointer: fine) {
@@ -484,7 +484,7 @@
   &--danger {
     background: linear-gradient(135deg, var(--danger), var(--danger-encre));
     border: none;
-    color: var(--surface);
+    color: var(--encre-inverse);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover:not(:disabled) { opacity: 0.9; }

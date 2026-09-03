@@ -207,7 +207,7 @@ $fp-chip-h: 44px;
   padding: 0 6px;
   border-radius: 999px;
   background: var(--navy-nuit);
-  color: var(--surface);
+  color: var(--encre-inverse);
   font-size: var(--texte-xs);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -266,7 +266,7 @@ $fp-chip-h: 44px;
   border-radius: var(--rayon-md);
   border: none;
   background: var(--action);
-  color: var(--surface);
+  color: var(--encre-inverse);
   font-size: var(--texte-lg);
   font-weight: 700;
   cursor: pointer;
@@ -384,7 +384,7 @@ $fp-chip-h: 44px;
   &--active {
     background: var(--navy-nuit);                     // Navy Nuit
     border-color: var(--navy-nuit);
-    color: var(--surface);
+    color: var(--encre-inverse);
     font-weight: 600;
 
     @media (hover: hover) and (pointer: fine) {

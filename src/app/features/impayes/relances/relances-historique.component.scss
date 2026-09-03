@@ -58,7 +58,7 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  color: var(--surface);
+  color: var(--encre-inverse);
 }
 
 // ── Timeline ──────────────────────────────────────────────────────────────────
@@ -131,7 +131,7 @@
   &.tone--4 {
     background: var(--rouge-braise);
     border-color: var(--rouge-braise);
-    color: var(--surface);
+    color: var(--encre-inverse);
   }
   &.tone--upcoming {
     background: var(--surface-douce);
@@ -245,7 +245,7 @@
   }
   &--suspension {
     background: var(--rouge-braise);
-    color: var(--surface);
+    color: var(--encre-inverse);
     font-weight: 600;
   }
 }
@@ -281,7 +281,7 @@
   border: none;
   border-radius: var(--rayon-md);
   background: linear-gradient(135deg, var(--action), var(--action-survol));
-  color: var(--surface);
+  color: var(--encre-inverse);
   font-size: var(--texte-sm);
   font-weight: 700;
   cursor: pointer;
@@ -425,7 +425,7 @@
 
     &--send {
       background: var(--succes-encre);
-      color: var(--surface);
+      color: var(--encre-inverse);
       box-shadow: var(--ombre-portee);
 
       @media (hover: hover) and (pointer: fine) {

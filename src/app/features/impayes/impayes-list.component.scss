@@ -262,7 +262,7 @@
   &--suspendue {
     background: var(--rouge-braise);
     border-color: var(--rouge-braise);
-    color: var(--surface);
+    color: var(--encre-inverse);
     font-weight: 700;
   }
   &--pause {
@@ -290,13 +290,13 @@
   &--primary {
     background: var(--action);
     border-color: var(--action);
-    color: var(--surface);
+    color: var(--encre-inverse);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
         background: var(--action-survol);
         border-color: var(--action-survol);
-        color: var(--surface);
+        color: var(--encre-inverse);
       }
     }
   }

@@ -403,12 +403,12 @@
   &--active {
     background: var(--action);
     border-color: var(--action);
-    color: var(--surface);
+    color: var(--encre-inverse);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
         background: var(--action);
-        color: var(--surface);
+        color: var(--encre-inverse);
       }
     }
   }

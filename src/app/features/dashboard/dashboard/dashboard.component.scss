@@ -76,7 +76,7 @@
 
     &--active {
       background: var(--navy-nuit); // Navy Nuit (structurel)
-      color: var(--surface);
+      color: var(--encre-inverse);
     }
   }
 }
@@ -124,7 +124,7 @@
     margin-top: var(--pas-2);
     padding: var(--pas-2) var(--pas-5);
     background: var(--action); // Bleu Rivière
-    color: var(--surface);
+    color: var(--encre-inverse);
     border-radius: var(--rayon-md);
     text-decoration: none;
     font-weight: 600;

@@ -106,7 +106,7 @@
   justify-content: center;
   transition: background 0.12s, border-color 0.12s;
 
-  i { font-size: var(--icone-xs); color: var(--surface); }
+  i { font-size: var(--icone-xs); color: var(--encre-inverse); }
 
   &--on {
     background: var(--action);
@@ -121,7 +121,7 @@
   border: none;
   border-radius: var(--rayon-lg);
   background: linear-gradient(135deg, var(--action), var(--action-survol));
-  color: var(--surface);
+  color: var(--encre-inverse);
   font-size: var(--texte-lg);
   font-weight: 700;
   cursor: pointer;

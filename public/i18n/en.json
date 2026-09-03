@@ -19,7 +19,11 @@
     "PROFILE": "My profile",
     "USERS": "User management",
     "LOGOUT": "Sign out",
-    "LANG": "Language"
+    "LANG": "Language",
+    "THEME": "Theme",
+    "THEME_AUTO": "Auto",
+    "THEME_LIGHT": "Light",
+    "THEME_DARK": "Dark"
   },
   "SIDEBAR": {
     "CAMPAIGN_ACTIVE": "Active campaign"

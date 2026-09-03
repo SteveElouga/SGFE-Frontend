@@ -294,7 +294,7 @@
   &__total-value {
     font-size: var(--texte-4xl);
     font-weight: 800;
-    color: var(--surface);
+    color: var(--encre-inverse);
   }
 }
 
@@ -909,7 +909,7 @@
     flex: 1;
     height: 46px;
     background: linear-gradient(135deg, var(--action), var(--action-survol));
-    color: var(--surface);
+    color: var(--encre-inverse);
     border: none;
     border-radius: var(--rayon-lg);
     font-size: var(--texte-sm);

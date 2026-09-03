@@ -5,7 +5,7 @@
 $sidebar-bg:       var(--navy-nuit);
 $sidebar-border:   var(--filet-inverse);
 $sidebar-hover-bg: var(--surface-inverse-voile);
-$text-white:       var(--surface);
+$text-white:       var(--encre-inverse);
 $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 3,17)
 
 // ── Bouton déclencheur ────────────────────────────────────────────────────────
@@ -102,7 +102,7 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
   justify-content: center;
   font-size: var(--texte-xl);
   font-weight: 700;
-  color: var(--surface);
+  color: var(--encre-inverse);
   text-transform: uppercase;
   flex-shrink: 0;
 }
@@ -237,6 +237,63 @@ $text-muted:       var(--encre-inverse-3);   // 6,3:1 sur navy (était 0.35 → 
     color: var(--encre-3);
     cursor: pointer;
     letter-spacing: 0.5px;
+    transition: background 0.12s, color 0.12s;
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(&--active) {
+        background: var(--filet);
+        color: var(--encre-2);
+      }
+    }
+
+    &--active {
+      background: var(--surface);
+      color: var(--action);
+      box-shadow: var(--ombre-carte);
+    }
+  }
+}
+
+// ── Sélecteur de thème — même structure que le sélecteur de langue ────────────
+
+.um-theme {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-4);
+  font-size: var(--texte-md);
+  font-weight: 500;
+  color: var(--encre-2);
+
+  &__icon {
+    font-size: var(--texte-lg);
+    width: 16px;
+    flex-shrink: 0;
+    color: var(--encre-3);
+  }
+
+  &__label {
+    flex: 1;
+  }
+
+  &__toggle {
+    display: flex;
+    background: var(--fond);
+    border-radius: var(--rayon-sm);
+    padding: var(--pas-1);
+    gap: var(--pas-1);
+  }
+
+  &__btn {
+    background: none;
+    border: none;
+    border-radius: var(--rayon-xs);
+    padding: var(--pas-1) var(--pas-2);
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-3);
+    cursor: pointer;
+    letter-spacing: 0.3px;
     transition: background 0.12s, color 0.12s;
 
     @media (hover: hover) and (pointer: fine) {

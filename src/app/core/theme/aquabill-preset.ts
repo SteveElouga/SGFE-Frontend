@@ -94,6 +94,23 @@ export const AquaBillPreset = definePreset(AuraMinimal, {
           placeholderColor: '#5f6e85',   // 4,7:1 — était #cbd5e1 (1,42:1), illisible
         },
       },
+      // Convention Aura : les teintes s'éclaircissent en sombre (600/700/800 →
+      // 400/300/200) — une couleur d'accent pensée pour un fond clair devient
+      // trop sombre, donc peu lisible, une fois posée sur un fond sombre.
+      dark: {
+        primary: {
+          color: '{primary.400}',
+          hoverColor: '{primary.300}',
+          activeColor: '{primary.200}',
+        },
+        formField: {
+          background: '#1e293b',
+          borderColor: '#334155',
+          hoverBorderColor: '#475569',
+          invalidBorderColor: '#f87171',
+          placeholderColor: '#94a3b8',
+        },
+      },
     },
   },
   components: {
@@ -109,6 +126,16 @@ export const AquaBillPreset = definePreset(AuraMinimal, {
               hoverBackground: 'linear-gradient(135deg, #1d4ed8, #1a56db)',
               borderColor: '#1a56db',
               hoverBorderColor: '#1d4ed8',
+            },
+          },
+        },
+        dark: {
+          root: {
+            primary: {
+              background: 'linear-gradient(135deg, #3b82f6, #1a56db)',
+              hoverBackground: 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+              borderColor: '#3b82f6',
+              hoverBorderColor: '#60a5fa',
             },
           },
         },

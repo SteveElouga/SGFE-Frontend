@@ -77,6 +77,34 @@
 
   <div class="um-divider"></div>
 
+  <!-- Thème -->
+  <div class="um-theme">
+    <i aria-hidden="true" class="pi pi-moon um-theme__icon"></i>
+    <span class="um-theme__label">{{ 'USER_MENU.THEME' | translate }}</span>
+    <div class="um-theme__toggle">
+      <button
+        class="um-theme__btn"
+        [class.um-theme__btn--active]="themePreference() === 'auto'"
+        type="button"
+        (click)="setTheme('auto')"
+      >{{ 'USER_MENU.THEME_AUTO' | translate }}</button>
+      <button
+        class="um-theme__btn"
+        [class.um-theme__btn--active]="themePreference() === 'light'"
+        type="button"
+        (click)="setTheme('light')"
+      >{{ 'USER_MENU.THEME_LIGHT' | translate }}</button>
+      <button
+        class="um-theme__btn"
+        [class.um-theme__btn--active]="themePreference() === 'dark'"
+        type="button"
+        (click)="setTheme('dark')"
+      >{{ 'USER_MENU.THEME_DARK' | translate }}</button>
+    </div>
+  </div>
+
+  <div class="um-divider"></div>
+
   <!-- Déconnexion -->
   <button class="um-item um-item--logout" type="button" (click)="logout()">
     <i aria-hidden="true" class="pi pi-sign-out um-item__icon"></i>

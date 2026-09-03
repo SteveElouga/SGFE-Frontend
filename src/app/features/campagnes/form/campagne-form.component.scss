@@ -173,7 +173,7 @@
   align-items: center;
   gap: var(--pas-2);
   background: var(--navy-nuit);
-  color: var(--surface);
+  color: var(--encre-inverse);
   border-radius: var(--rayon-lg);
   padding: var(--pas-1) var(--pas-3);
   font-size: var(--texte-sm);
@@ -192,7 +192,7 @@
 
   @media (hover: hover) and (pointer: fine) {
     &:hover {
-      color: var(--surface);
+      color: var(--encre-inverse);
     }
   }
 }
@@ -396,7 +396,7 @@
 
 .abonnes-option__badge {
   background: var(--action);
-  color: var(--surface);
+  color: var(--encre-inverse);
   border-radius: var(--rayon-sm);
   padding: var(--pas-1) var(--pas-2);
   font-size: var(--texte-sm);
@@ -488,11 +488,11 @@
   &--selected {
     border-color: var(--action);
     background: var(--action);
-    color: var(--surface);
+    color: var(--encre-inverse);
 
     .zone-chip__count {
       background: color-mix(in oklab, var(--encre) 15%, transparent);
-      color: var(--surface);
+      color: var(--encre-inverse);
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -500,7 +500,7 @@
         background: var(--action-survol);
         border-color: var(--action-survol);
         box-shadow: var(--ombre-action);
-        color: var(--surface);
+        color: var(--encre-inverse);
       }
     }
   }

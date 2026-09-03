@@ -535,7 +535,7 @@
   }
   &--susp {
     background: var(--rouge-braise);
-    color: var(--surface);
+    color: var(--encre-inverse);
   }
 }
 
@@ -832,7 +832,7 @@
       var(--navy-nuit),
       $border: 1.5px solid var(--navy-nuit),
       $hover-bg: var(--navy-nuit),
-      $hover-color: var(--surface)
+      $hover-color: var(--encre-inverse)
     );
   }
 
@@ -842,7 +842,7 @@
       var(--danger),
       $border: 1px solid var(--danger),
       $hover-bg: var(--danger),
-      $hover-color: var(--surface)
+      $hover-color: var(--encre-inverse)
     );
   }
 }
