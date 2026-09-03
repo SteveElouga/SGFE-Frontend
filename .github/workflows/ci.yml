@@ -96,7 +96,7 @@ jobs:
       - name: Run unit tests
         run: npx ng test --no-watch
 
-  # ── 3. Docker build check ────────────────────────────────────────────────────
+  # ── 3. Docker build check + scan de sécurité (Trivy) ─────────────────────────
   docker-build:
     name: Docker build
     runs-on: ubuntu-latest
@@ -108,14 +108,41 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # `load: true` : sans lui, l'image construite ne va nulle part — buildx
+      # la jette après le build (`push: false` seul ne la garde pas accessible
+      # localement). Trivy a besoin de la retrouver via le démon Docker du
+      # runner pour la scanner juste après, à l'étape suivante.
       - name: Build image (no push)
         uses: docker/build-push-action@v6
         with:
           context: .
           push: false
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
           tags: sgfe-frontend:ci-${{ github.sha }}
+
+      # Même motif que le backend (SGFE-backend/.github/workflows/_build-scan.yml,
+      # cf. docs/ETAT_DU_SYSTEME.md §10) : scanner l'image tout juste construite
+      # avant qu'elle ne soit poussée où que ce soit, et faire échouer le job sur
+      # toute CVE CRITICAL/HIGH avec un correctif disponible.
+      #
+      # Validé localement (build + scan réels, hors CI) le 3 septembre 2026 :
+      # l'image construit et se scanne sans erreur d'outillage. Le scan trouve
+      # à cette date 2 CRITICAL et 35 HIGH, tous avec correctif disponible,
+      # dans les paquets Alpine de la base `nginx:1.27-alpine` (dernière
+      # reconstruction de ce tag : avril 2025) — pas dans le code applicatif.
+      # Cette étape fera donc échouer la CI tant que l'image de base n'est pas
+      # mise à jour ; corriger cela est hors du périmètre de cette tâche
+      # (ajouter le contrôle), qui doit rester honnête sur ce qu'il révèle.
+      - name: Scanner l'image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: sgfe-frontend:ci-${{ github.sha }}
+          severity: CRITICAL,HIGH
+          scanners: vuln
+          exit-code: '1'
+          ignore-unfixed: true
 
   # ── 4. Tests E2E Playwright ──────────────────────────────────────────────────
   e2e:
