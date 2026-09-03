@@ -27,7 +27,7 @@
 </div>
 
 <!-- Fil -->
-<div class="notif-feed page-scroll">
+<div class="notif-feed page-scroll" (scroll)="onFeedScroll($event)">
   @if (isEmpty()) {
     <div class="notif-empty">
       <i aria-hidden="true" class="pi pi-bell-slash"></i>
@@ -68,6 +68,12 @@
           </div>
         </div>
       }
+    </div>
+  }
+
+  @if (hasMore()) {
+    <div class="notif-more" aria-hidden="true">
+      <i class="pi pi-spin pi-spinner"></i>
     </div>
   }
 </div>
