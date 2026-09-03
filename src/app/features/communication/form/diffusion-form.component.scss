@@ -1,0 +1,122 @@
+:host {
+  display: block;
+}
+
+.dfc-content {
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  background: var(--fond);
+  min-height: 100%;
+
+  @media (max-width: 1023px) {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-2);
+  }
+}
+
+.dfc-error {
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  color: var(--danger-encre);
+  font-size: var(--texte-lg);
+}
+
+.dfc-card {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4);
+  // `.dfc-content` est une colonne flex avec `overflow-y: auto` (règle
+  // `.page-scroll` de global.scss) : sans ceci, un enfant flex se laisse
+  // comprimer sous la taille de son contenu dès que la somme des enfants
+  // dépasse la hauteur visible — le `overflow: hidden` de `.dfc-card--table`
+  // absorbe alors tout le débordement en écrasant SA propre boîte à quelques
+  // pixels au lieu de laisser la page défiler. Même défaut, même remède que
+  // `.abonnes-card` (voir son commentaire, `abonnes-list.component.scss`).
+  flex-shrink: 0;
+}
+
+.dfc-card--table {
+  padding: 0;
+  overflow: hidden;
+}
+
+.dfc-label {
+  display: block;
+  font-size: var(--texte-md);
+  font-weight: 600;
+  color: var(--encre-2);
+  margin-bottom: var(--pas-2);
+}
+
+.dfc-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 96px;
+  padding: var(--pas-3);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-sm);
+  background: var(--fond);
+  color: var(--encre);
+  font-size: var(--texte-lg);
+  font-family: inherit;
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--action);
+    box-shadow: var(--anneau);
+  }
+}
+
+.dfc-dash {
+  color: var(--encre-3);
+}
+
+.dfc-footer {
+  position: sticky;
+  bottom: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pas-4);
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-portee);
+
+  &__count {
+    font-size: var(--texte-md);
+    color: var(--encre-2);
+    font-weight: 500;
+  }
+
+  &__envoyer {
+    min-height: 44px;
+    padding: 0 var(--pas-5);
+    background: linear-gradient(135deg, var(--action), var(--action-survol));
+    color: var(--encre-inverse);
+    border: none;
+    border-radius: var(--rayon-md);
+    font-size: var(--texte-lg);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--ombre-action);
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+    }
+  }
+}

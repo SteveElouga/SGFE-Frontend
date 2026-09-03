@@ -1,0 +1,36 @@
+<app-page-topbar [title]="'COMMUNICATION.DETAIL_TITRE' | translate" />
+
+<div class="dd-content page-scroll">
+
+  @if (error()) {
+    <div class="dd-error" role="alert">{{ error() }}</div>
+  } @else if (diffusion(); as d) {
+    <div class="dd-card">
+      <div class="dd-header">
+        <span class="dd-badge" [class.dd-badge--termine]="d.statut === 'TERMINEE'">
+          {{ (d.statut === 'TERMINEE' ? 'COMMUNICATION.STATUT_TERMINEE' : 'COMMUNICATION.STATUT_EN_COURS') | translate }}
+        </span>
+        <span class="dd-date">{{ d.createdAt | date: 'dd/MM/yyyy HH:mm' }} · {{ d.createdBy }}</span>
+      </div>
+
+      <p class="dd-message">{{ d.message }}</p>
+
+      <div class="dd-progress">
+        <div class="dd-progress__bar">
+          <div class="dd-progress__fill" [style.--pct]="pourcentage() / 100"></div>
+        </div>
+        <div class="dd-progress__stats">
+          <span>{{ 'COMMUNICATION.DETAIL_ENVOYES' | translate: { envoyes: d.nbEnvoyes, total: d.nbTotal } }}</span>
+          @if (d.nbEchecs > 0) {
+            <span class="dd-progress__echecs">
+              {{ 'COMMUNICATION.DETAIL_ECHECS' | translate: { count: d.nbEchecs } }}
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  } @else if (loading()) {
+    <div class="dd-card">{{ 'COMMON.LOADING' | translate }}</div>
+  }
+
+</div>
