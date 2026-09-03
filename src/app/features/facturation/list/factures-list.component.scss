@@ -78,7 +78,7 @@
   min-height: 44px; // WCAG 2.5.5;
   padding: 0 var(--pas-4);
   background: var(--action);
-  color: var(--surface);
+  color: var(--encre-inverse);
   border: none;
   border-radius: var(--rayon-md);
   font-size: var(--texte-sm);
@@ -123,7 +123,7 @@
     var(--vert-profond),
     var(--succes)
   ); // Vert Profond → Vert Nappe
-  color: var(--surface);
+  color: var(--encre-inverse);
   border: none;
   border-radius: var(--rayon-md);
   font-size: var(--texte-md);
@@ -386,13 +386,13 @@
   &--primary {
     background: var(--action);
     border-color: var(--action);
-    color: var(--surface);
+    color: var(--encre-inverse);
 
     @media (hover: hover) and (pointer: fine) {
       &:hover {
         background: var(--action-survol);
         border-color: var(--action-survol);
-        color: var(--surface);
+        color: var(--encre-inverse);
       }
     }
   }
@@ -559,7 +559,7 @@
       var(--vert-profond),
       var(--succes)
     ); // Vert Profond → Vert Nappe
-    color: var(--surface);
+    color: var(--encre-inverse);
     border: none;
     box-shadow: var(--ombre-carte);
     @media (hover: hover) and (pointer: fine) {

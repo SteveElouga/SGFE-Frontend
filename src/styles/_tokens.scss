@@ -250,6 +250,63 @@
   --barre-curseur-survol: var(--filet-pale);
 }
 
+// ── 2bis. Rôles — mode sombre ────────────────────────────────────────────────
+//
+// Uniquement les jetons de RÔLE COULEUR qui décrivent le fond de page (pas les
+// jetons structurels — espacement, rayons, échelle typographique, ombres :
+// hors périmètre de ce premier passage, voir le plan). La famille « inverse »
+// (`--encre-inverse*`, `--surface-inverse*`, `--filet-inverse`) ne change pas :
+// elle sert du contenu déjà posé sur une surface volontairement sombre (la
+// sidebar navy), qui reste identique dans les deux thèmes.
+//
+// Les alphas de texte (0,72 / 0,58) et de filet (0,12) reprennent tels quels
+// ceux déjà mesurés pour la famille inverse sur `--navy-nuit` (8,9:1 et 6,3:1) :
+// la nouvelle surface sombre est du même ordre de profondeur, la mesure reste
+// valable. Premier jeu de valeurs — à vérifier à l'écran (`impeccable`/capture)
+// avant de le considérer définitif.
+:root.p-dark {
+  --surface: #121a2e;
+  --surface-douce: #0d1526;
+  --fond: #0a1120;
+
+  --filet: rgba(255, 255, 255, 0.12);
+  --filet-pale: rgba(255, 255, 255, 0.08);
+
+  --encre: #e8edf5;
+  --encre-2: rgba(255, 255, 255, 0.72); // 8,9:1 — même alpha que --encre-inverse-2
+  --encre-3: rgba(255, 255, 255, 0.58); // 6,3:1 — même alpha que --encre-inverse-3
+  --encre-faible: rgba(255, 255, 255, 0.35);
+
+  --voile: rgba(0, 0, 0, 0.6);
+
+  // Le bleu d'action lui-même reste identique (déjà assez sombre pour porter
+  // du texte blanc sur les deux fonds) ; seuls ses jetons de FOND PÂLE
+  // (surlignage léger, bordure discrète) doivent devenir des teintes sombres.
+  --action-lueur: rgba(96, 165, 250, 0.14);
+  --action-trait: rgba(96, 165, 250, 0.35);
+
+  // Statuts : le fond pâle et le trait deviennent des teintes translucides de
+  // la même couleur d'accent (s'assombrissent avec n'importe quel fond) ; les
+  // encres — qui doivent rester lisibles sur un fond sombre — passent des
+  // teintes foncées (adaptées à un fond clair) aux teintes claires de la même
+  // famille (déjà nommées plus haut ou équivalent Tailwind -400).
+  --succes-fond: rgba(14, 159, 110, 0.16);
+  --succes-trait: rgba(14, 159, 110, 0.4);
+  --succes-encre: #4ade80;
+
+  --danger-fond: rgba(220, 38, 38, 0.16);
+  --danger-trait: rgba(220, 38, 38, 0.4);
+  --danger-encre: #f87171;
+
+  --attente-fond: rgba(245, 158, 11, 0.16);
+  --attente-trait: rgba(245, 158, 11, 0.4);
+  --attente-encre: #fbbf24;
+
+  --info-fond: rgba(26, 86, 219, 0.16);
+  --info-trait: rgba(26, 86, 219, 0.4);
+  --info-encre: var(--bleu-riviere-clair);
+}
+
 // ── 7. Points de rupture — trois, pas quinze ────────────────────────────────
 // Avant : 480, 520, 540, 560, 600, 640, 700, 720, 721, 767, 768, 900, 960,
 // 1023 et 1024 px — dont trois paires à un pixel d'écart.

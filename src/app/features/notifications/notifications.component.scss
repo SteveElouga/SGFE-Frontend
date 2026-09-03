@@ -272,14 +272,14 @@
 
   &--danger {
     background: var(--danger);
-    color: var(--surface);
+    color: var(--encre-inverse);
     &:hover {
       opacity: 0.9;
     }
   }
   &--dark {
     background: var(--navy-nuit);
-    color: var(--surface);
+    color: var(--encre-inverse);
     &:hover {
       opacity: 0.9;
     }

@@ -62,7 +62,11 @@ export const appConfig: ApplicationConfig = {
     providePrimeNG({
       theme: {
         preset: AquaBillPreset,
-        options: { darkModeSelector: false },
+        // `.p-dark` plutôt que le défaut `system` (media query directe) : le
+        // thème suit le système PAR DÉFAUT, mais `ThemeService` doit pouvoir
+        // imposer un mode manuel indépendamment de lui — un sélecteur de
+        // classe est le seul des deux qu'un script peut piloter.
+        options: { darkModeSelector: '.p-dark' },
       },
     }),
     provideServiceWorker('ngsw-worker.js', {

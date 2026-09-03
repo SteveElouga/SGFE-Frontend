@@ -2,7 +2,7 @@ $sidebar-bg:             var(--navy-nuit);
 $sidebar-item-active-bg: color-mix(in oklab, var(--action) 28%, transparent);
 $sidebar-item-hover-bg:  var(--surface-inverse-voile);
 $sidebar-border:         var(--filet-inverse);
-$sidebar-text:           var(--surface);
+$sidebar-text:           var(--encre-inverse);
 // Une entrée de nav est du texte *interactif*, pas de la méta : elle prend le
 // rôle « secondaire » (8,9:1) et non le rôle « étiquette » (6,3:1). À 0,58 les
 // dix entrées inactives faisaient lire la navigation entière comme désactivée.
@@ -71,7 +71,7 @@ $sidebar-width:          220px;
   flex-shrink: 0;
 
   @media (hover: hover) and (pointer: fine) {
-    &:hover { background: var(--surface-inverse-fond); color: var(--surface); }
+    &:hover { background: var(--surface-inverse-fond); color: var(--encre-inverse); }
   }
 }
 
@@ -234,7 +234,7 @@ $sidebar-width:          220px;
 
   &--alert {
     background: var(--danger);
-    color: var(--surface);
+    color: var(--encre-inverse);
   }
 }
 
@@ -258,7 +258,7 @@ $sidebar-width:          220px;
   justify-content: center;
   font-size: var(--texte-md);
   font-weight: 600;
-  color: var(--surface);
+  color: var(--encre-inverse);
   flex-shrink: 0;
   text-transform: uppercase;
 }

@@ -42,7 +42,7 @@
   justify-content: center;
   font-size: var(--texte-xs);
   font-weight: 700;
-  color: var(--surface);
+  color: var(--encre-inverse);
   // N'anime que l'apparition (0 → N, remontage DOM via @if) : un changement
   // de valeur pendant que le badge reste monté (2 → 3) ne rejoue pas ce
   // "pop", pour ne pas distraire sur un élément vu en permanence.
@@ -192,7 +192,7 @@
   font-weight: 500;
   cursor: pointer;
 
-  &--active { background: var(--navy-nuit); color: var(--surface); font-weight: 600; }
+  &--active { background: var(--navy-nuit); color: var(--encre-inverse); font-weight: 600; }
 }
 
 .nb__list { max-height: 392px; overflow-y: auto; }

@@ -146,7 +146,7 @@
 
   &--primary {
     background: var(--toast-action-primary-bg, var(--navy-nuit));
-    color: var(--surface);
+    color: var(--encre-inverse);
     font-weight: 600;
   }
 
@@ -291,7 +291,7 @@
 
   .toast__title {
     font-size: var(--texte-sm);
-    color: var(--surface);
+    color: var(--encre-inverse);
   }
 
   .toast__message {
@@ -312,7 +312,7 @@
     color: var(--encre-inverse-3);
 
     @media (hover: hover) and (pointer: fine) {
-      &:hover { color: var(--surface); }
+      &:hover { color: var(--encre-inverse); }
     }
   }
 
