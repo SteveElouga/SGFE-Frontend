@@ -126,6 +126,57 @@ export class FacturesListComponent implements OnInit {
   readonly filtreStatut = signal<StatutFacture | 'TOUS'>('TOUS');
   readonly searchTerm = signal('');
 
+  /** Taille de page — partagée entre le calcul d'`offset` et `app-data-table`. */
+  readonly PAGE_SIZE = 10;
+  /** Page courante (0-based) — n'a d'effet que côté serveur, voir `modeServeur`. */
+  readonly pageIndex = signal(0);
+  /** Total réel côté serveur pour {campagne, statut} (mode serveur uniquement). */
+  readonly totalCount = signal(0);
+  /**
+   * Compteurs par statut sur la campagne entière, indépendants de la page
+   * affichée — la gateway ne connaît que `campagneId`/`abonneId`/`statut`
+   * comme filtres serveur, pas la recherche texte. Servent aux puces de
+   * filtre, à la cible de l'envoi WhatsApp en masse et au sous-titre, qui
+   * doivent tous parler de la campagne entière, pas de la page à l'écran.
+   */
+  readonly countsParStatut = signal<Record<StatutFacture, number>>({ IMPAYEE: 0, PARTIELLE: 0, PAYEE: 0, ANNULEE: 0 });
+
+  /**
+   * `true` : pagination serveur réelle (`limit`/`offset` + `facturesCount`),
+   * le cas courant. `false` : recherche texte active — la gateway ne
+   * l'expose pas comme filtre (`factures(campagneId, abonneId, statut)` sont
+   * ses seuls arguments) — et l'écran retombe sur l'ancien comportement :
+   * toute la campagne (au statut filtré près) chargée, filtrée et paginée
+   * côté client par `app-data-table`.
+   */
+  readonly modeServeur = computed(() => !this.searchTerm().trim());
+
+  /** Total de factures de la campagne, tous statuts confondus (y compris
+   *  ANNULEE — sans chip dédié, mais qui comptait dans l'ancien
+   *  `factures().length` non filtré ; le sous-titre n'a pas de raison d'en
+   *  perdre le compte). */
+  readonly totalCampagne = computed(() => {
+    const c = this.countsParStatut();
+    return c.IMPAYEE + c.PARTIELLE + c.PAYEE + c.ANNULEE;
+  });
+  /** Nombre de résultats correspondant aux filtres actifs, plein périmètre
+   *  (pas seulement la page à l'écran) — pour le « N sur M » du bandeau. */
+  readonly resultCount = computed(() =>
+    this.modeServeur() ? this.totalCount() : this.facturesFiltrees().length,
+  );
+  /**
+   * `true` quand la campagne n'a strictement aucune facture (bannière
+   * « génération manuelle requise »). Page courante vide comme condition
+   * nécessaire, `totalCampagne` (chargé à part, voir `chargerCountsParStatut`)
+   * comme confirmation en mode serveur — une page 2 vide ne veut pas dire que
+   * la campagne l'est, et une page 0 vide pourrait n'être qu'un compteur pas
+   * encore revenu du serveur.
+   */
+  readonly campagneVide = computed(() => {
+    if (this.factures().length > 0) return false;
+    return this.modeServeur() ? this.totalCampagne() === 0 : true;
+  });
+
   readonly columns: DataTableColumn[] = [
     {
       key: 'numero',
@@ -172,12 +223,16 @@ export class FacturesListComponent implements OnInit {
   readonly whatsappConfirmVisible = signal(false);
 
   /**
-   * Factures cibles de l'envoi en masse : uniquement IMPAYEE et PARTIELLE
-   * (PAYEE = déjà réglée, pas de raison de relancer). Comptées pour le récap.
+   * Nombre de factures cibles de l'envoi en masse sur la campagne entière :
+   * IMPAYEE + PARTIELLE (PAYEE = déjà réglée, pas de raison de relancer).
+   * Vient de `countsParStatut`, pas de `factures()` — cette dernière ne porte
+   * plus qu'une page depuis la pagination serveur, alors que
+   * `envoyerToutesFacturesWhatsapp` cible bien la campagne entière.
    */
-  readonly facturesAEnvoyer = computed(() =>
-    this.factures().filter((f) => f.statut === 'IMPAYEE' || f.statut === 'PARTIELLE'),
-  );
+  readonly facturesAEnvoyer = computed(() => {
+    const c = this.countsParStatut();
+    return c.IMPAYEE + c.PARTIELLE;
+  });
 
   /**
    * Définition des filtres exposés au `<app-filters-panel>` shared. Statut =
@@ -186,7 +241,7 @@ export class FacturesListComponent implements OnInit {
    */
   readonly filtersConfig = computed<FilterDefinition[]>(() => {
     const lang = this.translate.currentLang() ?? undefined;
-    const all = this.factures();
+    const counts = this.countsParStatut();
     return [
       {
         key: 'statut',
@@ -195,17 +250,17 @@ export class FacturesListComponent implements OnInit {
           {
             label: this.translate.instant('FACTURATION.CHIP_IMPAYEES', {}, lang),
             value: 'IMPAYEE',
-            count: all.filter((f) => f.statut === 'IMPAYEE').length,
+            count: counts.IMPAYEE,
           },
           {
             label: this.translate.instant('FACTURATION.CHIP_PARTIELLES', {}, lang),
             value: 'PARTIELLE',
-            count: all.filter((f) => f.statut === 'PARTIELLE').length,
+            count: counts.PARTIELLE,
           },
           {
             label: this.translate.instant('FACTURATION.CHIP_PAYEES', {}, lang),
             value: 'PAYEE',
-            count: all.filter((f) => f.statut === 'PAYEE').length,
+            count: counts.PAYEE,
           },
         ],
       },
@@ -257,7 +312,9 @@ export class FacturesListComponent implements OnInit {
   });
 
   readonly subtitle = computed(() => {
-    const count = this.factures().length;
+    // Total de la campagne entière (`countsParStatut`), pas `factures().length`
+    // — cette dernière ne porte plus qu'une page depuis la pagination serveur.
+    const count = this.totalCampagne();
     const nom = this.campagneNom();
     const lang = this.translate.currentLang() ?? undefined;
     return nom
@@ -385,15 +442,47 @@ export class FacturesListComponent implements OnInit {
       .map(([value, v]) => ({ label: v.nom, value }));
   }
 
+  /**
+   * Point d'entrée « nouvelle campagne » : remet la page à 0, charge la page
+   * 0 des factures (via `chargerPageCourante`), puis tout ce qui ne dépend
+   * que de la campagne (nom, objet campagne, sélecteur multi-campagnes,
+   * compteurs par statut) — pas de la page affichée.
+   */
   async load(): Promise<void> {
+    this.error.set(null);
+    this.pageIndex.set(0);
+    await this.chargerPageCourante();
+    // Nom de campagne tiré des factures enrichies (repli) — pas de query
+    // `campagne`, refusée au COMPTABLE ; `loadCampagneObjet` la complète en
+    // best-effort pour ADMIN juste après.
+    const nom = this.factures()[0]?.campagneNom;
+    if (nom) this.campagneNom.set(nom);
+    void this.loadCampagneObjet(this.campagneId());
+    // Sélecteur multi-campagnes dérivé de toutes les factures (ADMIN/COMPTABLE).
+    void this.loadAllCampagnes();
+    void this.chargerCountsParStatut();
+  }
+
+  /**
+   * (Re)charge la page courante avec les filtres actuels — appelée au
+   * changement de page, de statut ou de recherche, et par `load()` pour la
+   * page 0. `factures()` porte donc soit la page voulue (mode serveur), soit
+   * toute la campagne au statut filtré près (recherche active, voir
+   * `modeServeur`) — jamais plus que ce que l'écran affiche réellement.
+   */
+  private async chargerPageCourante(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const factures = await this.facturesService.getFacturesParCampagne(this.campagneId());
+      const statut = this.filtreStatut() === 'TOUS' ? undefined : this.filtreStatut();
+      const serveur = this.modeServeur();
+      const params = serveur
+        ? { campagneId: this.campagneId(), statut, limit: this.PAGE_SIZE, offset: this.pageIndex() * this.PAGE_SIZE }
+        : { campagneId: this.campagneId(), statut };
+      const factures = await this.facturesService.getFactures(params);
       this.factures.set(factures);
-      // Nom de campagne et noms/numéros d'abonnés tirés des factures enrichies
-      // — pas de query `campagne`/`abonnes`, refusées au COMPTABLE.
-      this.campagneNom.set(factures[0]?.campagneNom ?? '');
+      // Noms/numéros d'abonnés reconstruits depuis la page affichée
+      // uniquement — les lignes hors page n'ont plus besoin d'être résolues.
       const map = new Map<string, AbonneInfo>();
       for (const f of factures) {
         map.set(f.abonneId, {
@@ -403,14 +492,12 @@ export class FacturesListComponent implements OnInit {
         });
       }
       this.abonnesMap.set(map);
-      // Best-effort (ADMIN) : objet campagne complet pour le toggle WhatsApp auto.
-      void this.loadCampagneObjet(this.campagneId());
-      // Sélecteur multi-campagnes dérivé de toutes les factures.
-      void this.loadAllCampagnes();
-      // Toutes les factures non soldées, et non plus les seules PARTIELLE.
-      // L'heuristique « IMPAYEE ⇒ solde = montant » était fausse dès qu'un
-      // avoir était imputé, et le trop-perçu désormais accepté rend les avoirs
-      // courants : la supposition se trompait de plus en plus souvent.
+      if (serveur) void this.chargerTotalCount();
+      // Toutes les factures non soldées de la page, et non plus les seules
+      // PARTIELLE. L'heuristique « IMPAYEE ⇒ solde = montant » était fausse
+      // dès qu'un avoir était imputé, et le trop-perçu désormais accepté rend
+      // les avoirs courants : la supposition se trompait de plus en plus
+      // souvent.
       const nonSoldees = factures.filter((f) => f.statut !== 'PAYEE');
       void this.loadSoldes(nonSoldees);
       // Pas `nonSoldees` ici : contrairement au solde (toujours 0 pour une
@@ -428,6 +515,50 @@ export class FacturesListComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /** Total réel de factures pour {campagne, statut} — pilote la pagination
+   *  de `app-data-table` en mode serveur. */
+  private async chargerTotalCount(): Promise<void> {
+    try {
+      const statut = this.filtreStatut() === 'TOUS' ? undefined : this.filtreStatut();
+      this.totalCount.set(
+        await this.facturesService.getFacturesCount({ campagneId: this.campagneId(), statut }),
+      );
+    } catch {
+      // Non-bloquant : la pagination reste sur la dernière valeur connue.
+    }
+  }
+
+  /** Compteurs par statut sur la campagne entière — voir `countsParStatut`. */
+  private async chargerCountsParStatut(): Promise<void> {
+    const campagneId = this.campagneId();
+    const [impayee, partielle, payee, annulee] = await Promise.allSettled([
+      this.facturesService.getFacturesCount({ campagneId, statut: 'IMPAYEE' }),
+      this.facturesService.getFacturesCount({ campagneId, statut: 'PARTIELLE' }),
+      this.facturesService.getFacturesCount({ campagneId, statut: 'PAYEE' }),
+      this.facturesService.getFacturesCount({ campagneId, statut: 'ANNULEE' }),
+    ]);
+    this.countsParStatut.set({
+      IMPAYEE: impayee.status === 'fulfilled' ? impayee.value : 0,
+      PARTIELLE: partielle.status === 'fulfilled' ? partielle.value : 0,
+      PAYEE: payee.status === 'fulfilled' ? payee.value : 0,
+      ANNULEE: annulee.status === 'fulfilled' ? annulee.value : 0,
+    });
+  }
+
+  /** Câblé sur `(searchChange)` — la recherche change aussi la clé de
+   *  re-fetch (elle bascule le mode serveur/client, voir `modeServeur`). */
+  onSearchChange(term: string): void {
+    this.searchTerm.set(term);
+    this.pageIndex.set(0);
+    void this.chargerPageCourante();
+  }
+
+  /** Câblé sur `(pageChange)` de `app-data-table`, mode serveur uniquement. */
+  onPageChange(page: number): void {
+    this.pageIndex.set(page);
+    void this.chargerPageCourante();
   }
 
   private async loadCampagneObjet(campagneId: string): Promise<void> {
@@ -466,7 +597,7 @@ export class FacturesListComponent implements OnInit {
 
   /** Ouvre la sheet de confirmation avant l'envoi en masse (P0 v4). */
   ouvrirConfirmationWhatsapp(): void {
-    if (this.facturesAEnvoyer().length === 0 || this.sendingWhatsapp()) return;
+    if (this.facturesAEnvoyer() === 0 || this.sendingWhatsapp()) return;
     this.whatsappConfirmVisible.set(true);
   }
 
@@ -594,6 +725,8 @@ export class FacturesListComponent implements OnInit {
   onStatutChange(statut: StatutFacture | 'TOUS'): void {
     this.filtreStatut.set(statut);
     this.closePanel();
+    this.pageIndex.set(0);
+    void this.chargerPageCourante();
   }
 
   /** Ouvre le panneau de paiement pour une facture (chargement délégué au composant). */
@@ -616,7 +749,11 @@ export class FacturesListComponent implements OnInit {
   async onPaiementSaved(): Promise<void> {
     this.toast.success(this.translate.instant('FACTURATION.SUCCESS_PAIEMENT'));
     const currentId = this.selectedFacture()?.factureId;
-    await this.load();
+    // Recharge la page courante, pas `load()` : un versement ne doit pas
+    // renvoyer le comptable en page 1 pendant qu'il encaisse une campagne
+    // de plusieurs pages. Les compteurs, eux, ont changé (un statut a bougé).
+    await this.chargerPageCourante();
+    void this.chargerCountsParStatut();
     if (!currentId) return;
     const updated = this.factures().find((f) => f.factureId === currentId);
     if (!updated || updated.statut === 'PAYEE') {

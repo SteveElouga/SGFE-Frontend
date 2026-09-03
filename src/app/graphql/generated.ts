@@ -518,10 +518,19 @@ export type AbonneDetailUpdatedSubscription = { abonneUpdated: { id: string, num
 
 export type GetAbonnesQueryVariables = Exact<{
   statut?: StatutAbonne | null | undefined;
+  limit?: number | null | undefined;
+  offset?: number | null | undefined;
 }>;
 
 
 export type GetAbonnesQuery = { abonnes: Array<{ id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null }> };
+
+export type GetAbonnesCountQueryVariables = Exact<{
+  statut?: StatutAbonne | null | undefined;
+}>;
+
+
+export type GetAbonnesCountQuery = { abonnesCount: number };
 
 export type GetAbonnesActifsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -693,10 +702,21 @@ export type GetFacturesQueryVariables = Exact<{
   campagneId?: string | null | undefined;
   abonneId?: string | null | undefined;
   statut?: string | null | undefined;
+  limit?: number | null | undefined;
+  offset?: number | null | undefined;
 }>;
 
 
 export type GetFacturesQuery = { factures: Array<{ factureId: string, numeroFacture: string, abonneId: string, abonneNom: string, abonneNumero: string, campagneId: string, campagneNom: string, campagnePeriodeMois: number, campagnePeriodeAnnee: number, statut: string, consommation: number, montant: number, dateReleve: string, dateLimitePaiement: string }> };
+
+export type GetFacturesCountQueryVariables = Exact<{
+  campagneId?: string | null | undefined;
+  abonneId?: string | null | undefined;
+  statut?: string | null | undefined;
+}>;
+
+
+export type GetFacturesCountQuery = { facturesCount: number };
 
 export type GetFactureQueryVariables = Exact<{
   factureId: string;

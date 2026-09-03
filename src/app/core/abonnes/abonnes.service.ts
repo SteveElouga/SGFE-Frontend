@@ -6,6 +6,7 @@ import {
   GET_ABONNE,
   GET_ABONNES,
   GET_ABONNES_ACTIFS,
+  GET_ABONNES_COUNT,
   GET_HISTORIQUE_COMPTEUR,
 } from '../../graphql/queries/abonnes.queries';
 import {
@@ -18,7 +19,7 @@ import {
   UPDATE_COMPTEUR,
 } from '../../graphql/mutations/abonnes.mutations';
 import { Abonne, Compteur, StatutAbonne } from '../../shared/models/abonne.model';
-import type { AbonneUpdatedSubscription, CreateAbonneMutation, GetAbonneQuery, GetAbonnesActifsQuery, GetAbonnesQuery, GetHistoriqueCompteurQuery, ReactiverAbonneMutation, RemplacerCompteurMutation, ResilierAbonneMutation, SuspendreAbonneMutation, UpdateAbonneMutation, UpdateCompteurMutation } from '../../graphql/generated';
+import type { AbonneUpdatedSubscription, CreateAbonneMutation, GetAbonneQuery, GetAbonnesActifsQuery, GetAbonnesCountQuery, GetAbonnesQuery, GetHistoriqueCompteurQuery, ReactiverAbonneMutation, RemplacerCompteurMutation, ResilierAbonneMutation, SuspendreAbonneMutation, UpdateAbonneMutation, UpdateCompteurMutation } from '../../graphql/generated';
 
 /**
  * Entrée de `remplacerCompteur`, alignée sur `RemplacerCompteurInput` de la
@@ -135,10 +136,31 @@ export class AbonnesService {
     }));
   }
 
-  watchAbonnes(statut?: StatutAbonne): QueryRef<GetAbonnesQuery> {
+  /**
+   * `limit`/`offset` omis (par défaut) : comportement historique inchangé,
+   * la liste complète. Fournis, la gateway ne renvoie qu'une page — c'est
+   * `abonnes-list` qui les pilote depuis la pagination de `app-data-table` ;
+   * les autres appelants (`diffusion-form`, tests) n'en passent pas.
+   */
+  watchAbonnes(params: { statut?: StatutAbonne; limit?: number; offset?: number } = {}): QueryRef<GetAbonnesQuery> {
     return this.apollo.watchQuery<GetAbonnesQuery>({ query: GET_ABONNES,
-      variables: statut ? { statut } : {},
+      variables: params,
     });
+  }
+
+  /**
+   * Total réel d'abonnés pour un statut donné — sert à calculer le nombre de
+   * pages quand `watchAbonnes` est appelée avec `limit`/`offset`, puisque la
+   * page reçue ne suffit plus à le déduire.
+   */
+  async getAbonnesCount(statut?: StatutAbonne): Promise<number> {
+    const result = await firstValueFrom(
+      this.apollo.query<GetAbonnesCountQuery>({ query: GET_ABONNES_COUNT,
+        variables: { statut },
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data?.abonnesCount ?? 0;
   }
 
   watchAbonne(id: string): QueryRef<GetAbonneQuery> {

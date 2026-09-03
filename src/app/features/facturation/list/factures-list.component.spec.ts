@@ -123,3 +123,140 @@ describe('FacturesListComponent — ce que l’abonné doit ailleurs', () => {
     expect(c.autresDettesFor(f)).toBe(3000);
   });
 });
+
+describe('FacturesListComponent — pagination serveur', () => {
+  /** Laisse les microtâches de `load()` (chaîne d'`await`/promesses en vol
+   *  côté ngOnInit) se résoudre avant d'inspecter l'état du composant. */
+  async function flush(): Promise<void> {
+    for (let i = 0; i < 5; i++) await Promise.resolve();
+  }
+
+  function creer(opts: {
+    getFactures: ReturnType<typeof vi.fn>;
+    getFacturesCount: ReturnType<typeof vi.fn>;
+  }) {
+    TestBed.configureTestingModule({
+      imports: [FacturesListComponent],
+      providers: [
+        provideTranslateService({}),
+        {
+          provide: FacturesService,
+          useValue: {
+            getFactures: opts.getFactures,
+            getFacturesCount: opts.getFacturesCount,
+            getSoldeFacture: vi.fn().mockResolvedValue({ soldeRestant: 0 }),
+            getDetteAbonne: vi.fn().mockResolvedValue({ totalDu: 0, nbFactures: 0, plusAncienneEcheance: '' }),
+          },
+        },
+        { provide: FacturePdfService, useValue: {} },
+        { provide: CampagnesService, useValue: { getCampagne: vi.fn().mockRejectedValue(new Error('n/a')) } },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+        { provide: Apollo, useValue: { subscribe: () => of({}) } },
+        { provide: Router, useValue: { navigate: vi.fn() } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { params: { campagneId: 'camp-1' } } },
+        },
+      ],
+    });
+    return TestBed.createComponent(FacturesListComponent);
+  }
+
+  function defaultCounts(overrides: Partial<Record<string, number>> = {}) {
+    return vi.fn((params: { statut?: string }) =>
+      Promise.resolve(overrides[params.statut ?? 'TOTAL'] ?? 0),
+    );
+  }
+
+  it('charge la page 0 avec limit/offset au montage (mode serveur par défaut)', async () => {
+    const getFactures = vi.fn().mockResolvedValue([]);
+    const fixture = creer({ getFactures, getFacturesCount: defaultCounts() });
+    fixture.detectChanges();
+    await flush();
+
+    expect(fixture.componentInstance.modeServeur()).toBe(true);
+    expect(getFactures).toHaveBeenCalledWith({
+      campagneId: 'camp-1',
+      statut: undefined,
+      limit: fixture.componentInstance.PAGE_SIZE,
+      offset: 0,
+    });
+  });
+
+  it('onPageChange recharge avec le bon offset', async () => {
+    const getFactures = vi.fn().mockResolvedValue([]);
+    const fixture = creer({ getFactures, getFacturesCount: defaultCounts() });
+    fixture.detectChanges();
+    await flush();
+    getFactures.mockClear();
+
+    fixture.componentInstance.onPageChange(2);
+    await flush();
+
+    expect(getFactures).toHaveBeenCalledWith({
+      campagneId: 'camp-1',
+      statut: undefined,
+      limit: fixture.componentInstance.PAGE_SIZE,
+      offset: 2 * fixture.componentInstance.PAGE_SIZE,
+    });
+  });
+
+  it('onStatutChange revient en page 0 et filtre côté serveur', async () => {
+    const getFactures = vi.fn().mockResolvedValue([]);
+    const fixture = creer({ getFactures, getFacturesCount: defaultCounts() });
+    fixture.detectChanges();
+    await flush();
+    fixture.componentInstance.onPageChange(3);
+    await flush();
+    getFactures.mockClear();
+
+    fixture.componentInstance.onStatutChange('IMPAYEE');
+    await flush();
+
+    expect(fixture.componentInstance.pageIndex()).toBe(0);
+    expect(getFactures).toHaveBeenCalledWith({
+      campagneId: 'camp-1',
+      statut: 'IMPAYEE',
+      limit: fixture.componentInstance.PAGE_SIZE,
+      offset: 0,
+    });
+  });
+
+  it('une recherche active bascule en chargement complet (mode client, sans limit/offset)', async () => {
+    const getFactures = vi.fn().mockResolvedValue([]);
+    const fixture = creer({ getFactures, getFacturesCount: defaultCounts() });
+    fixture.detectChanges();
+    await flush();
+    getFactures.mockClear();
+
+    fixture.componentInstance.onSearchChange('dupont');
+    await flush();
+
+    expect(fixture.componentInstance.modeServeur()).toBe(false);
+    expect(getFactures).toHaveBeenCalledWith({ campagneId: 'camp-1', statut: undefined });
+  });
+
+  it('facturesAEnvoyer compte sur la campagne entière (compteurs globaux), pas la page affichée', async () => {
+    // La page à l'écran ne contient qu'une facture PAYEE — si le compte
+    // relisait `factures()` comme avant la pagination, il vaudrait 0.
+    const getFactures = vi.fn().mockResolvedValue([facture({ statut: 'PAYEE' })]);
+    const getFacturesCount = defaultCounts({ IMPAYEE: 5, PARTIELLE: 2 });
+    const fixture = creer({ getFactures, getFacturesCount });
+    fixture.detectChanges();
+    await flush();
+
+    expect(fixture.componentInstance.facturesAEnvoyer()).toBe(7);
+  });
+
+  it('les puces de statut reflètent les compteurs globaux, pas la page affichée', async () => {
+    const getFactures = vi.fn().mockResolvedValue([facture({ statut: 'PAYEE' })]);
+    const getFacturesCount = defaultCounts({ IMPAYEE: 5, PARTIELLE: 2, PAYEE: 40 });
+    const fixture = creer({ getFactures, getFacturesCount });
+    fixture.detectChanges();
+    await flush();
+
+    const chip = fixture.componentInstance.filtersConfig().find((f) => f.key === 'statut');
+    expect(chip?.options.find((o) => o.value === 'IMPAYEE')?.count).toBe(5);
+    expect(chip?.options.find((o) => o.value === 'PAYEE')?.count).toBe(40);
+  });
+});

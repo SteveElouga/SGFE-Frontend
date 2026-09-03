@@ -30,14 +30,14 @@
   <!-- Filtres unifiés (batch 10) -->
   <app-filters-panel
     [search]="searchTerm()"
-    (searchChange)="searchTerm.set($event)"
+    (searchChange)="onSearchChange($event)"
     [debounceMs]="250"
     searchPlaceholder="ABONNES.SEARCH_PLACEHOLDER"
     [filters]="filtersConfig()"
     [values]="filterValues()"
     (valuesChange)="onFiltersChange($event)"
-    [resultCount]="filteredAbonnes().length"
-    [totalCount]="abonnes().length"
+    [resultCount]="resultCount()"
+    [totalCount]="totalParc()"
     heroNounKey="ABONNES.RESULTS_HERO"
   />
 
@@ -52,10 +52,14 @@
       [rows]="filteredAbonnes()"
       [rowLink]="lienAbonne"
       [loading]="loading()"
-      [pageSize]="25"
+      [pageSize]="PAGE_SIZE"
       [striped]="true"
       trackKey="id"
       [emptyMessage]="emptyKey()"
+      [serverSide]="modeServeur()"
+      [totalCount]="totalCount()"
+      [currentPage]="pageIndex()"
+      (pageChange)="onPageChange($event)"
     >
       <ng-template appCol="numero" let-abonne>
         <span class="abonnes-table__numero">{{ abonne.numeroAbonne }}</span>

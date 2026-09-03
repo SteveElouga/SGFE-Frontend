@@ -1,5 +1,5 @@
 <app-page-topbar [title]="'FACTURATION.TITLE' | translate" [subtitle]="subtitle()">
-  @if (facturesAEnvoyer().length > 0) {
+  @if (facturesAEnvoyer() > 0) {
     <button
       class="btn-whatsapp-tous"
       [disabled]="sendingWhatsapp()"
@@ -21,7 +21,7 @@
   }
 
   <!-- Banner: génération manuelle requise -->
-  @if (campagne()?.genererFacturesAuto === false && factures().length === 0 && !loading()) {
+  @if (campagne()?.genererFacturesAuto === false && campagneVide() && !loading()) {
     <div class="generate-banner">
       <div class="generate-banner__left">
         <i aria-hidden="true" class="pi pi-info-circle generate-banner__icon"></i>
@@ -44,14 +44,14 @@
   <!-- Filtres unifiés (batch 10) : chips auto-responsive + Effacer tout + tags actifs -->
   <app-filters-panel
     [search]="searchTerm()"
-    (searchChange)="searchTerm.set($event)"
+    (searchChange)="onSearchChange($event)"
     [debounceMs]="250"
     searchPlaceholder="FACTURATION.SEARCH_PLACEHOLDER"
     [filters]="filtersConfig()"
     [values]="filterValues()"
     (valuesChange)="onFiltersChange($event)"
-    [resultCount]="facturesFiltrees().length"
-    [totalCount]="factures().length"
+    [resultCount]="resultCount()"
+    [totalCount]="totalCampagne()"
     heroNounKey="FACTURATION.RESULTS_HERO"
   />
 
@@ -62,13 +62,17 @@
       [rows]="facturesFiltrees()"
       [rowLink]="lienFacture"
       [loading]="loading()"
-      [pageSize]="10"
+      [pageSize]="PAGE_SIZE"
       [rowClickable]="rowActivable"
       [rowClass]="rowClassFn"
       (rowClick)="openPanel($event)"
       trackKey="factureId"
       pageInfoKey="FACTURATION.PAGINATION_INFO"
       emptyMessage="FACTURATION.EMPTY"
+      [serverSide]="modeServeur()"
+      [totalCount]="totalCount()"
+      [currentPage]="pageIndex()"
+      (pageChange)="onPageChange($event)"
     >
       <ng-template appCol="numero" let-f>
         <span
@@ -253,7 +257,7 @@
           <h3 id="wa-bulk-sheet-title" class="wa-bulk-body__title">
             {{
               'FACTURATION.WA_BULK_TITLE'
-                | pluriel: facturesAEnvoyer().length : { count: facturesAEnvoyer().length }
+                | pluriel: facturesAEnvoyer() : { count: facturesAEnvoyer() }
             }}
           </h3>
           <p class="wa-bulk-body__desc">{{ 'FACTURATION.WA_BULK_DESC' | translate }}</p>
@@ -267,7 +271,7 @@
       >
         <div class="wa-bulk-summary__row">
           <span>{{ 'FACTURATION.WA_BULK_IMPAYEES' | translate }}</span>
-          <span class="wa-bulk-summary__v">{{ facturesAEnvoyer().length }}</span>
+          <span class="wa-bulk-summary__v">{{ facturesAEnvoyer() }}</span>
         </div>
         <div class="wa-bulk-summary__row">
           <span>{{ 'FACTURATION.WA_BULK_CAMPAGNE' | translate }}</span>
@@ -303,7 +307,7 @@
           }
           {{
             'FACTURATION.WA_BULK_CONFIRM'
-              | pluriel: facturesAEnvoyer().length : { count: facturesAEnvoyer().length }
+              | pluriel: facturesAEnvoyer() : { count: facturesAEnvoyer() }
           }}
         </button>
       </div>

@@ -88,6 +88,28 @@ export class DataTableComponent<T = unknown> {
   readonly rowClickable = input<boolean | ((row: T) => boolean)>(false);
 
   /**
+   * Mode pagination serveur (opt-in, défaut `false` — comportement inchangé
+   * pour tous les écrans existants).
+   *
+   * En mode client (défaut), `rows()` porte le jeu de données complet : le
+   * composant trie et tranche lui-même la page affichée.
+   *
+   * En mode serveur, `rows()` porte **déjà** la page courante — le composant
+   * ne trie ni ne tranche plus rien, il affiche tel quel. `totalCount` donne
+   * le nombre réel de lignes côté serveur (pour le pied « 1–15 sur 4 231 » et
+   * le nombre de pages), et `currentPage` est piloté par le parent : cliquer
+   * une page n'avance plus le curseur interne, ça émet `pageChange` — au
+   * parent de recharger et de faire suivre `rows`/`currentPage` à jour.
+   */
+  readonly serverSide = input(false);
+  /** Total réel de lignes côté serveur — ignoré hors mode `serverSide`. */
+  readonly totalCount = input(0);
+  /** Page courante (0-based) — pilotée par le parent en mode `serverSide`. */
+  readonly currentPage = input(0);
+  /** Émis en mode `serverSide` à chaque clic de pagination (page 0-based visée). */
+  readonly pageChange = output<number>();
+
+  /**
    * URL de destination d'une ligne. Fournie, elle transforme la première
    * cellule en `<a routerLink>` : la ligne redevient adressable (clic-milieu,
    * nouvel onglet, copie du lien), ce qu'un gestionnaire de clic seul empêche.
@@ -179,8 +201,14 @@ export class DataTableComponent<T = unknown> {
    * la direction.
    */
   readonly sortedRows = computed<readonly T[]>(() => {
-    const state = this.sortState();
     const rows = this.rows();
+    // Mode serveur : `rows()` est déjà la page voulue par le serveur — trier
+    // ici ne trierait que cette page-là, un résultat trompeur puisque les
+    // autres pages ne suivraient pas. Le tri serveur n'existe pas encore côté
+    // contrat GraphQL ; en attendant, les colonnes `sortable` restent inertes
+    // dans ce mode plutôt que de mentir sur l'ordre réel.
+    if (this.serverSide()) return rows;
+    const state = this.sortState();
     if (!state) return rows;
     const col = this.columns().find((c) => c.key === state.key);
     if (!col?.sortable) return rows;
@@ -199,21 +227,29 @@ export class DataTableComponent<T = unknown> {
     });
   });
 
-  // ── Pagination (interne, cliente) ───────────────────────────────────────
+  // ── Pagination (client par défaut ; serveur si `serverSide`) ────────────
   private readonly page = signal(0);
   readonly pageCount = computed(() => {
     const size = this.pageSize();
-    return size > 0 ? Math.max(1, Math.ceil(this.sortedRows().length / size)) : 1;
+    if (size <= 0) return 1;
+    const count = this.serverSide() ? this.totalCount() : this.sortedRows().length;
+    return Math.max(1, Math.ceil(count / size));
   });
-  /** Page bornée : protège d'un débordement après filtrage. */
-  readonly safePage = computed(() => Math.min(this.page(), this.pageCount() - 1));
+  /** Page bornée : protège d'un débordement après filtrage (ou d'un total
+   *  serveur qui vient de baisser sous la page demandée). */
+  readonly safePage = computed(() => {
+    const current = this.serverSide() ? this.currentPage() : this.page();
+    return Math.min(Math.max(current, 0), this.pageCount() - 1);
+  });
+  /** Lignes affichées : tranche locale en mode client, telles quelles en mode serveur (déjà la page voulue). */
   readonly pagedRows = computed(() => {
+    if (this.serverSide()) return this.rows();
     const size = this.pageSize();
     if (size <= 0) return this.sortedRows();
     const start = this.safePage() * size;
     return this.sortedRows().slice(start, start + size);
   });
-  readonly total = computed(() => this.sortedRows().length);
+  readonly total = computed(() => (this.serverSide() ? this.totalCount() : this.sortedRows().length));
   readonly rangeStart = computed(() =>
     this.total() === 0 ? 0 : this.safePage() * this.pageSize() + 1,
   );
@@ -238,9 +274,14 @@ export class DataTableComponent<T = unknown> {
 
   constructor() {
     // Retour en page 1 dès que le jeu de données change (filtre / rechargement).
+    // Mode serveur exclu : `rows()` change à chaque page reçue du serveur —
+    // revenir en page 0 à ce moment-là annulerait la navigation qui vient de
+    // la déclencher. C'est au parent de remettre sa page à 0 quand un filtre
+    // change (avant le fetch), pas au tableau de le deviner après coup.
     effect(() => {
       this.rows();
-      untracked(() => this.page.set(0));
+      const server = this.serverSide();
+      untracked(() => { if (!server) this.page.set(0); });
     });
 
     effect(() => {
@@ -259,8 +300,18 @@ export class DataTableComponent<T = unknown> {
     });
   }
 
+  /**
+   * Change de page. Mode serveur : ne modifie rien localement, se contente de
+   * demander — c'est `rows`/`currentPage` (inputs du parent) qui feront
+   * réellement avancer l'affichage une fois le fetch résolu.
+   */
   goPage(target: number): void {
-    if (target >= 0 && target < this.pageCount()) this.page.set(target);
+    if (target < 0 || target >= this.pageCount()) return;
+    if (this.serverSide()) {
+      this.pageChange.emit(target);
+      return;
+    }
+    this.page.set(target);
   }
 
   cellTemplate(key: string): TemplateRef<unknown> | null {
