@@ -12,10 +12,21 @@ export const GET_FACTURES_PAR_CAMPAGNE = gql`
 
 export const GET_FACTURES = gql`
   ${FACTURE_LIGNE_FIELDS}
-  query GetFactures($campagneId: String, $abonneId: String, $statut: String) {
-    factures(campagneId: $campagneId, abonneId: $abonneId, statut: $statut) {
+  query GetFactures($campagneId: String, $abonneId: String, $statut: String, $limit: Int, $offset: Int) {
+    factures(campagneId: $campagneId, abonneId: $abonneId, statut: $statut, limit: $limit, offset: $offset) {
       ...FactureLigneFields
     }
+  }
+`;
+
+/**
+ * Total réel côté serveur — nécessaire dès que `GET_FACTURES` est appelée
+ * avec `limit`/`offset` : la page reçue ne suffit plus à connaître le nombre
+ * de pages. Mêmes filtres que `GET_FACTURES`, sans pagination.
+ */
+export const GET_FACTURES_COUNT = gql`
+  query GetFacturesCount($campagneId: String, $abonneId: String, $statut: String) {
+    facturesCount(campagneId: $campagneId, abonneId: $abonneId, statut: $statut)
   }
 `;
 

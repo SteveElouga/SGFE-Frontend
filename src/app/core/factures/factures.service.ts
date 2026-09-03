@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import {
   GET_FACTURES_PAR_CAMPAGNE,
   GET_FACTURES,
+  GET_FACTURES_COUNT,
   GET_FACTURE,
   GET_AVOIR_ABONNE,
   GET_SOLDE_FACTURE,
@@ -36,7 +37,7 @@ import {
   CREDITER_AVOIR,
 } from '../../graphql/mutations/factures.mutations';
 import { Avoir, EnregistrerPaiementInput, StatutFacture, Tarif } from '../../shared/models/facture.model';
-import type { AnnulerFactureMutation, AnnulerPaiementMutation, CrediterAvoirMutation, CreerRegularisationMutation, EnregistrerPaiementAbonneMutation, EnregistrerPaiementMutation, EnvoyerFactureWhatsappMutation, EnvoyerRecuPaiementMutation, GenererFacturesMutation, GetAllEnvoisQuery, GetAllPaiementsQuery, GetAvoirAbonneQuery, GetDetteAbonneQuery, GetEnvoisQuery, GetFactureQuery, GetFacturesParCampagneQuery, GetFacturesQuery, GetImpayesQuery, GetPaiementsQuery, GetSoldeFactureQuery, GetSuiviImpayeQuery, GetTarifActuelQuery, RegenererFactureMutation, RenvoyerEnvoiMutation, RenvoyerFactureWhatsappMutation, UpdateStatutFactureMutation, UpdateTarifMutation } from '../../graphql/generated';
+import type { AnnulerFactureMutation, AnnulerPaiementMutation, CrediterAvoirMutation, CreerRegularisationMutation, EnregistrerPaiementAbonneMutation, EnregistrerPaiementMutation, EnvoyerFactureWhatsappMutation, EnvoyerRecuPaiementMutation, GenererFacturesMutation, GetAllEnvoisQuery, GetAllPaiementsQuery, GetAvoirAbonneQuery, GetDetteAbonneQuery, GetEnvoisQuery, GetFactureQuery, GetFacturesCountQuery, GetFacturesParCampagneQuery, GetFacturesQuery, GetImpayesQuery, GetPaiementsQuery, GetSoldeFactureQuery, GetSuiviImpayeQuery, GetTarifActuelQuery, RegenererFactureMutation, RenvoyerEnvoiMutation, RenvoyerFactureWhatsappMutation, UpdateStatutFactureMutation, UpdateTarifMutation } from '../../graphql/generated';
 
 /**
  * Accès GraphQL au domaine facturation & encaissement : factures (par campagne,
@@ -338,6 +339,8 @@ export class FacturesService {
     campagneId?: string;
     abonneId?: string;
     statut?: string;
+    limit?: number;
+    offset?: number;
   } = {}): Promise<GetFacturesQuery['factures']> {
     const key = JSON.stringify(params);
     const now = Date.now();
@@ -357,6 +360,26 @@ export class FacturesService {
     const data = result.data!.factures;
     this.facturesCache = { key, data, ts: now };
     return data;
+  }
+
+  /**
+   * Total réel de factures pour un jeu de filtres donné — sert à calculer le
+   * nombre de pages quand `getFactures` est appelée avec `limit`/`offset`,
+   * puisque la page reçue ne suffit plus à le déduire. Mêmes filtres que
+   * `getFactures`, jamais mise en cache (compteur, coût réseau négligeable).
+   */
+  async getFacturesCount(params: {
+    campagneId?: string;
+    abonneId?: string;
+    statut?: string;
+  } = {}): Promise<number> {
+    const result = await firstValueFrom(
+      this.apollo.query<GetFacturesCountQuery>({ query: GET_FACTURES_COUNT,
+        variables: params,
+        fetchPolicy: 'network-only',
+      }),
+    );
+    return result.data?.facturesCount ?? 0;
   }
 
   /** Ce qu'un abonné doit encore, hors une facture donnée. */

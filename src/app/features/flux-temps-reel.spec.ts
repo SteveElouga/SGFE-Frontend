@@ -135,6 +135,10 @@ describe('Flux temps réel branchés', () => {
             useValue: {
               getFacturesParCampagne: vi.fn().mockResolvedValue(factures),
               getFactures: vi.fn().mockResolvedValue(factures),
+              // Depuis la pagination serveur : `load()` charge aussi les
+              // compteurs par statut (chips, cible WhatsApp, sous-titre) via
+              // un appel séparé, indépendant de `getFactures`.
+              getFacturesCount: vi.fn().mockResolvedValue(0),
               getSoldeFacture: vi.fn().mockResolvedValue({ soldeRestant: 2000 }),
               getDetteAbonne: vi
                 .fn()
