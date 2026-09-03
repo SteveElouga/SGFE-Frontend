@@ -1,0 +1,34 @@
+<table class="abonne-invoices__table">
+  <thead>
+    <tr>
+      <th>{{ 'ABONNES.DETAIL.INVOICE_PERIOD' | translate }}</th>
+      @if (showConso()) {
+        <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_CONSO' | translate }}</th>
+      }
+      <th class="text-right">{{ 'ABONNES.DETAIL.INVOICE_AMOUNT' | translate }}</th>
+      <th>{{ 'COMMON.STATUS' | translate }}</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (f of factures(); track f.factureId) {
+      <tr>
+        <td>{{ periodeFacture(f) }}</td>
+        @if (showConso()) {
+          <td class="text-right">{{ f.consommation }} m³</td>
+        }
+        <td class="text-right">{{ formatFCFA(f.montant) }}</td>
+        <td><span class="facture-badge facture-badge--{{ f.statut.toLowerCase() }}">{{ 'FACTURATION.STATUT.' + f.statut | translate }}</span></td>
+        <td class="text-right">
+          <button type="button" class="abonne-invoices__pdf" (click)="onPdfClick(f.factureId, $event)">{{ 'ABONNES.DETAIL.PDF' | translate }}</button>
+        </td>
+      </tr>
+    } @empty {
+      <tr>
+        <td [attr.colspan]="showConso() ? 5 : 4" class="abonne-invoices__empty">
+          {{ 'ABONNES.DETAIL.NO_INVOICES' | translate }}
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>

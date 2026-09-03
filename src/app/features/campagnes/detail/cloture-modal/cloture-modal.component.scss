@@ -1,0 +1,235 @@
+@use '../../../../../styles/variables' as *;
+@use '../../../../../styles/buttons' as *;
+
+// Wrapping (overlay + modal + focus trap) délégué à <app-bottom-sheet> —
+// même convention que les sheets voisines (agents-sheet, zones-sheet...).
+:host {
+  display: contents;
+}
+
+// ── Boutons (sous-ensemble utilisé ici : outline + dark) ─────────────────────
+
+.btn {
+  @include btn-reset;
+  gap: var(--pas-2);
+  min-height: 44px; // WCAG 2.5.5;
+  padding: 0 var(--pas-5);
+  border-radius: var(--rayon-md);
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+
+  &--outline {
+    @include btn-variant(
+      var(--surface),
+      var(--encre-2),
+      $border: 1px solid var(--filet),
+      $hover-bg: var(--surface-douce),
+      $hover-border: var(--filet-pale)
+    );
+  }
+
+  &--dark {
+    @include btn-variant(
+      var(--navy-nuit),
+      var(--surface),
+      $shadow: var(--ombre-portee),
+      $hover-bg: var(--navy-clair)
+    );
+  }
+}
+
+// ── Contenu du bottom-sheet de clôture (écran 18) ─────────────────────────────
+// Le wrapping (overlay + modal + focus trap) est délégué à <app-bottom-sheet>.
+
+.cloture-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  // Padding fourni par app-bottom-sheet (.bs-sheet__body).
+
+  &__head {
+    display: flex;
+    gap: var(--pas-3);
+    align-items: flex-start;
+  }
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--rayon-lg);
+    background: var(--action-lueur);
+    color: var(--action);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--texte-2xl);
+    flex-shrink: 0;
+  }
+  &__title {
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-1);
+  }
+  &__desc {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+    line-height: 1.55;
+    margin: 0;
+  }
+  &__irr {
+    color: var(--danger-encre);
+    font-weight: 700;
+  }
+}
+
+.cloture-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-3);
+
+  @media (max-width: 639px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.cloture-stat {
+  border: 1px solid;
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2);
+  text-align: center;
+
+  &__n {
+    display: block;
+    font-size: var(--texte-3xl);
+    font-weight: 800;
+  }
+  &__l {
+    display: block;
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    margin-top: var(--pas-1);
+  }
+
+  &--ok {
+    background: var(--succes-fond);
+    border-color: var(--succes-trait);
+    .cloture-stat__n,
+    .cloture-stat__l {
+      color: var(--succes-encre);
+    }
+  }
+  &--est {
+    background: var(--attente-fond);
+    border-color: var(--attente-trait);
+    .cloture-stat__n,
+    .cloture-stat__l {
+      color: var(--ambre-attente);
+    }
+  }
+  &--nr {
+    background: var(--danger-fond);
+    border-color: var(--danger-trait);
+    .cloture-stat__n,
+    .cloture-stat__l {
+      color: var(--danger-encre);
+    }
+  }
+  &--rest {
+    background: var(--surface-douce);
+    border-color: var(--filet);
+    .cloture-stat__n {
+      color: var(--encre-2);
+    }
+    .cloture-stat__l {
+      color: var(--encre-3);
+    }
+  }
+}
+
+.cloture-warn {
+  display: flex;
+  gap: var(--pas-2);
+  background: var(--attente-fond);
+  border: 1px solid var(--attente-trait);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-3);
+  margin-bottom: var(--pas-3);
+  font-size: var(--texte-xs);
+  color: var(--attente-encre);
+  line-height: 1.5;
+
+  &__icon {
+    font-size: var(--texte-lg);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+}
+
+.cloture-summary {
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  overflow: hidden;
+  margin-bottom: var(--pas-3);
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--pas-3);
+    padding: var(--pas-2) var(--pas-3);
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+    border-bottom: 1px solid var(--fond);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  &__v {
+    font-weight: 700;
+    color: var(--encre);
+    white-space: nowrap;
+    &--green {
+      color: var(--succes-encre);
+    }
+  }
+}
+
+.cloture-check {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-4);
+  cursor: pointer;
+  font-size: var(--texte-sm);
+  font-weight: 500;
+  color: var(--encre-2);
+
+  input {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--action);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+}
+
+.cloture-actions {
+  display: flex;
+  gap: var(--pas-2);
+
+  &__cancel {
+    flex: 1;
+    justify-content: center;
+  }
+  &__confirm {
+    flex: 2;
+    justify-content: center;
+  }
+}

@@ -32,6 +32,9 @@ import { PageTopbarComponent } from '../../../shared/components/page-topbar/page
 import { NomAbonnePipe } from '../../../shared/pipes/nom-abonne.pipe';
 import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { ToastService } from '../../../shared/services/toast.service';
+import { KpiGridComponent } from './kpi-grid/kpi-grid.component';
+import { FacturesTableComponent } from './factures-table/factures-table.component';
+import { CompteursPanelComponent } from './compteurs-panel/compteurs-panel.component';
 import type { AbonneDetail, FactureLigne, SoldeDetail } from '../../../graphql/vues';
 import type { AbonneDetailUpdatedSubscription, GetAbonneQuery } from '../../../graphql/generated';
 
@@ -52,6 +55,9 @@ import type { AbonneDetailUpdatedSubscription, GetAbonneQuery } from '../../../g
     ArriereSheetComponent,
     EncaissementSheetComponent,
     PageTopbarComponent,
+    KpiGridComponent,
+    FacturesTableComponent,
+    CompteursPanelComponent,
   ],
   templateUrl: './abonne-detail.component.html',
   styleUrl: './abonne-detail.component.scss',
@@ -364,6 +370,8 @@ export class AbonneDetailComponent {
     );
   }
 
+  /** Utilisé par `consoBars()` (onglet Conso, resté ici) — dupliqué dans
+   *  `<app-factures-table>`, seule à en avoir par ailleurs besoin. */
   periodeFacture(f: FactureLigne): string {
     if (!f.dateReleve) return '—';
     const lang = this.translate.currentLang() ?? 'fr';
@@ -371,13 +379,11 @@ export class AbonneDetailComponent {
     return new Date(f.dateReleve).toLocaleDateString(locale, { month: 'short', year: 'numeric' });
   }
 
-  formatFCFA(n: number | null | undefined): string {
-    // Une seule unité dans toute l'application : « FCFA », jamais « F ».
-    return formatFcfa(n);
-  }
-
-  async openPdf(factureId: string, event: Event): Promise<void> {
-    event.stopPropagation();
+  // `formatFCFA` (formatage d'un montant de facture) vit désormais dans
+  // <app-factures-table>, seule à en avoir besoin. Le `stopPropagation()` de
+  // l'ancien `openPdf(factureId, event)` y est passé aussi (`onPdfClick`) —
+  // ce composant n'a plus qu'à ouvrir le PDF.
+  async openPdf(factureId: string): Promise<void> {
     try {
       await this.facturePdf.open(factureId);
     } catch {

@@ -1,0 +1,504 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// `.col-num` est aussi utilisé (sens inverse !) par `.releves-table` chez le
+// parent — la déclaration `!important` ci-dessous y règle le sens du texte
+// pour CETTE portée uniquement. Dupliquée ici pour que `.zone-table` continue
+// à interagir avec elle exactement comme avant la scission (même cascade,
+// même résultat visuel), plutôt que de laisser `&.col-num` (plus bas)
+// l'emporter sans opposition.
+.col-num {
+  text-align: left !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// ── Agents affectés (cartes) ──────────────────────────────────────────────────
+
+.agents-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  margin-bottom: var(--pas-4);
+
+  @media (max-width: 1023px) {
+    margin-top: var(--pas-4);
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  &__title {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0;
+  }
+  &__add {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--pas-2);
+    border: none;
+    background: none;
+    color: var(--action);
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    cursor: pointer;
+    i {
+      font-size: var(--icone-xs);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--pas-3);
+
+  @media (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 639px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.agent-card {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: var(--pas-3);
+  }
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    // Même dégradé identité que sidebar/user-menu/abonnes-list/utilisateurs-list
+    // (voir zone-agent__avatar plus bas) — celui-ci divergeait en vert plein.
+    background: linear-gradient(135deg, var(--action), var(--succes));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--texte-xl);
+    font-weight: 700;
+    color: var(--encre-inverse);
+    flex-shrink: 0;
+  }
+  &__id {
+    flex: 1;
+    min-width: 0;
+  }
+  &__name {
+    font-size: var(--texte-md);
+    font-weight: 700;
+    color: var(--encre);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  &__user {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+    margin-top: 1px;
+  }
+
+  &__zones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--pas-2);
+  }
+
+  &__prog-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--pas-2);
+  }
+  &__prog-label {
+    font-size: var(--texte-xs);
+    font-weight: 500;
+    color: var(--encre-3);
+  }
+  &__prog-num {
+    font-size: var(--texte-sm);
+    font-weight: 700;
+    color: var(--encre);
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--fond);
+    padding-top: var(--pas-3);
+  }
+  &__sync {
+    font-size: var(--texte-xs);
+    color: var(--encre-3);
+  }
+  &__tournee {
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--action);
+    text-decoration: none;
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.agent-zone-tag {
+  background: var(--fond);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  color: var(--encre-2);
+  white-space: nowrap;
+
+  &__camps {
+    font-weight: 500;
+    color: var(--encre-3);
+  }
+
+  &--empty {
+    background: transparent;
+    border: 1px dashed var(--filet-pale);
+    color: var(--encre-3);
+    font-weight: 500;
+  }
+}
+
+.agent-zone-more {
+  border: 1px dashed var(--filet-pale);
+  background: transparent;
+  color: var(--action);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
+  font-family: inherit;
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--action-lueur);
+    }
+  }
+}
+
+.agent-zone-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-1);
+  border: 1px solid var(--action-trait);
+  background: var(--surface);
+  color: var(--action);
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-1) var(--pas-2);
+  font-family: inherit;
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+
+  i {
+    font-size: var(--texte-xs);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--action-lueur);
+      border-color: var(--bleu-riviere-clair);
+    }
+  }
+}
+
+.agent-statut {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-1);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-1) var(--pas-2);
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &--tournee {
+    background: var(--action-lueur);
+    color: var(--action-survol);
+  }
+  &--actif {
+    background: var(--succes-fond);
+    color: var(--succes-encre);
+  }
+  &--retard {
+    background: var(--attente-fond);
+    color: var(--ambre-attente);
+  }
+  &--inactif {
+    background: var(--fond);
+    color: var(--encre-3);
+  }
+}
+
+.agents-pending {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  background: var(--surface-douce);
+  border: 1px dashed var(--filet-pale);
+  border-radius: var(--rayon-lg);
+  padding: var(--pas-4) var(--pas-4);
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+
+  i {
+    color: var(--encre-3);
+    font-size: var(--icone-sm);
+    flex-shrink: 0;
+  }
+}
+
+// ── Répartition par zone ──────────────────────────────────────────────────────
+
+.zone-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  margin-bottom: var(--pas-4);
+
+  &__title {
+    font-size: var(--texte-lg);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0;
+  }
+}
+
+.zone-table-wrap,
+.zone-mobile {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+}
+
+.zone-table-wrap {
+  overflow-x: auto;
+  @include hide-scrollbar;
+}
+
+.zone-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead > tr > th {
+    padding: var(--pas-3) var(--pas-5);
+    text-align: left;
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--encre-3);
+    background: var(--surface-douce);
+    border-bottom: 1.5px solid var(--filet);
+    white-space: nowrap;
+
+    // `.col-num` seul perd contre ce sélecteur une fois compilé : Angular
+    // ajoute un attribut de scoping à chaque maillon (`thead`, `tr`, `th`),
+    // ce qui lui donne plus de spécificité qu'une simple classe — l'en-tête
+    // restait à gauche pendant que la colonne l'était à droite.
+    &.col-num {
+      text-align: right;
+    }
+  }
+
+  tbody > tr > td {
+    padding: var(--pas-3) var(--pas-5);
+    border-bottom: 1px solid var(--fond);
+    font-size: var(--texte-sm);
+    color: var(--encre);
+    vertical-align: middle;
+  }
+
+  tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+  tbody > tr:nth-child(even) > td {
+    background: var(--surface);
+  }
+
+  .col-num {
+    text-align: right;
+    font-weight: 600;
+  }
+  .col-prog {
+    width: 220px;
+  }
+}
+
+// Bascule mobile (MB-02) : 5 colonnes + piste de progression 220px ne rentrent
+// pas sous 1024px. `.releves-table` (chez le parent) bascule déjà en cartes ;
+// celle-ci restait en scroll horizontal, scrollbar masquée en prime — l'exact
+// anti-pattern qu'interdit la Règle du 320 (DESIGN.md : jamais de scroll
+// horizontal exposé au doigt). Cartes empilées, même idiome que `.rm-card`.
+@media (max-width: 1023px) {
+  .zone-table-wrap {
+    display: none;
+  }
+}
+
+.zone-mobile {
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 1023px) {
+    display: flex;
+  }
+}
+
+.zm-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+  padding: var(--pas-3) var(--pas-4);
+  border-bottom: 1px solid var(--fond);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__head,
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--pas-2);
+  }
+
+  &__count {
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-2);
+    white-space: nowrap;
+  }
+
+  &__prog {
+    flex: 1;
+  }
+}
+
+// Suffixe atténué (« / total ») — partagé par la carte agent et la carte zone.
+.muted {
+  color: var(--encre-3);
+  font-weight: 500;
+}
+
+.zone-name {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.zone-agent {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+
+  &__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--action), var(--succes));
+    color: var(--encre-inverse);
+    font-size: var(--texte-xs);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  &__name {
+    font-size: var(--texte-sm);
+    font-weight: 500;
+    color: var(--encre-2);
+  }
+  &__none {
+    color: var(--encre-3);
+  }
+}
+
+.zone-prog {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+
+  &__track {
+    flex: 1;
+    height: 7px;
+    background: var(--fond);
+    border-radius: var(--rayon-xs);
+    overflow: hidden;
+  }
+  &__fill {
+    height: 100%;
+    background: var(--succes);
+    border-radius: var(--rayon-xs);
+    // `width` déclenche layout + paint ; `scaleX` reste sur le compositeur.
+    // Le dépôt le faisait déjà à trois endroits — facture-detail, le minuteur
+    // de toast et /terrain — avec le commentaire qui l'explique. Six barres ne
+    // l'avaient pas suivi ; la largeur passe par `--pct` (0 à 1).
+    transform: scaleX(var(--pct, 0));
+    transform-origin: left center;
+    transition: transform 0.4s var(--ease-out);
+    will-change: transform;
+
+    &--low {
+      background: var(--attente);
+    }
+  }
+  &__pct {
+    min-width: 34px;
+    text-align: right;
+    font-size: var(--texte-xs);
+    font-weight: 700;
+    color: var(--encre);
+
+    &--full {
+      color: var(--succes-encre);
+    }
+    &--low {
+      color: var(--ambre-attente);
+    }
+  }
+}

@@ -173,12 +173,8 @@
   color: var(--encre);
 }
 
-.card-row-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--pas-3);
-}
+// `.card-row-header` (en-tête + bouton de la carte paiements) vit désormais
+// dans `paiements-panel.component.scss`.
 
 .calc-grid2 {
   display: grid;
@@ -338,244 +334,10 @@
   user-select: none;
 }
 
-// ── Payment history ───────────────────────────────────────────────────────────
-
-.empty-hint {
-  font-size: var(--texte-md);
-  color: var(--encre-3);
-  text-align: center;
-  padding: var(--pas-4) 0;
-}
-
-.paiements-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pas-2);
-}
-
-.paiement-row {
-  border: 1px solid var(--filet);
-  border-radius: var(--rayon-md);
-  padding: var(--pas-3);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--pas-3);
-
-  &__amount {
-    font-size: var(--texte-xl);
-    font-weight: 700;
-    color: var(--encre);
-    margin-bottom: var(--pas-1);
-  }
-
-  &__meta {
-    font-size: var(--texte-xs);
-    color: var(--encre-3);
-  }
-
-  // Le badge et l'action d'annulation partagent la colonne de droite : le
-  // statut se lit d'abord, le geste correctif reste discret à côté.
-  &__aside {
-    display: flex;
-    align-items: center;
-    gap: var(--pas-2);
-    flex-shrink: 0;
-  }
-
-  // Discret par défaut : annuler un paiement est rare, et une ligne
-  // d'historique ne doit pas ressembler à un appel à l'action.
-  &__annuler {
-    @include action-ligne;
-    @include action-ligne-danger;
-    gap: var(--pas-2);
-    font-size: var(--texte-sm);
-  }
-
-  &__recu {
-    @include action-ligne;
-    @include action-ligne-succes;
-    gap: var(--pas-2);
-    font-size: var(--texte-sm);
-
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-}
-
-.paiement-badge {
-  background: var(--succes-fond);
-  border: 1px solid var(--succes-trait);
-  border-radius: var(--rayon-sm);
-  padding: var(--pas-1) var(--pas-2);
-  font-size: var(--texte-xs);
-  font-weight: 600;
-  color: var(--succes-encre);
-  white-space: nowrap;
-
-  // Un paiement annulé reste dans la liste — c'est la trace de la correction.
-  // Ton neutre : ni succès, ni alerte, il ne compte simplement plus.
-  &--annule {
-    background: var(--surface-douce);
-    border-color: var(--filet);
-    color: var(--encre-3);
-    text-decoration: line-through;
-  }
-}
-
-.progress-bar {
-  &__track {
-    background: var(--fond);
-    height: 8px;
-    border-radius: var(--rayon-xs);
-    overflow: hidden;
-    margin-bottom: var(--pas-2);
-  }
-
-  &__fill {
-    background: linear-gradient(90deg, var(--action), var(--action-survol));
-
-    // Soldée : le Vert Nappe est la couleur de ce que l'application confirme.
-    &--solde {
-      background: linear-gradient(90deg, var(--succes), var(--vert-profond));
-    }
-    height: 100%;
-    border-radius: var(--rayon-xs);
-    transform: scaleX(var(--pct, 0)); // scaleX (non layout) au lieu de width animée
-    transform-origin: left center;
-    transition: transform 0.4s var(--ease-out);
-    will-change: transform;
-  }
-
-  &__labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: var(--texte-sm);
-    font-weight: 600;
-  }
-
-  &__paid {
-    color: var(--action);
-  }
-  &__remaining {
-    color: var(--danger-encre);
-  }
-}
-
-.paiement-form {
-  border-top: 1px solid var(--fond);
-  padding-top: var(--pas-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--pas-3);
-  // Le contenu du formulaire (grid + champs + submit) vit dans
-  // <app-paiement-form> shared (batch 7 facturation). ~65 lignes SCSS
-  // retirées ici (.paiement-form__grid + .pf-field/.pf-label/.pf-required/
-  // .pf-input/.pf-hint/.pf-select).
-}
-
-// ── WhatsApp journal ──────────────────────────────────────────────────────────
-
-.journal-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pas-2);
-}
-
-.journal-entry {
-  display: flex;
-  flex-direction: column;
-  gap: var(--pas-1);
-  padding: var(--pas-2) var(--pas-3);
-  background: var(--surface-douce);
-  border: 1px solid var(--fond);
-  border-radius: var(--rayon-md);
-
-  &--warn {
-    background: var(--attente-fond);
-    border-color: var(--attente-trait);
-
-    .journal-entry__text {
-      color: var(--ambre-attente);
-      font-weight: 500;
-    }
-  }
-
-  &--error {
-    background: var(--danger-fond);
-    border-color: var(--danger-trait);
-
-    .journal-entry__text {
-      color: var(--danger-encre);
-      font-weight: 600;
-    }
-  }
-
-  &__head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--pas-3);
-  }
-
-  &__text {
-    font-size: var(--texte-sm);
-    color: var(--encre-2);
-    min-width: 0;
-  }
-
-  &__meta {
-    display: flex;
-    align-items: center;
-    gap: var(--pas-2);
-    flex-shrink: 0;
-  }
-
-  &__date {
-    font-size: var(--texte-xs);
-    color: var(--encre-3);
-    white-space: nowrap;
-  }
-
-  &__retry {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--pas-1);
-    background: var(--surface);
-    border: 1px solid var(--danger-trait);
-    color: var(--danger-encre);
-    border-radius: var(--rayon-sm);
-    padding: var(--pas-1) var(--pas-2);
-    font-size: var(--texte-xs);
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        background: var(--danger-fond);
-      }
-    }
-    i {
-      font-size: var(--icone-xs);
-    }
-  }
-
-  // Détail technique de l'erreur : petit, tronqué à 2 lignes (message complet
-  // au survol via `title`), les URLs longues cassées proprement.
-  &__err {
-    color: var(--danger-encre);
-    font-size: var(--texte-xs);
-    line-height: 1.45;
-    overflow-wrap: anywhere;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-}
+// Les styles « Historique des paiements » (`.paiements-list`, `.paiement-*`,
+// `.progress-bar*`, `.paiement-form*`, `.mpaiements*`) vivent désormais dans
+// `paiements-panel.component.scss` ; ceux du journal WhatsApp (`.journal-*`)
+// dans `envois-panel.component.scss`.
 
 // Distillation finale : carte neutre (fond blanc + border 1px slate héritée
 // de .detail-card). Le signal ambre est entièrement porté par
@@ -670,45 +432,10 @@
   }
 }
 
-// ── Paiement en bottom sheet (mobile · MB-06) ─────────────────────────────────
-.paiement-form__backdrop {
-  display: none;
-}
-.paiement-form__grip {
-  display: none;
-}
+// `.paiement-form*` (bottom sheet MB-06) vit désormais dans
+// `paiements-panel.component.scss`.
 
 @media (max-width: 1023px) {
-  .paiement-form__backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: var(--voile);
-    z-index: 99;
-  }
-  .paiement-form {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-    background: var(--surface);
-    border-radius: 24px 24px 0 0; // rounded.sheet — conforme signature mobile bottom-sheet
-    padding: var(--pas-3) var(--pas-4) calc(var(--pas-5) + env(safe-area-inset-bottom, 0px));
-    margin: 0;
-    max-height: 88vh;
-    overflow-y: auto;
-    box-shadow: var(--ombre-panneau);
-  }
-  .paiement-form__grip {
-    display: block;
-    width: 40px;
-    height: 4px;
-    background: var(--filet);
-    border-radius: var(--rayon-xs);
-    margin: 0 auto var(--pas-4);
-  }
-
   // MB-05 : table de calcul plus compacte sur mobile
   .calc-table__head > div {
     padding: var(--pas-2) var(--pas-2);
@@ -826,73 +553,7 @@
   }
 }
 
-// ── Paiements MB-05 : check vert + mode + montant vert ───────────────────────
-.mpaiements {
-  display: none;
-}
-
-@media (max-width: 1023px) {
-  .mpaiements {
-    display: block;
-
-    &__row {
-      display: flex;
-      align-items: center;
-      gap: var(--pas-2);
-      padding: var(--pas-2) 0;
-      border-bottom: 1px solid var(--fond);
-    }
-
-    &__check {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: var(--succes-fond);
-      color: var(--succes-encre);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: var(--texte-xs);
-      flex-shrink: 0;
-    }
-
-    &__body {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
-    &__mode {
-      font-size: var(--texte-sm);
-      font-weight: 600;
-      color: var(--encre);
-    }
-    &__meta {
-      font-size: var(--texte-xs);
-      color: var(--encre-3);
-    }
-    &__montant {
-      font-size: var(--texte-md);
-      font-weight: 700;
-      color: var(--succes-encre);
-      flex-shrink: 0;
-    }
-
-    &__reste {
-      display: flex;
-      justify-content: space-between;
-      padding-top: var(--pas-2);
-      font-size: var(--texte-xs);
-      font-weight: 500;
-      color: var(--encre-3);
-    }
-    &__reste-montant {
-      font-size: var(--texte-sm);
-      font-weight: 700;
-      color: var(--danger-encre);
-    }
-  }
-}
+// `.mpaiements*` vit désormais dans `paiements-panel.component.scss`.
 
 // ── Rangée d'actions : + Paiement / 📄 / ↻ ────────────────────────────────────
 .mactions {
@@ -958,10 +619,7 @@
 
   .detail-card--header,
   .calc-grid2,
-  .calc-table,
-  .paiements-list,
-  .progress-bar,
-  .card-row-header .btn {
+  .calc-table {
     display: none;
   }
 }
@@ -1049,12 +707,8 @@
   }
 }
 
-// Un versement qui solde la facture n'est pas un acompte.
-.paiement-badge--solde {
-  background: var(--succes-fond);
-  border-color: var(--succes-trait);
-  color: var(--succes-encre);
-}
+// `.paiement-badge--solde` vit désormais dans `paiements-panel.component.scss`
+// (fusionnée dans `.paiement-badge`).
 
 // ── Solde antérieur ─────────────────────────────────────────────────────────
 // Posé à côté de la bande de calcul, jamais dedans : celle-ci explique une

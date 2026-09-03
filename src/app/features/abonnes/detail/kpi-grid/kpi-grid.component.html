@@ -1,0 +1,49 @@
+<div class="abonne-kpi-grid">
+  <div class="abonne-kpi abonne-kpi--blue"
+    [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_CONSO' | translate">
+    <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_CONSO_MOY' | translate }}</div>
+    <div class="abonne-kpi__value">{{ consoMoyenne() ?? '—' }} m³</div>
+    <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_CONSO_UNIT' | translate }}</div>
+  </div>
+  <div class="abonne-kpi abonne-kpi--green"
+    [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_FACTURES' | translate">
+    <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_FACTURES' | translate }}</div>
+    <div class="abonne-kpi__value">{{ nbFactures() }}</div>
+    <div class="abonne-kpi__sub">{{ 'ABONNES.DETAIL.KPI_FACTURES_SINCE' | translate }}</div>
+  </div>
+  <div class="abonne-kpi" [class]="soldeKpiClass()"
+    [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SOLDE' | translate">
+    <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SOLDE' | translate }}</div>
+    <div class="abonne-kpi__value abonne-kpi__value--solde">{{ soldeFormate() }}</div>
+    <div class="abonne-kpi__sub">{{ soldeSub() }}</div>
+    <!-- L'avoir est le symetrique du solde, et il se lit dans le meme geste :
+         encaisser sans savoir qu'il reste du credit, c'est faire payer deux
+         fois. Il n'apparait que s'il existe — une ligne « avoir : 0 » sur
+         chaque fiche userait l'attention pour rien. -->
+    @if (avoir() > 0) {
+      <div class="abonne-kpi__avoir">
+        <i class="pi pi-wallet" aria-hidden="true"></i>
+        {{ 'ABONNES.DETAIL.AVOIR_DISPONIBLE' | translate: { montant: avoirFormate() } }}
+      </div>
+    }
+    <!-- Le geste est là où la dette se lit. Discret : constater un arriéré
+         est rare, et l'action ne doit pas concurrencer le chiffre. -->
+    <div class="abonne-kpi__actions">
+      @if (hasSoldesOuverts()) {
+        <button type="button" class="abonne-kpi__action abonne-kpi__action--primaire"
+          (click)="openEncaissement.emit()">
+          {{ 'PAIEMENTS.ENCAISSEMENT.VALIDER' | translate }}
+        </button>
+      }
+      <button type="button" class="abonne-kpi__action" (click)="openArriere.emit()">
+        {{ 'ABONNES.ARRIERE.TITRE' | translate }}
+      </button>
+    </div>
+  </div>
+  <div class="abonne-kpi abonne-kpi--slate"
+    [appTooltip]="'ABONNES.DETAIL.TOOLTIP_KPI_SINCE' | translate">
+    <div class="abonne-kpi__label">{{ 'ABONNES.DETAIL.KPI_SINCE' | translate }}</div>
+    <div class="abonne-kpi__value">{{ abonneDepuis() }}</div>
+    <div class="abonne-kpi__sub">{{ moisDepuis() }}</div>
+  </div>
+</div>

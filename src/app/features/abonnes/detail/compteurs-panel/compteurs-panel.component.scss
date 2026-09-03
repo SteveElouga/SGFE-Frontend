@@ -1,0 +1,249 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// ── Onglet Compteurs — Historique ─────────────────────────────────────────────
+
+.hist-tab {
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-4);
+}
+
+// Skeleton
+.hist-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+}
+
+// Erreur
+.hist-error {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-3);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  font-size: var(--texte-md);
+  color: var(--danger-encre);
+}
+
+// Compteur actuel
+.hist-current {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--action) 5%, transparent), color-mix(in oklab, var(--succes) 4%, transparent));
+  border: 1px solid color-mix(in oklab, var(--action) 15%, transparent);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-4);
+}
+
+.hist-current__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--pas-1);
+}
+
+.hist-current__label {
+  font-size: var(--texte-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--action);
+}
+
+.hist-current__badge {
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-xs);
+  background: color-mix(in oklab, var(--succes) 10%, transparent);
+  color: var(--succes-encre);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.hist-current__number {
+  font-size: var(--texte-3xl);
+  font-weight: 700;
+  color: var(--encre);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: var(--pas-2);
+}
+
+.hist-current__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+}
+
+.hist-current__row {
+  display: flex;
+  gap: var(--pas-2);
+  font-size: var(--texte-sm);
+}
+
+.hist-current__key {
+  color: var(--encre-3);
+  min-width: 90px;
+}
+
+.hist-current__val {
+  color: var(--encre-2);
+  font-weight: 500;
+}
+
+// État vide
+.hist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-7) var(--pas-5);
+  color: var(--encre-3);
+  font-size: var(--texte-md);
+}
+
+// Titre section
+.hist-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  font-size: var(--texte-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--encre-2);
+}
+
+.hist-section-count {
+  background: var(--filet);
+  color: var(--encre-2);
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  padding: 1px var(--pas-2);
+  border-radius: var(--rayon-md);
+}
+
+// Timeline
+.hist-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-left: 2px solid var(--filet);
+  margin-left: var(--pas-2);
+}
+
+.hist-entry {
+  position: relative;
+  padding: 0 0 var(--pas-5) var(--pas-5);
+}
+
+.hist-entry__dot {
+  position: absolute;
+  left: -7px;
+  top: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--action);
+  border: 2px solid var(--surface);
+  box-shadow: var(--anneau);
+}
+
+.hist-entry__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.hist-entry__date {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--encre);
+}
+
+.hist-entry__idx-label {
+  font-weight: 400;
+  color: var(--encre-3);
+  margin-left: var(--pas-1);
+}
+
+.hist-entry__idx-val {
+  font-weight: 600;
+  color: var(--encre-2);
+  font-variant-numeric: tabular-nums;
+}
+
+// Cartes ancien/nouveau
+.hist-entry__cards {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+}
+
+.hist-meter {
+  flex: 1;
+  border-radius: var(--rayon-md);
+  padding: var(--pas-2) var(--pas-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+
+  &--old {
+    background: var(--surface-douce);
+    border: 1px solid var(--filet);
+  }
+
+  &--new {
+    background: color-mix(in oklab, var(--succes) 5%, transparent);
+    border: 1px solid color-mix(in oklab, var(--succes) 20%, transparent);
+  }
+}
+
+.hist-meter__tag {
+  font-size: var(--texte-xs);                                      // micro token DESIGN.md
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  .hist-meter--old & { color: var(--encre-3); }
+  .hist-meter--new & { color: var(--succes-encre); }
+}
+
+.hist-meter__num {
+  font-size: var(--texte-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  .hist-meter--old & { color: var(--encre-3); }
+  .hist-meter--new & { color: var(--encre); }
+}
+
+.hist-meter__loc {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+}
+
+.hist-meter__sub {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--encre-3);
+}

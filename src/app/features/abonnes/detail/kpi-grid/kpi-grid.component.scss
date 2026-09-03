@@ -1,0 +1,118 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+// ── Bloc KPI ──────────────────────────────────────────────────────────────────
+
+.abonne-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--pas-3);
+
+  @media (max-width: 1023px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.abonne-kpi {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-md);
+  padding: var(--pas-3) var(--pas-4);
+  border-top-width: 3px;
+
+  &--blue   { border-top-color: var(--action); }
+  &--green  { border-top-color: var(--succes); }
+  &--red    { border-top-color: var(--danger); }
+  &--slate  { border-top-color: var(--encre-3); }
+}
+
+.abonne-kpi__label {
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  color: var(--encre-3);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-bottom: var(--pas-2);
+}
+
+.abonne-kpi__value {
+  font-size: var(--texte-3xl);
+  font-weight: 700;
+  color: var(--encre);
+  line-height: 1;
+}
+
+.abonne-kpi__sub {
+  font-size: var(--texte-xs);
+  color: var(--encre-3);
+  margin-top: var(--pas-1);
+  min-height: 14px;
+}
+
+.abonne-kpi--green .abonne-kpi__value--solde { color: var(--succes-encre); }
+.abonne-kpi--red   .abonne-kpi__value--solde { color: var(--danger-encre); }
+
+// Saisir un arriéré : un lien de service dans la carte de solde. Constater une
+// dette antérieure est rare — l'action ne doit pas concurrencer le chiffre.
+.abonne-kpi__action {
+  margin-top: var(--pas-2);
+  padding: var(--pas-1) 0;
+  min-height: 44px;                    // WCAG 2.5.5;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--action);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  align-self: flex-start;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { color: var(--action-survol); }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--action);
+    outline-offset: 2px;
+    border-radius: var(--rayon-xs);
+  }
+}
+
+// Deux gestes dans la carte de solde : encaisser (courant, donc en avant) et
+// saisir un arriéré (rare, donc en retrait). Le poids visuel dit la fréquence.
+// L'avoir est une bonne nouvelle dans une carte qui en donne rarement : il
+// prend le vert du crédit, pas le rouge de la dette qui l'entoure.
+.abonne-kpi__avoir {
+  margin-top: var(--pas-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  background: var(--succes-fond);
+  color: var(--succes-encre);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.abonne-kpi__actions {
+  margin-top: var(--pas-2);
+  display: flex;
+  gap: var(--pas-4);
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.abonne-kpi__action--primaire {
+  text-decoration: none;
+  padding: var(--pas-1) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  background: var(--action-lueur);
+  color: var(--action-survol);
+}

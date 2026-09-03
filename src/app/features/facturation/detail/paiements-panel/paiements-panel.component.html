@@ -1,0 +1,130 @@
+<!-- Payment history card -->
+<div class="carte detail-card">
+  <div class="card-row-header">
+    <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_PAIEMENTS' | translate }}</div>
+    @if (factureStatut() !== 'PAYEE' && canAddPaiement()) {
+      <button class="btn btn--primary" (click)="toggleForm.emit()">
+        {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (paiements().length === 0) {
+    <div class="empty-hint">{{ 'FACTURATION.DETAIL.NO_PAIEMENTS' | translate }}</div>
+  } @else {
+    <div class="paiements-list">
+      @for (p of paiements(); track p.paiementId) {
+        <div class="paiement-row">
+          <div>
+            <div class="paiement-row__amount">{{ p.montant | fcfa }}</div>
+            <div class="paiement-row__meta">
+              {{ 'FACTURATION.MODE.' + p.modePaiement | translate }} · {{ formatDate(p.datePaiement) }}
+              @if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
+            </div>
+          </div>
+          <div class="paiement-row__aside">
+            @if (p.annule) {
+              <!-- Un paiement annulé reste visible : c'est la trace qui
+                   prouve la correction, pas un résidu à masquer. -->
+              <span class="paiement-badge paiement-badge--annule">{{ 'FACTURATION.ANNUL_PAIEMENT.ANNULE' | translate }}</span>
+            } @else {
+              <span class="paiement-badge" [class.paiement-badge--solde]="pctPaye() >= 100">{{ (pctPaye() >= 100 ? 'FACTURATION.DETAIL.SOLDE_PAR' : 'FACTURATION.DETAIL.ACOMPTE') | translate }}</span>
+              @if (peutAnnulerPaiement()) {
+                <button
+                  type="button"
+                  class="paiement-row__recu"
+                  [disabled]="envoiRecuEnCours() === p.paiementId"
+                  (click)="envoyerRecu.emit(p)"
+                  [attr.aria-label]="'FACTURATION.ENVOYER_RECU.ARIA' | translate: { montant: (p.montant | fcfa) }"
+                >
+                  <i aria-hidden="true" class="pi" [class.pi-spin]="envoiRecuEnCours() === p.paiementId" [class.pi-spinner]="envoiRecuEnCours() === p.paiementId" [class.pi-send]="envoiRecuEnCours() !== p.paiementId"></i>
+                  <span>{{ 'FACTURATION.ENVOYER_RECU.ACTION' | translate }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="paiement-row__annuler"
+                  (click)="ouvrirAnnulation.emit(p)"
+                  [attr.aria-label]="'FACTURATION.ANNUL_PAIEMENT.ARIA' | translate: { montant: (p.montant | fcfa) }"
+                >
+                  <i aria-hidden="true" class="pi pi-undo"></i>
+                  <span>{{ 'FACTURATION.ANNUL_PAIEMENT.ACTION' | translate }}</span>
+                </button>
+              }
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Paiements en lignes MB-05 (mobile) : check vert + mode + montant vert -->
+    <div class="mpaiements">
+      @for (p of paiements(); track p.paiementId) {
+        <div class="mpaiements__row">
+          <span class="mpaiements__check" aria-hidden="true"><i aria-hidden="true" class="pi pi-check"></i></span>
+          <span class="mpaiements__body">
+            <span class="mpaiements__mode">{{ 'FACTURATION.MODE.' + p.modePaiement | translate }}</span>
+            <span class="mpaiements__meta">
+              {{ formatDate(p.datePaiement) }}@if (p.referenceTransaction) { · {{ p.referenceTransaction }} }
+            </span>
+          </span>
+          <span class="mpaiements__montant">{{ p.montant.toLocaleString('fr-FR') }} FCFA</span>
+        </div>
+      }
+      @if (soldeRestant() > 0) {
+        <div class="mpaiements__reste">
+          <span>{{ 'FACTURATION.DETAIL.RESTE_LABEL' | translate }}</span>
+          <span class="mpaiements__reste-montant">{{ soldeRestant().toLocaleString('fr-FR') }} FCFA</span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (solde(); as s) {
+    <div class="progress-bar">
+      <div
+        class="progress-bar__track"
+        role="progressbar"
+        [attr.aria-valuenow]="pctPaye()"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-label]="'FACTURATION.DETAIL.PAYE' | translate:{montant: s.montantPaye.toLocaleString('fr-FR'), pct: pctPaye()}"
+      >
+        <div class="progress-bar__fill" [class.progress-bar__fill--solde]="pctPaye() >= 100" [style.--pct]="pctPaye() / 100"></div>
+      </div>
+      <div class="progress-bar__labels">
+        <span class="progress-bar__paid">
+          {{ 'FACTURATION.DETAIL.PAYE' | translate:{montant: s.montantPaye.toLocaleString('fr-FR'), pct: pctPaye()} }}
+        </span>
+        @if (s.soldeRestant > 0) {
+          <span class="progress-bar__remaining">
+            {{ 'FACTURATION.DETAIL.SOLDE_RESTANT' | translate:{montant: s.soldeRestant.toLocaleString('fr-FR')} }}
+          </span>
+        }
+      </div>
+    </div>
+  }
+
+  @if (showForm()) {
+    <button
+      type="button"
+      class="paiement-form__backdrop"
+      (click)="closeForm.emit()"
+      [attr.aria-label]="'COMMON.CLOSE' | translate"
+    ></button>
+    <section
+      class="paiement-form"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="det-paiement-title"
+    >
+      <div class="paiement-form__grip" aria-hidden="true"></div>
+      <h3 id="det-paiement-title" class="sr-only">{{ 'FACTURATION.PANEL_TITLE' | translate }}</h3>
+      <app-paiement-form
+        [facture]="facture()"
+        [soldeRestant]="soldeRestant()"
+        idPrefix="det"
+        (saved)="paiementSaved.emit()"
+      />
+    </section>
+  }
+</div>

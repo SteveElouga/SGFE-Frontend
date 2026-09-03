@@ -1,0 +1,96 @@
+<div role="tabpanel" id="abonneTabPanel-4" aria-labelledby="abonneTab-4" tabindex="0" class="hist-tab">
+
+  <!-- Skeleton chargement -->
+  @if (historiqueLoading()) {
+    <div class="hist-skeleton">
+      <app-skeleton height="110px" radius="10px" />
+      <app-skeleton height="80px" radius="8px" />
+      <app-skeleton height="80px" radius="8px" />
+    </div>
+  }
+
+  <!-- Erreur -->
+  @if (!historiqueLoading() && historiqueError()) {
+    <app-error-banner [message]="historiqueError()!" [showRetry]="false" />
+  }
+
+  @if (!historiqueLoading() && !historiqueError()) {
+
+    <!-- Compteur actuel -->
+    @if (compteurActuel(); as c) {
+      <div class="hist-current">
+        <div class="hist-current__header">
+          <span class="hist-current__label">{{ 'ABONNES.DETAIL.HIST_CURRENT' | translate }}</span>
+          <span class="hist-current__badge">{{ c.statut }}</span>
+        </div>
+        <div class="hist-current__number">{{ c.numeroCompteur | compteur }}</div>
+        <div class="hist-current__rows">
+          <div class="hist-current__row">
+            <span class="hist-current__key">{{ 'ABONNES.DETAIL.LOCALISATION' | translate }}</span>
+            <span class="hist-current__val">{{ c.quartier }} · Camp {{ c.camp }}</span>
+          </div>
+          <div class="hist-current__row">
+            <span class="hist-current__key">{{ 'ABONNES.DETAIL.INDEX_INITIAL' | translate }}</span>
+            <span class="hist-current__val">{{ (c.indexInitial | number:'1.0-0') }} m³</span>
+          </div>
+          <div class="hist-current__row">
+            <span class="hist-current__key">{{ 'ABONNES.DETAIL.DATE_POSE' | translate }}</span>
+            <span class="hist-current__val">{{ c.datePose ? (c.datePose | date:'dd/MM/yyyy') : '—' }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Timeline des remplacements -->
+    @if (historique().length === 0) {
+      <div class="hist-empty">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect x="2" y="7" width="28" height="18" rx="3" stroke="#cbd5e1" stroke-width="1.5"/>
+          <path d="M2 13h28" stroke="#cbd5e1" stroke-width="1.5"/>
+        </svg>
+        <span>{{ 'ABONNES.DETAIL.HIST_NO_REPLACEMENT' | translate }}</span>
+      </div>
+    } @else {
+      <div class="hist-section-title">
+        <span>{{ 'ABONNES.DETAIL.HIST_TITLE' | translate }}</span>
+        <span class="hist-section-count">{{ historique().length }}</span>
+      </div>
+      <ol class="hist-timeline">
+        @for (entry of historique(); track entry.id) {
+          <li class="hist-entry">
+            <div class="hist-entry__dot"></div>
+            <div class="hist-entry__body">
+              <div class="hist-entry__date">
+                {{ entry.dateRemplacement ? (entry.dateRemplacement | date:'dd/MM/yyyy') : '—' }}
+                <span class="hist-entry__idx-label">{{ 'ABONNES.DETAIL.HIST_INDEX_FERMETURE' | translate }}</span>
+                <span class="hist-entry__idx-val">{{ entry.indexFermeture.toFixed(3) }} m³</span>
+              </div>
+              <div class="hist-entry__cards">
+                <!-- Ancien compteur -->
+                <div class="hist-meter hist-meter--old">
+                  <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_ANCIEN' | translate }}</span>
+                  <span class="hist-meter__num">{{ entry.ancienCompteur.numeroCompteur | compteur }}</span>
+                  <span class="hist-meter__loc">{{ entry.ancienCompteur.quartier }} · Camp {{ entry.ancienCompteur.camp }}</span>
+                  <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ (entry.ancienCompteur.indexInitial | number:'1.0-0') }} m³</span>
+                </div>
+                <!-- Flèche -->
+                <div class="hist-arrow" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 10h12M12 6l4 4-4 4" stroke="#64748b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <!-- Nouveau compteur -->
+                <div class="hist-meter hist-meter--new">
+                  <span class="hist-meter__tag">{{ 'ABONNES.DETAIL.HIST_NOUVEAU' | translate }}</span>
+                  <span class="hist-meter__num">{{ entry.nouveauCompteur.numeroCompteur | compteur }}</span>
+                  <span class="hist-meter__loc">{{ entry.nouveauCompteur.quartier }} · Camp {{ entry.nouveauCompteur.camp }}</span>
+                  <span class="hist-meter__sub">{{ 'ABONNES.DETAIL.HIST_INDEX_INITIAL' | translate }} {{ (entry.nouveauCompteur.indexInitial | number:'1.0-0') }} m³</span>
+                </div>
+              </div>
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  }
+</div>

@@ -1,0 +1,72 @@
+@use '../../../../../styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.abonne-invoices__table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    background: var(--surface-douce);
+  }
+
+  th {
+    padding: var(--pas-2) var(--pas-3);
+    text-align: left;
+    font-size: var(--texte-xs);
+    font-weight: 600;
+    color: var(--encre-3);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+
+    &.text-right { text-align: left; }
+  }
+
+  td {
+    padding: var(--pas-2) var(--pas-3);
+    border-top: 1px solid var(--fond);
+    font-size: var(--texte-sm);
+
+    &.text-right { text-align: left; }
+  }
+}
+
+.abonne-invoices__empty {
+  color: var(--encre-3);
+  font-size: var(--texte-sm);
+  text-align: center !important;
+  padding: var(--pas-5) var(--pas-3) !important;
+}
+
+.abonne-invoices__pdf {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--action);
+  font-size: var(--texte-xs);
+  font-weight: 500;
+  text-decoration: none;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { text-decoration: underline; }
+  }
+}
+
+// ── Badge statut facture ──────────────────────────────────────────────────────
+
+.facture-badge {
+  display: inline-block;
+  padding: var(--pas-1) var(--pas-2);
+  border-radius: var(--rayon-sm);                                   // sm token DESIGN.md
+  font-size: var(--texte-xs);
+  font-weight: 600;
+  border: 1px solid;
+
+  &--payee     { background: var(--succes-fond); border-color: var(--succes-trait); color: var(--succes-encre); }
+  &--partielle { background: var(--action-lueur); border-color: var(--action-trait); color: var(--action-survol); }
+  &--impayee   { background: var(--danger-fond); border-color: var(--danger-trait); color: var(--danger-encre); }
+}
