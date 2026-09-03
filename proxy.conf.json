@@ -1,37 +1,37 @@
 {
   "/espace-abonne": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   },
   "/graphql": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true,
     "ws": true
   },
   "^/factures/[^/]+/pdf/": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   },
   "^/paiements/[^/]+/recu/pdf/": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   },
   "^/rapports/(factures|paiements)\\.csv": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   },
   "^/rapports/synthese/": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   },
   "/bilan-impayes": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
     "changeOrigin": true
   }

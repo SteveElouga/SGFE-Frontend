@@ -542,7 +542,7 @@ ng add apollo-angular
 ng generate component features/terrain/saisir-index --standalone
 
 # Lancer le serveur de dev
-ng serve            # port 4321 en local (voir proxy.conf.json)
+ng serve            # port 4200 (défaut Angular, voir proxy.conf.json)
 
 # Build production PWA
 ng build --configuration production
@@ -668,17 +668,18 @@ export const environment = {
 
 ### Proxy de développement
 
-`ng serve` (port 4321 en local) et l'API Gateway (`localhost:8080`) sont deux
-origines distinctes pour le navigateur. Pour que `/graphql` reste
-same-origin en développement, le serveur de dev Angular proxyfie cette
-route vers la Gateway via `proxy.conf.json` (racine du projet) :
+`ng serve` (port 4200 en local) et l'API Gateway (derrière le nginx du
+dépôt backend) sont deux origines distinctes pour le navigateur. Pour que
+`/graphql` reste same-origin en développement, le serveur de dev Angular
+proxyfie cette route vers ce nginx via `proxy.conf.json` (racine du projet) :
 
 ```json
 {
   "/graphql": {
-    "target": "http://localhost:8080",
+    "target": "https://localhost:8443",
     "secure": false,
-    "changeOrigin": true
+    "changeOrigin": true,
+    "ws": true
   }
 }
 ```
@@ -686,3 +687,21 @@ route vers la Gateway via `proxy.conf.json` (racine du projet) :
 Câblé dans `angular.json` (`architect.serve.options.proxyConfig`). En
 production, c'est nginx (devant la Gateway) qui joue ce rôle en servant le
 build Angular et en proxyfiant `/graphql` sous le même domaine.
+
+> ⚠️ **Corrigé le 3 septembre 2026.** Le nginx du dépôt backend
+> (`fix/hardening-infra-secrets`, PR #169 puis durcissement TLS de PR #173)
+> redirige désormais **tout** le trafic `:80` (`8080` publié) vers `:443`
+> (`8443` publié) — `location / { return 301 https://$host$request_uri; }`
+> dans `nginx/default.conf`. Un proxy pointant encore vers
+> `http://localhost:8080` reçoit cette redirection 301 telle quelle (le
+> serveur de dev Angular ne la suit pas), donc `/graphql` échoue purement et
+> simplement. Cible désormais `https://localhost:8443` avec `secure: false`
+> (le certificat de dev est auto-signé, voir juste en dessous) — et cette
+> section prescrivait `http://localhost:8080` sans jamais avoir été mise à
+> jour après le durcissement TLS ; c'est elle qui avait tort, pas nginx.
+>
+> Prérequis local qui n'existait pas avant ce durcissement : générer le
+> certificat auto-signé une fois avant le premier `docker compose up` du
+> backend — `./scripts/generate-nginx-cert.sh` (dépôt backend, écrit dans
+> `nginx/certs/`, gitignoré). Sans lui, nginx refuse de démarrer (fail-fast
+> volontaire, même pattern que les clés JWT RS256 de `auth-service`).

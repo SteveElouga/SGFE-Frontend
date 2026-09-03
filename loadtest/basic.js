@@ -17,14 +17,18 @@ import { check, sleep } from 'k6';
  * Utiliser un compte ADMIN pour que les deux passent.
  *
  * Usage :
- *   BASE_URL=http://localhost:8080 \
+ *   BASE_URL=https://localhost:8443 \
  *   K6_USER=... K6_PASSWORD=... \
- *   k6 run loadtest/basic.js
+ *   k6 run --insecure-skip-tls-verify loadtest/basic.js
+ *
+ * `--insecure-skip-tls-verify` : le nginx local sert un certificat
+ * auto-signé de dev (./scripts/generate-nginx-cert.sh côté backend) —
+ * jamais à utiliser contre un environnement réel.
  *
  * Réglages optionnels : K6_VUS (défaut 2), K6_DURATION (défaut 30s).
  */
 
-const BASE_URL = __ENV.BASE_URL || 'http://localhost:8080';
+const BASE_URL = __ENV.BASE_URL || 'https://localhost:8443';
 const IDENTIFIER = __ENV.K6_USER;
 const PASSWORD = __ENV.K6_PASSWORD;
 
