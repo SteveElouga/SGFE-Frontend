@@ -109,6 +109,8 @@ export type FactureLigneFieldsFragment = { factureId: string, numeroFacture: str
 
 export type CampagneFieldsFragment = { campagneId: string, nom: string, periodeMois: number, periodeAnnee: number, statut: string, datePlanifiee: string, dateCreation: string, dateCloture: string, createdBy: string, numeroMobileMoney: string, genererFacturesAuto: boolean, envoyerWhatsappAuto: boolean };
 
+export type DiffusionFieldsFragment = { diffusionId: string, message: string, statut: string, nbTotal: number, nbEnvoyes: number, nbEchecs: number, createdBy: string, createdAt: string };
+
 export type PaiementFieldsFragment = { paiementId: string, factureId: string, montant: number, datePaiement: string, modePaiement: string, referenceTransaction: string, createdAt: string, annule: boolean, annuleLe: string, annulePar: string, motifAnnulation: string };
 
 export type CreateAbonneMutationVariables = Exact<{
@@ -288,6 +290,14 @@ export type CorrigerReleveMutationVariables = Exact<{
 
 
 export type CorrigerReleveMutation = { corrigerReleve: { releveId: string, nouveauIndex: number, consommation: number, statut: string, audit: Array<{ action: string, nouvelIndex: number, horodatage: string, auteur: { username: string, role: string } }> } };
+
+export type CreerDiffusionMutationVariables = Exact<{
+  message: string;
+  abonneIds: Array<string> | string;
+}>;
+
+
+export type CreerDiffusionMutation = { creerDiffusion: { diffusionId: string, message: string, statut: string, nbTotal: number, nbEnvoyes: number, nbEchecs: number, createdBy: string, createdAt: string } };
 
 export type UpdateInfosSocieteMutationVariables = Exact<{
   input: UpdateInfosSocieteInput;
@@ -620,6 +630,25 @@ export type GetZonesDisponiblesQueryVariables = Exact<{ [key: string]: never; }>
 
 
 export type GetZonesDisponiblesQuery = { zonesDisponibles: Array<{ quartier: string, camp: number, nbAbonnes: number }> };
+
+export type GetDiffusionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetDiffusionsQuery = { diffusions: Array<{ diffusionId: string, message: string, statut: string, nbTotal: number, nbEnvoyes: number, nbEchecs: number, createdBy: string, createdAt: string }> };
+
+export type GetDiffusionQueryVariables = Exact<{
+  diffusionId: string;
+}>;
+
+
+export type GetDiffusionQuery = { diffusion: { diffusionId: string, message: string, statut: string, nbTotal: number, nbEnvoyes: number, nbEchecs: number, createdBy: string, createdAt: string } };
+
+export type DiffusionProgressionUpdatedSubscriptionVariables = Exact<{
+  diffusionId?: string | number | null | undefined;
+}>;
+
+
+export type DiffusionProgressionUpdatedSubscription = { diffusionProgressionUpdated: { diffusionId: string, message: string, statut: string, nbTotal: number, nbEnvoyes: number, nbEchecs: number, createdBy: string, createdAt: string } };
 
 export type WhatsappQrQueryVariables = Exact<{ [key: string]: never; }>;
 

@@ -1,0 +1,70 @@
+<app-page-topbar [title]="'COMMUNICATION.NOUVELLE_TITRE' | translate" />
+
+<div class="dfc-content page-scroll">
+
+  @if (error()) {
+    <div class="dfc-error" role="alert">{{ error() }}</div>
+  }
+
+  <div class="dfc-card">
+    <label class="dfc-label" for="dfcMessage">{{ 'COMMUNICATION.MESSAGE_LABEL' | translate }}</label>
+    <textarea
+      id="dfcMessage"
+      class="dfc-textarea"
+      rows="4"
+      [ngModel]="message()"
+      (ngModelChange)="message.set($event)"
+      [placeholder]="'COMMUNICATION.MESSAGE_PLACEHOLDER' | translate"
+    ></textarea>
+  </div>
+
+  <app-filters-panel
+    [filters]="filtersConfig()"
+    [values]="filterValues()"
+    (valuesChange)="onFiltersChange($event)"
+    [showSearch]="false"
+    [resultCount]="filteredAbonnes().length"
+    [totalCount]="abonnes().length"
+    heroNounKey="ABONNES.RESULTS_HERO"
+  />
+
+  <div class="dfc-card dfc-card--table">
+    <app-data-table
+      [columns]="columns"
+      [rows]="filteredAbonnes()"
+      [loading]="loading()"
+      [pageSize]="25"
+      trackKey="id"
+      [selectable]="true"
+      [selectedIds]="selectedIds()"
+      (selectedIdsChange)="selectedIds.set($event)"
+      emptyMessage="ABONNES.NO_RESULT_FILTERS"
+    >
+      <ng-template appCol="numero" let-abonne>{{ abonne.numeroAbonne }}</ng-template>
+      <ng-template appCol="nom" let-abonne>{{ abonne.prenom }} {{ abonne.nom }}</ng-template>
+      <ng-template appCol="localisation" let-abonne>
+        @if (abonne.compteur) {
+          {{ abonne.compteur.quartier }} · Camp {{ abonne.compteur.camp }}
+        } @else {
+          <span class="dfc-dash">—</span>
+        }
+      </ng-template>
+      <ng-template appCol="statut" let-abonne>{{ abonne.statut }}</ng-template>
+    </app-data-table>
+  </div>
+
+  <div class="dfc-footer">
+    <span class="dfc-footer__count">
+      {{ 'COMMUNICATION.NB_SELECTIONNES' | translate: { count: nbSelectionnes() } }}
+    </span>
+    <button
+      type="button"
+      class="dfc-footer__envoyer"
+      [disabled]="!peutEnvoyer()"
+      (click)="envoyer()"
+    >
+      {{ (submitting() ? 'COMMON.SAVING' : 'COMMUNICATION.ENVOYER') | translate }}
+    </button>
+  </div>
+
+</div>

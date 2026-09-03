@@ -46,6 +46,7 @@ export class NavService {
     { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.IMPAYES', icon: 'pi-exclamation-triangle', route: '/impayes', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.ENVOIS', icon: 'pi-whatsapp', route: '/envois', roles: ['ADMIN', 'COMPTABLE'] },
+    { label: 'NAV.COMMUNICATION', icon: 'pi-send', route: '/communication', roles: ['ADMIN'] },
     { label: 'NAV.RAPPORTS', icon: 'pi-chart-bar', route: '/rapports', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.NOTIFICATIONS', icon: 'pi-bell', route: '/notifications' },
     { label: 'NAV.CONFIGURATION', icon: 'pi-cog', route: '/configuration', roles: ['ADMIN'] },

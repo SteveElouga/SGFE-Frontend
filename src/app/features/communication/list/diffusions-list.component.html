@@ -1,0 +1,47 @@
+<app-page-topbar [title]="'COMMUNICATION.TITLE' | translate" [subtitle]="'COMMUNICATION.SUBTITLE' | translate">
+  <a routerLink="/communication/nouvelle" class="page-topbar-action">
+    <i aria-hidden="true" class="pi pi-send"></i>
+    <span class="page-topbar-action__label">{{ 'COMMUNICATION.NOUVELLE' | translate }}</span>
+  </a>
+</app-page-topbar>
+
+<div class="dl-content page-scroll">
+
+  @if (error()) {
+    <div class="dl-error" role="alert">{{ error() }}</div>
+  }
+
+  <div class="dl-card">
+    <app-data-table
+      [columns]="columns"
+      [rows]="diffusions()"
+      [rowLink]="lienDiffusion"
+      [loading]="loading()"
+      [pageSize]="25"
+      trackKey="diffusionId"
+      emptyMessage="COMMUNICATION.EMPTY"
+    >
+      <ng-template appCol="message" let-d>
+        <span class="dl-message">{{ d.message }}</span>
+      </ng-template>
+      <ng-template appCol="progression" let-d>
+        <div class="dl-progress">
+          <div class="dl-progress__bar">
+            <div class="dl-progress__fill" [style.--pct]="pourcentage(d) / 100"></div>
+          </div>
+          <span class="dl-progress__label">
+            {{ 'COMMUNICATION.DETAIL_ENVOYES' | translate: { envoyes: d.nbEnvoyes, total: d.nbTotal } }}
+          </span>
+          @if (d.nbEchecs > 0) {
+            <span class="dl-progress__echecs">
+              {{ 'COMMUNICATION.DETAIL_ECHECS' | translate: { count: d.nbEchecs } }}
+            </span>
+          }
+        </div>
+      </ng-template>
+      <ng-template appCol="createdBy" let-d>{{ d.createdBy }}</ng-template>
+      <ng-template appCol="createdAt" let-d>{{ d.createdAt | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+    </app-data-table>
+  </div>
+
+</div>

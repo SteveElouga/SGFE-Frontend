@@ -150,6 +150,24 @@ export const CAMPAGNE_FIELDS = gql`
  * Le journal global, lui, les demandait : la même information était juste dans
  * une liste et fausse dans l'autre.
  */
+/**
+ * Une diffusion, telle que la liste, le détail (chargement initial) et la
+ * subscription de progression la portent — les trois alimentent le même
+ * écran de suivi, et doivent donc rapporter exactement la même forme.
+ */
+export const DIFFUSION_FIELDS = gql`
+  fragment DiffusionFields on Diffusion {
+    diffusionId
+    message
+    statut
+    nbTotal
+    nbEnvoyes
+    nbEchecs
+    createdBy
+    createdAt
+  }
+`;
+
 export const PAIEMENT_FIELDS = gql`
   fragment PaiementFields on Paiement {
     paiementId

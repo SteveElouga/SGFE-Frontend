@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+
+.dl-content {
+  padding: var(--pas-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  background: var(--fond);
+  min-height: 100%;
+
+  @media (max-width: 1023px) {
+    padding: var(--pas-2) var(--pas-3);
+    gap: var(--pas-2);
+  }
+}
+
+.dl-error {
+  padding: var(--pas-3) var(--pas-4);
+  background: var(--danger-fond);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-md);
+  color: var(--danger-encre);
+  font-size: var(--texte-lg);
+}
+
+.dl-card {
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  overflow: hidden;
+
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+.dl-message {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-width: 360px;
+  color: var(--encre);
+}
+
+.dl-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+  min-width: 160px;
+
+  &__bar {
+    height: 6px;
+    background: var(--fond);
+    border-radius: var(--rayon-xs);
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    background: var(--action);
+    border-radius: var(--rayon-xs);
+    transform: scaleX(var(--pct, 0));
+    transform-origin: left center;
+    transition: transform 0.4s var(--ease-out);
+  }
+
+  &__label {
+    font-size: var(--texte-sm);
+    color: var(--encre-3);
+  }
+
+  &__echecs {
+    font-size: var(--texte-sm);
+    color: var(--danger-encre);
+  }
+}

@@ -96,6 +96,17 @@ export class DataTableComponent<T = unknown> {
   /** Classe(s) CSS conditionnelle(s) par ligne (ex : `dt__row--selected`). */
   readonly rowClass = input<((row: T) => string | string[] | null) | null>(null);
 
+  /**
+   * Mode sélection multiple (opt-in, comme `rowClickable`/`rowLink`) : ajoute
+   * une colonne de cases à cocher, plus une case « tout sélectionner » dans
+   * l'en-tête qui bascule les lignes de la page courante — le reste de la
+   * pagination de ce composant est déjà par page, pas de raison qu'une
+   * sélection globale masquée derrière une case unique fasse exception.
+   */
+  readonly selectable = input(false);
+  readonly selectedIds = input<ReadonlySet<string>>(new Set());
+  readonly selectedIdsChange = output<Set<string>>();
+
   readonly rowClick = output<T>();
   /** Émis quand l'utilisateur change le tri via un en-tête cliquable. */
   readonly sortChange = output<SortState | null>();
@@ -221,11 +232,20 @@ export class DataTableComponent<T = unknown> {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   });
 
+  /** La case « tout sélectionner » — son état intermédiaire (partiel) ne se
+   * pose qu'en JS, aucun attribut HTML ne l'exprime. */
+  private readonly selectAllCheckbox = viewChild<ElementRef<HTMLInputElement>>('selectAll');
+
   constructor() {
     // Retour en page 1 dès que le jeu de données change (filtre / rechargement).
     effect(() => {
       this.rows();
       untracked(() => this.page.set(0));
+    });
+
+    effect(() => {
+      const checkbox = this.selectAllCheckbox()?.nativeElement;
+      if (checkbox) checkbox.indeterminate = this.pageSelectionState() === 'some';
     });
 
     // Après chaque rendu qui change les lignes affichées : la hauteur du contenu
@@ -253,6 +273,44 @@ export class DataTableComponent<T = unknown> {
 
   rowKey(row: T): unknown {
     return (row as Record<string, unknown>)?.[this.trackKey()];
+  }
+
+  private rowId(row: T): string {
+    return String(this.rowKey(row));
+  }
+
+  isSelected(row: T): boolean {
+    return this.selectedIds().has(this.rowId(row));
+  }
+
+  toggleRowSelection(row: T): void {
+    const next = new Set(this.selectedIds());
+    const id = this.rowId(row);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedIdsChange.emit(next);
+  }
+
+  /** État de la case « tout sélectionner » — porte sur la page affichée. */
+  readonly pageSelectionState = computed<'all' | 'some' | 'none'>(() => {
+    const rows = this.pagedRows();
+    if (rows.length === 0) return 'none';
+    const selected = this.selectedIds();
+    const count = rows.filter((r) => selected.has(this.rowId(r))).length;
+    if (count === 0) return 'none';
+    return count === rows.length ? 'all' : 'some';
+  });
+
+  toggleSelectAllOnPage(): void {
+    const rows = this.pagedRows();
+    const next = new Set(this.selectedIds());
+    const allSelected = this.pageSelectionState() === 'all';
+    for (const row of rows) {
+      const id = this.rowId(row);
+      if (allSelected) next.delete(id);
+      else next.add(id);
+    }
+    this.selectedIdsChange.emit(next);
   }
 
   /** URL de la ligne, ou `null` si l'écran n'en fournit pas. */

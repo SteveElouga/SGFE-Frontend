@@ -72,6 +72,21 @@
   }
 }
 
+// Colonne de sélection (mode `selectable`) : juste la case, pas de libellé —
+// la case « tout sélectionner » de l'en-tête en tient lieu.
+.dt__select-col {
+  width: 1px;
+  padding-right: 0;
+  white-space: nowrap;
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--action);
+  }
+}
+
 // Bouton d'en-tête pour tri : hérite du look du th mais devient cliquable.
 // Un span visuel discret indique la direction (asc/desc/off).
 .dt__sort-btn {

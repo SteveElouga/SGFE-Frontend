@@ -58,6 +58,17 @@
     <table class="dt__table" [class.dt__table--striped]="striped()">
       <thead>
         <tr>
+          @if (selectable()) {
+            <th scope="col" class="dt__select-col">
+              <input
+                #selectAll
+                type="checkbox"
+                [checked]="pageSelectionState() === 'all'"
+                (change)="toggleSelectAllOnPage()"
+                [attr.aria-label]="'COMMON.SELECT_ALL' | translate"
+              />
+            </th>
+          }
           @for (col of columns(); track col.key) {
             <th
               scope="col"
@@ -100,6 +111,16 @@
             (click)="onRowClick(row, $event)"
             (keydown.enter)="onRowClick(row, $event)"
           >
+            @if (selectable()) {
+              <td class="dt__select-col">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(row)"
+                  (change)="toggleRowSelection(row)"
+                  [attr.aria-label]="'COMMON.SELECT_ROW' | translate"
+                />
+              </td>
+            }
             @for (col of columns(); track col.key; let first = $first) {
               <td [class]="col.cellClass" [style.text-align]="col.align ?? 'left'">
                 <!-- La première colonne porte l'identifiant de la ligne : quand
@@ -125,7 +146,7 @@
           </tr>
         } @empty {
           <tr>
-            <td class="dt__empty" [attr.colspan]="columns().length">
+            <td class="dt__empty" [attr.colspan]="columns().length + (selectable() ? 1 : 0)">
               {{ emptyMessage() | translate }}
             </td>
           </tr>

@@ -218,6 +218,33 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'communication',
+        canActivate: [roleGuard(['ADMIN'])],
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/communication/list/diffusions-list.component').then(
+                (m) => m.DiffusionsListComponent,
+              ),
+          },
+          {
+            path: 'nouvelle',
+            loadComponent: () =>
+              import('./features/communication/form/diffusion-form.component').then(
+                (m) => m.DiffusionFormComponent,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/communication/detail/diffusion-detail.component').then(
+                (m) => m.DiffusionDetailComponent,
+              ),
+          },
+        ],
+      },
+      {
         path: 'rapports',
         canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
         loadComponent: () =>
