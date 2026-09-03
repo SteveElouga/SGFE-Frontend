@@ -30,7 +30,9 @@ capacité.
 
 - [k6](https://k6.io/) installé (`brew install k6`, ou voir leur doc).
 - La stack `SGFE-backend` tournant en local via `docker compose` (dépôt
-  séparé), servie sur `http://localhost:8080`.
+  séparé), servie en HTTPS sur `https://localhost:8443` (certificat
+  auto-signé de dev — générer une fois `./scripts/generate-nginx-cert.sh`
+  avant le premier démarrage, sans lui nginx refuse de démarrer).
 - Un compte `ADMIN` valide : `abonnes` est réservé ADMIN, `campagnes` est
   accessible à ADMIN/SUPERVISEUR/AGENT (voir le `CLAUDE.md` du backend,
   § Rôles et permissions) — un compte ADMIN couvre les deux requêtes.
@@ -43,10 +45,14 @@ un test « en lecture seule » ajoute de la charge sur un environnement partagé
 ## Lancer
 
 ```bash
-BASE_URL=http://localhost:8080 \
+BASE_URL=https://localhost:8443 \
 K6_USER=... K6_PASSWORD=... \
-k6 run loadtest/basic.js
+k6 run --insecure-skip-tls-verify loadtest/basic.js
 ```
+
+`--insecure-skip-tls-verify` est nécessaire tant que le nginx local sert le
+certificat auto-signé de dev — jamais utile ni sûr contre un environnement
+réel.
 
 Réglages optionnels :
 - `K6_VUS` — nombre d'utilisateurs virtuels (défaut : 2)
@@ -55,6 +61,6 @@ Réglages optionnels :
 Exemple pour un essai minimal (1 utilisateur virtuel, 10s) :
 
 ```bash
-BASE_URL=http://localhost:8080 K6_USER=... K6_PASSWORD=... \
-K6_VUS=1 K6_DURATION=10s k6 run loadtest/basic.js
+BASE_URL=https://localhost:8443 K6_USER=... K6_PASSWORD=... \
+K6_VUS=1 K6_DURATION=10s k6 run --insecure-skip-tls-verify loadtest/basic.js
 ```

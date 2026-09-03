@@ -22,12 +22,17 @@ dans `npx playwright test` de la CI ils apparaissent **skipped**, jamais
 ### Prérequis pour les lancer en local
 
 1. La stack `SGFE-backend` (dépôt séparé) tournant via `docker compose`,
-   servie sur `http://localhost:8080` :
+   servie en HTTPS sur `https://localhost:8443` (certificat auto-signé de
+   dev, à générer une fois avec `./scripts/generate-nginx-cert.sh` avant le
+   premier démarrage — sans lui, nginx refuse de démarrer) :
    ```bash
    cd ../SGFE-backend    # ou le chemin réel du dépôt backend
+   ./scripts/generate-nginx-cert.sh    # une seule fois, certs gitignorés
    docker compose up -d
    docker compose ps     # vérifier que tout est "healthy"
    ```
+   Playwright passe par le proxy de `ng serve` (`proxy.conf.json`), qui
+   cible déjà `https://localhost:8443` — rien à configurer côté e2e.
 2. Des comptes de test avec des données exploitables :
    - un compte `AGENT` avec une campagne `EN_COURS` contenant au moins un
      abonné encore « à relever » dans sa tournée ;
