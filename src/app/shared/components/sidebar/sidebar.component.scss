@@ -138,6 +138,14 @@ $sidebar-width:          220px;
 
 .sidebar__nav {
   flex: 1;
+  // Sans ceci, un flex-item refuse de rétrécir sous la hauteur de son contenu
+  // (même piège que `.shell__content`, voir global.scss) : sur une fenêtre
+  // basse, les entrées de fin de liste (Rapports, Notifications,
+  // Configuration) et le pied `app-user-menu` sortaient du panneau sans
+  // aucune barre de défilement pour les atteindre — ni ici, ni sur `.shell`
+  // (`overflow: hidden`), qui se contentait de les rogner en silence.
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--pas-1);
