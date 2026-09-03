@@ -101,3 +101,74 @@ describe('DataTableComponent — sélection', () => {
     expect(emitted[0]).toEqual(new Set(['0', '1', '2', '3', '4']));
   });
 });
+
+describe('DataTableComponent — pagination serveur', () => {
+  function setupServer(rows: Row[], opts: { totalCount: number; currentPage?: number; pageSize?: number }) {
+    TestBed.configureTestingModule({
+      imports: [DataTableComponent],
+      providers: [provideRouter([]), ...provideTranslateService({ lang: 'fr', fallbackLang: 'fr' })],
+    });
+    const fixture = TestBed.createComponent(DataTableComponent<Row>);
+    fixture.componentRef.setInput('columns', COLUMNS);
+    fixture.componentRef.setInput('rows', rows);
+    fixture.componentRef.setInput('trackKey', 'id');
+    fixture.componentRef.setInput('serverSide', true);
+    fixture.componentRef.setInput('totalCount', opts.totalCount);
+    fixture.componentRef.setInput('currentPage', opts.currentPage ?? 0);
+    fixture.componentRef.setInput('pageSize', opts.pageSize ?? 3);
+    fixture.detectChanges();
+    return { fixture, component: fixture.componentInstance };
+  }
+
+  it('affiche `rows()` telles quelles, sans les trancher ni les trier', () => {
+    // Une seule page de 3 lignes reçue du serveur, sur un total de 40 : le
+    // tableau ne doit rien couper — il n'a de toute façon pas les 37 autres.
+    const page = [ROWS[2], ROWS[0], ROWS[1]]; // ordre volontairement non trié
+    const { component } = setupServer(page, { totalCount: 40 });
+    expect(component.pagedRows()).toEqual(page);
+  });
+
+  it('total()/pageCount() se basent sur totalCount, pas sur rows().length', () => {
+    const { component } = setupServer(ROWS, { totalCount: 40, pageSize: 3 });
+    expect(component.total()).toBe(40);
+    expect(component.pageCount()).toBe(14); // ceil(40/3)
+  });
+
+  it('safePage() reflète currentPage (piloté par le parent)', () => {
+    const { component } = setupServer(ROWS, { totalCount: 40, currentPage: 5 });
+    expect(component.safePage()).toBe(5);
+  });
+
+  it('goPage émet pageChange sans modifier rows/safePage localement', () => {
+    const { component } = setupServer(ROWS, { totalCount: 40, currentPage: 0 });
+    const emitted: number[] = [];
+    component.pageChange.subscribe((p) => emitted.push(p));
+
+    component.goPage(3);
+
+    expect(emitted).toEqual([3]);
+    // Rien n'a bougé localement : le parent n'a pas encore renvoyé la page 3.
+    expect(component.safePage()).toBe(0);
+    expect(component.pagedRows()).toEqual(ROWS);
+  });
+
+  it('goPage ignore une cible hors bornes et n\'émet rien', () => {
+    const { component } = setupServer(ROWS, { totalCount: 40, currentPage: 0, pageSize: 3 });
+    const emitted: number[] = [];
+    component.pageChange.subscribe((p) => emitted.push(p));
+
+    component.goPage(-1);
+    component.goPage(14); // pageCount = 14 → dernière page valide = 13
+
+    expect(emitted).toEqual([]);
+  });
+
+  it('un changement de rows() ne réinitialise pas la page en mode serveur', () => {
+    // Contrairement au mode client : recevoir la page 5 ne doit pas nous
+    // ramener en page 0, sinon toute navigation s'annulerait elle-même.
+    const { fixture, component } = setupServer(ROWS, { totalCount: 40, currentPage: 5 });
+    fixture.componentRef.setInput('rows', [ROWS[0]]);
+    fixture.detectChanges();
+    expect(component.safePage()).toBe(5);
+  });
+});
