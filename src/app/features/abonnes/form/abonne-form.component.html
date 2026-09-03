@@ -64,13 +64,15 @@
           <!-- Statut (edit uniquement) -->
           @if (mode === 'edit') {
             <div class="af-field">
-              <span class="af-label">{{ 'COMMON.STATUS' | translate }}</span>
               @if (isResilie()) {
+                <span class="af-label">{{ 'COMMON.STATUS' | translate }}</span>
                 <div class="af-readonly af-readonly--badge">
                   <span class="af-status-badge af-status-badge--resilie">RÉSILIÉ</span>
                 </div>
               } @else {
+                <label class="af-label" for="afStatut">{{ 'COMMON.STATUS' | translate }}</label>
                 <p-select
+                  inputId="afStatut"
                   [options]="statutOptions()"
                   [ngModel]="selectedStatut()"
                   (ngModelChange)="selectedStatut.set($event)"
