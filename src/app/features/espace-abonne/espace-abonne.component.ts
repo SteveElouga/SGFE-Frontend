@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import {
@@ -34,8 +34,13 @@ const JOUR_MS = 86_400_000;
  * Écrans M-06 / MB-10 / 06 / 25 — Espace abonné PUBLIC (accès par lien WhatsApp
  * tokenisé, sans authentification — aucun authGuard sur la route `espace/:token`).
  *
- * Consultation seule (pas de paiement en ligne, décision d'audit §10.2) : l'abonné
- * voit ses factures, leur statut et son solde, et peut télécharger chaque PDF.
+ * L'abonné voit ses factures, leur statut et son solde, peut télécharger chaque
+ * PDF, et — décision d'audit §10.2 levée — payer en ligne une facture non
+ * soldée. Ce paiement est un MOCK/SANDBOX de démonstration : aucune vraie
+ * passerelle n'est branchée. `EspaceAbonneService.creerPaiementEnLigne` crée
+ * une session côté serveur, puis la page navigue vers l'URL de redirection
+ * reçue — une route FRONTEND interne (`paiement-confirmation.component`) qui
+ * simule la confirmation, jamais un fournisseur externe.
  * Le token du lien porte l'identité ; sa validation et l'anti-IDOR sur le PDF
  * sont côté gateway. Un token invalide/expiré → 401 → état « lien invalide ».
  *
@@ -78,12 +83,19 @@ const JOUR_MS = 86_400_000;
 })
 export class EspaceAbonneComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly svc = inject(EspaceAbonneService);
 
   private readonly token = this.route.snapshot.paramMap.get('token') ?? '';
 
   readonly etat = signal<Etat>('loading');
   readonly data = signal<EspaceAbonneData | null>(null);
+
+  /** Id de la facture dont la session de paiement en ligne est en cours de création (une seule à la fois). */
+  readonly chargementPaiement = signal<string | null>(null);
+
+  /** Dernière erreur de paiement en ligne : la facture concernée et la clé i18n du message. */
+  readonly erreurPaiement = signal<{ factureId: string; cle: string } | null>(null);
 
   /**
    * Les factures, enrichies et remises dans l'ordre où l'argent les éteindra.
@@ -193,6 +205,43 @@ export class EspaceAbonneComponent {
    */
   telechargerCsv(): void {
     window.open(this.svc.csvUrl(this.token), '_blank', 'noopener');
+  }
+
+  /** Vrai si LA session de paiement de cette facture est en cours de création. */
+  estEnChargement(factureId: string): boolean {
+    return this.chargementPaiement() === factureId;
+  }
+
+  /** Clé i18n de l'erreur de paiement à afficher sous cette facture, s'il y en a une. */
+  erreurPour(factureId: string): string | null {
+    const e = this.erreurPaiement();
+    return e && e.factureId === factureId ? e.cle : null;
+  }
+
+  /**
+   * Lance un paiement en ligne pour une facture non soldée.
+   *
+   * MOCK/SANDBOX de démonstration (décision d'audit §10.2 levée) : crée une
+   * session côté serveur, puis navigue vers `url_redirection` — une route
+   * FRONTEND interne (jamais un fournisseur externe), via le `Router` et non
+   * une navigation de page complète.
+   */
+  payerEnLigne(l: LigneEspace): void {
+    const factureId = l.facture.facture_id;
+    if (this.chargementPaiement()) return; // un paiement est déjà en cours
+
+    this.erreurPaiement.set(null);
+    this.chargementPaiement.set(factureId);
+    this.svc.creerPaiementEnLigne(this.token, factureId, l.facture.solde_restant).subscribe({
+      next: (session) => {
+        this.chargementPaiement.set(null);
+        void this.router.navigateByUrl(session.url_redirection);
+      },
+      error: () => {
+        this.chargementPaiement.set(null);
+        this.erreurPaiement.set({ factureId, cle: 'ESPACE.PAIEMENT.ERREUR' });
+      },
+    });
   }
 
   /**

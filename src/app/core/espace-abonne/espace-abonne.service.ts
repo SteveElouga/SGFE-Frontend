@@ -54,6 +54,26 @@ export interface EspaceAbonneData {
 }
 
 /**
+ * Réponse de `POST /espace-abonne/<token>/paiement/`.
+ *
+ * `url_redirection` est une route FRONTEND interne (mock de démonstration —
+ * décision d'audit §10.2 levée pour la sandbox, pas pour un encaissement
+ * réel), jamais l'URL d'un vrai fournisseur de paiement.
+ */
+export interface EspaceAbonnePaiementSession {
+  session_id: string;
+  url_redirection: string;
+  expire_a: string;
+  statut: string;
+}
+
+/** Réponse de `POST /espace-abonne/<token>/paiement/<session_id>/confirmer/`. */
+export interface EspaceAbonnePaiementConfirmation {
+  /** `CONFIRMEE` | `ECHOUEE` | `EXPIREE`. */
+  statut: string;
+}
+
+/**
  * Accès PUBLIC (sans authentification) aux factures d'un abonné, identifié par
  * le token du lien WhatsApp. Tout le contrôle d'accès est porté par le gateway
  * (validation du token côté Notification Service, anti-IDOR sur le PDF) — voir
@@ -93,5 +113,35 @@ export class EspaceAbonneService {
    */
   csvUrl(token: string): string {
     return `/espace-abonne/${encodeURIComponent(token)}/factures.csv`;
+  }
+
+  /**
+   * Crée une session de paiement en ligne pour une facture — MOCK/SANDBOX de
+   * démonstration, aucune vraie passerelle branchée derrière (décision
+   * d'audit §10.2 levée pour ce mode de démonstration uniquement).
+   *
+   * `url_redirection` est une route frontend interne à suivre via le
+   * `Router` (jamais une navigation externe) : `/espace/<token>/paiement/<session_id>/confirmer`.
+   */
+  creerPaiementEnLigne(
+    token: string,
+    factureId: string,
+    montant: number,
+  ): Observable<EspaceAbonnePaiementSession> {
+    return this.http.post<EspaceAbonnePaiementSession>(
+      `/espace-abonne/${encodeURIComponent(token)}/paiement/`,
+      { facture_id: factureId, montant },
+    );
+  }
+
+  /** Confirme (ou fait échouer/expirer) la session de paiement simulée ci-dessus. */
+  confirmerPaiementEnLigne(
+    token: string,
+    sessionId: string,
+  ): Observable<EspaceAbonnePaiementConfirmation> {
+    return this.http.post<EspaceAbonnePaiementConfirmation>(
+      `/espace-abonne/${encodeURIComponent(token)}/paiement/${encodeURIComponent(sessionId)}/confirmer/`,
+      null,
+    );
   }
 }

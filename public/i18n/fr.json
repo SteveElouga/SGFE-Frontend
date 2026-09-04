@@ -1507,7 +1507,20 @@
     "ECHEANCE_PROCHE_ZERO": "À régler aujourd’hui",
     "DONT_ECHU_SINGULAR": "Dont {{ montant }} en retard depuis un jour",
     "DONT_ECHU_PLURAL": "Dont {{ montant }} en retard depuis {{ n }} jours",
-    "DONT_ECHU_ZERO": "Dont {{ montant }} en retard"
+    "DONT_ECHU_ZERO": "Dont {{ montant }} en retard",
+    "PAIEMENT": {
+      "BOUTON": "Payer en ligne",
+      "EN_COURS": "Paiement en cours…",
+      "ERREUR": "Le paiement n'a pas pu être lancé. Merci de réessayer.",
+      "TITRE": "Confirmation du paiement",
+      "DESC": "Vous êtes sur la page de confirmation du paiement de votre facture.",
+      "MODE_DEMO": "Simulation de paiement (mode démonstration) : aucun argent n'est débité et aucune vraie passerelle de paiement n'est utilisée.",
+      "CONFIRMER": "Confirmer le paiement",
+      "STATUT_CONFIRMEE": "Paiement confirmé (simulation).",
+      "STATUT_ECHOUEE": "Le paiement a échoué (simulation).",
+      "STATUT_EXPIREE": "La session de paiement a expiré.",
+      "RETOUR": "Retour à mes factures"
+    }
   },
   "APP": {
     "NAME": "SGFE",

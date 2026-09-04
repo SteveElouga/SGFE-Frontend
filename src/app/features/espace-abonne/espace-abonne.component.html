@@ -216,6 +216,28 @@
                     </p>
                   }
 
+                  <!-- Payer en ligne : uniquement sur ce qui reste dû — MOCK/SANDBOX
+                       de démonstration, aucune vraie passerelle branchée (§10.2). -->
+                  @if (!l.soldee) {
+                    <button
+                      type="button"
+                      class="ea-payer"
+                      [disabled]="estEnChargement(l.facture.facture_id)"
+                      (click)="payerEnLigne(l)"
+                    >
+                      @if (estEnChargement(l.facture.facture_id)) {
+                        <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+                        {{ 'ESPACE.PAIEMENT.EN_COURS' | translate }}
+                      } @else {
+                        <i class="pi pi-credit-card" aria-hidden="true"></i>
+                        {{ 'ESPACE.PAIEMENT.BOUTON' | translate }}
+                      }
+                    </button>
+                    @if (erreurPour(l.facture.facture_id); as erreurCle) {
+                      <p class="ea-fac__erreur" role="alert">{{ erreurCle | translate }}</p>
+                    }
+                  }
+
                   <button type="button" class="ea-pdf" (click)="ouvrirPdf(l.facture.facture_id)">
                     <i class="pi pi-file-pdf" aria-hidden="true"></i> {{ 'ESPACE.PDF' | translate }}
                   </button>

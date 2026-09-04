@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -67,11 +67,13 @@ describe('EspaceAbonneComponent', () => {
     const svc = {
       getFactures: vi.fn().mockReturnValue(of(data)),
       pdfUrl: vi.fn().mockReturnValue('/pdf'),
+      creerPaiementEnLigne: vi.fn(),
     };
 
     TestBed.configureTestingModule({
       imports: [EspaceAbonneComponent],
       providers: [
+        provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
         {
@@ -276,6 +278,121 @@ describe('EspaceAbonneComponent', () => {
   });
 });
 
+describe('EspaceAbonneComponent · paiement en ligne', () => {
+  /**
+   * MOCK/SANDBOX de démonstration (décision d'audit §10.2 levée) : le bouton
+   * ne doit apparaître que là où il y a effectivement quelque chose à payer,
+   * et la navigation doit suivre EXACTEMENT l'URL renvoyée par le backend —
+   * jamais une URL reconstruite côté client.
+   */
+  function setup(factures: EspaceAbonneFacture[], token = 'tok-valide') {
+    const data: EspaceAbonneData = {
+      abonne_id: 'ab-1',
+      token_expiration: jours(30),
+      factures,
+    };
+    const svc = {
+      getFactures: vi.fn().mockReturnValue(of(data)),
+      pdfUrl: vi.fn().mockReturnValue('/pdf'),
+      creerPaiementEnLigne: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => token } } } },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(EspaceAbonneComponent);
+    fixture.detectChanges();
+    const router = TestBed.inject(Router);
+    return { fixture, component: fixture.componentInstance, svc, router };
+  }
+
+  it('affiche le bouton seulement sur une facture non soldée', () => {
+    const { fixture } = setup([
+      facture({ facture_id: 'due', solde_restant: 5_000, montant_paye: 0 }),
+      facture({ facture_id: 'payee', solde_restant: 0, montant_paye: 10_000 }),
+    ]);
+    const boutons = fixture.nativeElement.querySelectorAll('.ea-payer');
+    expect(boutons.length).toBe(1);
+  });
+
+  it("n'affiche aucun bouton quand tout est soldé", () => {
+    const { fixture } = setup([facture({ solde_restant: 0, montant_paye: 10_000 })]);
+    expect(fixture.nativeElement.querySelectorAll('.ea-payer').length).toBe(0);
+  });
+
+  it('appelle le service avec le token, la facture et le solde restant', () => {
+    const { component, svc, router } = setup([
+      facture({ facture_id: 'f-42', solde_restant: 7_500 }),
+    ]);
+    // Le routeur de test ne connaît aucune route : sans ce mock, la navigation
+    // réelle vers l'URL simulée échouerait (NG04002) en tâche de fond.
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    svc.creerPaiementEnLigne.mockReturnValue(
+      of({
+        session_id: 's-1',
+        url_redirection: '/espace/tok-valide/paiement/s-1/confirmer',
+        expire_a: jours(1),
+        statut: 'EN_ATTENTE',
+      }),
+    );
+
+    component.payerEnLigne(component.lignes()[0]);
+
+    expect(svc.creerPaiementEnLigne).toHaveBeenCalledWith('tok-valide', 'f-42', 7_500);
+  });
+
+  it("navigue vers l'url_redirection reçue, sans la reconstruire", () => {
+    const { component, svc, router } = setup([
+      facture({ facture_id: 'f-1', solde_restant: 5_000 }),
+    ]);
+    const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    svc.creerPaiementEnLigne.mockReturnValue(
+      of({
+        session_id: 's-9',
+        url_redirection: '/espace/tok-valide/paiement/s-9/confirmer',
+        expire_a: jours(1),
+        statut: 'EN_ATTENTE',
+      }),
+    );
+
+    component.payerEnLigne(component.lignes()[0]);
+
+    expect(navSpy).toHaveBeenCalledWith('/espace/tok-valide/paiement/s-9/confirmer');
+  });
+
+  it('affiche une erreur sous la facture concernée quand la création échoue', () => {
+    const { component } = setup([facture({ facture_id: 'f-1', solde_restant: 5_000 })]);
+    const svc = TestBed.inject(EspaceAbonneService) as unknown as {
+      creerPaiementEnLigne: ReturnType<typeof vi.fn>;
+    };
+    svc.creerPaiementEnLigne.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+    component.payerEnLigne(component.lignes()[0]);
+
+    expect(component.erreurPour('f-1')).toBe('ESPACE.PAIEMENT.ERREUR');
+    expect(component.estEnChargement('f-1')).toBe(false);
+  });
+
+  it('ignore un second clic pendant que le premier paiement est en cours de création', () => {
+    const { component, svc } = setup([facture({ facture_id: 'f-1', solde_restant: 5_000 })]);
+    // Observable jamais résolu : simule un appel réseau encore en vol.
+    svc.creerPaiementEnLigne.mockReturnValue({ subscribe: () => undefined } as never);
+
+    component.payerEnLigne(component.lignes()[0]);
+    expect(component.estEnChargement('f-1')).toBe(true);
+
+    component.payerEnLigne(component.lignes()[0]);
+    expect(svc.creerPaiementEnLigne).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe('EspaceAbonneComponent · avoir', () => {
   /**
    * Le crédit ne se soustrait pas du solde affiché. Les deux montants répondent
@@ -309,6 +426,7 @@ describe('EspaceAbonneComponent · avoir', () => {
     TestBed.configureTestingModule({
       imports: [EspaceAbonneComponent],
       providers: [
+        provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'tok' } } } },
@@ -382,6 +500,7 @@ describe('EspaceAbonneComponent · lecture des dates', () => {
     TestBed.configureTestingModule({
       imports: [EspaceAbonneComponent],
       providers: [
+        provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 't' } } } },
@@ -442,6 +561,7 @@ describe("EspaceAbonneComponent · ce qui justifie le montant", () => {
     TestBed.configureTestingModule({
       imports: [EspaceAbonneComponent],
       providers: [
+        provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => token } } } },
