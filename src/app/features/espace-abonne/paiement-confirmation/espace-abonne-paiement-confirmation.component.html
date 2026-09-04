@@ -1,0 +1,69 @@
+<!-- ══ Confirmation d'un paiement en ligne — MOCK/SANDBOX de démonstration ══ -->
+<div class="pc">
+  <header class="pc__topbar">
+    <span class="pc__brand-name">SGFE</span>
+  </header>
+
+  <main class="pc__body">
+    <div class="pc-carte">
+      <!-- Le rappel qu'aucune vraie passerelle n'est branchée : ne doit jamais
+           pouvoir se lire comme un vrai écran de paiement. -->
+      <div class="pc-bandeau" role="status">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        <span>{{ 'ESPACE.PAIEMENT.MODE_DEMO' | translate }}</span>
+      </div>
+
+      <h1 class="pc-carte__titre">{{ 'ESPACE.PAIEMENT.TITRE' | translate }}</h1>
+      <p class="pc-carte__desc">{{ 'ESPACE.PAIEMENT.DESC' | translate }}</p>
+
+      @switch (etat()) {
+        @case ('attente') {
+          <button type="button" class="pc-btn" (click)="confirmer()">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.CONFIRMER' | translate }}
+          </button>
+        }
+
+        @case ('confirmation') {
+          <p class="pc-etat" role="status" aria-live="polite">
+            <i class="pi pi-spinner pi-spin" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.EN_COURS' | translate }}
+          </p>
+        }
+
+        @case ('confirmee') {
+          <p class="pc-etat pc-etat--ok" role="status" aria-live="polite">
+            <i class="pi pi-check-circle" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.STATUT_CONFIRMEE' | translate }}
+          </p>
+        }
+
+        @case ('echouee') {
+          <p class="pc-etat pc-etat--danger" role="alert">
+            <i class="pi pi-times-circle" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.STATUT_ECHOUEE' | translate }}
+          </p>
+        }
+
+        @case ('expiree') {
+          <p class="pc-etat pc-etat--warn" role="alert">
+            <i class="pi pi-clock" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.STATUT_EXPIREE' | translate }}
+          </p>
+        }
+
+        @case ('erreur') {
+          <p class="pc-etat pc-etat--danger" role="alert">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+            {{ 'ESPACE.PAIEMENT.ERREUR' | translate }}
+          </p>
+        }
+      }
+
+      <a class="pc-retour" [routerLink]="retourVers()">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        {{ 'ESPACE.PAIEMENT.RETOUR' | translate }}
+      </a>
+    </div>
+  </main>
+</div>

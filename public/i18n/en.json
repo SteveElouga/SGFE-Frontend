@@ -1507,7 +1507,20 @@
     "ECHEANCE_PROCHE_ZERO": "Due today",
     "DONT_ECHU_SINGULAR": "Including {{ montant }} overdue by one day",
     "DONT_ECHU_PLURAL": "Including {{ montant }} overdue by {{ n }} days",
-    "DONT_ECHU_ZERO": "Including {{ montant }} overdue"
+    "DONT_ECHU_ZERO": "Including {{ montant }} overdue",
+    "PAIEMENT": {
+      "BOUTON": "Pay online",
+      "EN_COURS": "Payment in progress…",
+      "ERREUR": "The payment could not be started. Please try again.",
+      "TITRE": "Payment confirmation",
+      "DESC": "You are on the confirmation page for your invoice payment.",
+      "MODE_DEMO": "Payment simulation (demo mode): no money is charged and no real payment gateway is used.",
+      "CONFIRMER": "Confirm payment",
+      "STATUT_CONFIRMEE": "Payment confirmed (simulation).",
+      "STATUT_ECHOUEE": "The payment failed (simulation).",
+      "STATUT_EXPIREE": "The payment session has expired.",
+      "RETOUR": "Back to my invoices"
+    }
   },
   "APP": {
     "NAME": "SGFE",

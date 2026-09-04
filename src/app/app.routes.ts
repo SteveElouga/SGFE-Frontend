@@ -58,6 +58,15 @@ export const routes: Routes = [
         (m) => m.EspaceAbonneComponent,
       ),
   },
+  {
+    // URL de redirection du paiement en ligne (MOCK/SANDBOX — §10.2) : atteinte
+    // depuis `url_redirection`, publique comme la route ci-dessus, AUCUN authGuard.
+    path: 'espace/:token/paiement/:sessionId/confirmer',
+    loadComponent: () =>
+      import(
+        './features/espace-abonne/paiement-confirmation/espace-abonne-paiement-confirmation.component'
+      ).then((m) => m.EspaceAbonnePaiementConfirmationComponent),
+  },
 
   // ── Authenticated shell ────────────────────────────────────────────────────
   {

@@ -70,8 +70,8 @@
 >
 > **Décompte final (96 items, §8 — le total est passé de 94 à 96 : les deux
 > incidents/régressions découverts et corrigés ce jour comptent comme des
-> items propres)** : **72 faits (75 %)** · **2 partiels** · **7 incertains/non
-> revérifiés** · **15 non faits**. Détail dans le tableau de décompte en fin
+> items propres)** : **73 faits (76 %)** · **2 partiels** · **7 incertains/non
+> revérifiés** · **14 non faits**. Détail dans le tableau de décompte en fin
 > de §8, refait à neuf.
 >
 > **Seul vrai blocage de production inchangé** : l'observabilité (§I, hors
@@ -482,7 +482,7 @@ Cette checklist décline la feuille de route (§7) en **tâches unitaires cochab
 
 - [x] 🔗 Implémenter le composant **espace‑abonné**. *(M)* — **✅ Fait des deux côtés.** Backend : `gateway/schema/espace_abonne.py` (258 lignes), itéré 4 fois (PR #151, #164, #166). Frontend : `espace-abonne.component.ts` (334 lignes), états loading/ready/invalid/error, distingue dette échue/non échue — dépasse le périmètre minimal demandé, décrit comme « coquille vide » en juillet.
 - [x] 🔗 Ajouter la route `espace‑abonne` à `proxy.conf.json` + nginx prod. *(S)* — **✅ Fait.**
-- [ ] (Option) **Paiement en ligne** dans l'espace abonné. *(L)* — **Non fait, mais volontaire** : conforme à la décision §10.2 de cet audit lui-même (« consultation seule, paiement en ligne reporté »). Pas un écart.
+- [x] (Option) **Paiement en ligne** dans l'espace abonné. *(L)* — **✅ Fait, en mode SANDBOX/démonstration** (décision §10.2 levée pour cette portée précise — pas pour un encaissement réel). Contrat : `POST /espace-abonne/<token>/paiement/` crée une session simulée et renvoie `url_redirection` — une route **frontend interne** (`espace/:token/paiement/:sessionId/confirmer`), jamais un fournisseur externe — que l'écran de confirmation affiche en toutes lettres (« simulation de paiement, mode démonstration ») avant d'appeler `POST .../confirmer/` (`CONFIRMEE`/`ECHOUEE`/`EXPIREE`). Frontend : bouton « Payer en ligne » sur chaque facture non soldée + nouveau composant `paiement-confirmation/`, 16 tests ajoutés (`espace-abonne.component.ts`, PR frontend dédiée). Backend : même contrat REST développé en parallèle sur une branche dédiée du dépôt `SGFE-backend` — à vérifier à la fusion des deux PR. Aucun identifiant/secret de fournisseur de paiement réel.
 
 **I. Observabilité (exploitation + SOC 2 CC7)**
 
@@ -587,10 +587,10 @@ Cette checklist décline la feuille de route (§7) en **tâches unitaires cochab
 | Priorité | Total | ✅ Fait | 🟡 Partiel | ❓ Incertain / non revérifié | Non fait | Effort dominant (origine) |
 |---|:---:|:---:|:---:|:---:|:---:|---|
 | 🔴 P0 | 27 | 26 | 0 | 1 | 0 | S/M (+ 2 L : mTLS fait — PR #168, déploiement fait) |
-| 🟠 P1 | 33 | 19 | 2 | 0 | 12 | M (+ 2 L : outbox non fait par choix, avoir/rectification fait) |
+| 🟠 P1 | 33 | 20 | 2 | 0 | 11 | M (+ 2 L : outbox non fait par choix, avoir/rectification fait) |
 | 🟡 P2 | 21 | 20 | 0 | 0 | 1 | S/M (+ 1 L : réplication PostgreSQL, fait en PoC — PR #173) |
 | 🟢 P3 | 15 | 7 | 0 | 6 | 2 | M/L |
-| **Total** | **96** | **72 (75 %)** | **2 (2 %)** | **7 (7 %)** | **15 (16 %)** | — |
+| **Total** | **96** | **73 (76 %)** | **2 (2 %)** | **7 (7 %)** | **14 (15 %)** | — |
 
 > **Progression de la journée** : 0→37→48→50→64→**70** items faits au fil du 3 septembre 2026. Le total est passé de 94 à **96** items (2 ajouts : un bug réel de redélivraison Redis Streams découvert et corrigé en rédigeant le runbook — PR #177 — et la régression du proxy de dev local causée par le durcissement TLS — PR #180/#146). Trois nouveaux items complétés depuis la 2e passe, en plus des PR alors ouvertes désormais fusionnées : **RGPD export/anonymisation** (PR #179), **plan de reprise d'activité** (PR #178, avec un vrai écart opérationnel trouvé et depuis corrigé le 04/09 — sauvegardes désormais envoyées vers le bucket S3 provisionné), et **consommation de la pagination côté UI** (PR #145 frontend, en plus du serveur déjà fait).
 >

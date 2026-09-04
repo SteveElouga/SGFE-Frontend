@@ -416,9 +416,47 @@
   &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
 }
 
+// L'action principale de la ligne — c'est elle qui éteint la dette, le PDF ne
+// fait que la justifier. Pleine largeur et couleur d'action, au-dessus du PDF.
+.ea-payer {
+  margin-top: var(--pas-4);
+  width: 100%;
+  min-height: 44px;                       // WCAG 2.5.5
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-2);
+  background: var(--action);
+  color: var(--sur-action);
+  border: none;
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-3);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:not(:disabled) { background: var(--action-survol); }
+  }
+
+  &:active:not(:disabled) { transform: scale(0.97); }
+  &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+}
+
+.ea-fac__erreur {
+  margin: var(--pas-2) 0 0;
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--danger-encre);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ea-btn, .ea-pdf, .ea-csv { transition: none; }
-  .ea-btn:active, .ea-pdf:active, .ea-csv:active { transform: none; }
+  .ea-btn, .ea-pdf, .ea-payer, .ea-csv { transition: none; }
+  .ea-btn:active, .ea-pdf:active, .ea-payer:active, .ea-csv:active { transform: none; }
 }
 
 @media (max-width: 420px) {

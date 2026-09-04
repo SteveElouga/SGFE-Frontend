@@ -1,0 +1,130 @@
+// Écran de confirmation d'un paiement en ligne SANDBOX — atteint uniquement
+// depuis l'URL de redirection renvoyée par la création de session. La page
+// doit annoncer sans ambiguïté qu'aucune vraie passerelle n'est branchée.
+
+:host { display: block; min-height: 100dvh; }
+
+.pc {
+  min-height: 100dvh;
+  background: var(--fond);
+  display: flex;
+  flex-direction: column;
+
+  &__topbar {
+    height: 52px;
+    background: var(--navy-nuit);
+    padding: 0 var(--pas-5);
+    display: flex;
+    align-items: center;
+  }
+
+  &__brand-name { font-size: var(--texte-xl); font-weight: 700; color: var(--encre-inverse); }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--pas-5) var(--pas-4);
+  }
+}
+
+.pc-carte {
+  width: 440px;
+  max-width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--filet);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-portee);
+  padding: var(--pas-6) var(--pas-5);
+  text-align: center;
+
+  &__titre {
+    font-size: var(--texte-2xl);
+    font-weight: 700;
+    color: var(--encre);
+    margin: 0 0 var(--pas-2);
+  }
+
+  &__desc {
+    font-size: var(--texte-md);
+    color: var(--encre-3);
+    line-height: 1.6;
+    margin: 0 0 var(--pas-4);
+  }
+}
+
+.pc-bandeau {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  margin: 0 0 var(--pas-4);
+  padding: var(--pas-3);
+  background: var(--attente-fond);
+  color: var(--attente-encre);
+  border-radius: var(--rayon-sm);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  text-align: left;
+}
+
+.pc-btn {
+  width: 100%;
+  min-height: 44px;                       // WCAG 2.5.5
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-2);
+  background: var(--action);
+  color: var(--sur-action);
+  border: none;
+  border-radius: var(--rayon-sm);
+  padding: var(--pas-3);
+  font-family: inherit;
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover { background: var(--action-survol); }
+  }
+
+  &:active { transform: scale(0.97); }
+  &:focus-visible { outline: var(--focus-epaisseur) solid var(--action); outline-offset: var(--focus-decalage); }
+}
+
+.pc-etat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-2);
+  font-size: var(--texte-lg);
+  font-weight: 600;
+  color: var(--encre-2);
+  margin: 0;
+  padding: var(--pas-3) 0;
+
+  &--ok { color: var(--succes-encre); }
+  &--danger { color: var(--danger-encre); }
+  &--warn { color: var(--attente-encre); }
+}
+
+.pc-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-1);
+  margin-top: var(--pas-4);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  color: var(--action);
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-btn { transition: none; }
+  .pc-btn:active { transform: none; }
+}
