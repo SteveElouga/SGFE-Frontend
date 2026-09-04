@@ -43,14 +43,15 @@ jobs:
       # dépendances de DÉVELOPPEMENT transitives de l'outillage de build
       # (`@angular/build` → esbuild/browserslist/postcss, `tar`, `undici`,
       # `nanoid`, `fast-uri`, `ip-address`, `brace-expansion`) — aucune dans le
-      # code applicatif ni ses dépendances de production
-      # (`npm audit --omit=dev --audit-level=high` : 0 vulnérabilité). Cette
-      # étape échouera donc dès son activation, comme le fait déjà Trivy pour
-      # l'image de base ; corriger ces dépendances de build est hors du
-      # périmètre de cette tâche (ajouter le contrôle), qui doit rester
-      # honnête sur ce qu'il révèle.
-      - name: Audit des dépendances (npm audit)
-        run: npm audit --audit-level=high
+      # code applicatif ni ses dépendances de production. Un gate qui inclut
+      # `--omit=dev` échouerait dès son activation sur des paquets d'outillage
+      # jamais expédiés — bruit permanent sans action possible ici (mise à
+      # jour transitive hors du contrôle direct du dépôt). Périmètre du gate :
+      # ce qui expédie réellement (`--omit=dev`) ; les vulnérabilités de
+      # dépendances de dev restent suivies par `dependabot.yml` (écosystème
+      # npm, ci-dessous), pas par ce contrôle bloquant.
+      - name: Audit des dépendances de production (npm audit)
+        run: npm audit --omit=dev --audit-level=high
 
       # SAST — voir eslint.config.mjs pour le choix eslint-plugin-security
       # (plutôt que Semgrep) et la justification des règles désactivées.
@@ -226,14 +227,24 @@ jobs:
     name: Lint des workflows (actionlint)
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      # `github-pr-check` (ci-dessous) poste un Check Run natif — c'est le
+      # seul reporter réellement documenté par cette action (`reporter:
+      # local` n'existe pas : testé en CI réelle, échoue avec "reviewdog:
+      # diff command is empty", `local` tente quand même de calculer un
+      # diff). `checks: write` élevé uniquement sur ce job, pas au niveau du
+      # workflow.
+      checks: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: actionlint
         uses: reviewdog/action-actionlint@0226391db11971cf3c42df3c907fd647e8dc1673 # v1
         with:
-          # `local` : sortie dans le log du job uniquement, aucun appel à
-          # l'API GitHub (Checks/PR review) — évite d'avoir à élever les
-          # permissions du token pour ce seul job (`contents: read` suffit).
-          reporter: local
+          reporter: github-pr-check
+          # `nofilter` : signale tout le fichier, pas seulement les lignes
+          # changées — un fichier de workflow entier doit être valide, pas
+          # seulement sa diff.
+          filter_mode: nofilter
           fail_level: error
