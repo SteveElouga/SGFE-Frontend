@@ -1,13 +1,16 @@
-# Test de charge — point de départ
+# Test de charge — point de départ outillé
 
-`basic.js` exerce trois requêtes GraphQL de lecture représentatives (`login`,
-`abonnes`, `campagnes` — les moins coûteuses à raisonner de ce frontend)
-contre un backend SGFE-backend tournant localement.
+`basic.js` exerce six requêtes GraphQL de lecture représentatives (`login`,
+`abonnes`, `campagnes`, `impayes`, `statsGlobales`, `configs` — des lectures
+peu coûteuses à raisonner, sans mutation ni effet de bord) contre un backend
+SGFE-backend tournant localement, avec un profil de charge en paliers
+(montée progressive → palier stable → descente) plutôt qu'un nombre fixe de
+VUs pendant une durée fixe.
 
 ## Ce que ce n'est PAS
 
-**Ce n'est pas un test de charge de production**, et il ne faut pas lui faire
-dire plus qu'il ne mesure :
+**Ce n'est toujours pas un test de charge de production**, et il ne faut pas
+lui faire dire plus qu'il ne mesure :
 
 - Il tourne contre une machine de développeur, pas contre un environnement
   dimensionné comme la prod (CPU, mémoire, réseau, nombre de réplicas —
@@ -16,15 +19,36 @@ dire plus qu'il ne mesure :
   script dans des conditions réalistes — pas de mensonge par omission ici :
   tant que cet environnement n'existe pas, aucun chiffre sorti de ce script
   (latence, débit soutenable) ne doit être cité comme une capacité du système
-  en production.
-- Il ne couvre que 2 lectures GraphQL sur une douzaine d'écrans. Aucune
-  mutation, aucun scénario métier bout-en-bout, aucune montée en charge
-  progressive (ramp-up/ramp-down), aucun profil réaliste de trafic (mix
-  lecture/écriture, pics de fin de campagne, etc.).
+  en production. **Ce point n'a pas changé et n'est pas dans le périmètre de
+  ce script** : un profil de charge plus réaliste et une couverture de
+  lectures plus large ne remplacent pas un environnement représentatif.
+- Il ne couvre que 6 lectures GraphQL sur une douzaine d'écrans. Aucune
+  mutation, aucun scénario métier bout-en-bout (saisir un index, générer une
+  facture, enregistrer un paiement…), aucun mix réaliste de trafic
+  (proportion lecture/écriture, pics de fin de campagne, plusieurs rôles
+  simultanés, etc.).
 
 Ce script sert de point de départ technique (comment interroger le GraphQL de
-la Gateway sous k6, quelles requêtes sont sûres à rejouer) — pas de preuve de
-capacité.
+la Gateway sous k6, quelles requêtes sont sûres à rejouer, quel profil de
+charge leur appliquer) — pas de preuve de capacité.
+
+## Profil de charge
+
+`options.scenarios` utilise l'executor k6 `ramping-vus` avec trois paliers :
+
+1. **Montée** — 0 → `K6_VUS_CIBLE` VUs, progressivement (défaut : 10s).
+2. **Palier** — `K6_VUS_CIBLE` VUs maintenus (défaut : 20s).
+3. **Descente** — `K6_VUS_CIBLE` → 0 VUs, progressivement (défaut : 10s).
+
+C'est un profil de **test**, pas un chiffre de capacité de production : les
+valeurs par défaut (5 VUs au palier) sont calibrées pour tourner sans
+solliciter excessivement un poste de développeur, pas pour représenter une
+charge réelle.
+
+Chaque requête est taguée (`name`) pour que les seuils (`thresholds`) portent
+sur elle individuellement plutôt que sur une moyenne globale qui noierait une
+requête lente parmi les autres — un `p(95)<800` par requête en plus du seuil
+global.
 
 ## Prérequis
 
@@ -33,9 +57,12 @@ capacité.
   séparé), servie en HTTPS sur `https://localhost:8443` (certificat
   auto-signé de dev — générer une fois `./scripts/generate-nginx-cert.sh`
   avant le premier démarrage, sans lui nginx refuse de démarrer).
-- Un compte `ADMIN` valide : `abonnes` est réservé ADMIN, `campagnes` est
-  accessible à ADMIN/SUPERVISEUR/AGENT (voir le `CLAUDE.md` du backend,
-  § Rôles et permissions) — un compte ADMIN couvre les deux requêtes.
+- Un compte `ADMIN` valide (permet les six requêtes — ADMIN a accès à tout,
+  voir le `CLAUDE.md` du backend, § Rôles et permissions) :
+  - `abonnes` — réservé ADMIN.
+  - `campagnes` — ADMIN / SUPERVISEUR / AGENT.
+  - `impayes`, `statsGlobales` — ADMIN / COMPTABLE.
+  - `configs` — réservé ADMIN.
 
 **Avant de lancer quoi que ce soit contre une stack locale**, vérifier
 `docker compose ps` dans le dépôt backend : si un autre agent ou une autre
@@ -54,13 +81,19 @@ k6 run --insecure-skip-tls-verify loadtest/basic.js
 certificat auto-signé de dev — jamais utile ni sûr contre un environnement
 réel.
 
-Réglages optionnels :
-- `K6_VUS` — nombre d'utilisateurs virtuels (défaut : 2)
-- `K6_DURATION` — durée du run (défaut : 30s)
+Réglages optionnels du profil de charge (remplacent `K6_VUS`/`K6_DURATION`
+des versions précédentes de ce script — un profil en paliers n'a plus de VUs
+ni de durée uniques) :
 
-Exemple pour un essai minimal (1 utilisateur virtuel, 10s) :
+- `K6_VUS_CIBLE` — nombre de VUs au palier stable (défaut : `5`)
+- `K6_MONTEE` — durée de la montée en charge, 0 → `K6_VUS_CIBLE` (défaut : `10s`)
+- `K6_PALIER` — durée du palier stable (défaut : `20s`)
+- `K6_DESCENTE` — durée de la descente, `K6_VUS_CIBLE` → 0 (défaut : `10s`)
+
+Exemple pour un essai minimal (2 VUs au palier, montée/descente 5s, palier 10s) :
 
 ```bash
 BASE_URL=https://localhost:8443 K6_USER=... K6_PASSWORD=... \
-K6_VUS=1 K6_DURATION=10s k6 run --insecure-skip-tls-verify loadtest/basic.js
+K6_VUS_CIBLE=2 K6_MONTEE=5s K6_PALIER=10s K6_DESCENTE=5s \
+k6 run --insecure-skip-tls-verify loadtest/basic.js
 ```
