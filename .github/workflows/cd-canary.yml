@@ -26,13 +26,13 @@ jobs:
       full-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -40,15 +40,49 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha,prefix=sha-,format=long
             type=raw,value=canary
 
+      # Étape ajoutée (docs/CONFORMITE_CICD.md, item 1 / OWASP CICD-SEC-9) :
+      # avant, aucune image réellement déployée n'était scannée nulle part —
+      # le seul Trivy du dépôt (ci.yml) tourne sur une image jetable, jamais
+      # poussée. On construit ici localement (load: true, push: false, même
+      # scope de cache GHA que l'étape « Build & push » plus bas) pour
+      # scanner CETTE image avant qu'elle n'atteigne GHCR.
+      - name: Build image (scan avant publication)
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          push: false
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: sgfe-frontend:canary-${{ github.sha }}
+
+      # Même bloc que ci.yml (job docker-build, lignes 138-145) : une CVE
+      # CRITICAL/HIGH fait échouer ce job AVANT le push ci-dessous — donc
+      # avant que l'image n'atteigne GHCR ni ne soit déployée en canary.
+      - name: Scanner l'image (Trivy)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: sgfe-frontend:canary-${{ github.sha }}
+          severity: CRITICAL,HIGH
+          scanners: vuln
+          exit-code: '1'
+          ignore-unfixed: true
+
+      # Repousse le même contexte de build à travers le cache GHA déjà chaud
+      # (cache-from/to identiques à l'étape précédente) : ce second appel ne
+      # reconstruit pas les couches, il les publie. `sbom`/`provenance` ne
+      # peuvent pas être attachés à une image seulement `load: true` (pas de
+      # manifeste de registre) — c'est pourquoi ils sont posés ici et pas sur
+      # l'étape de scan ci-dessus.
       - name: Build & push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           push: true
@@ -56,6 +90,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          sbom: true
+          provenance: true
 
   # ── 2. Canary phase 1 : 5 % du trafic ───────────────────────────────────────
   canary-5pct:
@@ -68,7 +104,7 @@ jobs:
 
     steps:
       - name: Deploy canary container (5%)
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USER }}
@@ -117,7 +153,7 @@ jobs:
 
     steps:
       - name: Élargir canary à 25%
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USER }}
@@ -156,7 +192,7 @@ jobs:
 
     steps:
       - name: Rollout 100% + tag latest
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USER }}
@@ -181,7 +217,7 @@ jobs:
             echo "🚀 Déploiement complet — ${{ needs.build-push.outputs.image-tag }}"
 
       - name: Tag image latest
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}

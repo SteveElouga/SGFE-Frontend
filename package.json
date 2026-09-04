@@ -15,7 +15,8 @@
     "verify:jointure": "node scripts/verifier-jointure-api.mjs",
     "verify:liens": "node scripts/verifier-liens-routes.mjs",
     "verify:types": "tsc -b --noEmit",
-    "verify:ui": "npm run verify:defilement && npm run verify:liens"
+    "verify:ui": "npm run verify:defilement && npm run verify:liens",
+    "lint:security": "eslint \"src/**/*.ts\" --max-warnings 0"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
@@ -49,6 +50,9 @@
     "@graphql-codegen/typescript-operations": "^6.1.6",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26.0.1",
+    "@typescript-eslint/parser": "^8.69.0",
+    "eslint": "^10.10.0",
+    "eslint-plugin-security": "^4.0.1",
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",
