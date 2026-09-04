@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import { ActivatedRoute, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -285,6 +285,20 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
    * et la navigation doit suivre EXACTEMENT l'URL renvoyée par le backend —
    * jamais une URL reconstruite côté client.
    */
+  // `url_redirection` est une URL ABSOLUE (mock aujourd'hui, vrai fournisseur
+  // externe demain — voir le commentaire de `payerEnLigne`) : la navigation
+  // est une navigation de page complète (`window.location.href`), jamais le
+  // `Router` interne. jsdom n'implémente pas la navigation réelle ; on
+  // substitue `window.location` par un objet inerte le temps du test.
+  let originalLocation: Location;
+  beforeEach(() => {
+    originalLocation = window.location;
+    Object.defineProperty(window, 'location', { writable: true, value: { href: '' } });
+  });
+  afterEach(() => {
+    Object.defineProperty(window, 'location', { writable: true, value: originalLocation });
+  });
+
   function setup(factures: EspaceAbonneFacture[], token = 'tok-valide') {
     const data: EspaceAbonneData = {
       abonne_id: 'ab-1',
@@ -309,8 +323,7 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
 
     const fixture = TestBed.createComponent(EspaceAbonneComponent);
     fixture.detectChanges();
-    const router = TestBed.inject(Router);
-    return { fixture, component: fixture.componentInstance, svc, router };
+    return { fixture, component: fixture.componentInstance, svc };
   }
 
   it('affiche le bouton seulement sur une facture non soldée', () => {
@@ -328,16 +341,11 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
   });
 
   it('appelle le service avec le token, la facture et le solde restant', () => {
-    const { component, svc, router } = setup([
-      facture({ facture_id: 'f-42', solde_restant: 7_500 }),
-    ]);
-    // Le routeur de test ne connaît aucune route : sans ce mock, la navigation
-    // réelle vers l'URL simulée échouerait (NG04002) en tâche de fond.
-    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const { component, svc } = setup([facture({ facture_id: 'f-42', solde_restant: 7_500 })]);
     svc.creerPaiementEnLigne.mockReturnValue(
       of({
         session_id: 's-1',
-        url_redirection: '/espace/tok-valide/paiement/s-1/confirmer',
+        url_redirection: 'http://localhost:4200/espace/tok-valide/paiement/s-1/confirmer',
         expire_a: jours(1),
         statut: 'EN_ATTENTE',
       }),
@@ -348,15 +356,14 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
     expect(svc.creerPaiementEnLigne).toHaveBeenCalledWith('tok-valide', 'f-42', 7_500);
   });
 
-  it("navigue vers l'url_redirection reçue, sans la reconstruire", () => {
-    const { component, svc, router } = setup([
-      facture({ facture_id: 'f-1', solde_restant: 5_000 }),
-    ]);
-    const navSpy = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+  it("navigue (page complète) vers l'url_redirection reçue, sans la reconstruire", () => {
+    const { component, svc } = setup([facture({ facture_id: 'f-1', solde_restant: 5_000 })]);
     svc.creerPaiementEnLigne.mockReturnValue(
       of({
         session_id: 's-9',
-        url_redirection: '/espace/tok-valide/paiement/s-9/confirmer',
+        // URL ABSOLUE, comme le renvoie réellement le backend (FRONTEND_URL +
+        // chemin) — un `Router.navigateByUrl` ne saurait pas la résoudre.
+        url_redirection: 'http://localhost:4200/espace/tok-valide/paiement/s-9/confirmer',
         expire_a: jours(1),
         statut: 'EN_ATTENTE',
       }),
@@ -364,7 +371,7 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
 
     component.payerEnLigne(component.lignes()[0]);
 
-    expect(navSpy).toHaveBeenCalledWith('/espace/tok-valide/paiement/s-9/confirmer');
+    expect(window.location.href).toBe('http://localhost:4200/espace/tok-valide/paiement/s-9/confirmer');
   });
 
   it('affiche une erreur sous la facture concernée quand la création échoue', () => {

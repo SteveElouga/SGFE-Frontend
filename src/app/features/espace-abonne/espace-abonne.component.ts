@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import {
@@ -83,7 +83,6 @@ const JOUR_MS = 86_400_000;
 })
 export class EspaceAbonneComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly svc = inject(EspaceAbonneService);
 
   private readonly token = this.route.snapshot.paramMap.get('token') ?? '';
@@ -222,9 +221,16 @@ export class EspaceAbonneComponent {
    * Lance un paiement en ligne pour une facture non soldée.
    *
    * MOCK/SANDBOX de démonstration (décision d'audit §10.2 levée) : crée une
-   * session côté serveur, puis navigue vers `url_redirection` — une route
-   * FRONTEND interne (jamais un fournisseur externe), via le `Router` et non
-   * une navigation de page complète.
+   * session côté serveur, qui renvoie `url_redirection` en URL ABSOLUE
+   * (`FRONTEND_URL` + chemin, voir `passerelle_paiement.py` côté backend) —
+   * délibérément, pour que le mock d'aujourd'hui et un vrai fournisseur
+   * externe demain suivent exactement le même contrat. `Router.navigateByUrl`
+   * attend un chemin INTERNE (`/espace/...`) : lui passer une URL absolue le
+   * ferait tenter de matcher `http:` comme premier segment de route, sans
+   * jamais atteindre l'écran de confirmation. Une navigation de page complète
+   * (`window.location.href`) fonctionne dans les deux cas — mock interne
+   * (rechargement, l'app Angular redémarre sur la bonne route) et futur
+   * fournisseur externe (domaine différent).
    */
   payerEnLigne(l: LigneEspace): void {
     const factureId = l.facture.facture_id;
@@ -235,7 +241,7 @@ export class EspaceAbonneComponent {
     this.svc.creerPaiementEnLigne(this.token, factureId, l.facture.solde_restant).subscribe({
       next: (session) => {
         this.chargementPaiement.set(null);
-        void this.router.navigateByUrl(session.url_redirection);
+        window.location.href = session.url_redirection;
       },
       error: () => {
         this.chargementPaiement.set(null);
