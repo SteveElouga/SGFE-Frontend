@@ -10,6 +10,13 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Lecture seule par défaut, élevé job par job seulement si un job en a
+# réellement besoin. Aucun job de ce fichier ne pousse quoi que ce soit
+# (le seul `push` Docker est `false`, cf. job docker-build) : contents:
+# read seul suffit pour les 5 jobs, aucune élévation n'est nécessaire.
+permissions:
+  contents: read
+
 jobs:
   # ── 1. Qualité du code ───────────────────────────────────────────────────────
   quality:
@@ -17,15 +24,39 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci --prefer-offline
+
+      # Audit des dépendances npm (chaîne d'approvisionnement — voir
+      # docs/CONFORMITE_CICD.md, NIST PW.4/RV.1, CIS 3.2.2). Comme le Trivy
+      # ci-dessous pour l'image, cette étape est volontairement bloquante sur
+      # toute CVE HIGH/CRITICAL et n'est pas assouplie pour rester verte.
+      #
+      # Mesuré le 4 septembre 2026 : 8 HIGH (aucune CRITICAL), toutes dans des
+      # dépendances de DÉVELOPPEMENT transitives de l'outillage de build
+      # (`@angular/build` → esbuild/browserslist/postcss, `tar`, `undici`,
+      # `nanoid`, `fast-uri`, `ip-address`, `brace-expansion`) — aucune dans le
+      # code applicatif ni ses dépendances de production. Un gate qui inclut
+      # `--omit=dev` échouerait dès son activation sur des paquets d'outillage
+      # jamais expédiés — bruit permanent sans action possible ici (mise à
+      # jour transitive hors du contrôle direct du dépôt). Périmètre du gate :
+      # ce qui expédie réellement (`--omit=dev`) ; les vulnérabilités de
+      # dépendances de dev restent suivies par `dependabot.yml` (écosystème
+      # npm, ci-dessous), pas par ce contrôle bloquant.
+      - name: Audit des dépendances de production (npm audit)
+        run: npm audit --omit=dev --audit-level=high
+
+      # SAST — voir eslint.config.mjs pour le choix eslint-plugin-security
+      # (plutôt que Semgrep) et la justification des règles désactivées.
+      - name: Analyse de sécurité du code (ESLint)
+        run: npm run lint:security
 
       # `tsc --noEmit` seul ne vérifiait RIEN : `tsconfig.json` est un
       # fichier-solution (`"files": []` plus des références de projet), donc le
@@ -69,7 +100,7 @@ jobs:
         run: npm run verify:ui
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: dist-${{ github.sha }}
           path: dist/sgfe-frontend/browser/
@@ -83,9 +114,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -103,17 +134,17 @@ jobs:
     timeout-minutes: 20
     needs: quality
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       # `load: true` : sans lui, l'image construite ne va nulle part — buildx
       # la jette après le build (`push: false` seul ne la garde pas accessible
       # localement). Trivy a besoin de la retrouver via le démon Docker du
       # runner pour la scanner juste après, à l'étape suivante.
       - name: Build image (no push)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           push: false
@@ -151,9 +182,9 @@ jobs:
     needs: quality
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
           cache: npm
@@ -177,8 +208,43 @@ jobs:
 
       - name: Upload Playwright report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: playwright-report-${{ github.sha }}
           path: playwright-report/
           retention-days: 14
+
+  # ── 5. Scanner de mauvaise configuration des workflows (actionlint) ─────────
+  # docs/CONFORMITE_CICD.md, item 13 du plan de remédiation (CIS 2.3.6, OWASP
+  # CICD-SEC-8) : aucun des deux dépôts (backend compris) n'avait de scanner
+  # de pipeline avant cette tâche — `actionlint` est retenu ici pour que le
+  # même outil serve de référence si/quand le backend l'adopte à son tour.
+  # Job léger et indépendant des autres (pas de `npm ci`, pas de build) :
+  # analyse les 4 fichiers de workflow du dépôt pour des erreurs de syntaxe,
+  # des `${{ }}` mal utilisés dans un `run:` (risque d'injection de script),
+  # des vérifications `shellcheck` basiques, etc.
+  lint-workflows:
+    name: Lint des workflows (actionlint)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      # `github-pr-check` (ci-dessous) poste un Check Run natif — c'est le
+      # seul reporter réellement documenté par cette action (`reporter:
+      # local` n'existe pas : testé en CI réelle, échoue avec "reviewdog:
+      # diff command is empty", `local` tente quand même de calculer un
+      # diff). `checks: write` élevé uniquement sur ce job, pas au niveau du
+      # workflow.
+      checks: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: actionlint
+        uses: reviewdog/action-actionlint@0226391db11971cf3c42df3c907fd647e8dc1673 # v1
+        with:
+          reporter: github-pr-check
+          # `nofilter` : signale tout le fichier, pas seulement les lignes
+          # changées — un fichier de workflow entier doit être valide, pas
+          # seulement sa diff.
+          filter_mode: nofilter
+          fail_level: error

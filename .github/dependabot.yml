@@ -1,0 +1,39 @@
+# Dependabot — dépôt frontend.
+#
+# Absent avant cette tâche (docs/CONFORMITE_CICD.md, item 10 du plan de
+# remédiation, NIST PW.4, CIS 3.2.2) : aucune mise à jour automatique des
+# dépendances npm ni des actions GitHub. Deux écosystèmes, sur le modèle du
+# `dependabot.yml` backend (même fréquence, même branche cible), adaptés à ce
+# dépôt qui n'a qu'un seul `package.json` (pas de découpage par service).
+version: 2
+
+updates:
+  # --- Dépendances npm (dépendances applicatives ET outillage de build/lint,
+  # ex. eslint-plugin-security — un seul package.json à la racine, pas de
+  # découpage par service comme côté backend). ---
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
+    # `legacy-peer-deps=true` (.npmrc) : PrimeNG 21 déclare un peer
+    # @angular/common@^21 sur un projet en Angular 22. Une mise à jour
+    # groupée des paquets Angular réduit le risque qu'une PR Dependabot
+    # isolée casse cette résolution de peer volontairement assouplie.
+    groups:
+      angular:
+        patterns:
+          - "@angular/*"
+
+  # --- Actions GitHub utilisées dans les 4 workflows, épinglées par SHA
+  # (voir .github/workflows/*.yml) — Dependabot avance le SHA et le
+  # commentaire de version ensemble, même patron que le backend.
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
