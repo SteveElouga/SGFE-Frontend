@@ -4,19 +4,19 @@ import { test, expect } from '@playwright/test';
  * Parcours comptable — enregistrement d'un versement sur une facture impayée.
  *
  * ═══════════════════════════════════════════════════════════════════════════
- * ⚠️  CE SPEC NE S'EXÉCUTE JAMAIS (test.skip(true, …) ci-dessous).
+ * ⚠️  GARDE-FOU OBLIGATOIRE — WHATSAPP_DISABLE_SEND_FOR_TESTS
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * Pas seulement gated derrière `E2E_LIVE_BACKEND` comme
- * `terrain-saisie-index.spec.ts` — le skip est INCONDITIONNEL, y compris en
- * local avec un backend vivant. Raison, vérifiée dans le code du backend
- * (pas supposée) avant d'écrire quoi que ce soit ici :
+ * Historique : ce spec est resté `test.skip(true, …)` INCONDITIONNEL jusqu'à
+ * ce que le backend (SGFE-backend, PR « flag de test pour désactiver l'envoi
+ * WhatsApp réel ») expose un garde-fou. Raison, vérifiée dans le code du
+ * backend (pas supposée) avant d'écrire quoi que ce soit ici :
  *
  * Enregistrer un paiement déclenche un envoi RÉEL et AUTOMATIQUE du reçu
  * WhatsApp, sans aucune étape intermédiaire ni opt-in :
  *
  *   SGFE-backend/services/paiement/paiements/grpc_server.py
- *     `PaiementServicer._propager_versement()` (~L179-203) appelle, sans
+ *     `PaiementServicer._propager_versement()` (~L179-207) appelle, sans
  *     condition, une fois par versement :
  *       self._notification_client.envoyer_recu(paiement_id=…, facture_id=…,
  *                                               abonne_id=…, montant=…, …)
@@ -24,38 +24,43 @@ import { test, expect } from '@playwright/test';
  *     pour enregistrer un paiement :
  *       - `EnregistrerPaiement`        (~L225) — facture ciblée
  *       - `EnregistrerPaiementAbonne`  (~L469) — versement libre, imputé FIFO
- *     Aucun flag, aucune configuration, aucun mode "test" ne permet de
- *     désactiver cet envoi depuis l'API ou l'UI.
  *
  *   `whatsapp-service` (Node.js + whatsapp-web.js) tourne avec une session
  *   RÉELLE et actuellement connectée — ce n'est pas un mock, pas un bac à
- *   sable : un message WhatsApp réel part vers le numéro réel de l'abonné.
+ *   sable : sans garde-fou, un message WhatsApp réel part vers le numéro réel
+ *   de l'abonné.
+ *
+ * Le garde-fou : `notifications/whatsapp_client.py` (Notification Service)
+ * lit désormais `WHATSAPP_DISABLE_SEND_FOR_TESTS` (`"1"`/`"true"`). Activée
+ * sur le service `notification-service` de la stack backend, `send()` et
+ * `send_with_pdf()` ne contactent plus jamais `whatsapp-service` — succès
+ * simulé, log explicite côté backend. Voir le backend :
+ * `services/notification/notifications/whatsapp_client.py` (docstring du
+ * module) pour les deux façons de l'activer sur une stack de test locale.
+ *
+ * ⚠️  CE SPEC NE DOIT JAMAIS S'EXÉCUTER CONTRE UNE STACK BACKEND SANS CETTE
+ * VARIABLE POSÉE SUR `notification-service`. Le gate `E2E_LIVE_BACKEND` ne
+ * protège PAS de ça — il protège seulement de l'exécuter sans backend du
+ * tout. C'est à la personne qui lance ce spec de s'assurer que la stack
+ * backend a bien été démarrée avec `WHATSAPP_DISABLE_SEND_FOR_TESTS=1` sur
+ * `notification-service` — voir e2e/README.md, section dédiée à ce spec, et
+ * les avertissements ci-dessus avant de le lancer.
  *
  * Le bouton « Envoyer le reçu » du frontend (mutation ENVOYER_RECU_PAIEMENT,
  * `facture-detail.component.ts::envoyerRecuPourPaiement`, PR #159) N'EST PAS
- * l'action qui déclenche cet envoi — c'est un RENVOI manuel distinct, prévu
- * pour un reçu émis avant que le journal WhatsApp ne garde le lien vers son
- * versement (voir le commentaire de `ENVOYER_RECU_PAIEMENT` dans
- * `graphql/mutations/factures.mutations.ts`). Ne jamais l'appeler dans ce
- * spec ne suffit donc PAS à éviter l'envoi : l'envoi automatique a déjà eu
- * lieu dès la ligne `submit.click()` ci-dessous, avant tout bouton "reçu".
- *
- * Ce spec reste écrit — parcours page-objects complet, prêt à l'emploi — pour
- * documenter le flux et servir de base le jour où un garde-fou existe
- * (compte WhatsApp de bac à sable dédié, flag serveur pour désactiver l'envoi
- * en environnement de test, ou mock du service de notification). Tant que ce
- * garde-fou n'existe pas : NE PAS retirer le `test.skip(true, …)` ci-dessous,
- * quel que soit l'environnement (local, CI, ou autre).
+ * l'action qui déclenche l'envoi automatique — c'est un RENVOI manuel
+ * distinct. Ce spec ne l'appelle jamais.
  */
-test.describe('Facturation — enregistrement d\'un paiement', () => {
+const LIVE_BACKEND = process.env.E2E_LIVE_BACKEND === '1';
+
+test.describe("Facturation — enregistrement d'un paiement", () => {
   test.use({ storageState: { cookies: [], origins: [] } });
 
   test.skip(
-    true,
-    "Volontairement jamais exécuté : enregistrer un paiement déclenche un envoi WhatsApp RÉEL " +
-      "et automatique du reçu (backend : _propager_versement → envoyer_recu, appelé sans condition " +
-      "depuis EnregistrerPaiement ET EnregistrerPaiementAbonne). Voir le commentaire d'en-tête de ce " +
-      "fichier et e2e/README.md avant d'envisager de retirer ce skip.",
+    !LIVE_BACKEND,
+    'Nécessite le backend SGFE-backend réel, démarré avec WHATSAPP_DISABLE_SEND_FOR_TESTS=1 ' +
+      "sur notification-service (sinon : envoi WhatsApp RÉEL, voir le commentaire d'en-tête de " +
+      'ce fichier). Lancer avec E2E_LIVE_BACKEND=1 — voir e2e/README.md.',
   );
 
   test('le comptable ouvre une facture impayée et enregistre un versement', async ({ page }) => {
@@ -94,10 +99,9 @@ test.describe('Facturation — enregistrement d\'un paiement', () => {
     const submit = form.locator('button.paiement-form__submit');
     await expect(submit).toBeEnabled();
 
-    // ⚠️ Point de non-retour si ce spec s'exécutait un jour : cette ligne
-    // enregistre le paiement ET déclenche l'envoi automatique du reçu
-    // WhatsApp réel (voir l'avertissement en tête de fichier). C'est
-    // exactement pour ça que le test.skip(true, …) ci-dessus doit rester.
+    // ⚠️ Cette ligne enregistre le paiement ET déclenche l'envoi automatique
+    // du reçu — simulé si (et SEULEMENT si) WHATSAPP_DISABLE_SEND_FOR_TESTS
+    // est posée côté backend. Voir l'avertissement en tête de fichier.
     await submit.click();
 
     // `submit()` ouvre une fenêtre d'annulation (Gmail-style Undo) de 5s avant
