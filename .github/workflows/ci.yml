@@ -301,7 +301,20 @@ jobs:
       # services/auth/auth/settings.py (clé JWT RS256 introuvable sinon).
       - name: Générer les clés JWT RS256 (auth-service)
         working-directory: backend-src
-        run: bash scripts/gen-jwt-keys.sh
+        run: |
+          bash scripts/gen-jwt-keys.sh
+          # `gen-jwt-keys.sh` pose `chmod 600` (lecture réservée au
+          # propriétaire) — correct pour un poste de dev où le même
+          # utilisateur héberge Docker et génère la clé. `auth-service:keys`
+          # est un bind-mount `:ro` (docker-compose.yml:180) : sur un runner
+          # Linux natif (contrairement à Docker Desktop macOS, qui ne fait pas
+          # respecter les UID hôte/conteneur de la même façon), le conteneur
+          # lit ce fichier avec l'UID de `appuser` (1000), différent de celui
+          # qui a généré la clé ici — `PermissionError: [Errno 13] Permission
+          # denied` constaté en réel sur ce job. Relâchement volontaire,
+          # uniquement dans cette CI éphémère : la clé est déjà gitignorée,
+          # jetable, jamais celle d'un vrai déploiement.
+          chmod 644 services/auth/keys/jwt_private.pem
 
       # Requis (fail-fast) par nginx — voir scripts/generate-nginx-cert.sh.
       # Certs mTLS gRPC (scripts/generate-grpc-certs.sh) volontairement
