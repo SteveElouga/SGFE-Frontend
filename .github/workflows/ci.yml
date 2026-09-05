@@ -248,3 +248,31 @@ jobs:
           # seulement sa diff.
           filter_mode: nofilter
           fail_level: error
+
+  # ── 6. Point d'agrégation pour la protection de branche ──────────────────────
+  # docs/CONFORMITE_CICD.md, item 2 du plan de remédiation (CICD-SEC-1) : ce
+  # dépôt n'avait aucune protection de branche, en partie parce qu'il n'existait
+  # aucun check unique à exiger (5 jobs indépendants, dont deux — e2e et
+  # docker-build — ne tournent pas sur toutes les PR selon les chemins
+  # modifiés). Même patron que `SGFE-Backend/.github/workflows/ci.yml` : un
+  # seul job agrégateur, requis en protection de branche, qui échoue si l'un
+  # des jobs listés a échoué.
+  ci-status:
+    name: Statut CI
+    if: always()
+    needs: [quality, unit-tests, docker-build, e2e, lint-workflows]
+    runs-on: ubuntu-latest
+    steps:
+      # `contains(needs.*.result, 'failure')` seul laisse passer un job
+      # `cancelled` (ex. un timeout) : constaté en réel sur ce job (PR #167,
+      # Playwright annulé à 20m16s par le mirroir apt d'installation des
+      # navigateurs, minuté exactement sur `timeout-minutes: 20`) — `ci-status`
+      # avait quand même conclu au succès. `cancelled` doit bloquer comme
+      # `failure`, sinon un job qui expire silencieusement fait passer la
+      # protection de branche.
+      - name: Vérifie qu'aucun job requis n'a échoué ou n'a été annulé
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" || "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "Au moins un job a échoué ou a été annulé (timeout ?)."
+            exit 1
+          fi
