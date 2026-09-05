@@ -89,15 +89,20 @@ test.describe('Abonnés — liste, recherche et fiche détail', () => {
     // ── Recherche : la liste doit se réduire à des lignes qui matchent ──────
     await page.locator('.fp__search input').fill(recherche);
     // Debounce de 250ms côté `app-filters-panel` (voir `[debounceMs]="250"`
-    // dans abonnes-list.component.html) — laisser le temps au filtrage réel
-    // de s'appliquer avant d'observer les lignes.
+    // dans abonnes-list.component.html). `rows.first()` étant déjà visible
+    // AVANT la frappe (liste non filtrée), l'attendre ne prouve pas que le
+    // debounce s'est appliqué — un `count()`/boucle lu juste après pouvait
+    // donc capturer la liste non filtrée en transition (trouvé en CI : sur
+    // 2 lignes lues, la 2e ne contenait pas la recherche). `toPass()` relit
+    // tant que ce n'est pas stable, le temps que le filtrage réel s'applique.
     const rows = page.locator('.dt__row');
-    await expect(rows.first()).toBeVisible({ timeout: 15_000 });
-    const count = await rows.count();
-    expect(count).toBeGreaterThan(0);
-    for (let i = 0; i < count; i++) {
-      await expect(rows.nth(i)).toContainText(recherche, { ignoreCase: true });
-    }
+    await expect(async () => {
+      const count = await rows.count();
+      expect(count).toBeGreaterThan(0);
+      for (let i = 0; i < count; i++) {
+        await expect(rows.nth(i)).toContainText(recherche, { ignoreCase: true });
+      }
+    }).toPass({ timeout: 15_000 });
 
     // ── Ouverture de la fiche depuis la ligne trouvée ───────────────────────
     const premiereLigne = rows.first();
