@@ -17,7 +17,15 @@ RUN npx ng build --configuration production
 # 2026-09-02). `nginx:stable-alpine` (branche stable officielle, nginx/1.30.4,
 # reconstruite le jour même) : 0 CRITICAL, 0 HIGH, 0 MEDIUM. On épingle celle-là
 # plutôt que de figer la série 1.27.x vulnérable.
-FROM nginx:stable-alpine@sha256:02b1b2a0445514891a14aa371845f6085d5d9d10d385b30d6aad606a50a29a05 AS runtime
+#
+# ⚠️ Re-résolue le 5 septembre 2026 (`docker pull nginx:stable-alpine` +
+# `docker inspect --format='{{index .RepoDigests 0}}'`) : le digest du
+# 2026-09-02 pointait vers Alpine 3.24.1, dont `libuuid`/`util-linux` a reçu
+# 7 CVE HIGH le jour même (CVE-2026-53612/53613/53614/76642/78408/78409/78410,
+# correctif disponible en 2.42.3-r0) — trouvé par le job Trivy CI, pas par une
+# veille proactive. La branche `stable-alpine` a depuis été reconstruite ;
+# ce digest est celui de cette reconstruction.
+FROM nginx:stable-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS runtime
 
 # libcap : nécessaire à `setcap` ci-dessous (utilisateur non-root sur le port 80).
 RUN apk add --no-cache curl libcap
