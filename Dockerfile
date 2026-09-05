@@ -18,17 +18,26 @@ RUN npx ng build --configuration production
 # reconstruite le jour même) : 0 CRITICAL, 0 HIGH, 0 MEDIUM. On épingle celle-là
 # plutôt que de figer la série 1.27.x vulnérable.
 #
-# ⚠️ Re-résolue le 5 septembre 2026 (`docker pull nginx:stable-alpine` +
-# `docker inspect --format='{{index .RepoDigests 0}}'`) : le digest du
-# 2026-09-02 pointait vers Alpine 3.24.1, dont `libuuid`/`util-linux` a reçu
-# 7 CVE HIGH le jour même (CVE-2026-53612/53613/53614/76642/78408/78409/78410,
-# correctif disponible en 2.42.3-r0) — trouvé par le job Trivy CI, pas par une
-# veille proactive. La branche `stable-alpine` a depuis été reconstruite ;
-# ce digest est celui de cette reconstruction.
+# ⚠️ Digest re-résolu le 5 septembre 2026 (`docker pull nginx:stable-alpine` +
+# `docker inspect --format='{{index .RepoDigests 0}}'`) — mais ça n'a RIEN
+# corrigé : toujours Alpine 3.24.1, toujours `libuuid`/`util-linux` 2.42.1-r0,
+# vulnérable à 7 CVE HIGH publiées le jour même (CVE-2026-53612/53613/53614/
+# 76642/78408/78409/78410, trouvées par le job Trivy CI, pas par une veille
+# proactive) — la reconstruction de l'image nginx n'a pas encore absorbé le
+# correctif Alpine. Le vrai correctif est la ligne `apk upgrade` ci-dessous :
+# vérifié le 05/09, le miroir Alpine sert déjà `libuuid-2.42.3-r1` (plus
+# récent que le 2.42.3-r0 que Trivy réclame), indépendamment de l'âge du
+# snapshot de base — recompiler l'image seule n'aurait pas suffi tant que
+# nginx n'aura pas republié la sienne.
 FROM nginx:stable-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS runtime
 
 # libcap : nécessaire à `setcap` ci-dessous (utilisateur non-root sur le port 80).
-RUN apk add --no-cache curl libcap
+# `apk upgrade` avant l'ajout : tire les correctifs de sécurité déjà publiés
+# sur le miroir Alpine mais pas encore intégrés au snapshot de l'image de
+# base (voir le commentaire sur le FROM ci-dessus) — sans ça, une image
+# fraîchement reconstruite peut quand même embarquer un paquet vulnérable si
+# `nginx:stable-alpine` lui-même n'a pas encore été republié.
+RUN apk upgrade --no-cache && apk add --no-cache curl libcap
 
 # `--chown=nginx:nginx` : le script d'entrée de l'image (`docker-entrypoint.d/
 # 10-listen-on-ipv6-by-default.sh`) réécrit `default.conf` en place à chaque
