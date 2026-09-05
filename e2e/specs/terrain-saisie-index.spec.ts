@@ -40,7 +40,24 @@ test.describe('Terrain — saisie d\'un index', () => {
       'Voir e2e/README.md — lancer avec E2E_LIVE_BACKEND=1.',
   );
 
-  test('l\'agent choisit un abonné, saisit un nouvel index et confirme (3 tapes)', async ({ page }) => {
+  test('l\'agent choisit un abonné, saisit un nouvel index et confirme (3 tapes)', async ({ page }, testInfo) => {
+    // AGENT/terrain est mobile-only par conception (CLAUDE.md, § Interface
+    // Terrain). Autre raison, plus concrète : ce spec CONSOMME un vrai relevé
+    // à chaque exécution réussie (voir la ligne 96-97 plus bas), et le seed
+    // n'en fournit que 2 (`scripts/seed/campagne.py`, campagne Delta,
+    // AB-9001/AB-9002 — voir scripts/seed/README.md). `workers: 1` en CI
+    // (playwright.config.ts) exécute les projets en série sur la MÊME stack
+    // backend ; avec 3 projets (chromium/mobile-chrome/mobile-safari), le
+    // 3e à s'exécuter trouvait systématiquement une tournée vide — pas un
+    // flake webkit, juste un budget de seed dimensionné pour 2 exécutions,
+    // pas 3. Ne tourne donc que sur les 2 projets mobiles, cohérent avec
+    // leur rôle documenté dans playwright.config.ts ("Mobile (Agent
+    // terrain)" / "iOS Safari (validation PWA)").
+    test.skip(
+      testInfo.project.name === 'chromium',
+      'AGENT/terrain est mobile-only — voir le commentaire ci-dessus (budget de seed à 2 relevés, pas 3 projets).',
+    );
+
     const username = process.env.E2E_AGENT_USER;
     const password = process.env.E2E_AGENT_PASSWORD;
     if (!username || !password) {

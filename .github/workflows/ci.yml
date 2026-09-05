@@ -182,50 +182,31 @@ jobs:
   # l'activer pour un fichier et pas pour un autre dans une seule invocation.
   #
   #   1. « build/routage » — connexion.spec.ts et espace-abonne.spec.ts (jamais
-  #      gatés par E2E_LIVE_BACKEND) + les 3 specs gatés qu'on ne peut PAS
-  #      encore lancer contre un vrai backend (voir juste en dessous) : ils
-  #      s'auto-neutralisent avec test.skip(...), exactement comme avant cette
-  #      PR. Ne nécessite aucun backend.
+  #      gatés par E2E_LIVE_BACKEND) + les 3 specs gatés qui s'auto-neutralisent
+  #      avec test.skip(...) tant que E2E_LIVE_BACKEND n'est pas posé. Ne
+  #      nécessite aucun backend.
   #
   #   2. « live backend » — démarre la vraie stack SGFE-backend (docker
-  #      compose), sème un jeu de données de démo, puis ne lance QUE
-  #      dashboard-consultation.spec.ts avec E2E_LIVE_BACKEND=1.
+  #      compose), sème un jeu de données de démo, puis lance les 4 specs
+  #      gatés avec E2E_LIVE_BACKEND=1.
   #
-  # Pourquoi seulement CE spec-là en direct, et pas les 3 autres gatés par
-  # E2E_LIVE_BACKEND — vérifié dans le code du backend (scripts/seed_demo.sh
-  # et scripts/seed/*.py), pas supposé :
-  #
-  #   • terrain-saisie-index.spec.ts : a besoin d'une campagne EN_COURS avec
-  #     au moins un abonné « à relever ». `scripts/seed/campagne.py` force
-  #     TOUJOURS `statut: "CLOTUREE"` sur ses 3 campagnes — aucune EN_COURS
-  #     n'existe jamais après le seed, et il n'y a pas de `scripts/seed/abonne.py` :
-  #     aucun Abonne ni relevé n'est jamais créé.
-  #
-  #   • abonnes-gestion.spec.ts : a besoin d'au moins un Abonne réel dans
-  #     abonne-service pour la recherche (E2E_ABONNE_RECHERCHE). Même
-  #     constat : `scripts/seed_demo.sh` n'appelle que auth.py, campagne.py,
-  #     facturation.py et paiement.py — jamais abonne-service. Le parc est
-  #     vide après le seed.
-  #
-  #   • paiement-encaissement.spec.ts : bogue dépendant de la date dans
-  #     `scripts/seed/paiement.py`. Chaque SoldeFacture reçoit
-  #     `date_limite_paiement = le_15(A0, M0)` (le 15 du mois COURANT, pour
-  #     TOUTES les factures, y compris celles de mois antérieurs), alors que
-  #     `list_impayes()` (services/paiement/paiements/repositories.py:306)
-  #     filtre sur `date_limite_paiement__lt=date.today()`. Avant le 16 de
-  #     chaque mois, aucune facture ne matche : /impayes est vide et le
-  #     bouton « + Paiement » que ce spec attend n'apparaît jamais — un flake
-  #     calendaire, pas un vrai signal, si on l'activait tel quel. (Vérifié
-  #     par ailleurs : la dégradation vers un abonné absent d'abonne-service
-  #     est, elle, gérée correctement partout sur ce parcours précis —
-  #     gateway, paiement-service, notification-service et le frontend
-  #     retombent tous sur un fallback plutôt que de planter — ce n'est donc
-  #     PAS ce qui bloque ce spec.)
-  #
-  # Ces trois lacunes sont côté SGFE-backend (scripts/seed*) — hors du
-  # périmètre de cette PR, qui ne touche pas à ce dépôt. Une fois corrigées
-  # là-bas, ajouter leur fichier à l'étape « live backend » ci-dessous ne
-  # demande qu'une ligne.
+  # Historique : jusqu'au 05/09/2026, seul dashboard-consultation.spec.ts
+  # tournait ici — les 3 autres étaient bloqués par de vrais manques de seed
+  # côté SGFE-backend (vérifiés dans scripts/seed_demo.sh et
+  # scripts/seed/*.py, pas supposés) : terrain-saisie-index.spec.ts (aucune
+  # campagne EN_COURS ni Abonne semé — `scripts/seed/campagne.py` forçait
+  # TOUJOURS `statut: "CLOTUREE"`, et `scripts/seed/abonne.py` n'existait
+  # pas) ; abonnes-gestion.spec.ts (même absence d'abonne.py — le parc était
+  # vide) ; paiement-encaissement.spec.ts (bogue de date dans
+  # scripts/seed/paiement.py — `date_limite_paiement` fixée au 15 du mois
+  # COURANT pour toutes les factures, alors que `list_impayes()`
+  # (services/paiement/paiements/repositories.py:306) filtre sur
+  # `date_limite_paiement__lt=date.today()` : avant le 16 de chaque mois,
+  # /impayes restait vide). SGFE-Backend#217 (05/09/2026) corrige les trois :
+  # nouveau scripts/seed/abonne.py (6 abonnés, appelé depuis seed_demo.sh),
+  # une 4e campagne EN_COURS avec 2 relevés à faire, date_limite_paiement
+  # relative à `date.today() - timedelta(days=10)`. Ce job vérifiera les 4
+  # specs contre la stack live, seed compris, dès son prochain run.
   e2e:
     name: Playwright E2E
     runs-on: ubuntu-latest
@@ -404,10 +385,10 @@ jobs:
         run: bash scripts/seed_demo.sh
 
       # ── Passe 2 : live backend ────────────────────────────────────────────
-      # Seul dashboard-consultation.spec.ts — voir le commentaire en tête de
-      # job pour les 3 specs volontairement encore exclus de cette passe.
-      - name: 'E2E — dashboard (backend live)'
-        run: npx playwright test e2e/specs/dashboard-consultation.spec.ts
+      # Les 4 specs gatés — voir le commentaire en tête de job pour
+      # l'historique des 3 qui en étaient exclus faute de seed exploitable.
+      - name: 'E2E — backend live (4 specs)'
+        run: npx playwright test e2e/specs/dashboard-consultation.spec.ts e2e/specs/terrain-saisie-index.spec.ts e2e/specs/paiement-encaissement.spec.ts e2e/specs/abonnes-gestion.spec.ts
         env:
           CI: true
           E2E_LIVE_BACKEND: '1'
@@ -415,6 +396,15 @@ jobs:
           E2E_ADMIN_PASSWORD: 'Demo1234!'
           E2E_COMPTABLE_USER: demo_comptable
           E2E_COMPTABLE_PASSWORD: 'Demo1234!'
+          # terrain-saisie-index.spec.ts — compte AGENT, tournée seedée par
+          # scripts/seed/campagne.py (campagne EN_COURS, 2 relevés A_RELEVER).
+          E2E_AGENT_USER: demo_agent
+          E2E_AGENT_PASSWORD: 'Demo1234!'
+          # abonnes-gestion.spec.ts — numéro dédié à la recherche e2e (voir
+          # scripts/seed/abonne.py : AB-9001/9002 sont rattachés à la
+          # campagne Delta pour terrain-saisie-index.spec.ts, AB-9003 est
+          # le seul réservé à ce spec-ci).
+          E2E_ABONNE_RECHERCHE: 'AB-9003'
 
       - name: Logs backend (diagnostic)
         if: always()

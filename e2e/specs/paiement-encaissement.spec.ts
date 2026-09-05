@@ -63,7 +63,18 @@ test.describe("Facturation — enregistrement d'un paiement", () => {
       'ce fichier). Lancer avec E2E_LIVE_BACKEND=1 — voir e2e/README.md.',
   );
 
-  test('le comptable ouvre une facture impayée et enregistre un versement', async ({ page }) => {
+  test('le comptable ouvre une facture impayée et enregistre un versement', async ({ page }, testInfo) => {
+    // COMPTABLE, comme ADMIN, est un rôle back-office desktop — ce spec cible
+    // `.act--primary` (bouton de la vue tableau de `/impayes`), masquée par
+    // `app-data-table` en dessous de 1024px au profit de `.dt__cards`
+    // (`impayes-list.component.html` fournit un `appCardRow` distinct pour
+    // ce cas — voir `data-table.component.scss`, même mécanisme que
+    // `abonnes-gestion.spec.ts`). Ne tourne que sur `chromium` (desktop).
+    test.skip(
+      testInfo.project.name !== 'chromium',
+      "Écran COMPTABLE desktop — bouton de la vue tableau masqué sur mobile, voir le commentaire ci-dessus.",
+    );
+
     const username = process.env.E2E_COMPTABLE_USER;
     const password = process.env.E2E_COMPTABLE_PASSWORD;
     if (!username || !password) {
