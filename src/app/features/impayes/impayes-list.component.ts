@@ -7,8 +7,6 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../core/factures/factures.service';
 import { extractGqlError } from '../../core/auth/auth.service';
@@ -22,11 +20,8 @@ import {
   DataTableCardDirective,
   DataTableCellDirective,
 } from '../../shared/components/data-table/data-table.directives';
-import { GET_ABONNES } from '../../graphql/queries/abonnes.queries';
 import { RouterLink } from '@angular/router';
 import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
-import { nomAbonne } from '../../shared/utils/abonne.utils';
-import type { GetAbonnesQuery } from '../../graphql/generated';
 import type { SoldeImpaye } from '../../graphql/vues';
 
 /** Fenêtre de pause des relances après réception d'un acompte (EF-IMP). */
@@ -34,13 +29,6 @@ const PAUSE_ACOMPTE_JOURS = 5;
 
 /** État visuel du badge d'étape de relance. */
 type BadgeState = 'etape1' | 'etape2' | 'etape3' | 'suspendue' | 'pause' | 'unknown';
-
-interface AbonneRef {
-  id: string;
-  numeroAbonne: string;
-  nom: string;
-  prenom: string;
-}
 
 interface ImpayeRow {
   factureId: string;
@@ -78,7 +66,6 @@ export class ImpayesListComponent implements OnInit {
   protected readonly lienFacture = (r: { factureId: string }) => ['/factures', r.factureId];
 
   private readonly service = inject(FacturesService);
-  private readonly apollo = inject(Apollo);
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly toast = inject(ToastService);
@@ -238,19 +225,22 @@ export class ImpayesListComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     try {
-      const [soldes, factures, abonnesRes, paiements] = await Promise.all([
+      // Pas de GET_ABONNES ici : `abonnes` est réservé à ADMIN (voir
+      // `gateway/schema/abonne_queries.py`), et cet écran est aussi ouvert au
+      // COMPTABLE (`roleGuard(['ADMIN', 'COMPTABLE'])`, app.routes.ts). Pour
+      // ce dernier, l'appel échouait avec PERMISSION_DENIED, ce qui faisait
+      // échouer tout le `Promise.all` et laissait la liste vide en
+      // permanence — même avec des impayés réels côté backend. Même bogue
+      // que celui que `_enrichir_factures` (gateway/schema/
+      // facturation_queries.py) existe déjà pour éviter : `abonneNom`/
+      // `abonneNumero` sont déjà portés par chaque `Facture` (résolus
+      // côté Gateway, pas besoin d'un rôle supplémentaire), et `getFactures()`
+      // est de toute façon déjà appelé juste en dessous.
+      const [soldes, factures, paiements] = await Promise.all([
         this.service.getImpayes(),
         this.service.getFactures(),
-        firstValueFrom(
-          this.apollo.query<GetAbonnesQuery>({ query: GET_ABONNES,
-            fetchPolicy: 'network-only',
-          }),
-        ),
         this.service.getAllPaiements(),
       ]);
-
-      const abonnesMap = new Map<string, AbonneRef>();
-      for (const a of abonnesRes.data?.abonnes ?? []) abonnesMap.set(a.id, a);
 
       const facturesMap = new Map(factures.map((f) => [f.factureId, f]));
 
@@ -262,9 +252,7 @@ export class ImpayesListComponent implements OnInit {
       }
 
       // Ligne de base (sans suivi encore) : affichage immédiat.
-      const baseRows = soldes.map((s) =>
-        this.toRow(s, facturesMap, abonnesMap, dernierPaiement, null),
-      );
+      const baseRows = soldes.map((s) => this.toRow(s, facturesMap, dernierPaiement, null));
       this.impayes.set(baseRows);
 
       // Enrichissement par le suivi (étape + date de dépassement).
@@ -274,7 +262,7 @@ export class ImpayesListComponent implements OnInit {
       const enriched = soldes.map((s, i) => {
         const res = suivis[i];
         const suivi = res.status === 'fulfilled' ? res.value : null;
-        return this.toRow(s, facturesMap, abonnesMap, dernierPaiement, suivi);
+        return this.toRow(s, facturesMap, dernierPaiement, suivi);
       });
       this.impayes.set(enriched);
     } catch (err: unknown) {
@@ -287,14 +275,12 @@ export class ImpayesListComponent implements OnInit {
 
   private toRow(
     s: SoldeImpaye,
-    facturesMap: Map<string, { numeroFacture: string; abonneId: string }>,
-    abonnesMap: Map<string, AbonneRef>,
+    facturesMap: Map<string, { numeroFacture: string; abonneId: string; abonneNom: string; abonneNumero: string }>,
     dernierPaiement: Map<string, string>,
     suivi: SuiviImpaye | null,
   ): ImpayeRow {
     const facture = facturesMap.get(s.factureId);
     const abonneId = suivi?.abonneId ?? facture?.abonneId ?? null;
-    const abonne = abonneId ? abonnesMap.get(abonneId) : undefined;
     // Le retard se prenait sur `suivi.dateDepassement`, écrit par le seul cron
     // de relance : tant qu'il n'a pas tourné, le suivi n'existe pas et l'âge
     // retombait à zéro. Mesuré : six factures à 31 jours, zéro SuiviImpaye.
@@ -313,8 +299,8 @@ export class ImpayesListComponent implements OnInit {
     return {
       factureId: s.factureId,
       abonneId,
-      abonneNom: abonne ? nomAbonne(abonne.prenom, abonne.nom) : '—',
-      numeroAbonne: abonne?.numeroAbonne ?? '—',
+      abonneNom: facture?.abonneNom || '—',
+      numeroAbonne: facture?.abonneNumero || '—',
       numeroFacture: facture?.numeroFacture ?? '—',
       montantTotal: s.montantTotal,
       montantPaye: s.montantPaye,

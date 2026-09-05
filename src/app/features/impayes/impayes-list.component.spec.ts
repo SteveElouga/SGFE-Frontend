@@ -31,12 +31,13 @@ function solde(p: Partial<SoldeImpaye> = {}): SoldeImpaye {
   } as SoldeImpaye;
 }
 
-function factureRef(p: Partial<{ factureId: string; numeroFacture: string; abonneId: string }> = {}) {
-  return { factureId: 'f-1', numeroFacture: 'FACT-1', abonneId: 'ab-1', ...p };
-}
-
-function abonneRef(p: Partial<{ id: string; numeroAbonne: string; nom: string; prenom: string }> = {}) {
-  return { id: 'ab-1', numeroAbonne: 'AB-0001', nom: 'Dupont', prenom: 'Jean', ...p };
+// `abonneNom`/`abonneNumero` : résolus côté Gateway (`_enrichir_factures`,
+// gateway/schema/facturation_queries.py), pas via une requête `abonnes`
+// séparée — voir le commentaire de `load()` dans le composant.
+function factureRef(
+  p: Partial<{ factureId: string; numeroFacture: string; abonneId: string; abonneNom: string; abonneNumero: string }> = {},
+) {
+  return { factureId: 'f-1', numeroFacture: 'FACT-1', abonneId: 'ab-1', abonneNom: '', abonneNumero: '', ...p };
 }
 
 function suivi(p: Partial<SuiviImpaye> = {}): SuiviImpaye {
@@ -48,13 +49,11 @@ function monter(over: {
   getFactures?: ReturnType<typeof vi.fn>;
   getAllPaiements?: ReturnType<typeof vi.fn>;
   getSuiviImpaye?: ReturnType<typeof vi.fn>;
-  abonnesQuery?: ReturnType<typeof vi.fn>;
 } = {}) {
   const getImpayes = over.getImpayes ?? vi.fn().mockResolvedValue([]);
   const getFactures = over.getFactures ?? vi.fn().mockResolvedValue([]);
   const getAllPaiements = over.getAllPaiements ?? vi.fn().mockResolvedValue([]);
   const getSuiviImpaye = over.getSuiviImpaye ?? vi.fn().mockResolvedValue(suivi());
-  const query = over.abonnesQuery ?? vi.fn().mockReturnValue(of({ data: { abonnes: [] } }));
 
   TestBed.configureTestingModule({
     imports: [ImpayesListComponent],
@@ -64,11 +63,14 @@ function monter(over: {
       { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: new Map() }, queryParamMap: of(new Map()) } },
       { provide: FacturesService, useValue: { getImpayes, getFactures, getAllPaiements, getSuiviImpaye } },
       { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn(), info: vi.fn() } },
-      { provide: Apollo, useValue: { query, subscribe: () => of({}) } },
+      // Le composant lui-même n'injecte plus Apollo (voir load()) — ce stub
+      // ne satisfait qu'une dépendance transitive plus profonde (NotificationsService
+      // -> AuthService -> Apollo), jamais exercée par ces tests.
+      { provide: Apollo, useValue: { query: vi.fn().mockReturnValue(of({ data: {} })), subscribe: () => of({}) } },
     ],
   });
   const fixture = TestBed.createComponent(ImpayesListComponent);
-  return { fixture, c: fixture.componentInstance, query };
+  return { fixture, c: fixture.componentInstance };
 }
 
 async function flush(): Promise<void> {
@@ -76,11 +78,10 @@ async function flush(): Promise<void> {
 }
 
 describe('ImpayesListComponent — agrégation', () => {
-  it('assemble solde, facture et abonné pour composer chaque ligne', async () => {
+  it('assemble solde et facture (abonné déjà résolu côté Gateway) pour composer chaque ligne', async () => {
     const { fixture, c } = monter({
       getImpayes: vi.fn().mockResolvedValue([solde()]),
-      getFactures: vi.fn().mockResolvedValue([factureRef()]),
-      abonnesQuery: vi.fn().mockReturnValue(of({ data: { abonnes: [abonneRef()] } })),
+      getFactures: vi.fn().mockResolvedValue([factureRef({ abonneNom: 'Jean Dupont', abonneNumero: 'AB-0001' })]),
     });
     fixture.detectChanges();
     await flush();
