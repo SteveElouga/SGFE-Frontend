@@ -400,9 +400,11 @@ jobs:
           # scripts/seed/campagne.py (campagne EN_COURS, 2 relevés A_RELEVER).
           E2E_AGENT_USER: demo_agent
           E2E_AGENT_PASSWORD: 'Demo1234!'
-          # abonnes-gestion.spec.ts — numéro réservé et stable, voir
-          # scripts/seed/abonne.py (plage AB-90xx).
-          E2E_ABONNE_RECHERCHE: 'AB-9001'
+          # abonnes-gestion.spec.ts — numéro dédié à la recherche e2e (voir
+          # scripts/seed/abonne.py : AB-9001/9002 sont rattachés à la
+          # campagne Delta pour terrain-saisie-index.spec.ts, AB-9003 est
+          # le seul réservé à ce spec-ci).
+          E2E_ABONNE_RECHERCHE: 'AB-9003'
 
       - name: Logs backend (diagnostic)
         if: always()
