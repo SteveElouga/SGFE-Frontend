@@ -44,7 +44,22 @@ test.describe('Abonnés — liste, recherche et fiche détail', () => {
       'Voir e2e/README.md — lancer avec E2E_LIVE_BACKEND=1.',
   );
 
-  test("l'admin recherche un abonné et ouvre sa fiche", async ({ page }) => {
+  test("l'admin recherche un abonné et ouvre sa fiche", async ({ page }, testInfo) => {
+    // ADMIN est un rôle back-office desktop (contrairement à AGENT/terrain) —
+    // ce spec utilise les sélecteurs de la vue tableau (`.dt__row`), masquée
+    // par `app-data-table` en dessous de 1024px au profit de `.dt__cards`
+    // (`data-table.component.scss`, `.dt--has-cards { @media (max-width:
+    // 1023px) { .dt__scroll { display: none } .dt__cards { display: flex } } }`).
+    // Sur les projets mobile-chrome/mobile-safari (Pixel 7/iPhone 14, tous
+    // deux < 1024px de large), ces lignes sont donc introuvables — un vrai
+    // écart de conception du spec, pas un flake ni un manque de seed. Ne
+    // tourne que sur `chromium` (desktop) ; `terrain-saisie-index.spec.ts`
+    // reste, lui, mobile par construction.
+    test.skip(
+      testInfo.project.name !== 'chromium',
+      "Écran ADMIN desktop — sélecteurs de tableau (.dt__row) masqués sur mobile, voir le commentaire ci-dessus.",
+    );
+
     const username = process.env.E2E_ADMIN_USER;
     const password = process.env.E2E_ADMIN_PASSWORD;
     const recherche = process.env.E2E_ABONNE_RECHERCHE;
