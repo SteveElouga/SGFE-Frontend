@@ -176,13 +176,81 @@ jobs:
           ignore-unfixed: true
 
   # ── 4. Tests E2E Playwright ──────────────────────────────────────────────────
+  #
+  # Deux passes distinctes, jamais mélangées dans un même `npx playwright
+  # test` : E2E_LIVE_BACKEND est un seul env var par process, impossible de
+  # l'activer pour un fichier et pas pour un autre dans une seule invocation.
+  #
+  #   1. « build/routage » — connexion.spec.ts et espace-abonne.spec.ts (jamais
+  #      gatés par E2E_LIVE_BACKEND) + les 3 specs gatés qu'on ne peut PAS
+  #      encore lancer contre un vrai backend (voir juste en dessous) : ils
+  #      s'auto-neutralisent avec test.skip(...), exactement comme avant cette
+  #      PR. Ne nécessite aucun backend.
+  #
+  #   2. « live backend » — démarre la vraie stack SGFE-backend (docker
+  #      compose), sème un jeu de données de démo, puis ne lance QUE
+  #      dashboard-consultation.spec.ts avec E2E_LIVE_BACKEND=1.
+  #
+  # Pourquoi seulement CE spec-là en direct, et pas les 3 autres gatés par
+  # E2E_LIVE_BACKEND — vérifié dans le code du backend (scripts/seed_demo.sh
+  # et scripts/seed/*.py), pas supposé :
+  #
+  #   • terrain-saisie-index.spec.ts : a besoin d'une campagne EN_COURS avec
+  #     au moins un abonné « à relever ». `scripts/seed/campagne.py` force
+  #     TOUJOURS `statut: "CLOTUREE"` sur ses 3 campagnes — aucune EN_COURS
+  #     n'existe jamais après le seed, et il n'y a pas de `scripts/seed/abonne.py` :
+  #     aucun Abonne ni relevé n'est jamais créé.
+  #
+  #   • abonnes-gestion.spec.ts : a besoin d'au moins un Abonne réel dans
+  #     abonne-service pour la recherche (E2E_ABONNE_RECHERCHE). Même
+  #     constat : `scripts/seed_demo.sh` n'appelle que auth.py, campagne.py,
+  #     facturation.py et paiement.py — jamais abonne-service. Le parc est
+  #     vide après le seed.
+  #
+  #   • paiement-encaissement.spec.ts : bogue dépendant de la date dans
+  #     `scripts/seed/paiement.py`. Chaque SoldeFacture reçoit
+  #     `date_limite_paiement = le_15(A0, M0)` (le 15 du mois COURANT, pour
+  #     TOUTES les factures, y compris celles de mois antérieurs), alors que
+  #     `list_impayes()` (services/paiement/paiements/repositories.py:306)
+  #     filtre sur `date_limite_paiement__lt=date.today()`. Avant le 16 de
+  #     chaque mois, aucune facture ne matche : /impayes est vide et le
+  #     bouton « + Paiement » que ce spec attend n'apparaît jamais — un flake
+  #     calendaire, pas un vrai signal, si on l'activait tel quel. (Vérifié
+  #     par ailleurs : la dégradation vers un abonné absent d'abonne-service
+  #     est, elle, gérée correctement partout sur ce parcours précis —
+  #     gateway, paiement-service, notification-service et le frontend
+  #     retombent tous sur un fallback plutôt que de planter — ce n'est donc
+  #     PAS ce qui bloque ce spec.)
+  #
+  # Ces trois lacunes sont côté SGFE-backend (scripts/seed*) — hors du
+  # périmètre de cette PR, qui ne touche pas à ce dépôt. Une fois corrigées
+  # là-bas, ajouter leur fichier à l'étape « live backend » ci-dessous ne
+  # demande qu'une ligne.
   e2e:
     name: Playwright E2E
     runs-on: ubuntu-latest
     needs: quality
-    timeout-minutes: 20
+    # Budget large et non mesuré (impossible d'exécuter un run réel depuis cet
+    # environnement) : `docker compose build` reconstruit ~11 images (8
+    # services Django + gateway + nginx + whatsapp-service/Chromium) sans
+    # cache registre. Voir le corps de la PR pour l'optimisation `docker
+    # compose pull` envisagée mais non implémentée (accès cross-repo aux
+    # paquets GHCR non vérifiable ici).
+    timeout-minutes: 50
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Checkout frontend
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # Dépôt séparé, même organisation. `ref: develop` (pas un SHA figé) :
+      # le but est de tester le frontend contre le backend actuel, pas contre
+      # un instantané. Chemin distinct pour ne jamais mélanger les deux
+      # arborescences.
+      - name: Checkout backend (SGFE-Backend @ develop)
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: SteveElouga/SGFE-Backend
+          ref: develop
+          path: backend-src
 
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
@@ -198,21 +266,193 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
-      # Plus de `--pass-with-no-tests` : le drapeau rendait le job vert sur un
-      # `testDir` vide, c'est-à-dire toujours. Playwright démarre lui-même le
-      # serveur (voir playwright.config.ts).
-      - name: Run E2E tests
-        run: npx playwright test
+      # ── Passe 1 : build/routage, sans backend ────────────────────────────
+      # Lancée avant de démarrer la stack backend (feedback rapide sur le
+      # build/routage sans attendre ~20-30 min de build Docker). Comportement
+      # inchangé pour ces 5 fichiers par rapport à avant cette PR.
+      - name: 'E2E — build/routage (sans backend)'
+        run: npx playwright test e2e/specs/connexion.spec.ts e2e/specs/espace-abonne.spec.ts e2e/specs/terrain-saisie-index.spec.ts e2e/specs/paiement-encaissement.spec.ts e2e/specs/abonnes-gestion.spec.ts
         env:
           CI: true
 
-      - name: Upload Playwright report
+      - name: Conserver le rapport de la passe 1
+        if: always()
+        run: mv playwright-report playwright-report-baseline || true
+
+      # ── Backend live : préparation ────────────────────────────────────────
+      # Secrets purement internes à cette stack jetable (volumes détruits par
+      # `down -v` en fin de job) : rien à conserver d'un run à l'autre, donc
+      # générés à la volée plutôt que via GitHub Secrets — voir le corps de la
+      # PR pour ce qui, à l'inverse, resterait un vrai secret si cette
+      # optimisation devait un jour dépendre d'un registre privé.
+      - name: Générer les secrets backend (éphémères)
+        working-directory: backend-src
+        run: |
+          {
+            echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)"
+            echo "DJANGO_SECRET_KEY=$(openssl rand -hex 32)"
+            echo "INTERNAL_GRPC_KEY=$(openssl rand -hex 32)"
+            echo "WHATSAPP_INTERNAL_API_KEY=$(openssl rand -hex 32)"
+            echo "BACKUP_ENCRYPTION_KEY=$(openssl rand -hex 48)"
+            echo "PII_ENCRYPTION_KEY=$(openssl rand -base64 32 | tr '+/' '-_')"
+          } > .env
+
+      # Requis (fail-fast) par auth-service — voir
+      # services/auth/auth/settings.py (clé JWT RS256 introuvable sinon).
+      - name: Générer les clés JWT RS256 (auth-service)
+        working-directory: backend-src
+        run: |
+          bash scripts/gen-jwt-keys.sh
+          # `gen-jwt-keys.sh` pose `chmod 600` (lecture réservée au
+          # propriétaire) — correct pour un poste de dev où le même
+          # utilisateur héberge Docker et génère la clé. `auth-service:keys`
+          # est un bind-mount `:ro` (docker-compose.yml:180) : sur un runner
+          # Linux natif (contrairement à Docker Desktop macOS, qui ne fait pas
+          # respecter les UID hôte/conteneur de la même façon), le conteneur
+          # lit ce fichier avec l'UID de `appuser` (1000), différent de celui
+          # qui a généré la clé ici — `PermissionError: [Errno 13] Permission
+          # denied` constaté en réel sur ce job. Relâchement volontaire,
+          # uniquement dans cette CI éphémère : la clé est déjà gitignorée,
+          # jetable, jamais celle d'un vrai déploiement.
+          chmod 644 services/auth/keys/jwt_private.pem
+
+      # Requis (fail-fast) par nginx — voir scripts/generate-nginx-cert.sh.
+      # Certs mTLS gRPC (scripts/generate-grpc-certs.sh) volontairement
+      # omis : absents, le code retombe sur du gRPC en clair intra-réseau
+      # Docker (voir comptes/grpc_auth.py côté backend) — jamais un échec au
+      # démarrage, contrairement aux clés JWT et au certificat nginx.
+      - name: Générer le certificat TLS auto-signé (nginx)
+        working-directory: backend-src
+        run: bash scripts/generate-nginx-cert.sh
+
+      # Garde-fou WhatsApp (backend PR #206, fix/e2e-paiement-unskip) : ne
+      # DOIT jamais vivre dans la ligne de base commitée de
+      # docker-compose.yml, seulement injecté ici au démarrage. Fichier
+      # généré à la volée dans le checkout backend de ce job (jamais commité,
+      # jamais poussé) : ce n'est pas une modification du dépôt SGFE-Backend.
+      - name: Overlay CI — garde-fou WHATSAPP_DISABLE_SEND_FOR_TESTS
+        working-directory: backend-src
+        run: |
+          cat > docker-compose.ci.yml <<'YAML'
+          services:
+            notification-service:
+              environment:
+                WHATSAPP_DISABLE_SEND_FOR_TESTS: "1"
+          YAML
+
+      # Un seul service ciblé : `nginx` dépend de `gateway`, qui dépend des 8
+      # services Django + redis, qui dépendent eux-mêmes de leur postgres (+
+      # whatsapp-service, en `service_started` seulement — voir l'étape
+      # d'attente ci-dessous). Compose résout tout le graphe tout seul.
+      # Explicitement PAS démarrés (jamais des dépendances de `nginx`) :
+      # redis-replica, les 3 redis-sentinel-*, abonne-postgres-replica (POC
+      # de réplication) et db-backup (a besoin d'AWS_BACKUP_BUCKET, hors
+      # sujet ici) — inutiles pour des tests e2e.
+      - name: Démarrer la stack backend (build local)
+        working-directory: backend-src
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --build nginx
+
+      - name: Attendre que les services soient healthy
+        working-directory: backend-src
+        run: |
+          set -uo pipefail
+          # whatsapp-service exclu de cette liste : son /health (server.js)
+          # renvoie 503 tant qu'un vrai téléphone n'a pas scanné le QR code —
+          # jamais le cas en CI, il reste "unhealthy" à vie par construction.
+          # C'est pour ça que ses dépendants (auth-service,
+          # notification-service) ne demandent que `service_started` dans
+          # docker-compose.yml, jamais `service_healthy`. On vérifie
+          # seulement qu'il tourne, séparément, plus bas.
+          services="redis auth-postgres auth-service abonne-postgres abonne-service campagne-postgres campagne-service facturation-postgres facturation-service paiement-postgres paiement-service notification-postgres notification-service config-postgres config-service reporting-postgres reporting-service gateway nginx"
+          compose="docker compose -f docker-compose.yml -f docker-compose.ci.yml"
+          elapsed=0
+          timeout=900
+          while :; do
+            all_healthy=1
+            for s in $services; do
+              cid=$($compose ps -q "$s" 2>/dev/null)
+              if [ -z "$cid" ]; then all_healthy=0; break; fi
+              status=$(docker inspect --format '{{.State.Health.Status}}' "$cid" 2>/dev/null)
+              if [ "$status" != "healthy" ]; then all_healthy=0; break; fi
+            done
+            if [ "$all_healthy" = "1" ]; then
+              echo "Tous les services requis sont healthy (${elapsed}s)."
+              break
+            fi
+            if [ "$elapsed" -ge "$timeout" ]; then
+              echo "::error::Timeout (${timeout}s) en attendant que les services deviennent healthy."
+              $compose ps
+              $compose logs --tail=200
+              exit 1
+            fi
+            sleep 5
+            elapsed=$((elapsed + 5))
+          done
+          if [ -z "$($compose ps -q whatsapp-service 2>/dev/null)" ]; then
+            echo "::error::whatsapp-service ne tourne pas."
+            $compose logs whatsapp-service --tail=100
+            exit 1
+          fi
+
+      # Comptes + campagnes/factures/paiements de démo — voir
+      # scripts/seed/README.md côté backend. Stack jetable créée et détruite
+      # dans ce job (`down -v` plus bas) : aucun rapport avec les données de
+      # démo partagées purgées le 2026-08-27, qui vivaient sur un
+      # environnement persistant différent.
+      - name: Semer les données de démo
+        working-directory: backend-src
+        run: bash scripts/seed_demo.sh
+
+      # ── Passe 2 : live backend ────────────────────────────────────────────
+      # Seul dashboard-consultation.spec.ts — voir le commentaire en tête de
+      # job pour les 3 specs volontairement encore exclus de cette passe.
+      - name: 'E2E — dashboard (backend live)'
+        run: npx playwright test e2e/specs/dashboard-consultation.spec.ts
+        env:
+          CI: true
+          E2E_LIVE_BACKEND: '1'
+          E2E_ADMIN_USER: demo_admin
+          E2E_ADMIN_PASSWORD: 'Demo1234!'
+          E2E_COMPTABLE_USER: demo_comptable
+          E2E_COMPTABLE_PASSWORD: 'Demo1234!'
+
+      - name: Logs backend (diagnostic)
+        if: always()
+        working-directory: backend-src
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --no-color > backend-logs.txt || true
+
+      - name: Upload Playwright report — build/routage
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: playwright-report-${{ github.sha }}
+          name: playwright-report-baseline-${{ github.sha }}
+          path: playwright-report-baseline/
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload Playwright report — live backend
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: playwright-report-live-${{ github.sha }}
           path: playwright-report/
           retention-days: 14
+          if-no-files-found: warn
+
+      - name: Upload backend logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: backend-logs-${{ github.sha }}
+          path: backend-src/backend-logs.txt
+          retention-days: 7
+          if-no-files-found: warn
+
+      # Stack jetable : toujours nettoyer, même sur échec des tests.
+      - name: Nettoyer la stack backend
+        if: always()
+        working-directory: backend-src
+        run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
 
   # ── 5. Scanner de mauvaise configuration des workflows (actionlint) ─────────
   # docs/CONFORMITE_CICD.md, item 13 du plan de remédiation (CIS 2.3.6, OWASP
