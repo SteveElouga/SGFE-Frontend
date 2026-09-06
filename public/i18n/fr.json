@@ -663,10 +663,10 @@
     "NOM_PLACEHOLDER": "ex. Régie des Eaux de Yaoundé"
   },
   "ALERTE_WHATSAPP": {
-    "TITRE": "Liaison WhatsApp rompue",
-    "MESSAGE": "Aucune facture ni relance ne peut partir. Reconnectez le compte depuis Configuration.",
-    "BANNIERE_TITRE": "Liaison WhatsApp rompue — aucun message ne peut partir",
-    "BANNIERE_DEPUIS": "hors service depuis {{ duree }}",
+    "TITRE": "Liaison WhatsApp inactive",
+    "MESSAGE": "Aucun message ne peut partir tant que le compte n'est pas relié. Ouvrez Configuration pour le connecter.",
+    "BANNIERE_TITRE": "Liaison WhatsApp inactive — aucun message ne peut partir",
+    "BANNIERE_DEPUIS": "depuis {{ duree }}",
     "BANNIERE_ACTION": "Reconnecter"
   },
   "PROFIL": {
