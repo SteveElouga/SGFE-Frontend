@@ -109,6 +109,34 @@ a.page-topbar-action:active {
   }
 }
 
+// ── Transition douce du thème clair/sombre ────────────────────────────────────
+// `ThemeService` bascule la classe `.p-dark` sur `<html>` (système ou choix
+// manuel) : tous les jetons de rôle couleur de `_tokens.scss` changent de
+// valeur au même instant. Sans transition, le changement téléporte — l'exact
+// « état qui change trop vite » que l'audit d'animation demande d'éviter.
+//
+// Un changement de thème est un changement de COULEUR, jamais de position :
+// seules `background-color`/`color`/`border-color` transitionnent ici, jamais
+// `transform`/`width`/`height`. Règle unique et globale — pas dupliquée
+// composant par composant — et jamais `transition: all` (toujours un problème
+// de performance et de précision). `ease`, pas une courbe custom : un
+// changement de couleur au repos suit la règle « hover / color change → ease »
+// de l'audit, jamais `ease-in` seul (il démarrerait lentement au moment précis
+// que l'œil regarde). Durée reprise de `--duree-moyenne` (220ms), dans la
+// fourchette 150-250ms de l'audit pour ce type de changement.
+//
+// Spécificité volontairement la plus faible possible (sélecteur universel) :
+// tout composant qui déclare déjà sa propre transition sur ces propriétés
+// (boutons, badges...) garde la sienne sans collision.
+*,
+*::before,
+*::after {
+  transition:
+    background-color var(--duree-moyenne, 220ms) ease,
+    color var(--duree-moyenne, 220ms) ease,
+    border-color var(--duree-moyenne, 220ms) ease;
+}
+
 // ── Fallback :focus-visible global ────────────────────────────────────────────
 // Les composants avec un focus-visible personnalisé le gardent (spécificité
 // supérieure). Ceux qui n'ont rien reçoivent au minimum un anneau bleu 2px —
@@ -148,6 +176,26 @@ a:focus-visible,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  // Exception : la transition de COULEUR de la bascule de thème n'est pas un
+  // mouvement — elle aide à comprendre le changement d'état (l'audit :
+  // « reduced motion means fewer and gentler animations, not zero — keep
+  // transitions that aid comprehension, remove position changes »). On la
+  // restaure ici par-dessus la règle générale ci-dessus, qui nule sans
+  // distinction. Seules `background-color`/`color`/`border-color` sont
+  // concernées, jamais `transform` : un contrôle de bascule qui tournerait ou
+  // glisserait resterait, lui, coupé par la règle précédente.
+  //
+  // `[class]` plutôt que `*` : spécificité volontairement un cran au-dessus du
+  // sélecteur universel, pour ne pas rouvrir une transition qu'un composant a
+  // explicitement coupée avec une règle plus spécifique que la sienne (badge,
+  // bouton de fiche...) — celles-ci gagnent toujours face à `[class]` une fois
+  // l'attribut d'encapsulation Angular ajouté à leur sélecteur compilé.
+  [class] {
+    transition-property: background-color, color, border-color !important;
+    transition-duration: var(--duree-moyenne, 220ms) !important;
+    transition-timing-function: ease !important;
   }
 }
 
