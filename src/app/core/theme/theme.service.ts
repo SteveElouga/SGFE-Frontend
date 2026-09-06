@@ -42,6 +42,11 @@ export class ThemeService {
     }
 
     effect(() => {
+      // Même garde que les deux fonctions ci-dessus : ce dépôt ne fait pas de
+      // SSR aujourd'hui (aucun main.server.ts), mais un effect() qui suppose
+      // `document` sans condition serait le seul point non protégé du service
+      // si ça change un jour.
+      if (typeof document === 'undefined') return;
       document.documentElement.classList.toggle('p-dark', this.resolvedTheme() === 'dark');
     });
   }
