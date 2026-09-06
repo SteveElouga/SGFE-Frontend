@@ -10,10 +10,11 @@ import type { WhatsappQr } from '../../shared/models/configuration.model';
 /**
  * Surveillance app-wide de la liaison WhatsApp : contrairement à
  * `WhatsappLinkComponent` (un écran, un affichage), ce service ne fait que
- * décider QUAND alerter — ces tests portent sur les trois moments qui
- * comptent : la première rupture (signal immédiat), la persistance de la
- * rupture (rappel toutes les 10 min, jamais empilé), et le retour à la
- * normale (silence).
+ * décider QUAND alerter — ces tests portent sur les moments qui comptent :
+ * les deux phases qui bloquent réellement l'envoi ('rupture' ET 'qr' — un
+ * compte jamais lié bloque tout autant qu'un service injoignable), la
+ * première transition (signal immédiat), la persistance (rappel toutes les
+ * 10 min, jamais empilé), et le retour à la normale (silence).
  */
 function statut(p: Partial<WhatsappQr> = {}): WhatsappQr {
   return { ready: false, qr: null, number: null, ...p };
@@ -71,6 +72,26 @@ describe('WhatsappSurveillanceService — rompu', () => {
     expect(service.rompu()).toBe(true);
     expect(toastShow).toHaveBeenCalledTimes(1);
     expect(toastShow).toHaveBeenCalledWith(expect.objectContaining({ type: 'error' }));
+  });
+
+  it('signale aussi phase="qr" — service disponible mais aucun appareil jamais lié', () => {
+    const { service, subscribeStream, toastShow } = monter();
+    service.demarrer();
+    subscribeStream.next({ data: { whatsappStatus: statut({ phase: 'qr', qr: 'data:image/png;base64,ABC' }) } });
+
+    expect(service.rompu()).toBe(true);
+    expect(toastShow).toHaveBeenCalledTimes(1);
+  });
+
+  it('ne re-signale pas en passant de "rupture" à "qr" (les deux sont déjà "rompu")', () => {
+    const { service, subscribeStream, toastShow } = monter();
+    service.demarrer();
+    subscribeStream.next({ data: { whatsappStatus: statut({ phase: 'rupture' }) } });
+    toastShow.mockClear();
+
+    subscribeStream.next({ data: { whatsappStatus: statut({ phase: 'qr' }) } });
+    expect(service.rompu()).toBe(true);
+    expect(toastShow).not.toHaveBeenCalled();
   });
 
   it('ne re-signale pas à chaque événement pendant que la rupture persiste', () => {

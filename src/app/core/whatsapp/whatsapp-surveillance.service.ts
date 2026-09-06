@@ -48,11 +48,20 @@ export class WhatsappSurveillanceService {
   private readonly phase = signal<PhaseWhatsapp | string>('demarrage');
   private readonly depuisMs = signal(0);
 
-  // Même définition, au signe près, que `WhatsappLinkComponent.rompu` —
-  // 'demarrage' (service qui démarre, pas encore de QR) n'est PAS une
-  // rupture : confondre les deux déclencherait le bandeau/rappel dès le
-  // premier chargement de l'appli, avant même une tentative de connexion.
-  readonly rompu = computed(() => !this.ready() && this.phase() === 'rupture');
+  // Volontairement plus large que `WhatsappLinkComponent.rompu` (qui ne
+  // couvre que 'rupture', pour son propre affichage QR) : ici, la question
+  // n'est pas « pourquoi c'est cassé » mais « est-ce qu'un message peut
+  // partir maintenant » — et la réponse est non aussi bien quand le service
+  // est injoignable ('rupture') que quand il est disponible mais qu'aucun
+  // appareil n'a jamais scanné le QR ('qr', qui peut durer indéfiniment tant
+  // que personne ne s'en aperçoit). 'demarrage' reste exclu : transitoire,
+  // quelques secondes à chaque démarrage de l'appli, l'y inclure
+  // déclencherait le bandeau/rappel à chaque chargement de page.
+  readonly rompu = computed(() => {
+    if (this.ready()) return false;
+    const p = this.phase();
+    return p === 'rupture' || p === 'qr';
+  });
 
   readonly depuis = computed(() => {
     const ms = this.depuisMs();
