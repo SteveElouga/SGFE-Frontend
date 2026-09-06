@@ -662,6 +662,13 @@
     "ADRESSE_HINT": "Adresse postale de la régie, imprimée sur chaque facture PDF.",
     "NOM_PLACEHOLDER": "ex. Régie des Eaux de Yaoundé"
   },
+  "ALERTE_WHATSAPP": {
+    "TITRE": "Liaison WhatsApp rompue",
+    "MESSAGE": "Aucune facture ni relance ne peut partir. Reconnectez le compte depuis Configuration.",
+    "BANNIERE_TITRE": "Liaison WhatsApp rompue — aucun message ne peut partir",
+    "BANNIERE_DEPUIS": "hors service depuis {{ duree }}",
+    "BANNIERE_ACTION": "Reconnecter"
+  },
   "PROFIL": {
     "TITLE": "Mon profil",
     "SUBTITLE": "Informations de votre compte",

@@ -1,0 +1,88 @@
+@use '../../../../styles/variables' as *;
+
+// Sort du flux défilant, comme l'en-tête de page (voir le commentaire sur
+// `.shell__content` dans shell.component.scss) : un bandeau qu'il faudrait
+// remonter pour revoir ne serait plus « permanent » que de nom.
+.wa-banniere {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pas-3);
+  padding: var(--pas-2) var(--pas-4);
+  background: var(--danger-fond);
+  border-bottom: 1px solid var(--danger-trait);
+  color: var(--danger-encre);
+  font-size: var(--texte-md);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity var(--duree-courte) var(--ease-out),
+    transform var(--duree-courte) var(--ease-out);
+
+  @starting-style {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: opacity var(--duree-courte) linear;
+    // Le mouvement disparaît, la couleur reste — voir improve-animations.
+    @starting-style {
+      transform: none;
+    }
+  }
+}
+
+.wa-banniere__icone {
+  flex-shrink: 0;
+  font-size: var(--texte-xl);
+}
+
+.wa-banniere__texte {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+}
+
+.wa-banniere__depuis {
+  font-weight: 400;
+  opacity: 0.85;
+
+  &::before {
+    content: ' — ';
+  }
+}
+
+.wa-banniere__action {
+  flex-shrink: 0;
+  padding: var(--pas-1) var(--pas-3);
+  border: 1px solid var(--danger-trait);
+  border-radius: var(--rayon-sm);
+  color: var(--danger-encre);
+  font-size: var(--texte-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--duree-courte) var(--ease-out);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background: var(--danger-trait);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--danger-encre);
+    outline-offset: 2px;
+  }
+}
+
+// Mobile : la barre d'onglets prend déjà toute la largeur en bas, le bouton
+// d'action passe à la ligne plutôt que de compresser le texte au point de
+// le tronquer (pas de `text-overflow` ici : le message d'alerte doit rester
+// lisible en entier).
+@media (max-width: 480px) {
+  .wa-banniere {
+    flex-wrap: wrap;
+  }
+}

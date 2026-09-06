@@ -12,13 +12,15 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { filter } from 'rxjs';
 import { AbonnesService } from '../../core/abonnes/abonnes.service';
 import { NotificationsService } from '../../core/notifications/notifications.service';
+import { WhatsappSurveillanceService } from '../../core/whatsapp/whatsapp-surveillance.service';
+import { WhatsappBannerComponent } from '../../core/whatsapp/whatsapp-banner/whatsapp-banner.component';
 import { SidebarComponent } from '../../shared/components/sidebar/sidebar.component';
 import { BottomTabsComponent } from '../../shared/components/bottom-tabs/bottom-tabs.component';
 import { LayoutService } from '../../shared/services/layout.service';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, SidebarComponent, BottomTabsComponent, TranslatePipe],
+  imports: [RouterOutlet, SidebarComponent, BottomTabsComponent, WhatsappBannerComponent, TranslatePipe],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -37,6 +39,10 @@ export class ShellComponent {
     // Les notifications sont dérivées des envois/impayés/paiements : on les
     // compose une fois par session, sans bloquer l'affichage.
     void inject(NotificationsService).load();
+    // Démarré ici (pas dans WhatsappBannerComponent) pour ne s'abonner
+    // qu'une fois par session, quel que soit l'écran affiché — le bandeau
+    // peut apparaître/disparaître du DOM sans jamais relancer la surveillance.
+    inject(WhatsappSurveillanceService).demarrer();
 
     let premiere = true;
 

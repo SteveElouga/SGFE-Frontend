@@ -245,7 +245,15 @@ a:focus-visible,
 // `min-height: 0` n'est pas décoratif : sans lui, un enfant flex refuse de
 // rétrécir sous la hauteur de son contenu, et la région déborde au lieu de
 // défiler.
-.shell__content > *:not(router-outlet) {
+//
+// `:not(app-whatsapp-banner)` — exactement le piège que le commentaire de
+// `.page-scroll` ci-dessous anticipait pour un autre sélecteur : ce bandeau
+// permanent (`ShellComponent`) est un second enfant de `.shell__content`,
+// silencieux quand il ne rend rien (`@if` faux) mais qui recevait quand même
+// `flex: 1`, partageant la hauteur disponible à parts égales avec la page
+// routée au lieu de la lui laisser tout entière — trouvé en CI (clics
+// interceptés par un en-tête sticky décalé), pas en local.
+.shell__content > *:not(router-outlet):not(app-whatsapp-banner) {
   flex: 1;
   min-height: 0;
   display: flex;

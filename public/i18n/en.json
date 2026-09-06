@@ -662,6 +662,13 @@
     "ADRESSE_HINT": "Postal address of the utility, printed on every invoice PDF.",
     "NOM_PLACEHOLDER": "e.g. Yaoundé Water Utility"
   },
+  "ALERTE_WHATSAPP": {
+    "TITRE": "WhatsApp link is down",
+    "MESSAGE": "No invoice or reminder can be sent. Reconnect the account from Configuration.",
+    "BANNIERE_TITRE": "WhatsApp link is down — no message can be sent",
+    "BANNIERE_DEPUIS": "down for {{ duree }}",
+    "BANNIERE_ACTION": "Reconnect"
+  },
   "PROFIL": {
     "TITLE": "My profile",
     "SUBTITLE": "Your account information",
