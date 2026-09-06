@@ -1,0 +1,16 @@
+@if (rompu()) {
+  <div class="wa-banniere" role="alert">
+    <i aria-hidden="true" class="pi pi-exclamation-triangle wa-banniere__icone"></i>
+    <span class="wa-banniere__texte">
+      {{ 'ALERTE_WHATSAPP.BANNIERE_TITRE' | translate }}
+      @if (depuis()) {
+        <span class="wa-banniere__depuis">
+          {{ 'ALERTE_WHATSAPP.BANNIERE_DEPUIS' | translate: { duree: depuis() } }}
+        </span>
+      }
+    </span>
+    <a class="wa-banniere__action" routerLink="/configuration">
+      {{ 'ALERTE_WHATSAPP.BANNIERE_ACTION' | translate }}
+    </a>
+  </div>
+}
