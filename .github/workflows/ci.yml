@@ -175,7 +175,25 @@ jobs:
           exit-code: '1'
           ignore-unfixed: true
 
-  # ── 4. Tests E2E Playwright ──────────────────────────────────────────────────
+  # ── 4. Scanner de secrets (gitleaks) ─────────────────────────────────────────
+  # Écart trouvé le 07/09/2026 (Verdict SGFE, CIS Supply Chain 1.5.1) : le
+  # backend scanne chaque commit avec gitleaks depuis longtemps, le frontend
+  # n'avait aucun scanner de secrets nulle part — même schéma que le backend
+  # (SGFE-Backend/.github/workflows/ci.yml, job secrets-scan) pour rester la
+  # référence commune si l'un des deux évolue.
+  secrets-scan:
+    name: Scanner de secrets (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ── 5. Tests E2E Playwright ──────────────────────────────────────────────────
   #
   # Deux passes distinctes, jamais mélangées dans un même `npx playwright
   # test` : E2E_LIVE_BACKEND est un seul env var par process, impossible de
@@ -444,7 +462,7 @@ jobs:
         working-directory: backend-src
         run: docker compose -f docker-compose.yml -f docker-compose.ci.yml down -v
 
-  # ── 5. Scanner de mauvaise configuration des workflows (actionlint) ─────────
+  # ── 6. Scanner de mauvaise configuration des workflows (actionlint) ─────────
   # docs/CONFORMITE_CICD.md, item 13 du plan de remédiation (CIS 2.3.6, OWASP
   # CICD-SEC-8) : aucun des deux dépôts (backend compris) n'avait de scanner
   # de pipeline avant cette tâche — `actionlint` est retenu ici pour que le
@@ -479,7 +497,7 @@ jobs:
           filter_mode: nofilter
           fail_level: error
 
-  # ── 6. Point d'agrégation pour la protection de branche ──────────────────────
+  # ── 7. Point d'agrégation pour la protection de branche ──────────────────────
   # docs/CONFORMITE_CICD.md, item 2 du plan de remédiation (CICD-SEC-1) : ce
   # dépôt n'avait aucune protection de branche, en partie parce qu'il n'existait
   # aucun check unique à exiger (5 jobs indépendants, dont deux — e2e et
@@ -490,7 +508,7 @@ jobs:
   ci-status:
     name: Statut CI
     if: always()
-    needs: [quality, unit-tests, docker-build, e2e, lint-workflows]
+    needs: [quality, unit-tests, docker-build, secrets-scan, e2e, lint-workflows]
     runs-on: ubuntu-latest
     steps:
       # `contains(needs.*.result, 'failure')` seul laisse passer un job
