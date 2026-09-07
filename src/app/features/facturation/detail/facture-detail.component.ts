@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { nomAbonne } from '../../../shared/utils/abonne.utils';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -68,6 +70,7 @@ export class FactureDetailComponent implements OnInit {
   private readonly campagnesService = inject(CampagnesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   private readonly facturePdf = inject(FacturePdfService);
@@ -254,9 +257,19 @@ export class FactureDetailComponent implements OnInit {
   private readonly autoOpenPaiement = signal(false);
 
   ngOnInit(): void {
-    const factureId = this.route.snapshot.params['factureId'] as string;
-    this.autoOpenPaiement.set(this.route.snapshot.queryParams['paiement'] === '1');
-    void this.load(factureId);
+    // `route.params` en abonnement, pas `route.snapshot` : Angular réutilise
+    // ce même composant d'une facture à l'autre (`/factures/:factureId` est
+    // une seule route, seul le paramètre change) — un simple snapshot lu une
+    // fois à la création ne voyait donc jamais le changement. La facture
+    // affichée changeait (elle vient du routeur), mais `solde`/`paiements`
+    // restaient ceux de la précédente : sur une facture ANNULEE ouverte
+    // juste après une facture avec un solde dû, le bouton « + Paiement »
+    // restait visible — `canAddPaiement()` lisait encore l'ancien solde.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const factureId = params['factureId'] as string;
+      this.autoOpenPaiement.set(this.route.snapshot.queryParams['paiement'] === '1');
+      void this.load(factureId);
+    });
   }
 
   /**
