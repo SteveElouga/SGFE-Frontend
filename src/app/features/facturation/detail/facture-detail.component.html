@@ -283,7 +283,7 @@
 
     <!-- Actions (mobile — MB-05) : + Paiement / PDF / renvoyer WhatsApp -->
     <div class="mactions">
-      @if (f.statut !== 'PAYEE' && canAddPaiement()) {
+      @if (f.statut !== 'PAYEE' && f.statut !== 'ANNULEE' && canAddPaiement()) {
         <button type="button" class="mactions__pay" (click)="showForm.set(true)">
           {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
         </button>

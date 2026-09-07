@@ -3,6 +3,7 @@ import { signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { provideTranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { FactureDetailComponent } from './facture-detail.component';
 import { FacturesService } from '../../../core/factures/factures.service';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
@@ -128,6 +129,11 @@ function monter(over: {
       {
         provide: ActivatedRoute,
         useValue: {
+          // `params` en observable : `ngOnInit` s'y abonne désormais (voir le
+          // composant) au lieu d'une lecture `snapshot` unique. `snapshot`
+          // reste fourni : `reload()` et la lecture de `queryParams` (le lien
+          // « Paiement » depuis les notifications) s'appuient toujours dessus.
+          params: of({ factureId: 'f-1', ...over.routeParams }),
           snapshot: {
             params: { factureId: 'f-1', ...over.routeParams },
             queryParams: { ...over.queryParams },
