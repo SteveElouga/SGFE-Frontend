@@ -176,7 +176,11 @@
               <i aria-hidden="true" class="pi pi-file-pdf"></i>
               <span class="btn-action__label" aria-hidden="true">{{ 'FACTURATION.ACTION_PDF' | translate }}</span>
             </button>
-          } @else {
+          } @else if (f.statut !== 'ANNULEE') {
+            <!-- Une facture ANNULEE n'a ni reçu à consulter, ni paiement
+                 possible : ni ce bouton ni le PDF ci-dessus, contrairement à
+                 avant où `@else` couvrait tout statut différent de PAYEE et
+                 proposait donc « + Paiement » ici aussi. -->
             <button
               class="btn-action btn-action--primary"
               [attr.aria-label]="'FACTURATION.ACTION_PAIEMENT' | translate"

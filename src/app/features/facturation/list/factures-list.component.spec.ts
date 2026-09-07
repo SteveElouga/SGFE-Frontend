@@ -248,6 +248,23 @@ describe('FacturesListComponent — pagination serveur', () => {
     expect(fixture.componentInstance.facturesAEnvoyer()).toBe(7);
   });
 
+  it('n’affiche ni PDF ni « + Paiement » pour une facture annulée', async () => {
+    // `@else` couvrait auparavant tout statut différent de PAYEE — une
+    // facture ANNULEE (solde toujours à zéro, aucun reçu) se retrouvait donc
+    // avec un bouton « + Paiement » actif dans le tableau.
+    const getFactures = vi.fn().mockResolvedValue([facture({ statut: 'ANNULEE' })]);
+    const fixture = creer({ getFactures, getFacturesCount: defaultCounts() });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const labels = Array.from(fixture.nativeElement.querySelectorAll('[aria-label]')).map((el) =>
+      (el as Element).getAttribute('aria-label'),
+    );
+    expect(labels).not.toContain('FACTURATION.ACTION_PAIEMENT');
+    expect(labels).not.toContain('FACTURATION.ACTION_PDF');
+  });
+
   it('les puces de statut reflètent les compteurs globaux, pas la page affichée', async () => {
     const getFactures = vi.fn().mockResolvedValue([facture({ statut: 'PAYEE' })]);
     const getFacturesCount = defaultCounts({ IMPAYEE: 5, PARTIELLE: 2, PAYEE: 40 });
