@@ -146,6 +146,7 @@ describe('AbonneDetailComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
+            params: of(routeParams),
             snapshot: {
               paramMap: { get: (k: string) => routeParams[k] ?? null },
               queryParamMap: { get: (k: string) => queryParams[k] ?? null },

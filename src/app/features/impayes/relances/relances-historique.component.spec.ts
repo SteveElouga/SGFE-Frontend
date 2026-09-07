@@ -79,7 +79,7 @@ function monter(over: {
     providers: [
       provideTranslateService({}),
       { provide: Router, useValue: { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() } },
-      { provide: ActivatedRoute, useValue: { snapshot: { params: { factureId: 'f-1' } } } },
+      { provide: ActivatedRoute, useValue: { params: of({ factureId: 'f-1' }), snapshot: { params: { factureId: 'f-1' } } } },
       { provide: FacturesService, useValue: { getFacture, getSoldeFacture, getSuiviImpaye, renvoyerFactureWhatsapp } },
       { provide: AbonnesService, useValue: { getAbonne } },
       { provide: CampagnesService, useValue: { getCampagne } },
@@ -235,7 +235,7 @@ describe('RelancesHistoriqueComponent — renvoi manuel', () => {
       providers: [
         provideTranslateService({}),
         { provide: Router, useValue: { navigate, createUrlTree: vi.fn(), serializeUrl: vi.fn() } },
-        { provide: ActivatedRoute, useValue: { snapshot: { params: { factureId: 'f-1' } } } },
+        { provide: ActivatedRoute, useValue: { params: of({ factureId: 'f-1' }), snapshot: { params: { factureId: 'f-1' } } } },
         { provide: FacturesService, useValue: { getFacture: vi.fn().mockResolvedValue(facture()), getSoldeFacture: vi.fn().mockResolvedValue(solde()), getSuiviImpaye: vi.fn().mockResolvedValue(suivi()) } },
         { provide: AbonnesService, useValue: { getAbonne: vi.fn().mockResolvedValue(abonne()) } },
         { provide: CampagnesService, useValue: { getCampagne: vi.fn().mockResolvedValue(campagne()) } },

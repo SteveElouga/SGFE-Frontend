@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -28,11 +29,25 @@ type Etat = 'attente' | 'confirmation' | 'confirmee' | 'echouee' | 'expiree' | '
 export class EspaceAbonnePaiementConfirmationComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly svc = inject(EspaceAbonneService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  readonly token = this.route.snapshot.paramMap.get('token') ?? '';
-  readonly sessionId = this.route.snapshot.paramMap.get('sessionId') ?? '';
+  token = '';
+  sessionId = '';
 
   readonly etat = signal<Etat>('attente');
+
+  constructor() {
+    // `route.params` en abonnement : cette page publique n'a aujourd'hui
+    // aucune navigation interne d'une confirmation à l'autre, mais
+    // `espace/:token/paiement/:sessionId/confirmer` reste une seule route —
+    // si un tel lien apparaissait, un `token`/`sessionId` lus une fois au
+    // `snapshot` confirmeraient le paiement de la MAUVAISE session.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.token = (params['token'] as string) ?? '';
+      this.sessionId = (params['sessionId'] as string) ?? '';
+      this.etat.set('attente');
+    });
+  }
 
   /** Lien de retour vers l'espace abonné, proposé quelle que soit l'issue. */
   readonly retourVers = computed(() => `/espace/${this.token}`);

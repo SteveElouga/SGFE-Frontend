@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -45,11 +47,13 @@ export class AbonneFormComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly datePipe = inject(DatePipe);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly mode: FormMode;
-  readonly abonneId: string | null;
+  abonneId: string | null;
 
   readonly abonne = signal<AbonneDetail | null>(null);
   readonly pageLoading = signal(false);
@@ -208,15 +212,25 @@ export class AbonneFormComponent implements OnInit {
     return d ? (this.datePipe.transform(d, 'dd/MM/yyyy') ?? '—') : '—';
   });
 
-  constructor(route: ActivatedRoute) {
-    this.mode = route.snapshot.data['mode'] as FormMode;
-    this.abonneId = route.snapshot.paramMap.get('id');
+  constructor() {
+    // `data['mode']` reste sûr en snapshot : 'nouveau' et ':id/modifier' sont
+    // deux routes distinctes (configs différentes), jamais réutilisées l'une
+    // pour l'autre — seul l'`:id` à l'intérieur de ':id/modifier' doit être
+    // lu en abonnement (voir ngOnInit).
+    this.mode = this.route.snapshot.data['mode'] as FormMode;
+    this.abonneId = this.route.snapshot.paramMap.get('id');
   }
 
   ngOnInit(): void {
-    if (this.mode === 'edit' && this.abonneId) {
-      this.loadAbonne();
-    }
+    if (this.mode !== 'edit') return;
+    // `route.params` en abonnement : ':id/modifier' est une seule route,
+    // Angular réutilise ce même composant d'une fiche à l'autre — un
+    // snapshot lu une fois à la création ne verrait jamais le changement
+    // d'ID en passant directement de la modification d'un abonné à un autre.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.abonneId = (params['id'] as string) ?? null;
+      if (this.abonneId) this.loadAbonne();
+    });
   }
 
   private async loadAbonne(): Promise<void> {
@@ -240,6 +254,14 @@ export class AbonneFormComponent implements OnInit {
         this.quartier.set(a.compteur.quartier);
         this.camp.set(String(a.compteur.camp));
         this.position.set(a.compteur.position);
+      } else {
+        // Remise à vide explicite : depuis que ce composant peut être réutilisé
+        // d'un abonné à l'autre (route.params en abonnement, voir ngOnInit),
+        // un abonné sans compteur affichait sinon encore le quartier/camp/
+        // position du précédent.
+        this.quartier.set('');
+        this.camp.set('');
+        this.position.set('');
       }
     } catch (err: unknown) {
       const { code, message } = extractGqlError(err);

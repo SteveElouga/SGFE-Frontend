@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
+import type { Subscription } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Apollo, QueryRef } from 'apollo-angular';
@@ -68,10 +69,19 @@ export class CampagneDetailComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly route = inject(ActivatedRoute);
   readonly auth = inject(AuthService);
 
-  readonly campagneId: string;
+  campagneId = '';
   private campagneQuery!: QueryRef<GetCampagneQuery>;
+  /** Désabonnés et reposés à chaque changement de `campagneId` (voir
+   *  `ngOnInit`), pas seulement à la destruction du composant :
+   *  `/campagnes/:id` est une seule route, Angular réutilise ce même
+   *  composant d'une campagne à l'autre — `takeUntilDestroyed` seul
+   *  laisserait tourner les flux de l'ancienne campagne en plus des
+   *  nouveaux. */
+  private campagneSub?: Subscription;
+  private progressionSub?: Subscription;
 
   // ── Agents affectés & répartition (queries backend dédiées) ──────────────
   readonly showAgentsSheet = signal(false);
@@ -231,25 +241,49 @@ export class CampagneDetailComponent implements OnInit {
   // la carte progression, la modale de clôture), et se contente de les
   // passer en entrée.
 
-  constructor(route: ActivatedRoute) {
-    this.campagneId = route.snapshot.paramMap.get('id')!;
+  ngOnInit(): void {
+    // `route.params` en abonnement, pas `route.snapshot` : `/campagnes/:id`
+    // est une seule route, Angular réutilise ce même composant d'une
+    // campagne à l'autre (le tableau de bord et la liste des campagnes
+    // lient directement chaque ligne à sa fiche) — un snapshot lu une fois
+    // à la création ne verrait jamais le changement.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.campagneId = (params['id'] as string) ?? '';
+      this.setupCampagne();
+    });
   }
 
-  ngOnInit(): void {
+  private setupCampagne(): void {
+    // Désabonner l'ancienne campagne avant d'en (re)créer une nouvelle —
+    // sans ça, les flux de la campagne précédente continueraient de mettre
+    // à jour cet écran en même temps que les nouveaux.
+    this.campagneSub?.unsubscribe();
+    this.progressionSub?.unsubscribe();
+
+    // Remise à vide explicite : ces signaux restaient sinon ceux de la
+    // campagne précédente le temps que la nouvelle charge.
+    this.campagne.set(null);
+    this.progression.set(null);
+    this.releves.set([]);
+    this.error.set(null);
+    this.agentsData.set([]);
+    this.repartData.set([]);
+    this.abonnesMap.set(new Map());
+    this.abonneZones.set(new Map());
+    this.tarifActuel.set(null);
+
     this.campagneQuery = this.service.watchCampagne(this.campagneId);
 
-    this.campagneQuery.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({ data }) => {
-          if (data?.campagne) this.campagne.set(data.campagne as CampagneDetail);
-        },
-        error: (err: unknown) => {
-          const { message } = extractGqlError(err);
-          this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
-          this.loading.set(false);
-        },
-      });
+    this.campagneSub = this.campagneQuery.valueChanges.subscribe({
+      next: ({ data }) => {
+        if (data?.campagne) this.campagne.set(data.campagne as CampagneDetail);
+      },
+      error: (err: unknown) => {
+        const { message } = extractGqlError(err);
+        this.error.set(message || this.translate.instant('CAMPAGNES.ERROR_LOAD'));
+        this.loading.set(false);
+      },
+    });
 
     // ── La progression, en direct ─────────────────────────────────────────
     //
@@ -261,14 +295,13 @@ export class CampagneDetailComponent implements OnInit {
     //
     // Le flux existait des deux côtés depuis le début ; personne ne s'y était
     // abonné.
-    this.apollo
+    this.progressionSub = this.apollo
       .subscribe<ProgressionUpdatedSubscription>({ query: PROGRESSION_UPDATED_SUB,
         variables: { campagneId: this.campagneId },
         // Échec silencieux : une progression figée reste lisible, alors qu'un
         // bandeau d'erreur sur un flux d'agrément couvrirait l'écran pour rien.
         context: { silentError: true },
       })
-      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ data }) => {
           const p = data?.progressionUpdated;

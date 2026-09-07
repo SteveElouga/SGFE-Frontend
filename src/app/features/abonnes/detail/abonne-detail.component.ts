@@ -1,12 +1,15 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import type { Subscription } from 'rxjs';
 import { QueryRef } from 'apollo-angular';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -63,7 +66,7 @@ import type { AbonneDetailUpdatedSubscription, GetAbonneQuery } from '../../../g
   styleUrl: './abonne-detail.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AbonneDetailComponent {
+export class AbonneDetailComponent implements OnInit {
   private readonly abonnesService = inject(AbonnesService);
   private readonly facturesService = inject(FacturesService);
   private readonly facturePdf = inject(FacturePdfService);
@@ -71,13 +74,21 @@ export class AbonneDetailComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Deep-link keys pour les 5 onglets (mêmes indices que activeTab()). */
   private readonly TAB_KEYS = ['info', 'factures', 'conso', 'impayes', 'compteurs'] as const;
 
   /** Lu par le gabarit pour alimenter les feuilles d'action. */
-  protected readonly abonneId: string;
-  private readonly abonneQuery: QueryRef<GetAbonneQuery>;
+  protected abonneId = '';
+  private abonneQuery!: QueryRef<GetAbonneQuery>;
+  /** Désabonnés et reposés à chaque changement d'`abonneId` (voir `ngOnInit`),
+   *  pas seulement à la destruction du composant : `/abonnes/:id` est une
+   *  seule route, Angular réutilise ce même composant d'une fiche à l'autre —
+   *  `takeUntilDestroyed` seul laisserait tourner la requête de l'ancien
+   *  abonné en plus de celle du nouveau. */
+  private valueChangesSub?: Subscription;
+  private subscribeToMoreUnsub?: () => void;
 
   readonly abonne = signal<AbonneDetail | null>(null);
   readonly loading = signal(true);
@@ -272,8 +283,36 @@ export class AbonneDetailComponent {
     return this.translate.instant(key, {}, lang);
   });
 
-  constructor() {
-    this.abonneId = this.route.snapshot.paramMap.get('id')!;
+  ngOnInit(): void {
+    // `route.params` en abonnement, pas `route.snapshot` : `/abonnes/:id` est
+    // une seule route, Angular réutilise ce même composant d'une fiche à
+    // l'autre (la liste des abonnés lie directement chaque ligne à sa fiche) —
+    // un snapshot lu une fois à la création ne verrait jamais le changement.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.abonneId = (params['id'] as string) ?? '';
+      this.setupAbonne();
+    });
+  }
+
+  private setupAbonne(): void {
+    // Désabonner l'ancienne fiche avant d'en (re)créer une nouvelle — sans
+    // ça, la requête temps réel de l'abonné précédent continuerait de mettre
+    // à jour cet écran en même temps que la nouvelle.
+    this.valueChangesSub?.unsubscribe();
+    this.subscribeToMoreUnsub?.();
+
+    // Remise à vide explicite : ces signaux restaient sinon ceux de la fiche
+    // précédente le temps que la nouvelle charge.
+    this.abonne.set(null);
+    this.error.set(null);
+    this.activeTab.set(0);
+    this.historique.set([]);
+    this.historiqueLoaded.set(false);
+    this.historiqueError.set(null);
+    this.factures.set([]);
+    this.soldeImpaye.set(null);
+    this.avoir.set(0);
+
     this.abonneQuery = this.abonnesService.watchAbonne(this.abonneId);
 
     // Deep-link : hydrater activeTab depuis ?tab=info|factures|conso|impayes|compteurs.
@@ -284,29 +323,27 @@ export class AbonneDetailComponent {
       if (idx === 4) void this.loadHistorique();
     }
 
-    this.abonneQuery.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: ({ data, loading }) => {
-          this.loading.set(loading);
-          if (data?.abonne) {
-            this.abonne.set(data.abonne as AbonneDetail);
-          } else if (!loading) {
-            this.error.set(this.translate.instant('ERRORS.LOAD_ABONNE'));
-          }
-        },
-        error: (err: unknown) => {
-          const { code, message } = extractGqlError(err);
-          if (code === 'NOT_FOUND') {
-            this.router.navigateByUrl('/abonnes');
-          } else {
-            this.error.set(message || this.translate.instant('ERRORS.LOAD_ABONNE'));
-            this.loading.set(false);
-          }
-        },
-      });
+    this.valueChangesSub = this.abonneQuery.valueChanges.subscribe({
+      next: ({ data, loading }) => {
+        this.loading.set(loading);
+        if (data?.abonne) {
+          this.abonne.set(data.abonne as AbonneDetail);
+        } else if (!loading) {
+          this.error.set(this.translate.instant('ERRORS.LOAD_ABONNE'));
+        }
+      },
+      error: (err: unknown) => {
+        const { code, message } = extractGqlError(err);
+        if (code === 'NOT_FOUND') {
+          this.router.navigateByUrl('/abonnes');
+        } else {
+          this.error.set(message || this.translate.instant('ERRORS.LOAD_ABONNE'));
+          this.loading.set(false);
+        }
+      },
+    });
 
-    this.abonneQuery.subscribeToMore<AbonneDetailUpdatedSubscription>({
+    this.subscribeToMoreUnsub = this.abonneQuery.subscribeToMore<AbonneDetailUpdatedSubscription>({
       document: ABONNE_DETAIL_UPDATED_SUB,
       variables: { id: this.abonneId },
       updateQuery: (_, { subscriptionData }): void | GetAbonneQuery => {

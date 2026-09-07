@@ -40,7 +40,7 @@ function monter(over: {
     providers: [
       provideTranslateService({}),
       { provide: Router, useValue: { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() } },
-      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: new Map([['id', 'd-1']]) } } },
+      { provide: ActivatedRoute, useValue: { params: of({ id: 'd-1' }) } },
       { provide: CommunicationService, useValue: { getDiffusion } },
       { provide: Apollo, useValue: { subscribe } },
     ],

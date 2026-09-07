@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { FacturesService } from '../../../core/factures/factures.service';
@@ -63,6 +65,7 @@ export class RelancesHistoriqueComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
@@ -211,8 +214,24 @@ export class RelancesHistoriqueComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const factureId = this.route.snapshot.params['factureId'] as string;
-    void this.load(factureId);
+    // `route.params` en abonnement, pas `route.snapshot` : Angular réutilise
+    // ce même composant d'une facture à l'autre (`/factures/:factureId/relances`
+    // est une seule route, seul le paramètre change) — voir la liste des
+    // impayés, dont chaque carte pointe directement ici pour une facture
+    // différente. `reload()` plus bas garde `route.snapshot`, à raison : il
+    // rafraîchit la facture déjà affichée après un envoi, pas une navigation.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      // Remise à zéro explicite : le cooldown de renvoi (jusqu'à 60s, minuté
+      // par un setTimeout récursif indépendant de la facture affichée) et la
+      // sheet de confirmation restaient sinon ceux de la facture précédente —
+      // une facture B ouverte juste après l'envoi d'une relance sur A aurait
+      // hérité de son cooldown.
+      this.renvoiCooldown.set(0);
+      this.renvoi.set(false);
+      this.renvoiConfirmOpen.set(false);
+      const factureId = params['factureId'] as string;
+      void this.load(factureId);
+    });
   }
 
   async load(factureId: string): Promise<void> {

@@ -78,7 +78,7 @@ describe('EspaceAbonneComponent', () => {
         { provide: EspaceAbonneService, useValue: svc },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { paramMap: { get: () => token } } },
+          useValue: { params: of({ token: token }), snapshot: { paramMap: { get: () => token } } },
         },
       ],
     });
@@ -317,7 +317,7 @@ describe('EspaceAbonneComponent · paiement en ligne', () => {
         provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => token } } } },
+        { provide: ActivatedRoute, useValue: { params: of({ token: token }), snapshot: { paramMap: { get: () => token } } } },
       ],
     });
 
@@ -436,7 +436,7 @@ describe('EspaceAbonneComponent · avoir', () => {
         provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'tok' } } } },
+        { provide: ActivatedRoute, useValue: { params: of({ token: 'tok' }), snapshot: { paramMap: { get: () => 'tok' } } } },
       ],
     });
     return TestBed.createComponent(EspaceAbonneComponent).componentInstance;
@@ -510,7 +510,7 @@ describe('EspaceAbonneComponent · lecture des dates', () => {
         provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 't' } } } },
+        { provide: ActivatedRoute, useValue: { params: of({ token: 't' }), snapshot: { paramMap: { get: () => 't' } } } },
       ],
     });
     return TestBed.createComponent(EspaceAbonneComponent).componentInstance;
@@ -571,7 +571,7 @@ describe("EspaceAbonneComponent · ce qui justifie le montant", () => {
         provideRouter([]),
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         { provide: EspaceAbonneService, useValue: svc },
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => token } } } },
+        { provide: ActivatedRoute, useValue: { params: of({ token: token }), snapshot: { paramMap: { get: () => token } } } },
       ],
     });
     const fixture = TestBed.createComponent(EspaceAbonneComponent);
