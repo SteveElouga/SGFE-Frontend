@@ -30,12 +30,35 @@ jobs:
           echo "   Tag cible : ${{ inputs.image-tag }}"
           echo "   Raison    : ${{ inputs.reason }}"
 
+      # CICD-SEC-5 (PBAC) : image-tag est un input workflow_dispatch en texte
+      # libre, jusqu'ici recopié tel quel dans le script SSH ci-dessous — la
+      # substitution ${{ }} de GitHub Actions est un remplacement de texte
+      # brut dans le YAML, pas un passage de variable échappé. Un tag malformé
+      # (guillemet, `;`, `$(...)`) s'y serait injecté comme du vrai shell sur
+      # l'hôte de production. On referme la porte ici, avant l'étape SSH.
+      - name: Valider le format du tag (défense contre une injection via workflow_dispatch)
+        run: |
+          set -euo pipefail
+          tag="${{ inputs.image-tag }}"
+          if ! [[ "$tag" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]]; then
+            echo "::error::image-tag invalide : \"$tag\" — seuls les caractères valides d'un tag Docker sont acceptés (alphanumériques, '.', '_', '-', 128 caractères max, jamais en premier). Refusé avant d'atteindre le script SSH." >&2
+            exit 1
+          fi
+
       - name: Rollback via SSH
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
+        env:
+          IMAGE_TAG: ${{ inputs.image-tag }}
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # IMAGE_TAG transite en variable d'environnement réelle de la session
+          # SSH distante (envs ci-dessous), pas en texte recopié dans le script
+          # — même après validation, une variable reste la bonne pratique :
+          # elle ne peut jamais être re-interprétée comme du YAML/shell au
+          # moment où ce fichier est composé.
+          envs: IMAGE_TAG
           script: |
             set -e
             cd /opt/aquabill/production
@@ -43,7 +66,7 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             # Restaurer l'image stable demandée
-            TARGET="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.image-tag }}"
+            TARGET="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG"
             docker pull $TARGET
             STABLE_IMAGE=$TARGET docker compose -f docker-compose.prod.yml up -d --no-deps frontend-stable
 
