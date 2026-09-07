@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -84,8 +85,9 @@ const JOUR_MS = 86_400_000;
 export class EspaceAbonneComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly svc = inject(EspaceAbonneService);
+  private readonly destroyRef = inject(DestroyRef);
 
-  private readonly token = this.route.snapshot.paramMap.get('token') ?? '';
+  private token = '';
 
   readonly etat = signal<Etat>('loading');
   readonly data = signal<EspaceAbonneData | null>(null);
@@ -172,10 +174,20 @@ export class EspaceAbonneComponent {
   });
 
   constructor() {
-    this.charger();
+    // `route.params` en abonnement : cette page est publique, atteinte par un
+    // seul lien externe tokenisé aujourd'hui (aucune navigation interne entre
+    // deux tokens n'existe dans ce dépôt), mais `espace/:token` reste une
+    // seule route — un token lu une fois au `snapshot` ne verrait jamais un
+    // changement si un tel lien apparaissait un jour.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.token = (params['token'] as string) ?? '';
+      this.charger();
+    });
   }
 
   charger(): void {
+    this.chargementPaiement.set(null);
+    this.erreurPaiement.set(null);
     if (!this.token) {
       this.etat.set('invalid');
       return;

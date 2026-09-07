@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { provideTranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { UtilisateurEditComponent } from './utilisateur-edit.component';
 import { UsersService } from '../../../core/users/users.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -48,12 +49,12 @@ function monter(over: {
       {
         provide: ActivatedRoute,
         useValue: {
-          snapshot: {
-            paramMap: (() => {
+          params: of(
+            (() => {
               const id = 'routeId' in over ? over.routeId : 'u-1';
-              return new Map(id === null ? [] : [['id', id]]);
+              return id === null ? {} : { id };
             })(),
-          },
+          ),
         },
       },
       { provide: UsersService, useValue: { getUsers, updateUser, deactivateUser, reactivateUser, resetUserPassword } },

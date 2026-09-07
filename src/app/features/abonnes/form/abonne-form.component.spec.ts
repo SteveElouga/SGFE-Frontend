@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
+import { of } from 'rxjs';
 import { AbonneFormComponent } from './abonne-form.component';
 import { AbonnesService } from '../../../core/abonnes/abonnes.service';
 import { NotificationsService } from '../../../core/notifications/notifications.service';
@@ -89,6 +90,7 @@ describe('AbonneFormComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
+            params: of({ ...(id ? { id } : {}) }),
             snapshot: {
               data: { mode },
               paramMap: { get: (k: string) => (k === 'id' ? id : null) },

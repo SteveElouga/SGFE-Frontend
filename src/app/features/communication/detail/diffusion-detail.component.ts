@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal 
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { Apollo } from 'apollo-angular';
+import type { Subscription } from 'rxjs';
 import { DatePipe } from '@angular/common';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { CommunicationService } from '../../../core/communication/communication.service';
@@ -26,7 +27,14 @@ export class DiffusionDetailComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
 
-  private readonly diffusionId = this.route.snapshot.paramMap.get('id') ?? '';
+  private diffusionId = '';
+  /** Abonnement à la progression en direct de la diffusion courante — désabonné
+   *  et reposé à chaque changement de `diffusionId` (voir `ngOnInit`), pas
+   *  seulement à la destruction du composant : `/communication/:id` est une
+   *  seule route, Angular réutilise ce même composant d'une diffusion à
+   *  l'autre, `takeUntilDestroyed` seul laisserait tourner l'abonnement de
+   *  l'ancienne diffusion en plus de la nouvelle. */
+  private progressionSub?: Subscription;
 
   readonly diffusion = signal<Diffusion | null>(null);
   readonly loading = signal(true);
@@ -38,29 +46,32 @@ export class DiffusionDetailComponent implements OnInit {
     return Math.round((d.nbEnvoyes / d.nbTotal) * 100);
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.load();
+  ngOnInit(): void {
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      this.diffusionId = (params['id'] as string) ?? '';
+      void this.load();
 
-    // Progression en direct : identique au patron de campagne-detail
-    // (progressionUpdated) — écrit dans un signal local, échoue en silence
-    // (l'écran garde la dernière valeur chargée) si le temps réel est
-    // indisponible.
-    this.apollo
-      .subscribe<DiffusionProgressionUpdatedSubscription>({
-        query: DIFFUSION_PROGRESSION_UPDATED_SUB,
-        variables: { diffusionId: this.diffusionId },
-        context: { silentError: true },
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: ({ data }) => {
-          const d = data?.diffusionProgressionUpdated;
-          if (d) this.diffusion.set(d);
-        },
-        error: () => {
-          /* Temps réel indisponible — l'écran garde la valeur chargée. */
-        },
-      });
+      // Progression en direct : identique au patron de campagne-detail
+      // (progressionUpdated) — écrit dans un signal local, échoue en silence
+      // (l'écran garde la dernière valeur chargée) si le temps réel est
+      // indisponible.
+      this.progressionSub?.unsubscribe();
+      this.progressionSub = this.apollo
+        .subscribe<DiffusionProgressionUpdatedSubscription>({
+          query: DIFFUSION_PROGRESSION_UPDATED_SUB,
+          variables: { diffusionId: this.diffusionId },
+          context: { silentError: true },
+        })
+        .subscribe({
+          next: ({ data }) => {
+            const d = data?.diffusionProgressionUpdated;
+            if (d) this.diffusion.set(d);
+          },
+          error: () => {
+            /* Temps réel indisponible — l'écran garde la valeur chargée. */
+          },
+        });
+    });
   }
 
   private async load(): Promise<void> {

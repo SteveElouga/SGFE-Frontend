@@ -30,11 +30,7 @@ describe('EspaceAbonnePaiementConfirmationComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            snapshot: {
-              paramMap: {
-                get: (k: string) => (k === 'token' ? token : k === 'sessionId' ? sessionId : null),
-              },
-            },
+            params: of({ token, sessionId }),
           },
         },
       ],

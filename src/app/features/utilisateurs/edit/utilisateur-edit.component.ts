@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnInit,
   computed,
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -45,6 +47,7 @@ export class UtilisateurEditComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly translate = inject(TranslateService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly activationReady = BACKEND_CAPABILITIES.ACTIVATION_ACTIONS;
 
@@ -113,12 +116,18 @@ export class UtilisateurEditComponent implements OnInit {
   );
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (!id) {
-      this.router.navigateByUrl('/utilisateurs');
-      return;
-    }
-    void this.load(id);
+    // `route.params` en abonnement, pas `route.snapshot` : `/utilisateurs/:id`
+    // est une seule route, Angular réutilise ce même composant d'une fiche à
+    // l'autre — un snapshot lu une fois à la création ne verrait jamais le
+    // changement d'ID en passant directement d'un utilisateur à un autre.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const id = params['id'] as string | undefined;
+      if (!id) {
+        this.router.navigateByUrl('/utilisateurs');
+        return;
+      }
+      void this.load(id);
+    });
   }
 
   private async load(id: string): Promise<void> {

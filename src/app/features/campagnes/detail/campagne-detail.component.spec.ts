@@ -181,7 +181,7 @@ describe('CampagneDetailComponent', () => {
       imports: [CampagneDetailComponent],
       providers: [
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
-        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'camp-1' }) } } },
+        { provide: ActivatedRoute, useValue: { params: of({ id: 'camp-1' }), snapshot: { paramMap: convertToParamMap({ id: 'camp-1' }) } } },
         { provide: Apollo, useValue: { subscribe: apolloSubscribe } },
         {
           provide: CampagnesService,
