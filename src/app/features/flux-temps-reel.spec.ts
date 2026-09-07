@@ -15,7 +15,7 @@ import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { provideTranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, of } from 'rxjs';
 
 import { UtilisateursListComponent } from './utilisateurs/list/utilisateurs-list.component';
 import { FacturesListComponent } from './facturation/list/factures-list.component';
@@ -128,7 +128,7 @@ describe('Flux temps réel branchés', () => {
         providers: [
           provideRouter([]),
           ...provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
-          { provide: ActivatedRoute, useValue: { snapshot: { params: { campagneId: 'c1' } } } },
+          { provide: ActivatedRoute, useValue: { params: of({ campagneId: 'c1' }) } },
           { provide: Apollo, useValue: { subscribe: () => flux.asObservable() } },
           {
             provide: FacturesService,

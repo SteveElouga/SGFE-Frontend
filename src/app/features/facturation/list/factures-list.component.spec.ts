@@ -155,7 +155,7 @@ describe('FacturesListComponent — pagination serveur', () => {
         { provide: Router, useValue: { navigate: vi.fn() } },
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { params: { campagneId: 'camp-1' } } },
+          useValue: { params: of({ campagneId: 'camp-1' }) },
         },
       ],
     });
