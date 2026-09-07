@@ -326,13 +326,27 @@ export class FacturesListComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    const id = this.route.snapshot.params['campagneId'] as string | undefined;
-    if (id) {
+    // Flux global (voir sa docstring) : campagne-agnostique par conception,
+    // une seule fois pour toute la vie du composant — jamais rattaché aux
+    // changements de campagne ci-dessous.
+    this.ecouterFactures();
+
+    // `route.params` en abonnement, pas `route.snapshot` : Angular réutilise
+    // ce même composant d'une campagne à l'autre (`campagne/:campagneId` est
+    // une seule route, seul le paramètre change) — un simple snapshot lu une
+    // fois à la création ne voyait donc jamais le changement, et le tableau
+    // restait figé sur la première campagne ouverte tant qu'on ne rechargeait
+    // pas la page à la main.
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const id = params['campagneId'] as string | undefined;
+      if (!id) {
+        void this.redirectToMostRecentCampagne();
+        return;
+      }
+      if (id === this.campagneId()) return;
       this.campagneId.set(id);
-      void this.load().then(() => this.ecouterFactures());
-    } else {
-      void this.redirectToMostRecentCampagne();
-    }
+      void this.load();
+    });
   }
 
   /**
