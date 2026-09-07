@@ -99,6 +99,15 @@ describe('PaiementsPanelComponent', () => {
     expect(racine.querySelector('.btn--primary')).toBeNull();
   });
 
+  it('le bouton « + Paiement » disparaît sur une facture annulée même si `canAddPaiement` vaut vrai', () => {
+    // Exclusion explicite en plus de `canAddPaiement` : le parent réutilisait
+    // ce composant d'une facture à l'autre sans toujours recharger le solde à
+    // temps (voir facture-detail.component.ts) — une facture ANNULEE ne doit
+    // jamais proposer de paiement, quoi que dise ce signal.
+    const { racine } = monter({ factureStatut: 'ANNULEE', canAddPaiement: true });
+    expect(racine.querySelector('.btn--primary')).toBeNull();
+  });
+
   it('un paiement annulé garde sa trace visible, avec son badge propre', () => {
     const { racine } = monter({ paiements: [paiement({ annule: true })] });
     expect(racine.querySelector('.paiement-badge--annule')).toBeTruthy();

@@ -2,7 +2,7 @@
 <div class="carte detail-card">
   <div class="card-row-header">
     <div class="calc-title">{{ 'FACTURATION.DETAIL.TITLE_PAIEMENTS' | translate }}</div>
-    @if (factureStatut() !== 'PAYEE' && canAddPaiement()) {
+    @if (factureStatut() !== 'PAYEE' && factureStatut() !== 'ANNULEE' && canAddPaiement()) {
       <button class="btn btn--primary" (click)="toggleForm.emit()">
         {{ 'FACTURATION.DETAIL.BTN_ENREGISTRER' | translate }}
       </button>
