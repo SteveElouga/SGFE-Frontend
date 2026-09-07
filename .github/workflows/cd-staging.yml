@@ -120,6 +120,17 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: build-push
+    # Désactivé le 07/09/2026 : aucun serveur staging n'est configuré — ni
+    # secrets de dépôt, ni secrets/variables sur l'environnement GitHub
+    # « staging » (SSH_HOST_STAGING, SSH_USER, SSH_PRIVATE_KEY, STAGING_URL
+    # inexistants). Ce job échouait donc systématiquement à l'étape SSH
+    # (« missing server host »), une fois `build-push` corrigé et passant
+    # enfin lui-même. Condition sur une variable plutôt qu'un `if: false` en
+    # dur (rejeté par actionlint, « constant expression ») : poser
+    # STAGING_ENABLED=true (Settings → Environments → staging → Variables)
+    # une fois les secrets SSH réellement en place suffit à le réactiver,
+    # sans repasser par ce fichier.
+    if: vars.STAGING_ENABLED == 'true'
     environment:
       name: ${{ vars.ENV_STAGING || 'staging' }}
       url: ${{ vars.STAGING_URL || 'https://staging.aquabill.cm' }}
