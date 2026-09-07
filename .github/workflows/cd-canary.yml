@@ -26,10 +26,22 @@ jobs:
 
     outputs:
       image-tag: ${{ steps.meta.outputs.version }}
-      full-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+      image-name: ${{ steps.image.outputs.name }}
+      full-image: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}:sha-${{ github.sha }}
 
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # `github.repository_owner` porte la casse réelle du compte GitHub
+      # (« SteveElouga »), mais un nom de dépôt OCI/GHCR doit être entièrement
+      # en minuscules — `docker/metadata-action` le fait déjà en interne pour
+      # les tags qu'il produit, mais tout ce qui recompose une référence à la
+      # main plus bas (signature cosign, tag `latest`, scripts SSH) doit
+      # repartir de cette version normalisée, pas de `env.IMAGE_NAME` telle
+      # quelle (voir cd-staging.yml, même correctif).
+      - name: Nom d'image en minuscules (GHCR rejette toute casse majuscule)
+        id: image
+        run: echo "name=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
@@ -45,7 +57,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ steps.image.outputs.name }}
           tags: |
             type=sha,prefix=sha-,format=long
             type=raw,value=canary
@@ -107,7 +119,7 @@ jobs:
         # `--recursive` : cette image est mono-architecture (pas de liste de
         # manifestes ici, contrairement au backend), mais le disposer quand
         # même coûte rien et couvre le jour où `platforms:` s'ajoute ci-dessus.
-        run: cosign sign --recursive --yes "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
+        run: cosign sign --recursive --yes "${{ env.REGISTRY }}/${{ steps.image.outputs.name }}@${{ steps.build.outputs.digest }}"
 
   # ── 2. Canary phase 1 : 5 % du trafic ───────────────────────────────────────
   canary-5pct:
@@ -242,5 +254,5 @@ jobs:
       - run: |
           docker pull ${{ needs.build-push.outputs.full-image }}
           docker tag ${{ needs.build-push.outputs.full-image }} \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ needs.build-push.outputs.image-name }}:latest
+          docker push ${{ env.REGISTRY }}/${{ needs.build-push.outputs.image-name }}:latest
