@@ -53,4 +53,9 @@ server {
     add_header X-XSS-Protection          "1; mode=block";
     add_header Referrer-Policy           "strict-origin-when-cross-origin";
     add_header Permissions-Policy        "camera=(), microphone=(), geolocation=()";
+    # 2 ans, même durée que le nginx du dépôt backend (nginx/default.conf) —
+    # sans includeSubDomains/preload : aucun sous-domaine de aquabill.cm n'est
+    # inventorié ici, les y engager sans vérifier serait un choix qui ne nous
+    # appartient pas.
+    add_header Strict-Transport-Security "max-age=63072000" always;
 }

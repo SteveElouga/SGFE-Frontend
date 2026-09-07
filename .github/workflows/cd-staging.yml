@@ -19,6 +19,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+      # Signature cosign sans clé : le jeton OIDC du job EST l'identité signée
+      # (voir SGFE-backend/.github/workflows/_publish-image.yml, même patron).
+      id-token: write
 
     outputs:
       image-tag: ${{ steps.meta.outputs.version }}
@@ -79,6 +82,7 @@ jobs:
       # manifeste de registre) — c'est pourquoi ils sont posés ici et pas sur
       # l'étape de scan ci-dessus.
       - name: Build & push
+        id: build
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
@@ -89,6 +93,16 @@ jobs:
           cache-to: type=gha,mode=max
           sbom: true
           provenance: true
+
+      # Écart trouvé le 06/09/2026 (plan de remédiation CI/CD #15) : SLSA
+      # Build L2 exige une signature vérifiable, jamais posée côté frontend.
+      # cd-staging.yml est le seul workflow de déploiement frontend qui tourne
+      # réellement (main n'a pas de dossier .github/workflows/) — c'est donc
+      # ici, plus encore que sur cd-canary.yml, que cette signature compte.
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      - name: Signer l'image (keyless, OIDC GitHub)
+        run: cosign sign --recursive --yes "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@${{ steps.build.outputs.digest }}"
 
   deploy:
     name: Deploy to Staging
