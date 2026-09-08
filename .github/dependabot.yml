@@ -2,9 +2,10 @@
 #
 # Absent avant cette tâche (docs/CONFORMITE_CICD.md, item 10 du plan de
 # remédiation, NIST PW.4, CIS 3.2.2) : aucune mise à jour automatique des
-# dépendances npm ni des actions GitHub. Deux écosystèmes, sur le modèle du
+# dépendances npm ni des actions GitHub. Trois écosystèmes, sur le modèle du
 # `dependabot.yml` backend (même fréquence, même branche cible), adaptés à ce
-# dépôt qui n'a qu'un seul `package.json` (pas de découpage par service).
+# dépôt qui n'a qu'un seul `package.json` et un seul `Dockerfile` à la racine
+# (pas de découpage par service comme côté backend).
 version: 2
 
 updates:
@@ -37,3 +38,16 @@ updates:
       interval: weekly
     commit-message:
       prefix: ci
+
+  # --- Image Docker : le `Dockerfile` unique à la racine (build multi-stage
+  # node:22-alpine → nginx:stable-alpine, tous deux épinglés par digest) —
+  # même patron que les entrées `docker` du backend, une par Dockerfile.
+  # Dependabot ouvre une PR pour avancer le digest quand l'image amont publie
+  # un correctif de sécurité.
+  - package-ecosystem: docker
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
