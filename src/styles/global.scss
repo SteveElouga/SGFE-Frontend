@@ -272,6 +272,79 @@ a:focus-visible,
   overflow-y: auto;
 }
 
+// ── Zone hôte d'un enfant à défilement interne propre ───────────────────────
+//
+// `.page-scroll` fait défiler LA PAGE ENTIÈRE d'une seule pièce. Certaines
+// zones ne veulent pas de ça : `<app-data-table>` (six écrans de liste + le
+// formulaire de diffusion) gère SON PROPRE défilement (`.dt__scroll`, en-tête
+// collant, pagination hors défilement) et `.imp-groupes` (vue « par abonné »
+// des impayés) fait de même à la main. Pour l'un comme pour l'autre, la page
+// autour (filtres, bannières, pied d'action) doit rester fixe pendant que
+// SEULE cette zone défile.
+//
+// ── L'historique qui justifie ces deux classes plutôt qu'un réglage par écran
+//
+// Le même correctif — un ancêtre flex-column borné pour que le `flex: 1` de
+// l'enfant ne soit pas inerte — a été redécouvert et récrit indépendamment
+// dans SEPT feuilles de style différentes (`abonnes-list`, `campagnes-list`,
+// `diffusions-list`, `factures-list`, `impayes-list`, `paiements-list`,
+// `utilisateurs-list`), chacune avec son propre nom de classe et son propre
+// paragraphe d'explication quasi identique. Une HUITIÈME feuille
+// (`diffusion-form`, `.dfc-card--table`) ne l'avait jamais reçu : son tableau
+// s'affichait à sa pleine hauteur de contenu (mesuré : 1274px de zone
+// scrollable pour... 1274px de hauteur visible — zéro marge de défilement),
+// et c'est la PAGE ENTIÈRE (`.dfc-content`, `overflow-y: auto` hérité de
+// `.page-scroll`) qui absorbait le geste à sa place — un mécanisme de secours
+// qui marche par accident, pas la zone de défilement pilotée par
+// `app-data-table` que les sept autres écrans donnent à voir. C'est
+// exactement le genre de divergence silencieuse qu'un futur écran recopierait
+// sans le savoir.
+//
+// Vérifié en conditions réelles (geste de molette Chromium via Playwright,
+// PAS `element.scrollTop = X` — voir la règle du projet à ce sujet) : sans
+// aucune des deux classes ci-dessous, `.dfc-content` défile à la place du
+// tableau ; avec `.screen-flex-fill` posée sur le seul wrapper direct du
+// tableau, c'est `.dt__scroll` qui défile et `.dfc-content` redevient inerte
+// — SANS avoir besoin de lui ajouter quoi que ce soit. La raison : une fois
+// le wrapper correctement borné (`flex: 1; min-height: 0`), il épouse
+// exactement la place restante dans `.page-scroll`, qui n'a alors plus rien à
+// faire défiler — son `overflow-y: auto` devient un no-op de lui-même. C'est
+// pourquoi une seule classe suffit dans le cas courant ; il ne reste besoin
+// d'agir sur `.page-scroll` que si le wrapper ne peut pas rétrécir sous sa
+// taille de contenu (voir `.screen-scroll-interne` plus bas pour ce cas).
+//
+// ── RÈGLE POUR TOUT ÉCRAN QUI HÉBERGE `<app-data-table>` (ou équivalent) ────
+//
+// Poser CETTE classe sur le wrapper direct qui contient `<app-data-table>` —
+// la carte visuelle qui l'entoure (`.abonnes-card`, `.table-wrap`…), jamais
+// `.page-scroll` lui-même. Ne jamais réécrire à la main les quatre
+// déclarations ci-dessous dans le SCSS d'un composant : c'est précisément ce
+// copier-coller, répété sept fois, que cette classe remplace.
+.screen-flex-fill {
+  @media (min-width: 1024px) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+// Variante pour une zone qui défile ELLE-MÊME (pas via un enfant comme
+// `app-data-table`) une fois que `.page-scroll` a cessé d'être la région
+// défilante — ex. `.imp-groupes`, la vue « par abonné » des impayés, à côté
+// d'un `<app-data-table>` qui gère la vue « par facture » de ce même écran.
+//
+// Contrairement à `.screen-flex-fill` (simple relais de hauteur), cette
+// classe VA sur l'élément qui défile réellement : elle lui donne sa propre
+// barre plutôt que de compter sur celle de `.page-scroll`.
+.screen-scroll-interne {
+  @media (min-width: 1024px) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
 // Sous 1024px, `app-bottom-tabs` (barre d'onglets) se fixe en bas de l'écran
 // par-dessus tout le reste (`position: fixed`, voir bottom-tabs.component.scss).
 // Sans dégagement, elle recouvre en permanence la fin de toute liste longue :

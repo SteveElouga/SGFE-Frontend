@@ -149,23 +149,15 @@
   border-radius: var(--rayon-lg);
   overflow: hidden;
 
-  // `.impayes-content` passe volontairement en `overflow: hidden` au-delà
-  // de 1024px pour laisser `<app-data-table>` défiler en interne (voir son
-  // `:host`, qui exige un parent flex-column pour que son propre `flex: 1`
-  // ne soit pas inerte). Sans ce `display: flex` ici, la délégation ne
-  // prenait jamais : un `flex-shrink: 0` isolé aurait seulement déplacé le
-  // bug (page qui ne défile plus nulle part) plutôt que de le résoudre.
-  // Même correctif que `.abonnes-card` (abonnés).
+  // Le relais de hauteur vers `<app-data-table>` est la classe partagée
+  // `.screen-flex-fill` posée dans le gabarit — voir `styles/global.scss`.
+  //
+  // La vue « Par abonné » masque ce tableau via l'attribut `[hidden]`, dont
+  // la règle par défaut du navigateur (`display: none`) a la même
+  // spécificité que `.table-wrap` — et perd contre elle à cause de l'ordre
+  // de cascade : le tableau restait visible sous la liste par abonné. Cette
+  // règle reste locale (propre à CET écran, pas au mécanisme partagé).
   @media (min-width: 1024px) {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-
-    // La vue « Par abonné » masque ce tableau via l'attribut `[hidden]`, dont
-    // la règle par défaut du navigateur (`display: none`) a la même
-    // spécificité que `.table-wrap` — et perd contre elle à cause de l'ordre
-    // de cascade : le tableau restait visible sous la liste par abonné.
     &[hidden] {
       display: none;
     }
@@ -630,34 +622,20 @@
   }
 }
 
-// ── Au-delà de 1024 px, c'est le TABLEAU qui défile, pas la page ────────────
+// Cet écran a DEUX vues qui se partagent tour à tour la même place : la vue
+// « Par facture » délègue son défilement à `<app-data-table>`
+// (`.table-wrap.screen-flex-fill` ci-dessus), la vue « Par abonné » défile
+// elle-même (`.imp-groupes.screen-scroll-interne`, gabarit). Les deux classes
+// sont documentées dans `styles/global.scss`.
 //
-// Sinon le tableau pousse la page et la pagination se retrouve au bas de
-// plusieurs milliers de pixels : il faut descendre toute la liste pour
-// atteindre « page suivante ». Mesuré : pagination à 2 494 px pour une fenêtre
-// de 800 sur soixante lignes.
-//
-// Ici on cesse donc de défiler et on cesse d'imposer une hauteur minimale : le
-// conteneur épouse exactement la place disponible, les filtres restent en tête,
-// et `app-data-table` prend le reste (voir son `:host`).
-//
-// En dessous de 1024 px, rien ne change : le tableau devient des cartes et la
-// page reprend son défilement naturel. Deux barres imbriquées sur un écran de
-// 320 px seraient un piège tactile.
+// `.impayes-content` reste volontairement coupée du défilement de page
+// au-delà de 1024px : historique mesuré (231px de groupes « Par abonné »
+// tronqués net, sans scrollbar, sur cinq abonnés de démo) sur cet écran
+// précis à deux vues alternées — gardé explicite ici plutôt que supposé
+// couvert par la seule classe partagée.
 @media (min-width: 1024px) {
   .impayes-content {
     overflow: hidden;
     min-height: 0;
-  }
-
-  // La vue « Par abonné » (.imp-groupes) n'a pas d'équivalent à `app-data-table`
-  // pour défiler en interne — `.impayes-content` ci-dessus lui retire pourtant
-  // le défilement de page. Mesuré : 231px de groupes tronqués net, sans
-  // scrollbar, sur cinq abonnés de démo (bien pire à l'échelle réelle). Elle
-  // reçoit donc son propre défilement interne, sur le même principe.
-  .imp-groupes {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
   }
 }

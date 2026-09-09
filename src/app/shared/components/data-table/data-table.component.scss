@@ -8,8 +8,21 @@
 // cela, `.dt` n'a aucune hauteur de référence et son `overflow-y: auto` n'a
 // rien à faire défiler.
 //
-// `flex: 1` est inerte quand le parent n'est pas une colonne flex — les écrans
-// qui n'ont pas cette structure gardent exactement leur comportement.
+// `flex: 1` est inerte quand le parent n'est pas une colonne flex-column
+// borné — c'est-à-dire quand l'écran appelant n'a pas posé la classe partagée
+// `.screen-flex-fill` (`styles/global.scss`) sur le wrapper qui contient ce
+// composant. SANS elle, `<app-data-table>` s'affiche à sa pleine hauteur de
+// contenu, silencieusement : pas d'erreur, pas d'avertissement, juste un
+// tableau qui ne défile plus tout seul (la page entière peut prendre le relai
+// si son propre conteneur a encore `overflow-y: auto`, ou pas du tout sinon).
+//
+// AVEC elle, les écrans qui n'ont pas cette structure gardent exactement leur
+// comportement : cette règle ne s'applique qu'au-delà de 1024px et seulement
+// si un ancêtre flex-column borné existe déjà (voir `.screen-flex-fill`).
+//
+// Tout nouvel écran qui utilise `<app-data-table>` DOIT poser
+// `.screen-flex-fill` sur le wrapper direct de ce composant — voir
+// `styles/global.scss` pour le mécanisme complet et son historique.
 @media (min-width: 1024px) {
   :host {
     display: flex;
