@@ -15,4 +15,10 @@ export const environment = {
   // configuration si un second point de départ (agence, garage…) devient
   // nécessaire.
   origineItineraire: { lat: 4.0511, lon: 9.7679 }, // Douala, Cameroun (repère par défaut)
+  // DSN du projet GlitchTip (organisation "SGFE", plateforme d'observabilité
+  // externe — voir CLAUDE.md § Observabilité). Vide par défaut : dégradation
+  // gracieuse, même esprit que PYROSCOPE_SERVER_ADDRESS côté backend — les
+  // erreurs restent captées par Faro (-> Loki) quoi qu'il arrive, GlitchTip
+  // est un second exportateur optionnel, jamais une condition de démarrage.
+  glitchtipDsn: '',
 };
