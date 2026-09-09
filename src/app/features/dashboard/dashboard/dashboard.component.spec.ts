@@ -147,9 +147,19 @@ function paiement(partial: Partial<GetAllPaiementsQuery['paiements'][number]> = 
 }
 
 describe('DashboardComponent', () => {
-  // Pas de `localStorage` dans l'environnement Vitest : la persistance de
-  // `periode` est déjà gardée par `typeof localStorage` côté composant, et
-  // chaque test pose sa période explicitement via `setPeriode()`.
+  // `localStorage` existe bel et bien dans cet environnement (jsdom/happy-dom)
+  // et persiste entre les tests d'un même fichier — contrairement à ce qu'un
+  // commentaire précédent supposait. `setPeriode()` y écrit la clé
+  // `dashboard.periode` ; sans ce nettoyage, un test antérieur qui appelle
+  // `setPeriode('mois-3')` fait lire 'mois-3' au constructeur du composant
+  // suivant au lieu du repli par défaut `'mois-1'` — trouvé via un vrai échec
+  // CI (periodeNbMois() valait 3 au lieu de 1), pas deviné.
+  afterEach(() => {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('dashboard.periode');
+    }
+  });
+
   function setup(
     role: Role = 'COMPTABLE',
     overrides: {

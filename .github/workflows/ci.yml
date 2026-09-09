@@ -114,10 +114,11 @@ jobs:
   # part (`angular.json` n'avait aucune option de couverture, cette étape
   # n'activait pas `--coverage`) — une régression de couverture n'aurait été
   # remarquée par personne. Les seuils (`angular.json`, cible `test`) sont
-  # mesurés, pas hérités d'un défaut : 1878 tests, 73,17 % lignes de code
-  # (statements), 74,2 % branches, 69,9 % fonctions, 78,64 % lignes — seuils
-  # posés quelques points en dessous (70/70/65/75) pour laisser une marge aux
-  # variations légitimes tout en attrapant une vraie régression. Provider
+  # mesurés, pas hérités d'un défaut : 1929 tests (138 fichiers), 73,48 %
+  # lignes de code (statements), 74,33 % branches, 70,06 % fonctions, 78,88 %
+  # lignes — seuils posés quelques points en dessous (70/70/65/75) pour
+  # laisser une marge aux variations légitimes tout en attrapant une vraie
+  # régression. Provider
   # `@vitest/coverage-v8` (défaut Angular CLI pour Vitest — voir la migration
   # `migrate-karma-to-vitest`, qui installe toujours `@vitest/coverage-v8` en
   # premier). Limite connue : seuls les fichiers exercés par au moins un spec
