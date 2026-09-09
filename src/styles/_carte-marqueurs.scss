@@ -1,0 +1,37 @@
+// Style des repères de compteur sur l'écran Carte (`features/carte`).
+//
+// Pourquoi ici et pas dans `carte.component.scss` : ces éléments sont créés
+// par `document.createElement` (voir `marqueur.util.ts`) puis posés sur la
+// carte par MapLibre GL — ils ne passent jamais par le compilateur de
+// gabarits Angular, donc ne portent jamais l'attribut `[_ngcontent-*]` que
+// l'encapsulation de vue utilise pour scoper les styles d'un composant. Une
+// règle dans `carte.component.scss` ne les atteindrait tout simplement
+// jamais ; il leur faut une feuille globale, comme `.page-scroll`.
+.carte-marqueur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--pas-1);
+  border-radius: var(--rayon-rond);
+  border: 2px solid var(--surface);
+  box-shadow: var(--ombre-panneau);
+  font-size: var(--texte-xs);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--encre-inverse);
+  cursor: pointer;
+  user-select: none;
+
+  &--success { background: var(--succes-encre); }
+  &--warning { background: var(--ambre-attente); }
+  &--danger  { background: var(--danger-encre); }
+  &--info    { background: var(--action-survol); }
+  &--neutral { background: var(--encre-3); }
+
+  &:focus-visible {
+    outline: 2px solid var(--action-survol);
+    outline-offset: 2px;
+  }
+}

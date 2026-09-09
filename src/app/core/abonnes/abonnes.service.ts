@@ -11,6 +11,7 @@ import {
 } from '../../graphql/queries/abonnes.queries';
 import {
   CREATE_ABONNE,
+  IMPORTER_COORDONNEES_COMPTEURS,
   REACTIVER_ABONNE,
   REMPLACER_COMPTEUR,
   RESILIER_ABONNE,
@@ -19,7 +20,7 @@ import {
   UPDATE_COMPTEUR,
 } from '../../graphql/mutations/abonnes.mutations';
 import { Abonne, Compteur, StatutAbonne } from '../../shared/models/abonne.model';
-import type { AbonneUpdatedSubscription, CreateAbonneMutation, GetAbonneQuery, GetAbonnesActifsQuery, GetAbonnesCountQuery, GetAbonnesQuery, GetHistoriqueCompteurQuery, ReactiverAbonneMutation, RemplacerCompteurMutation, ResilierAbonneMutation, SuspendreAbonneMutation, UpdateAbonneMutation, UpdateCompteurMutation } from '../../graphql/generated';
+import type { AbonneUpdatedSubscription, CoordonneeCompteurInput, CreateAbonneMutation, GetAbonneQuery, GetAbonnesActifsQuery, GetAbonnesCountQuery, GetAbonnesQuery, GetHistoriqueCompteurQuery, ImporterCoordonneesCompteursMutation, ReactiverAbonneMutation, RemplacerCompteurMutation, ResilierAbonneMutation, SuspendreAbonneMutation, UpdateAbonneMutation, UpdateCompteurMutation } from '../../graphql/generated';
 
 /**
  * Entrée de `remplacerCompteur`, alignée sur `RemplacerCompteurInput` de la
@@ -270,5 +271,31 @@ export class AbonnesService {
       }),
     );
     return result.data?.historiqueCompteur ?? [];
+  }
+
+  /**
+   * Import en masse des coordonnées de compteurs (écran Carte, ADMIN — voir
+   * `features/carte`). `coordonnees` porte les valeurs brutes du CSV, en
+   * `String` (même si `numeroCompteur` désigne un `Int!` côté `Compteur` :
+   * c'est la gateway qui reparse, pour dégrader gracieusement ligne par
+   * ligne — voir la docstring de `IMPORTER_COORDONNEES_COMPTEURS`).
+   *
+   * Rafraîchit `GET_ABONNES` après coup : c'est cette requête que l'écran
+   * Carte observe pour poser ses repères, et un import réussi doit s'y
+   * refléter sans recharger la page.
+   */
+  async importerCoordonneesCompteurs(
+    coordonnees: CoordonneeCompteurInput[],
+  ): Promise<ImporterCoordonneesCompteursMutation['importerCoordonneesCompteurs']> {
+    const result = await firstValueFrom(
+      this.apollo.mutate<ImporterCoordonneesCompteursMutation>({ mutation: IMPORTER_COORDONNEES_COMPTEURS,
+        variables: { coordonnees },
+        refetchQueries: [{ query: GET_ABONNES }],
+        awaitRefetchQueries: true,
+      }),
+    );
+    const importResult = result.data?.importerCoordonneesCompteurs;
+    if (!importResult) throw new Error('Réponse invalide du serveur');
+    return importResult;
   }
 }

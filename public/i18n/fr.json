@@ -2,6 +2,7 @@
   "NAV": {
     "DASHBOARD": "Tableau de bord",
     "ABONNES": "Abonnés",
+    "CARTE": "Carte",
     "CAMPAGNES": "Campagnes",
     "FACTURES": "Factures",
     "PAIEMENTS": "Paiements",
@@ -1637,5 +1638,48 @@
     "ACTIVE_AIDE": "Compte actif, l'utilisateur peut se connecter",
     "INACTIVE": "Inactif",
     "INACTIVE_AIDE": "Compte désactivé, connexion impossible"
+  },
+  "CARTE": {
+    "TITRE": "Carte",
+    "IMPORTER_BOUTON": "Importer des coordonnées",
+    "ERREUR_CHARGEMENT": "Impossible de charger la carte. Vérifiez votre connexion et rechargez la page.",
+    "AUCUN_REPERE": "Aucun compteur géolocalisé pour l'instant.",
+    "VOIR_SUR_LA_CARTE": "Voir sur la carte",
+    "LISTE": {
+      "HERO_LABEL": "compteurs",
+      "VIDE": "Aucun compteur ne correspond à ces filtres.",
+      "MASQUER": "Masquer le panneau",
+      "AFFICHER": "Afficher le panneau"
+    },
+    "PLACE_CARD": {
+      "TITRE": "Fiche du compteur sélectionné",
+      "ABONNE": "Abonné",
+      "QUARTIER": "Quartier",
+      "NON_GEOLOCALISE": "Compteur non géolocalisé",
+      "VOIR_FICHE": "Voir la fiche abonné"
+    },
+    "ITINERAIRE": {
+      "BOUTON": "Itinéraire",
+      "CALCUL_EN_COURS": "Calcul…",
+      "ESTIMATION": "Estimation à vol d'oiseau",
+      "ERREUR": "Impossible de calculer un itinéraire pour l'instant."
+    },
+    "IMPORT": {
+      "TITRE": "Importer des coordonnées",
+      "SOUS_TITRE": "Fichier CSV avec au minimum les colonnes numero_compteur, latitude, longitude.",
+      "DEPOSER": "Déposez un fichier CSV ici",
+      "PARCOURIR": "Parcourir…",
+      "A_IMPORTER": "{{count}} à importer",
+      "FORMAT_INVALIDE": "{{count}} au format invalide",
+      "A_IMPORTER_UNE": "À importer",
+      "FORMAT_INVALIDE_UNE": "Format invalide",
+      "COL_NUMERO": "Numéro de compteur",
+      "COL_LATITUDE": "Latitude",
+      "COL_LONGITUDE": "Longitude",
+      "COL_STATUT": "Statut",
+      "RESULTAT_NB": "{{count}} coordonnée(s) importée(s)",
+      "IMPORTER": "Importer",
+      "ENVOI_EN_COURS": "Envoi…"
+    }
   }
 }

@@ -8,7 +8,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import type { Subscription } from 'rxjs';
 import { QueryRef } from 'apollo-angular';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -47,6 +47,7 @@ import type { AbonneDetailUpdatedSubscription, GetAbonneQuery } from '../../../g
     NomAbonnePipe,
     DatePipe,
     TranslatePipe,
+    RouterLink,
     CompteurPipe,
     ErrorBannerComponent,
     TooltipDirective,

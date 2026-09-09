@@ -2,6 +2,12 @@
 type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 /** Internal type. DO NOT USE DIRECTLY. */
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+export type CoordonneeCompteurInput = {
+  latitude: string;
+  longitude: string;
+  numeroCompteur: string;
+};
+
 export type CorrigerReleveInput = {
   abonneId: string;
   campagneId: string;
@@ -101,9 +107,9 @@ export type ZoneInput = {
   quartier: string;
 };
 
-export type AbonneListFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null };
+export type AbonneListFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } | null };
 
-export type AbonneDetailFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null };
+export type AbonneDetailFieldsFragment = { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, latitude: number | null, longitude: number | null, dateMajPosition: string | null, statut: StatutCompteur } | null };
 
 export type FactureLigneFieldsFragment = { factureId: string, numeroFacture: string, abonneId: string, abonneNom: string, abonneNumero: string, campagneId: string, campagneNom: string, campagnePeriodeMois: number, campagnePeriodeAnnee: number, statut: string, consommation: number, montant: number, dateReleve: string, dateLimitePaiement: string };
 
@@ -133,14 +139,14 @@ export type SuspendreAbonneMutationVariables = Exact<{
 }>;
 
 
-export type SuspendreAbonneMutation = { suspendreAbonne: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null } };
+export type SuspendreAbonneMutation = { suspendreAbonne: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } | null } };
 
 export type ReactiverAbonneMutationVariables = Exact<{
   id: string | number;
 }>;
 
 
-export type ReactiverAbonneMutation = { reactiverAbonne: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null } };
+export type ReactiverAbonneMutation = { reactiverAbonne: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } | null } };
 
 export type ResilierAbonneMutationVariables = Exact<{
   id: string | number;
@@ -163,7 +169,14 @@ export type RemplacerCompteurMutationVariables = Exact<{
 }>;
 
 
-export type RemplacerCompteurMutation = { remplacerCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } };
+export type RemplacerCompteurMutation = { remplacerCompteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } };
+
+export type ImporterCoordonneesCompteursMutationVariables = Exact<{
+  coordonnees: Array<CoordonneeCompteurInput> | CoordonneeCompteurInput;
+}>;
+
+
+export type ImporterCoordonneesCompteursMutation = { importerCoordonneesCompteurs: { nbImportees: number, erreurs: Array<{ numeroCompteur: string, message: string }> } };
 
 export type UserFieldsFragment = { id: string, username: string, email: string, phoneNumber: string, role: Role, isActive: boolean, createdAt: string };
 
@@ -507,14 +520,14 @@ export type ResetUserPasswordMutation = { resetUserPassword: { id: string, usern
 export type AbonneUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AbonneUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null } };
+export type AbonneUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } | null } };
 
 export type AbonneDetailUpdatedSubscriptionVariables = Exact<{
   id: string | number;
 }>;
 
 
-export type AbonneDetailUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null } };
+export type AbonneDetailUpdatedSubscription = { abonneUpdated: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, latitude: number | null, longitude: number | null, dateMajPosition: string | null, statut: StatutCompteur } | null } };
 
 export type GetAbonnesQueryVariables = Exact<{
   statut?: StatutAbonne | null | undefined;
@@ -523,7 +536,7 @@ export type GetAbonnesQueryVariables = Exact<{
 }>;
 
 
-export type GetAbonnesQuery = { abonnes: Array<{ id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur } | null }> };
+export type GetAbonnesQuery = { abonnes: Array<{ id: string, numeroAbonne: string, nom: string, prenom: string, statut: StatutAbonne, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, statut: StatutCompteur, latitude: number | null, longitude: number | null, dateMajPosition: string | null } | null }> };
 
 export type GetAbonnesCountQueryVariables = Exact<{
   statut?: StatutAbonne | null | undefined;
@@ -549,7 +562,7 @@ export type GetAbonneQueryVariables = Exact<{
 }>;
 
 
-export type GetAbonneQuery = { abonne: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, statut: StatutCompteur } | null } | null };
+export type GetAbonneQuery = { abonne: { id: string, numeroAbonne: string, nom: string, prenom: string, telephoneWhatsapp: string, adresse: string | null, statut: StatutAbonne, createdAt: string, compteur: { id: string, numeroCompteur: number, quartier: string, camp: number, indexInitial: number, datePose: string, position: string, latitude: number | null, longitude: number | null, dateMajPosition: string | null, statut: StatutCompteur } | null } | null };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 

@@ -1,0 +1,183 @@
+// `app-carte` (l'hôte, ciblé par `.shell__content > *` dans global.scss)
+// reçoit déjà `flex:1; min-height:0; display:flex; flex-direction:column`.
+// Cette feuille répartit cette hauteur entre la topbar (auto) et le corps.
+
+.carte-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+// ── Panneau latéral rétractable ──────────────────────────────────────────────
+
+.carte-panel {
+  position: relative;
+  flex: 0 0 320px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--filet);
+  background: var(--surface);
+  transition: flex-basis 200ms ease;
+
+  &--ferme {
+    flex-basis: 44px;
+  }
+
+  @media (max-width: 767px) {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 4;
+    width: 86vw;
+    max-width: 360px;
+
+    &--ferme {
+      width: 44px;
+    }
+  }
+}
+
+.carte-panel__toggle {
+  position: absolute;
+  top: var(--pas-2);
+  right: calc(-1 * var(--pas-3) - 1px);
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rayon-rond);
+  border: 1px solid var(--filet);
+  background: var(--surface);
+  color: var(--encre-2);
+  cursor: pointer;
+  z-index: 1;
+
+  .carte-panel--ferme & {
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.carte-panel__content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pas-3);
+  gap: var(--pas-2);
+  overflow: hidden;
+}
+
+.carte-panel__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.carte-liste {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-1);
+}
+
+.carte-liste__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2);
+  border-radius: var(--rayon-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover { background: var(--fond); }
+
+  &--actif {
+    background: var(--action-lueur);
+    border-color: var(--action-trait);
+  }
+}
+
+.carte-liste__numero {
+  flex: 0 0 auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--encre);
+}
+
+.carte-liste__infos {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.carte-liste__nom {
+  font-size: var(--texte-md);
+  color: var(--encre);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carte-liste__quartier {
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}
+
+.carte-liste__vide {
+  padding: var(--pas-4);
+  text-align: center;
+  color: var(--encre-3);
+}
+
+// ── Carte plein cadre ────────────────────────────────────────────────────────
+
+.carte-map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.carte-map__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.carte-map__erreur {
+  position: absolute;
+  top: var(--pas-3);
+  left: var(--pas-3);
+  right: var(--pas-3);
+  z-index: 6;
+}
+
+.carte-map__note {
+  position: absolute;
+  top: var(--pas-3);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--pas-1);
+  margin: 0;
+  padding: var(--pas-2) var(--pas-3);
+  border-radius: var(--rayon-rond);
+  background: var(--surface);
+  box-shadow: var(--ombre-panneau);
+  color: var(--encre-2);
+  font-size: var(--texte-sm);
+}

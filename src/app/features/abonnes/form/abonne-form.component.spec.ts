@@ -365,6 +365,7 @@ describe('AbonneFormComponent', () => {
         compteur: {
           id: 'c-9', numeroCompteur: 9, quartier: 'Almadies', camp: 5,
           indexInitial: 0, datePose: '2025-05-05', position: 'Fond de cour', statut: 'ACTIF',
+          latitude: null, longitude: null, dateMajPosition: null,
         },
       });
       const { component } = setup({ mode: 'edit', abonne: a });
@@ -473,6 +474,7 @@ describe('AbonneFormComponent', () => {
         compteur: {
           id: 'c-1', numeroCompteur: 1, quartier: 'Plateau', camp: 3,
           indexInitial: 0, datePose: '2025-01-01', position: '', statut: 'ACTIF',
+          latitude: null, longitude: null, dateMajPosition: null,
         },
       });
       const { component, updateCompteur } = setup({ mode: 'edit', abonne: a });
@@ -554,7 +556,7 @@ describe('AbonneFormComponent', () => {
       const { component } = setup({
         mode: 'edit',
         abonne: abonneFixture({
-          compteur: { id: 'c-7', numeroCompteur: 7, quartier: 'X', camp: 1, indexInitial: 0, datePose: '2025-01-01', position: '', statut: 'ACTIF' },
+          compteur: { id: 'c-7', numeroCompteur: 7, quartier: 'X', camp: 1, indexInitial: 0, datePose: '2025-01-01', position: '', statut: 'ACTIF', latitude: null, longitude: null, dateMajPosition: null },
         }),
       });
       await flush();
@@ -565,7 +567,7 @@ describe('AbonneFormComponent', () => {
       const { component } = setup({
         mode: 'edit',
         abonne: abonneFixture({
-          compteur: { id: 'c-1', numeroCompteur: 1, quartier: 'X', camp: 1, indexInitial: 0, datePose: '2025-03-04', position: '', statut: 'ACTIF' },
+          compteur: { id: 'c-1', numeroCompteur: 1, quartier: 'X', camp: 1, indexInitial: 0, datePose: '2025-03-04', position: '', statut: 'ACTIF', latitude: null, longitude: null, dateMajPosition: null },
         }),
       });
       await flush();

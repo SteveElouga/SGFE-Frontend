@@ -79,6 +79,28 @@ export const REMPLACER_COMPTEUR = gql`
       datePose
       position
       statut
+      latitude
+      longitude
+      dateMajPosition
+    }
+  }
+`;
+
+/**
+ * Import en masse des coordonnées de compteurs (écran Carte, ADMIN) — PR
+ * backend #243. `numeroCompteur` porte `String!` côté entrée uniquement
+ * (contrairement à `Compteur.numeroCompteur`, un `Int!`) : la gateway le
+ * reparse elle-même, pour dégrader gracieusement ligne par ligne plutôt que de
+ * rejeter tout l'envoi sur une seule valeur non convertible.
+ */
+export const IMPORTER_COORDONNEES_COMPTEURS = gql`
+  mutation ImporterCoordonneesCompteurs($coordonnees: [CoordonneeCompteurInput!]!) {
+    importerCoordonneesCompteurs(coordonnees: $coordonnees) {
+      nbImportees
+      erreurs {
+        numeroCompteur
+        message
+      }
     }
   }
 `;

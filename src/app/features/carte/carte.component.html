@@ -1,0 +1,101 @@
+<app-page-topbar [title]="'CARTE.TITRE' | translate">
+  <button type="button" class="page-topbar-action" (click)="ouvrirImport()">
+    <i class="pi pi-upload" aria-hidden="true"></i>
+    {{ 'CARTE.IMPORTER_BOUTON' | translate }}
+  </button>
+</app-page-topbar>
+
+<div class="carte-body">
+  <aside class="carte-panel" [class.carte-panel--ferme]="!panelOpen()">
+    <button
+      type="button"
+      class="carte-panel__toggle"
+      (click)="togglePanel()"
+      [attr.aria-expanded]="panelOpen()"
+      [attr.aria-label]="(panelOpen() ? 'CARTE.LISTE.MASQUER' : 'CARTE.LISTE.AFFICHER') | translate"
+    >
+      <i class="pi" [class.pi-chevron-left]="panelOpen()" [class.pi-chevron-right]="!panelOpen()" aria-hidden="true"></i>
+    </button>
+
+    @if (panelOpen()) {
+      <div class="carte-panel__content">
+        <app-filters-panel
+          [filters]="filtersConfig()"
+          [values]="filterValues()"
+          (valuesChange)="onFiltersChange($event)"
+          [search]="searchTerm()"
+          (searchChange)="searchTerm.set($event)"
+          [debounceMs]="200"
+          [resultCount]="filteredAbonnes().length"
+          [totalCount]="abonnes().length"
+          heroNounKey="CARTE.LISTE.HERO_LABEL"
+        />
+
+        @if (loading()) {
+          <div class="carte-panel__skeleton">
+            <app-skeleton height="56px" radius="8px" />
+            <app-skeleton height="56px" radius="8px" />
+            <app-skeleton height="56px" radius="8px" />
+          </div>
+        } @else if (error()) {
+          <app-error-banner [message]="error()!" [showRetry]="false" />
+        } @else {
+          <ul class="carte-liste page-scroll">
+            @for (a of filteredAbonnes(); track a.id) {
+              <li>
+                <button
+                  type="button"
+                  class="carte-liste__item"
+                  [class.carte-liste__item--actif]="a.id === selectedAbonneId()"
+                  (click)="selectAbonne(a.id)"
+                >
+                  <span class="carte-liste__numero">{{ a.compteur?.numeroCompteur | compteur }}</span>
+                  <span class="carte-liste__infos">
+                    <span class="carte-liste__nom">{{ a.prenom | nomAbonne: a.nom }}</span>
+                    <span class="carte-liste__quartier">{{ a.compteur?.quartier ?? '—' }}</span>
+                  </span>
+                  <app-status-badge [status]="a.statut" />
+                </button>
+              </li>
+            } @empty {
+              <li class="carte-liste__vide">{{ 'CARTE.LISTE.VIDE' | translate }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </aside>
+
+  <div class="carte-map">
+    <div #mapEl class="carte-map__canvas"></div>
+
+    @if (mapErreur(); as msg) {
+      <div class="carte-map__erreur">
+        <app-error-banner [message]="msg" [showRetry]="false" />
+      </div>
+    }
+
+    @if (mapPret() && markers().length === 0 && !mapErreur()) {
+      <p class="carte-map__note">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
+        {{ 'CARTE.AUCUN_REPERE' | translate }}
+      </p>
+    }
+
+    <app-compteur-place-card
+      [open]="placeCardOpen()"
+      [abonne]="selectedAbonne()"
+      [geo]="selectedGeo()"
+      [itineraireResultat]="itineraireResultat()"
+      [itineraireLoading]="itineraireLoading()"
+      (close)="closePlaceCard()"
+      (demanderItineraire)="onDemanderItineraire()"
+    />
+  </div>
+</div>
+
+<app-import-coordonnees-sheet
+  [open]="importSheetOpen()"
+  (close)="fermerImport()"
+  (importReussi)="onImportReussi($event)"
+/>
