@@ -231,11 +231,67 @@ describe('PaiementsListComponent — libellés de statut', () => {
     expect(c.statutLabel({ statutFacture: null } as never)).toBe('—');
   });
 
+  it('statutLabel traduit PAYEE et PARTIELLE via leurs clés dédiées', async () => {
+    const { c } = monter();
+    expect(c.statutLabel({ statutFacture: 'PAYEE' } as never)).toBe('PAIEMENTS.STATUT_SOLDE');
+    expect(c.statutLabel({ statutFacture: 'PARTIELLE' } as never)).toBe('PAIEMENTS.STATUT_PARTIEL');
+  });
+
+  it('statutLabel retombe sur la clé générique du statut brut pour les autres valeurs', async () => {
+    const { c } = monter();
+    expect(c.statutLabel({ statutFacture: 'IMPAYEE' } as never)).toBe('FACTURATION.STATUT.IMPAYEE');
+  });
+
   it('statutTone associe warning à une facture partielle', async () => {
     const { c } = monter();
     expect(c.statutTone({ statutFacture: 'PARTIELLE' } as never)).toBe('warning');
     expect(c.statutTone({ statutFacture: 'PAYEE' } as never)).toBe('success');
     expect(c.statutTone({ statutFacture: 'IMPAYEE' } as never)).toBe('neutral');
+  });
+});
+
+describe('PaiementsListComponent — mise en forme', () => {
+  it('formatDate rend une date au format jour/mois/année, et « — » sans date', async () => {
+    const { c } = monter();
+    expect(c.formatDate('2026-08-05')).toBe('05/08/2026');
+    expect(c.formatDate('')).toBe('—');
+  });
+
+  it('formatPeriode capitalise le mois de la campagne', async () => {
+    const { c } = monter();
+    const periode = c.formatPeriode({ campagneId: 'c1', nom: '', periodeMois: 8, periodeAnnee: 2026, statut: '' });
+    expect(periode).toBe('Août 2026');
+  });
+
+  it('subtitle reprend la période de la campagne sélectionnée, vide sans sélection', async () => {
+    const { fixture, c } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([paiement()]),
+      getFactures: vi.fn().mockResolvedValue([facture({ campagneId: 'camp-1', campagnePeriodeMois: 8, campagnePeriodeAnnee: 2026 })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    expect(c.subtitle()).toBe('Août 2026');
+
+    c.onCampagneChange(null);
+    expect(c.subtitle()).toBe('');
+  });
+});
+
+describe('PaiementsListComponent — sécurité des requêtes par rôle', () => {
+  it('ne passe jamais par Apollo directement : tout vient des deux requêtes autorisées au COMPTABLE', async () => {
+    // `abonnes` et `campagnes` sont réservées à d'autres rôles (voir le
+    // commentaire de `load()`) : ce composant ne doit dériver ses données que
+    // de `getAllPaiements`/`getFactures`, jamais d'un appel Apollo direct qui
+    // court-circuiterait ce choix et referait planter l'écran pour COMPTABLE
+    // (même classe de bogue que celui déjà corrigé sur `/impayes`).
+    const { fixture } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([paiement()]),
+      getFactures: vi.fn().mockResolvedValue([facture()]),
+    });
+    fixture.detectChanges();
+    await flush();
+    const apollo = TestBed.inject(Apollo) as unknown as { query: ReturnType<typeof vi.fn> };
+    expect(apollo.query).not.toHaveBeenCalled();
   });
 });
 

@@ -31,6 +31,7 @@ function utilisateur(p: Partial<User> = {}): User {
 function monter(user: User | null, over: { requestPasswordReset?: ReturnType<typeof vi.fn>; logout?: ReturnType<typeof vi.fn> } = {}) {
   const requestPasswordReset = over.requestPasswordReset ?? vi.fn().mockResolvedValue(undefined);
   const logout = over.logout ?? vi.fn().mockResolvedValue(undefined);
+  const toast = { success: vi.fn(), error: vi.fn() };
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProfilComponent],
@@ -39,12 +40,12 @@ function monter(user: User | null, over: { requestPasswordReset?: ReturnType<typ
       { provide: Router, useValue: { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() } },
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: new Map(), queryParams: {} }, paramMap: signal(new Map()) } },
       { provide: AuthService, useValue: { user: signal(user), requestPasswordReset, logout } },
-      { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      { provide: ToastService, useValue: toast },
     ],
   });
   const fixture = TestBed.createComponent(ProfilComponent);
   fixture.detectChanges();
-  return { fixture, c: fixture.componentInstance, requestPasswordReset, logout };
+  return { fixture, c: fixture.componentInstance, requestPasswordReset, logout, toast };
 }
 
 describe('ProfilComponent', () => {
@@ -69,6 +70,22 @@ describe('ProfilComponent', () => {
     expect(btn.disabled).toBe(true);
   });
 
+  it('le bouton de réinitialisation se désactive pendant l’envoi', async () => {
+    let resolve!: () => void;
+    const enVol = new Promise<void>((r) => (resolve = r));
+    const { fixture, c } = monter(utilisateur(), { requestPasswordReset: vi.fn().mockReturnValue(enVol) });
+    const btn = () => (fixture.nativeElement as HTMLElement).querySelector('.btn--outline') as HTMLButtonElement;
+
+    const p = c.requestPasswordReset();
+    fixture.detectChanges();
+    expect(btn().disabled).toBe(true);
+
+    resolve();
+    await p;
+    fixture.detectChanges();
+    expect(btn().disabled).toBe(false);
+  });
+
   it('appelle le service avec l’e-mail du compte courant', async () => {
     const { c, requestPasswordReset } = monter(utilisateur({ email: 'awa@example.com' }));
     await c.requestPasswordReset();
@@ -89,6 +106,20 @@ describe('ProfilComponent', () => {
     expect(c.resetSending()).toBe(false);
   });
 
+  it('affiche un toast de succès après un envoi réussi', async () => {
+    const { c, toast } = monter(utilisateur());
+    await c.requestPasswordReset();
+    expect(toast.success).toHaveBeenCalledTimes(1);
+  });
+
+  it('affiche le bandeau de confirmation dans la page après un envoi réussi', async () => {
+    const { fixture, c } = monter(utilisateur());
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profil-reset-done')).toBeNull();
+    await c.requestPasswordReset();
+    fixture.detectChanges();
+    expect((fixture.nativeElement as HTMLElement).querySelector('.profil-reset-done')).not.toBeNull();
+  });
+
   it('ne bascule pas resetSent en cas d’échec, et remonte resetSending à faux', async () => {
     const { c } = monter(utilisateur(), {
       requestPasswordReset: vi.fn().mockRejectedValue(new Error('Panne réseau')),
@@ -96,6 +127,14 @@ describe('ProfilComponent', () => {
     await c.requestPasswordReset();
     expect(c.resetSent()).toBe(false);
     expect(c.resetSending()).toBe(false);
+  });
+
+  it('affiche le message d’erreur du serveur dans un toast en cas d’échec', async () => {
+    const { c, toast } = monter(utilisateur(), {
+      requestPasswordReset: vi.fn().mockRejectedValue(new Error('Panne réseau')),
+    });
+    await c.requestPasswordReset();
+    expect(toast.error).toHaveBeenCalledWith('Panne réseau');
   });
 
   it('n’envoie pas une seconde demande pendant que la première est en vol', async () => {
