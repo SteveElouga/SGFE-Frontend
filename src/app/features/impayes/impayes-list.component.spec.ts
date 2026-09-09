@@ -289,3 +289,318 @@ describe('ImpayesListComponent — export CSV', () => {
     expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
   });
 });
+
+/**
+ * Rendu réel du template : les tests ci-dessus exercent `impayes()` /
+ * `impayesFiltres()` / `groupesAbonnes()` via les signaux, mais aucun ne
+ * rappelle `detectChanges()` après le chargement — ni la vue par abonné
+ * (défaut), ni le tableau par facture, ni les badges d'étape/retard ne
+ * s'affichaient donc jamais réellement.
+ */
+describe('ImpayesListComponent — rendu du template', () => {
+  const ilYA = (jours: number) => new Date(Date.now() - jours * 86_400_000).toISOString().slice(0, 10);
+
+  /** Jeu de 4 abonnés couvrant chaque état de badge visible + retard/paiement variés. */
+  function creerJeuComplet() {
+    const soldes = [
+      solde({ factureId: 'f-1', abonneId: 'ab-1', soldeRestant: 5000, montantPaye: 0, dateLimitePaiement: ilYA(15) }),
+      solde({ factureId: 'f-2', abonneId: 'ab-2', soldeRestant: 3000, montantPaye: 2000, dateLimitePaiement: ilYA(5) }),
+      solde({ factureId: 'f-3', abonneId: 'ab-3', soldeRestant: 4000, montantPaye: 0, dateLimitePaiement: '' }),
+      solde({ factureId: 'f-4', abonneId: 'ab-4', soldeRestant: 7000, montantPaye: 0, dateLimitePaiement: ilYA(20) }),
+    ];
+    const factures = soldes.map((s) =>
+      factureRef({
+        factureId: s.factureId,
+        abonneId: s.abonneId!,
+        numeroFacture: `FACT-${s.factureId}`,
+        abonneNom: `Nom ${s.abonneId}`,
+        abonneNumero: (s.abonneId ?? '').toUpperCase(),
+      }),
+    );
+    const suivisMap: Record<string, SuiviImpaye | null> = {
+      'f-1': suivi({ factureId: 'f-1', abonneId: 'ab-1', etapeActuelle: 1, dateDepassement: ilYA(15) }),
+      'f-2': suivi({ factureId: 'f-2', abonneId: 'ab-2', etapeActuelle: 2, dateDepassement: ilYA(5) }),
+      'f-3': suivi({ factureId: 'f-3', abonneId: 'ab-3', etapeActuelle: 3, dateDepassement: '' }),
+      'f-4': suivi({ factureId: 'f-4', abonneId: 'ab-4', etapeActuelle: 4, dateDepassement: ilYA(20) }),
+    };
+    const getSuiviImpaye = vi.fn((id: string) => Promise.resolve(suivisMap[id] ?? null));
+    return monter({
+      getImpayes: vi.fn().mockResolvedValue(soldes),
+      getFactures: vi.fn().mockResolvedValue(factures),
+      getSuiviImpaye,
+    });
+  }
+
+  it('affiche le bandeau d’erreur avec bouton « réessayer »', async () => {
+    const getImpayes = vi.fn()
+      .mockRejectedValueOnce(new CombinedGraphQLErrors({ data: null }, [{ message: 'Panne réseau' }]))
+      .mockResolvedValue([]);
+    const { fixture } = monter({ getImpayes });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.error-banner__message')?.textContent).toContain('Panne réseau');
+    (racine.querySelector('.error-banner__retry') as HTMLButtonElement).click();
+    await flush();
+    expect(getImpayes).toHaveBeenCalledTimes(2);
+  });
+
+  it('rend la vue par abonné par défaut, avec et sans retard affiché', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelectorAll('.imp-groupe')).toHaveLength(4);
+    // ab-3 n'a pas de retard connu : pas de mention « retard » sur sa ligne.
+    const groupeAb3 = [...racine.querySelectorAll('.imp-groupe')].find((g) =>
+      g.querySelector('.imp-groupe__ref')?.textContent === 'AB-3',
+    );
+    expect(groupeAb3?.querySelector('.imp-groupe__retard')).toBeNull();
+    expect(groupeAb3?.querySelector('.imp-ligne__age')).toBeNull();
+    // ab-1 a un retard important : la mention apparaît, sur le groupe et la ligne.
+    const groupeAb1 = [...racine.querySelectorAll('.imp-groupe')].find((g) =>
+      g.querySelector('.imp-groupe__ref')?.textContent === 'AB-1',
+    );
+    expect(groupeAb1?.querySelector('.imp-groupe__retard')).toBeTruthy();
+    expect(groupeAb1?.querySelector('.imp-ligne__age')).toBeTruthy();
+    // KPI : au moins une suspension (étape 4) affiche le sous-badge d'urgence.
+    expect(racine.querySelector('.kpi__hint--danger')).toBeTruthy();
+  });
+
+  it('masque le sous-badge d’urgence quand aucune suspension n’est en cours', async () => {
+    const { fixture } = monter({
+      getImpayes: vi.fn().mockResolvedValue([solde({ factureId: 'f-1', abonneId: 'ab-1' })]),
+      getFactures: vi.fn().mockResolvedValue([factureRef({ factureId: 'f-1', abonneId: 'ab-1' })]),
+      getSuiviImpaye: vi.fn().mockResolvedValue(suivi({ etapeActuelle: 1 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.kpi__hint--danger')).toBeNull();
+  });
+
+  it('bascule vers la vue par facture et rend le tableau avec badges d’étape, retard et paiement', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const boutonsVue = [...racine.querySelectorAll<HTMLButtonElement>('.imp-vue__opt')];
+    boutonsVue[1].click(); // « Facture »
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.imp-groupes')).toBeNull(); // vue abonné démontée
+    expect(racine.querySelectorAll('tbody tr.dt__row')).toHaveLength(4);
+
+    expect(racine.querySelector('.etape-badge--etape1')).toBeTruthy();
+    expect(racine.querySelector('.etape-badge--etape2')).toBeTruthy();
+    expect(racine.querySelector('.etape-badge--etape3')).toBeTruthy();
+    expect(racine.querySelector('.etape-badge--suspendue')).toBeTruthy();
+
+    // La ligne suspendue (étape 4) porte la classe de ligne dangereuse.
+    expect(racine.querySelector('.dt__row--danger')).toBeTruthy();
+    // Le paiement partiel (ab-2) colore la colonne « payé ».
+    expect(racine.querySelector('.col-paye--green')).toBeTruthy();
+    // ab-3 n'a pas de retard connu : tiret dans la colonne retard.
+    const colonnesRetard = [...racine.querySelectorAll('.col-retard')].map((e) => e.textContent?.trim());
+    expect(colonnesRetard.some((t) => t === '—')).toBe(true);
+    expect(colonnesRetard.some((t) => t?.includes('J+15'))).toBe(true);
+  });
+
+  it('rend aussi les cartes mobiles avec le motif « acompte reçu »', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const cartes = [...racine.querySelectorAll('.fcard')];
+    expect(cartes).toHaveLength(4);
+    expect(racine.querySelector('.fcard--danger')).toBeTruthy();
+    const refs = cartes.map((c) => c.querySelector('.fcard__ref')?.textContent ?? '');
+    expect(refs.some((t) => t.includes('IMPAYES.ACOMPTE_RECU'))).toBe(true);
+  });
+
+  it('clique sur les actions d’une ligne du tableau : paiement et relances naviguent avec cette facture', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router) as unknown as { navigate: ReturnType<typeof vi.fn> };
+    const racine = fixture.nativeElement as HTMLElement;
+    const boutonsVue = [...racine.querySelectorAll<HTMLButtonElement>('.imp-vue__opt')];
+    boutonsVue[1].click();
+    fixture.detectChanges();
+
+    // Le tri par défaut (ancienneté) place ab-4 (le retard le plus long) en tête.
+    const premiereLigne = racine.querySelector('tbody tr.dt__row') as HTMLElement;
+    expect(premiereLigne.textContent).toContain('Nom ab-4');
+    (premiereLigne.querySelector('.act--primary') as HTMLButtonElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/factures', 'f-4'], { queryParams: { paiement: 1 } });
+
+    (premiereLigne.querySelector('.act:not(.act--primary)') as HTMLButtonElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/impayes', 'f-4', 'relances']);
+  });
+
+  it('clique sur une carte mobile : le tap sur l’en-tête ouvre les relances, le bouton dédié le paiement', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router) as unknown as { navigate: ReturnType<typeof vi.fn> };
+    const racine = fixture.nativeElement as HTMLElement;
+    // Même ordre que le tableau (tri par ancienneté) : ab-4 en tête.
+    const premiereCarte = racine.querySelector('.fcard') as HTMLElement;
+    expect(premiereCarte.textContent).toContain('Nom ab-4');
+    (premiereCarte.querySelector('.fcard__top') as HTMLButtonElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/impayes', 'f-4', 'relances']);
+
+    (premiereCarte.querySelector('.fcard__pay') as HTMLButtonElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/factures', 'f-4'], { queryParams: { paiement: 1 } });
+  });
+
+  it('trie le tableau au clic sur chaque en-tête triable', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const boutonsVue = [...racine.querySelectorAll<HTMLButtonElement>('.imp-vue__opt')];
+    boutonsVue[1].click();
+    fixture.detectChanges();
+
+    const enTetes = [...racine.querySelectorAll<HTMLButtonElement>('.dt__sort-btn')];
+    // abonné, montant, payé, solde, retard, étape (actions n'est pas triable).
+    expect(enTetes).toHaveLength(6);
+    for (const bouton of enTetes) {
+      bouton.click();
+      fixture.detectChanges();
+      expect(bouton.classList.contains('dt__sort-btn--active')).toBe(true);
+    }
+
+    // Vérification concrète sur une colonne : un seul tri actif à la fois — passer
+    // au solde réordonne réellement les lignes affichées (asc puis desc).
+    const boutonSolde = enTetes[3];
+    const sansEspaces = (t: string | null | undefined) => (t ?? '').replace(/\s/g, '');
+
+    boutonSolde.click(); // nouvelle colonne active -> asc
+    fixture.detectChanges();
+    let soldesAffiches = [...racine.querySelectorAll('.col-solde')].map((e) => sansEspaces(e.textContent));
+    expect(soldesAffiches[0]).toBe('3000'); // ab-2, le plus petit solde, en tete en asc
+
+    boutonSolde.click(); // desc
+    fixture.detectChanges();
+    soldesAffiches = [...racine.querySelectorAll('.col-solde')].map((e) => sansEspaces(e.textContent));
+    expect(soldesAffiches[0]).toBe('7000'); // ab-4, le plus grand solde, en tete en desc
+  });
+
+  it('onFiltersChange traduit étape et tri reçus du panneau de filtres, y compris leur effacement', async () => {
+    const { fixture, c } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+
+    c.onFiltersChange({ etape: '2', tri: 'SOLDE' });
+    expect(c.filtreEtape()).toBe(2);
+    expect(c.tri()).toBe('SOLDE');
+    expect(c.impayesFiltres().map((i) => i.factureId)).toEqual(['f-2']);
+
+    c.onFiltersChange({ etape: null, tri: null });
+    expect(c.filtreEtape()).toBe('TOUS');
+    expect(c.tri()).toBe('ANCIENNETE');
+  });
+
+  it('badgeLabel restitue un libellé pour chaque état, y compris pause et inconnu', async () => {
+    const { c } = monter();
+    const base = {
+      factureId: 'f-x', abonneId: null, abonneNom: '', numeroAbonne: '', numeroFacture: '',
+      montantTotal: 0, montantPaye: 0, soldeRestant: 0, statut: '', etapeActuelle: null,
+      dateDepassement: null, retardJours: null, enPause: false,
+    };
+    expect(c.badgeLabel({ ...base, enPause: true })).toBe('IMPAYES.BADGE.PAUSE');
+    expect(c.badgeLabel({ ...base, etapeActuelle: 1 })).toBe('IMPAYES.BADGE.ETAPE1');
+    expect(c.badgeLabel({ ...base, etapeActuelle: 2 })).toBe('IMPAYES.BADGE.ETAPE2');
+    expect(c.badgeLabel({ ...base, etapeActuelle: 3 })).toBe('IMPAYES.BADGE.ETAPE3');
+    expect(c.badgeLabel({ ...base, etapeActuelle: 4 })).toBe('IMPAYES.BADGE.SUSPENDUE');
+    expect(c.badgeLabel({ ...base })).toBe('—'); // ni pause, ni étape connue
+  });
+
+  it('retardClass distingue muet, alerte et danger selon l’ancienneté', async () => {
+    const { c } = monter();
+    expect(c.retardClass(null)).toBe('retard--muted');
+    expect(c.retardClass(2)).toBe('retard--muted');
+    expect(c.retardClass(3)).toBe('retard--warn');
+    expect(c.retardClass(9)).toBe('retard--warn');
+    expect(c.retardClass(10)).toBe('retard--danger');
+  });
+
+  it('tape dans le champ de recherche du panneau de filtres : filtre réellement la liste après le délai', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champ = racine.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(champ).toBeTruthy();
+    champ.value = 'ab-2';
+    champ.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 300)); // debounceMs=250 côté panneau de filtres
+    fixture.detectChanges();
+
+    expect(racine.querySelectorAll('.imp-groupe')).toHaveLength(1);
+    expect(racine.querySelector('.imp-groupe__ref')?.textContent).toBe('AB-2');
+  });
+
+  it('clique sur une puce de filtre par étape dans le panneau : filtre réellement la liste', async () => {
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const puces = [...racine.querySelectorAll<HTMLButtonElement>('.fp__chip')];
+    // Sans traduction chargée en test, chaque option affiche la clé brute
+    // « IMPAYES.CHIP_ETAPE » : la première puce (hors « Tous ») correspond à l'étape 1.
+    const puceEtape = puces.find((b) => b.textContent?.includes('IMPAYES.CHIP_ETAPE'));
+    expect(puceEtape).toBeTruthy();
+    puceEtape!.click();
+    fixture.detectChanges();
+
+    expect(racine.querySelectorAll('.imp-groupe').length).toBeGreaterThan(0);
+    expect(racine.querySelectorAll('.imp-groupe').length).toBeLessThan(4);
+  });
+
+  it('clique sur le bouton d’export du bandeau, et revient à la vue par abonné après être passé en facture', async () => {
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:test');
+    globalThis.URL.revokeObjectURL = vi.fn();
+
+    const { fixture } = creerJeuComplet();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.bilan-btn') as HTMLButtonElement).click();
+    expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
+
+    const boutonsVue = [...racine.querySelectorAll<HTMLButtonElement>('.imp-vue__opt')];
+    boutonsVue[1].click(); // facture
+    fixture.detectChanges();
+    expect(racine.querySelector('.imp-groupes')).toBeNull();
+
+    boutonsVue[0].click(); // retour abonné
+    fixture.detectChanges();
+    expect(racine.querySelectorAll('.imp-groupe')).toHaveLength(4);
+  });
+});

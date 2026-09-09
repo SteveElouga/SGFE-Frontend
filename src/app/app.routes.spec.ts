@@ -163,6 +163,44 @@ describe('app.routes — rôles câblés par route', () => {
   });
 });
 
+/**
+ * Tous les tests ci-dessus n'inspectent que la STRUCTURE des routes (chemins,
+ * gardes) — ils ne déclenchent jamais l'exécution des factories
+ * `loadComponent: () => import(...).then((m) => m.X)`. Résultat : ces
+ * fonctions (l'immense majorité des lignes/fonctions de ce fichier) ne
+ * s'exécutaient jamais. Ce bloc les appelle réellement, pour de vrai chaque
+ * route déclarée dans l'arbre (y compris les enfants), et vérifie qu'elles
+ * résolvent bien vers une classe de composant — un comportement observable :
+ * une faute de frappe dans un chemin d'import romprait ce test.
+ */
+describe('app.routes — exécution réelle des imports paresseux', () => {
+  function aplatir(liste: Route[]): Route[] {
+    const acc: Route[] = [];
+    for (const r of liste) {
+      acc.push(r);
+      if (r.children) acc.push(...aplatir(r.children));
+    }
+    return acc;
+  }
+
+  const toutesLesRoutes = aplatir(routes);
+  const routesAvecComposant = toutesLesRoutes.filter(
+    (r): r is Route & { loadComponent: () => Promise<unknown> } => typeof r.loadComponent === 'function',
+  );
+
+  it('déclare bien un grand nombre de routes à chargement paresseux (garde-fou anti-faux-positif)', () => {
+    expect(routesAvecComposant.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it.each(routesAvecComposant.map((r, i) => [r.path ?? `(sans chemin #${i})`, r] as const))(
+    'la route "%s" résout son import vers une classe de composant',
+    async (_path, route) => {
+      const composant = await route.loadComponent();
+      expect(typeof composant).toBe('function');
+    },
+  );
+});
+
 describe('app.routes — arborescence des sous-routes', () => {
   it('abonnes expose liste, création, modification et détail', () => {
     const abonnes = enfant(racine(''), 'abonnes');

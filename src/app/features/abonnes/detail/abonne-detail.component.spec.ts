@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
@@ -103,6 +104,9 @@ describe('AbonneDetailComponent', () => {
       abonne?: AbonneDetail | null;
       valueChanges?: ReturnType<typeof of>;
       factures?: FactureLigne[];
+      /** Contrôle fin de la résolution de `getFactures` — pour observer un
+       *  état "en chargement" réellement rendu (spinner) avant résolution. */
+      getFacturesImpl?: () => Promise<FactureLigne[]>;
       soldesByFacture?: Record<string, SoldeDetail | 'erreur'>;
       avoirMontant?: number;
       tabParam?: string;
@@ -118,7 +122,9 @@ describe('AbonneDetailComponent', () => {
     const remplacerCompteur = vi.fn();
 
     const factures = opts.factures ?? [];
-    const getFactures = vi.fn().mockResolvedValue(factures);
+    const getFactures = opts.getFacturesImpl
+      ? vi.fn(opts.getFacturesImpl)
+      : vi.fn().mockResolvedValue(factures);
     const getAvoirAbonne = vi.fn().mockResolvedValue({
       abonneId: 'ab-1',
       montant: opts.avoirMontant ?? 0,
@@ -777,6 +783,534 @@ describe('AbonneDetailComponent', () => {
       const { component } = setup({ abonne: abonne({ createdAt: maintenant.toISOString() }) });
       await flush();
       expect(component.moisDepuis()).toBe('ABONNES.DETAIL.MONTHS_AGO_SINGULAR');
+    });
+  });
+
+  // ── Rendu réel du template ───────────────────────────────────────────────────
+  // Tous les blocs ci-dessus appellent `component.xxx()` directement ou lisent
+  // les signaux sans rappeler `detectChanges()` après un changement d'état :
+  // les 5 boutons d'action, les 5 onglets et leurs sous-états, et les blocs
+  // conditionnels de la fiche info n'étaient donc presque jamais réellement
+  // rendus ni cliqués.
+
+  describe('rendu réel du template', () => {
+    function onglets(fixture: ReturnType<typeof setup>['fixture']): HTMLButtonElement[] {
+      return Array.from(fixture.nativeElement.querySelectorAll('.abonne-tabs__tab'));
+    }
+
+    it('un vrai clic sur "Modifier" navigue vers le formulaire d’édition', async () => {
+      const { fixture, router } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-action-btn');
+      bouton.click();
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/abonnes/ab-1/modifier');
+    });
+
+    it('un vrai clic sur "Suspendre" ouvre réellement la feuille', async () => {
+      const { fixture, component } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-action-btn--danger');
+      bouton.click();
+
+      expect(component.suspendreDialogVisible()).toBe(true);
+    });
+
+    it('un vrai clic sur "Réactiver" ouvre réellement la feuille', async () => {
+      const { fixture, component } = setup({ abonne: abonne({ statut: 'SUSPENDU' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-action-btn--success');
+      bouton.click();
+
+      expect(component.reactiverDialogVisible()).toBe(true);
+    });
+
+    it('un vrai clic sur "Résilier" ouvre réellement la feuille', async () => {
+      const { fixture, component } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-action-btn--danger-outline');
+      bouton.click();
+
+      expect(component.resilierDialogVisible()).toBe(true);
+    });
+
+    it('un vrai clic sur "Remplacer compteur" ouvre réellement la feuille', async () => {
+      const { fixture, component } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-action-btn--ghost');
+      bouton.click();
+
+      expect(component.remplacerVisible()).toBe(true);
+    });
+
+    it('un vrai clic sur "Réessayer" du bandeau d’erreur relance le chargement', async () => {
+      const { fixture, queryRef } = setup({ valueChanges: throwError(() => new Error('Panne')) as never });
+      await flush();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.error-banner__retry');
+      expect(bouton).not.toBeNull();
+      bouton.click();
+
+      expect(queryRef.refetch).toHaveBeenCalled();
+    });
+
+    it('une adresse absente affiche un tiret plutôt qu’un champ vide', async () => {
+      const { fixture } = setup({ abonne: abonne({ adresse: '' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const valeurs = Array.from(fixture.nativeElement.querySelectorAll('.abonne-info-row__value--muted')) as HTMLElement[];
+      expect(valeurs.some((v) => v.textContent?.trim() === '—')).toBe(true);
+    });
+
+    it('une position de compteur renseignée est affichée dans la fiche', async () => {
+      const { fixture } = setup({
+        abonne: abonne({
+          compteur: {
+            id: 'c-1', numeroCompteur: 42, quartier: 'Plateau', camp: 3, indexInitial: 100,
+            datePose: '2025-01-10', position: 'Fond de cour, 3e parcelle', statut: 'ACTIF',
+            latitude: null, longitude: null, dateMajPosition: null,
+          },
+        }),
+      });
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Fond de cour, 3e parcelle');
+    });
+
+    it('des coordonnées GPS affichent le lien vers la carte, avec l’id de l’abonné en query param', async () => {
+      const { fixture } = setup({
+        abonne: abonne({
+          id: 'ab-77',
+          compteur: {
+            id: 'c-1', numeroCompteur: 42, quartier: 'Plateau', camp: 3, indexInitial: 100,
+            datePose: '2025-01-10', position: '', statut: 'ACTIF',
+            latitude: 4.05, longitude: 9.7, dateMajPosition: null,
+          },
+        }),
+      });
+      await flush();
+      fixture.detectChanges();
+
+      const lien: HTMLAnchorElement = fixture.nativeElement.querySelector('a[href*="/carte"]');
+      expect(lien).not.toBeNull();
+      expect(lien.getAttribute('href')).toContain('ab-77');
+    });
+
+    it('sans coordonnées GPS, aucun lien vers la carte n’est affiché', async () => {
+      const { fixture } = setup({ abonne: abonne() }); // fixture par défaut : latitude/longitude absents
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('a[href*="/carte"]')).toBeNull();
+    });
+
+    it('sans date de pose, la fiche affiche un tiret pour ce champ', async () => {
+      const { fixture } = setup({
+        abonne: abonne({
+          compteur: {
+            id: 'c-1', numeroCompteur: 42, quartier: 'Plateau', camp: 3, indexInitial: 100,
+            datePose: '', position: '', statut: 'ACTIF', latitude: null, longitude: null, dateMajPosition: null,
+          },
+        }),
+      });
+      await flush();
+      fixture.detectChanges();
+
+      const valeurs = Array.from(fixture.nativeElement.querySelectorAll('.abonne-info-row__value--muted')) as HTMLElement[];
+      expect(valeurs.some((v) => v.textContent?.trim() === '—')).toBe(true);
+    });
+
+    it('sans compteur du tout, la carte affiche le message "aucun compteur"', async () => {
+      const { fixture } = setup({ abonne: abonne({ compteur: undefined }) });
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-info-card__empty')).not.toBeNull();
+    });
+
+    it('avec plus de 5 factures, le lien "voir tout" est proposé et bascule réellement sur l’onglet Factures', async () => {
+      const factures = Array.from({ length: 7 }, (_, i) =>
+        facture({ factureId: `f-${i}`, dateReleve: `2026-01-0${i + 1}` }),
+      );
+      const { fixture, component } = setup({ factures });
+      await flush();
+      fixture.detectChanges();
+
+      const lien: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-invoices__see-all');
+      expect(lien).not.toBeNull();
+      lien.click();
+      fixture.detectChanges();
+
+      expect(component.activeTab()).toBe(1);
+      expect(onglets(fixture)[1].classList.contains('abonne-tabs__tab--active')).toBe(true);
+    });
+
+    it('avec 5 factures ou moins, le lien "voir tout" est absent', async () => {
+      const { fixture } = setup({ factures: [facture()] });
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.abonne-invoices__see-all')).toBeNull();
+    });
+
+    // ── Onglets — navigation réelle par clic, et sous-états de chaque panneau ──
+
+    it('un vrai clic sur chaque onglet change le panneau actif et le rôle ARIA sélectionné', async () => {
+      const { fixture } = setup({ factures: [facture()] });
+      await flush();
+      fixture.detectChanges();
+
+      const tabs = onglets(fixture);
+      expect(tabs).toHaveLength(5);
+
+      tabs[2].click();
+      fixture.detectChanges();
+      expect(tabs[2].getAttribute('aria-selected')).toBe('true');
+      expect(fixture.nativeElement.querySelector('#abonneTabPanel-2')).not.toBeNull();
+
+      tabs[3].click();
+      fixture.detectChanges();
+      expect(tabs[3].getAttribute('aria-selected')).toBe('true');
+      expect(fixture.nativeElement.querySelector('#abonneTabPanel-3')).not.toBeNull();
+    });
+
+    it('onglet Factures : affiche un spinner pendant le chargement, puis le tableau une fois chargé', async () => {
+      let resoudre!: (f: FactureLigne[]) => void;
+      const enAttente = new Promise<FactureLigne[]>((res) => { resoudre = res; });
+      const { fixture } = setup({ getFacturesImpl: () => enAttente });
+      fixture.detectChanges(); // squelette abonné pas encore chargé n'entrave pas ceci : ngOnInit tourne
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[1].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder .pi-spinner')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-factures-table')).toBeNull();
+
+      resoudre([facture()]);
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder .pi-spinner')).toBeNull();
+      expect(fixture.nativeElement.querySelector('app-factures-table')).not.toBeNull();
+    });
+
+    it('onglet Conso : affiche un spinner tant que les factures sont en chargement', async () => {
+      let resoudre!: (f: FactureLigne[]) => void;
+      const enAttente = new Promise<FactureLigne[]>((res) => { resoudre = res; });
+      const { fixture } = setup({ getFacturesImpl: () => enAttente });
+      fixture.detectChanges();
+
+      onglets(fixture)[2].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder .pi-spinner')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.conso-chart')).toBeNull();
+
+      resoudre([]);
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder .pi-spinner')).toBeNull();
+    });
+
+    it('onglet Conso : affiche le message "aucune facture" sans historique', async () => {
+      const { fixture } = setup({ factures: [] });
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[2].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.conso-chart')).toBeNull();
+    });
+
+    it('onglet Conso : affiche l’histogramme quand il y a de l’historique', async () => {
+      const factures = [
+        facture({ factureId: 'f-1', dateReleve: '2026-01-01', consommation: 10 }),
+        facture({ factureId: 'f-2', dateReleve: '2026-02-01', consommation: 20 }),
+      ];
+      const { fixture } = setup({ factures });
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[2].click();
+      fixture.detectChanges();
+
+      const barres = fixture.nativeElement.querySelectorAll('.conso-bar');
+      expect(barres.length).toBe(2);
+    });
+
+    it('onglet Impayés : affiche l’icône « soldé » quand rien n’est dû', async () => {
+      const { fixture } = setup({ factures: [facture({ factureId: 'f-1', statut: 'PAYEE' })] });
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[3].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder svg')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('app-factures-table')).toBeNull();
+    });
+
+    it('onglet Impayés : affiche le tableau (sans la colonne conso) quand il y a des impayés', async () => {
+      const { fixture } = setup({ factures: [facture({ factureId: 'f-1', statut: 'IMPAYEE' })] });
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[3].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-factures-table')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.abonne-tab-placeholder')).toBeNull();
+    });
+
+    it('onglet Compteurs : reste utilisable (compteur null passé au panneau) pour un abonné sans compteur', async () => {
+      const { fixture } = setup({ abonne: abonne({ compteur: undefined }) });
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[4].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-compteurs-panel')).not.toBeNull();
+    });
+
+    it('onglet Compteurs : transmet bien le compteur actuel de l’abonné au panneau', async () => {
+      const { fixture } = setup({ abonne: abonne() }); // fixture par défaut : compteur défini
+      await flush();
+      fixture.detectChanges();
+
+      onglets(fixture)[4].click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-compteurs-panel')).not.toBeNull();
+    });
+
+    it('un vrai geste clavier (flèche droite) sur un onglet change réellement l’onglet actif', async () => {
+      const { fixture } = setup({ factures: [facture()] });
+      await flush();
+      fixture.detectChanges();
+
+      const tabs = onglets(fixture);
+      tabs[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+      fixture.detectChanges();
+
+      expect(onglets(fixture)[1].getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('un vrai clic sur les actions du bloc KPI ouvre réellement les feuilles d’arriéré et d’encaissement', async () => {
+      const factures = [facture({ factureId: 'f-1', statut: 'IMPAYEE', montant: 10_000 })];
+      const { fixture, component } = setup({
+        factures,
+        soldesByFacture: { 'f-1': solde({ factureId: 'f-1', soldeRestant: 10_000 }) },
+      });
+      await flush();
+      fixture.detectChanges();
+
+      const boutonArriere: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-kpi__action:not(.abonne-kpi__action--primaire)');
+      boutonArriere.click();
+      expect(component.arriereDialogVisible()).toBe(true);
+
+      const boutonEncaissement: HTMLButtonElement = fixture.nativeElement.querySelector('.abonne-kpi__action--primaire');
+      expect(boutonEncaissement).not.toBeNull(); // un solde ouvert existe (f-1)
+      boutonEncaissement.click();
+      expect(component.encaissementDialogVisible()).toBe(true);
+    });
+
+    // ── Couverture des listeners restants (clic sur l'onglet déjà actif par
+    //    défaut, navigation clavier sur chaque onglet, PDF par onglet, et les
+    //    événements (close)/(saved) des 6 bottom-sheets) ─────────────────────
+
+    it('un vrai clic sur l’onglet "Informations" (déjà actif par défaut) y ramène depuis un autre onglet', async () => {
+      const { fixture } = setup({ factures: [facture()] });
+      await flush();
+      fixture.detectChanges();
+
+      const tabs = onglets(fixture);
+      tabs[1].click();
+      fixture.detectChanges();
+      tabs[0].click();
+      fixture.detectChanges();
+
+      expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+      expect(fixture.nativeElement.querySelector('#abonneTabPanel-0')).not.toBeNull();
+    });
+
+    it('un vrai geste clavier sur chacun des 5 onglets déplace bien le focus/l’état actif', async () => {
+      const { fixture } = setup({ factures: [facture()] });
+      await flush();
+      fixture.detectChanges();
+
+      for (const [index, tab] of onglets(fixture).entries()) {
+        tab.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+        fixture.detectChanges();
+        expect(onglets(fixture)[4].getAttribute('aria-selected')).toBe('true');
+        // Revenir à l'onglet de départ pour l'itération suivante.
+        onglets(fixture)[index].dispatchEvent(new KeyboardEvent('keydown', { key: 'Home', bubbles: true }));
+        fixture.detectChanges();
+      }
+    });
+
+    it('un clic sur le PDF d’une facture récente (onglet Informations) appelle openPdf', async () => {
+      const { fixture, openPdf } = setup({ factures: [facture({ factureId: 'f-1' })] });
+      await flush();
+      fixture.detectChanges();
+
+      const table = fixture.debugElement.query(By.css('app-factures-table'));
+      table.triggerEventHandler('pdfClick', 'f-1');
+
+      expect(openPdf).toHaveBeenCalledWith('f-1');
+    });
+
+    it('un clic sur le PDF d’une facture (onglet Factures) appelle openPdf', async () => {
+      const { fixture, openPdf } = setup({ factures: [facture({ factureId: 'f-2' })] });
+      await flush();
+      fixture.detectChanges();
+      onglets(fixture)[1].click();
+      fixture.detectChanges();
+
+      const table = fixture.debugElement.query(By.css('app-factures-table'));
+      table.triggerEventHandler('pdfClick', 'f-2');
+
+      expect(openPdf).toHaveBeenCalledWith('f-2');
+    });
+
+    it('un clic sur le PDF d’une facture (onglet Impayés) appelle openPdf', async () => {
+      const { fixture, openPdf } = setup({ factures: [facture({ factureId: 'f-3', statut: 'IMPAYEE' })] });
+      await flush();
+      fixture.detectChanges();
+      onglets(fixture)[3].click();
+      fixture.detectChanges();
+
+      const table = fixture.debugElement.query(By.css('app-factures-table'));
+      table.triggerEventHandler('pdfClick', 'f-3');
+
+      expect(openPdf).toHaveBeenCalledWith('f-3');
+    });
+
+    it('la feuille d’encaissement — (close) ferme, (saved) recharge les factures', async () => {
+      const { fixture, component, getFactures } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+      component.encaissementDialogVisible.set(true);
+      fixture.detectChanges();
+      getFactures.mockClear();
+
+      const sheet = fixture.debugElement.query(By.css('app-encaissement-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.encaissementDialogVisible()).toBe(false);
+
+      sheet.triggerEventHandler('saved', undefined);
+      await flush();
+      expect(getFactures).toHaveBeenCalledTimes(1);
+    });
+
+    it('la feuille d’arriéré — (close) ferme, (saved) recharge les factures', async () => {
+      const { fixture, component, getFactures } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+      component.arriereDialogVisible.set(true);
+      fixture.detectChanges();
+      getFactures.mockClear();
+
+      const sheet = fixture.debugElement.query(By.css('app-arriere-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.arriereDialogVisible()).toBe(false);
+
+      sheet.triggerEventHandler('saved', undefined);
+      await flush();
+      expect(getFactures).toHaveBeenCalledTimes(1);
+    });
+
+    it('la feuille de suspension — (close) ferme, (saved) applique le statut', async () => {
+      const { fixture, component, toast } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+      component.suspendreDialogVisible.set(true);
+      fixture.detectChanges();
+
+      const sheet = fixture.debugElement.query(By.css('app-suspendre-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.suspendreDialogVisible()).toBe(false);
+
+      component.suspendreDialogVisible.set(true);
+      fixture.detectChanges();
+      sheet.triggerEventHandler('saved', 'SUSPENDU');
+      expect(component.abonne()?.statut).toBe('SUSPENDU');
+      expect(toast.warning).toHaveBeenCalled();
+    });
+
+    it('la feuille de réactivation — (close) ferme, (saved) applique le statut', async () => {
+      const { fixture, component, toast } = setup({ abonne: abonne({ statut: 'SUSPENDU' }) });
+      await flush();
+      fixture.detectChanges();
+      component.reactiverDialogVisible.set(true);
+      fixture.detectChanges();
+
+      const sheet = fixture.debugElement.query(By.css('app-reactiver-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.reactiverDialogVisible()).toBe(false);
+
+      component.reactiverDialogVisible.set(true);
+      fixture.detectChanges();
+      sheet.triggerEventHandler('saved', 'ACTIF');
+      expect(component.abonne()?.statut).toBe('ACTIF');
+      expect(toast.success).toHaveBeenCalled();
+    });
+
+    it('la feuille de résiliation — (close) ferme, (saved) applique le statut', async () => {
+      const { fixture, component, toast } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+      component.resilierDialogVisible.set(true);
+      fixture.detectChanges();
+
+      const sheet = fixture.debugElement.query(By.css('app-resilier-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.resilierDialogVisible()).toBe(false);
+
+      component.resilierDialogVisible.set(true);
+      fixture.detectChanges();
+      sheet.triggerEventHandler('saved', 'RESILIE');
+      expect(component.abonne()?.statut).toBe('RESILIE');
+      expect(toast.info).toHaveBeenCalled();
+    });
+
+    it('la feuille de remplacement de compteur — (close) ferme, (saved) remplace le compteur', async () => {
+      const { fixture, component, toast } = setup({ abonne: abonne({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+      component.remplacerVisible.set(true);
+      fixture.detectChanges();
+
+      const sheet = fixture.debugElement.query(By.css('app-remplacer-compteur-sheet'));
+      sheet.triggerEventHandler('close', undefined);
+      expect(component.remplacerVisible()).toBe(false);
+
+      const nouveauCompteur = {
+        id: 'c-2', numeroCompteur: 99, quartier: 'Almadies', camp: 5, indexInitial: 0,
+        datePose: '2026-02-01', position: '', statut: 'ACTIF' as const,
+        latitude: null, longitude: null, dateMajPosition: null,
+      };
+      component.remplacerVisible.set(true);
+      fixture.detectChanges();
+      sheet.triggerEventHandler('saved', nouveauCompteur);
+      expect(component.abonne()?.compteur).toEqual(nouveauCompteur);
+      expect(toast.success).toHaveBeenCalled();
     });
   });
 });

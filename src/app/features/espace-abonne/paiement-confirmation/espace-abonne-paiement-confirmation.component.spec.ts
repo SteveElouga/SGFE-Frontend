@@ -131,4 +131,113 @@ describe('EspaceAbonnePaiementConfirmationComponent', () => {
     const { component } = setup('tok-retour', 'sess-1');
     expect(component.retourVers()).toBe('/espace/tok-retour');
   });
+
+  // ── Rendu réel du template selon l'état (le `@switch` a 6 branches, une
+  //    seule — 'attente' — était jamais rendue par les tests ci-dessus, qui
+  //    lisent `component.etat()` sans jamais rappeler `detectChanges()`) ────
+
+  describe('rendu du template selon l’état', () => {
+    it('rend l’état "en cours" (spinner, bouton disparu) pendant la confirmation', () => {
+      const { component, fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue({ subscribe: () => undefined } as never);
+
+      component.confirmer();
+      fixture.detectChanges();
+
+      const etatEl = fixture.nativeElement.querySelector('.pc-etat');
+      expect(etatEl).not.toBeNull();
+      expect(etatEl.textContent).toContain('Paiement en cours');
+      expect(fixture.nativeElement.querySelector('.pc-btn')).toBeNull();
+    });
+
+    it('rend la confirmation réussie avec role="status" et le libellé exact', () => {
+      const { component, fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue(of({ statut: 'CONFIRMEE' }));
+
+      component.confirmer();
+      fixture.detectChanges();
+
+      const etatEl = fixture.nativeElement.querySelector('.pc-etat--ok');
+      expect(etatEl).not.toBeNull();
+      expect(etatEl.getAttribute('role')).toBe('status');
+      expect(etatEl.textContent).toContain('Paiement confirmé');
+    });
+
+    it('rend l’échec avec role="alert" et le libellé exact', () => {
+      const { component, fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue(of({ statut: 'ECHOUEE' }));
+
+      component.confirmer();
+      fixture.detectChanges();
+
+      const etatEl = fixture.nativeElement.querySelector('.pc-etat--danger');
+      expect(etatEl).not.toBeNull();
+      expect(etatEl.getAttribute('role')).toBe('alert');
+      expect(etatEl.textContent).toContain('a échoué');
+    });
+
+    it('rend l’expiration de la session avec son libellé propre', () => {
+      const { component, fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue(of({ statut: 'EXPIREE' }));
+
+      component.confirmer();
+      fixture.detectChanges();
+
+      const etatEl = fixture.nativeElement.querySelector('.pc-etat--warn');
+      expect(etatEl).not.toBeNull();
+      expect(etatEl.textContent).toContain('expiré');
+    });
+
+    it('rend l’état erreur réseau — distinct du texte "échoué" (cause différente)', () => {
+      const { component, fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue(
+        throwError(() => new HttpErrorResponse({ status: 500 })),
+      );
+
+      component.confirmer();
+      fixture.detectChanges();
+
+      const etatEl = fixture.nativeElement.querySelector('.pc-etat--danger[role="alert"]');
+      expect(etatEl).not.toBeNull();
+      expect(etatEl.textContent).toContain('n\'a pas pu être lancé');
+    });
+
+    it('le lien de retour rendu dans le DOM pointe vers l’espace du token courant', () => {
+      const { fixture } = setup('tok-retour', 'sess-1');
+      const lien = fixture.nativeElement.querySelector('.pc-retour');
+      expect(lien.getAttribute('href')).toBe('/espace/tok-retour');
+      expect(lien.textContent).toContain('Retour à mes factures');
+    });
+
+    it('un vrai clic DOM sur le bouton déclenche confirmer() (pas seulement l’appel direct)', () => {
+      const { fixture, svc } = setup();
+      svc.confirmerPaiementEnLigne.mockReturnValue(of({ statut: 'CONFIRMEE' }));
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.pc-btn');
+      bouton.click();
+      fixture.detectChanges();
+
+      expect(svc.confirmerPaiementEnLigne).toHaveBeenCalledWith('tok-1', 'sess-1');
+      expect(fixture.nativeElement.querySelector('.pc-etat--ok')).not.toBeNull();
+    });
+  });
+
+  it('des params de route sans token ni sessionId retombent sur des chaînes vides', () => {
+    const svc = { confirmerPaiementEnLigne: vi.fn() };
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonnePaiementConfirmationComponent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { params: of({}) } },
+      ],
+    });
+    const fixture = TestBed.createComponent(EspaceAbonnePaiementConfirmationComponent);
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance.token).toBe('');
+    expect(fixture.componentInstance.sessionId).toBe('');
+    expect(fixture.componentInstance.retourVers()).toBe('/espace/');
+  });
 });

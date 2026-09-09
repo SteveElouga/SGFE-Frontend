@@ -193,3 +193,308 @@ describe('UtilisateursListComponent — présentation', () => {
     expect(c.initial(user({ username: 'zoe' }))).toBe('Z');
   });
 });
+
+/**
+ * Rendu réel du tableau : les tests ci-dessus n'appelaient jamais
+ * `detectChanges()` après la résolution de `loadUsers()`, donc les
+ * `ng-template appCol="…"` de ce composant (avatar, e-mail, pastille de rôle,
+ * date, statut, actions) n'étaient jamais effectivement instanciés par
+ * `app-data-table`. Ceux-ci le font, puis interagissent avec de vrais boutons.
+ */
+describe('UtilisateursListComponent — rendu réel du tableau', () => {
+  it('affiche une ligne active avec e-mail, badge et bouton Désactiver', async () => {
+    const { fixture } = monter({
+      getUsers: vi.fn().mockResolvedValue([
+        user({ id: 'u-1', username: 'ngo.awa', email: 'awa@x.com', role: 'AGENT', isActive: true }),
+      ]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.users-table__username')?.textContent?.trim()).toBe('ngo.awa');
+    expect(racine.querySelector('.users-table__avatar')?.textContent?.trim()).toBe('N');
+    expect(racine.querySelector('.users-table__email')?.textContent?.trim()).toBe('awa@x.com');
+    expect(racine.querySelector('.role-pill')?.textContent).toContain('AGENT');
+    expect(racine.querySelector('.users-table__user--off')).toBeNull();
+
+    // Colonne actions (vue desktop) : « Voir » + « Désactiver », pas « Réactiver ».
+    const actions = racine.querySelector('.users-table__actions')!;
+    expect(actions.querySelector('.users-table__action-btn--danger')).toBeTruthy();
+    expect(actions.querySelector('.users-table__action-btn--success')).toBeNull();
+    const lienVoir = actions.querySelector('a.users-table__action-btn');
+    expect(lienVoir).toBeTruthy();
+    expect(lienVoir?.getAttribute('aria-label')).toContain('ngo.awa');
+  });
+
+  it('affiche « — » pour un e-mail absent et le bouton Réactiver pour un compte inactif', async () => {
+    const { fixture } = monter({
+      getUsers: vi.fn().mockResolvedValue([
+        user({ id: 'u-2', username: 'jean.k', email: undefined as unknown as string, role: 'ADMIN', isActive: false }),
+      ]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.users-table__email')?.textContent?.trim()).toBe('—');
+    expect(racine.querySelector('.users-table__user--off')).toBeTruthy();
+    expect(racine.querySelector('.role-pill--off')).toBeTruthy();
+
+    const actions = racine.querySelector('.users-table__actions')!;
+    expect(actions.querySelector('.users-table__action-btn--success')).toBeTruthy();
+    expect(actions.querySelector('.users-table__action-btn--danger')).toBeNull();
+
+    // Pastille de statut : app-badge avec le ton neutre et le libellé INACTIF.
+    expect(racine.querySelector('app-badge')?.textContent).toContain('INACTIF');
+  });
+
+  it('la carte mobile (appCardRow) reflète aussi le statut et se met à jour après réactivation', async () => {
+    const { fixture, reactivateUser } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-3', username: 'awa', isActive: false })]),
+      reactivateUser: vi.fn().mockResolvedValue(user({ id: 'u-3', username: 'awa', isActive: true })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const carte = racine.querySelector('.ucard')!;
+    expect(carte.classList.contains('ucard--off')).toBe(true);
+    expect(carte.querySelector('.statut-dot--off')).toBeTruthy();
+
+    carte.querySelector<HTMLButtonElement>('.users-table__action-btn--success')!.click();
+    await flush();
+    fixture.detectChanges();
+
+    expect(reactivateUser).toHaveBeenCalledWith('u-3');
+    expect(racine.querySelector('.ucard')?.classList.contains('ucard--off')).toBe(false);
+  });
+
+  it('clic réel sur Désactiver ouvre la confirmation puis retire le bouton Réactiver après refus d’annuler', async () => {
+    const { fixture, deactivateUser, confirmationService } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-1', isActive: true })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((opts) => {
+      opts.accept?.();
+      return confirmationService;
+    });
+
+    racine.querySelector<HTMLButtonElement>('.users-table__action-btn--danger')!.click();
+    await flush();
+    fixture.detectChanges();
+
+    expect(deactivateUser).toHaveBeenCalledWith('u-1');
+    expect(racine.querySelector('.users-table__action-btn--danger')).toBeNull();
+    expect(racine.querySelector('.users-table__action-btn--success')).toBeTruthy();
+  });
+
+  it('clic sur l’icône Modifier de la carte mobile navigue vers la fiche', async () => {
+    const { fixture } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-9' })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router) as unknown as { navigateByUrl: ReturnType<typeof vi.fn> };
+    const racine = fixture.nativeElement as HTMLElement;
+    racine.querySelector<HTMLButtonElement>('.ucard .users-table__action-btn')!.click();
+
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/utilisateurs/u-9');
+  });
+
+  it('affiche le bandeau d’erreur et relance le chargement au clic sur Réessayer', async () => {
+    const getUsers = vi.fn()
+      .mockRejectedValueOnce(new Error('Panne serveur'))
+      .mockResolvedValueOnce([user()]);
+    const { fixture } = monter({ getUsers });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const banniere = racine.querySelector('app-error-banner');
+    expect(banniere).toBeTruthy();
+    expect(banniere?.textContent).toContain('Panne serveur');
+
+    const boutonReessayer = banniere!.querySelector<HTMLButtonElement>('button')!;
+    boutonReessayer.click();
+    await flush();
+    fixture.detectChanges();
+
+    expect(getUsers).toHaveBeenCalledTimes(2);
+    expect(racine.querySelector('app-error-banner')).toBeNull();
+  });
+
+  it('la recherche tapée dans le vrai champ filtre le tableau après le debounce', async () => {
+    vi.useFakeTimers();
+    try {
+      const { fixture, c } = monter({
+        getUsers: vi.fn().mockResolvedValue([
+          user({ id: 'u-1', username: 'ngo.awa' }),
+          user({ id: 'u-2', username: 'jean.k' }),
+        ]),
+      });
+      fixture.detectChanges();
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const champRecherche = racine.querySelector<HTMLInputElement>('.fp__search input')!;
+      champRecherche.value = 'ngo';
+      champRecherche.dispatchEvent(new Event('input'));
+
+      vi.advanceTimersByTime(300);
+      await flush();
+      fixture.detectChanges();
+
+      expect(c.searchTerm()).toBe('ngo');
+      expect(c.filteredUsers().map((u) => u.id)).toEqual(['u-1']);
+      // La classe `.users-table__username` apparaît deux fois par ligne filtrée :
+      // une fois dans la cellule desktop, une fois dans la carte mobile.
+      const lignes = racine.querySelectorAll('.users-table__username');
+      expect(lignes.length).toBe(2);
+      lignes.forEach((el) => expect(el.textContent?.trim()).toBe('ngo.awa'));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('clic réel sur Réactiver (vue desktop) et sur Désactiver (carte mobile)', async () => {
+    const { fixture, reactivateUser, deactivateUser, confirmationService } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-4', isActive: false })]),
+      reactivateUser: vi.fn().mockResolvedValue(user({ id: 'u-4', isActive: true })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    // Bouton « Réactiver » de la cellule desktop (premier du DOM, avant la carte).
+    racine.querySelector<HTMLButtonElement>('.users-table__actions .users-table__action-btn--success')!.click();
+    await flush();
+    fixture.detectChanges();
+    expect(reactivateUser).toHaveBeenCalledWith('u-4');
+
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((opts) => {
+      opts.accept?.();
+      return confirmationService;
+    });
+    // L'utilisateur est maintenant actif : la carte mobile expose « Désactiver ».
+    racine.querySelector<HTMLButtonElement>('.ucard .users-table__action-btn--danger')!.click();
+    await flush();
+
+    expect(deactivateUser).toHaveBeenCalledWith('u-4');
+  });
+
+  it('trie les lignes par en-tête cliquable, sur les cinq colonnes triables', async () => {
+    const { fixture } = monter({
+      getUsers: vi.fn().mockResolvedValue([
+        user({ id: 'u-1', username: 'zoe', email: 'z@x.com', role: 'AGENT', isActive: true, createdAt: '2026-01-01' }),
+        user({ id: 'u-2', username: 'awa', email: 'a@x.com', role: 'ADMIN', isActive: false, createdAt: '2026-02-01' }),
+      ]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const enTetes = Array.from(racine.querySelectorAll<HTMLButtonElement>('.dt__sort-btn'));
+    // username, email, role, createdAt, statut : les cinq colonnes triables du tableau.
+    expect(enTetes.length).toBe(5);
+
+    // Tri par identifiant (asc) : « awa » doit passer devant « zoe ».
+    enTetes[0].click();
+    fixture.detectChanges();
+    let usernames = Array.from(racine.querySelectorAll('.users-table__username')).map((el) => el.textContent?.trim());
+    expect(usernames[0]).toBe('awa');
+
+    // Les quatre autres colonnes triables (email, rôle, date, statut) : chaque
+    // `sortValue` doit s'exécuter sans lever d'exception.
+    for (const bouton of enTetes.slice(1)) {
+      expect(() => {
+        bouton.click();
+        fixture.detectChanges();
+      }).not.toThrow();
+    }
+  });
+});
+
+describe('UtilisateursListComponent — replis génériques', () => {
+  it('onFiltersChange retombe sur les valeurs par défaut si role/statut sont absents', () => {
+    const { c } = monter();
+    c.onFiltersChange({ role: 'AGENT', statut: 'ACTIF' });
+    expect(c.filtreRole()).toBe('AGENT');
+    expect(c.filtreStatut()).toBe('ACTIF');
+
+    c.onFiltersChange({});
+    expect(c.filtreRole()).toBeNull();
+    expect(c.filtreStatut()).toBe('TOUS');
+  });
+
+  it('filterValues reflète un statut différent de TOUS', () => {
+    const { c } = monter();
+    c.onFiltersChange({ statut: 'INACTIF' });
+    expect(c.filterValues()['statut']).toBe('INACTIF');
+  });
+
+  it('affiche le message d’erreur générique du toast si la désactivation échoue sans message serveur', async () => {
+    const { fixture, confirmationService } = monter({
+      getUsers: vi.fn().mockResolvedValue([user()]),
+      deactivateUser: vi.fn().mockRejectedValue(new Error()),
+    });
+    fixture.detectChanges();
+    await flush();
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((opts) => {
+      opts.accept?.();
+      return confirmationService;
+    });
+
+    fixture.componentInstance.confirmDeactivate(fixture.componentInstance.users()[0]);
+    await flush();
+
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('GENERIC'), expect.stringContaining('GENERIC'));
+  });
+
+  it('affiche le message d’erreur du serveur au toast si la désactivation échoue avec un message exploitable', async () => {
+    const { fixture, confirmationService } = monter({
+      getUsers: vi.fn().mockResolvedValue([user()]),
+      deactivateUser: vi.fn().mockRejectedValue(new Error('Compte protégé')),
+    });
+    fixture.detectChanges();
+    await flush();
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((opts) => {
+      opts.accept?.();
+      return confirmationService;
+    });
+
+    fixture.componentInstance.confirmDeactivate(fixture.componentInstance.users()[0]);
+    await flush();
+
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('GENERIC'), 'Compte protégé');
+  });
+
+  it('affiche le message d’erreur générique du toast si la réactivation échoue sans message serveur', async () => {
+    const { fixture, c } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ isActive: false })]),
+      reactivateUser: vi.fn().mockRejectedValue(new Error()),
+    });
+    fixture.detectChanges();
+    await flush();
+
+    await c.reactivate(c.users()[0]);
+
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+    expect(toast.error).toHaveBeenCalledWith(expect.stringContaining('GENERIC'), expect.stringContaining('GENERIC'));
+  });
+});

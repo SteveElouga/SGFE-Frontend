@@ -110,15 +110,18 @@ jobs:
   # Ils existaient depuis le début et ne s'exécutaient nulle part : la CI
   # compilait le projet sans jamais lancer une seule assertion.
   #
-  # Couverture (ajoutée le 09/09/2026) : ni seuil ni rapport n'existaient nulle
-  # part (`angular.json` n'avait aucune option de couverture, cette étape
-  # n'activait pas `--coverage`) — une régression de couverture n'aurait été
-  # remarquée par personne. Les seuils (`angular.json`, cible `test`) sont
-  # mesurés, pas hérités d'un défaut : 1929 tests (138 fichiers), 73,48 %
-  # lignes de code (statements), 74,33 % branches, 70,06 % fonctions, 78,88 %
-  # lignes — seuils posés quelques points en dessous (70/70/65/75) pour
-  # laisser une marge aux variations légitimes tout en attrapant une vraie
-  # régression. Provider
+  # Couverture (ajoutée le 09/09/2026, relevée le même jour après un effort
+  # ciblé sur les écrans les moins couverts) : les seuils (`angular.json`,
+  # cible `test`) sont mesurés, pas hérités d'un défaut. Mesure initiale :
+  # 1929 tests (138 fichiers), 73,48 % lignes de code (statements), 74,33 %
+  # branches, 70,06 % fonctions, 78,88 % lignes — seuils posés à 70/70/65/75.
+  # Mesure après renforcement (cause principale : de nombreux specs
+  # n'appelaient jamais `fixture.detectChanges()` après résolution des
+  # données async, donc le template n'était presque jamais réellement rendu) :
+  # 2468 tests (138 fichiers), 94,75 % statements, 88,26 % branches, 87,69 %
+  # fonctions, 96,35 % lignes — seuils relevés à 90/85/84/92, toujours
+  # quelques points en dessous du mesuré pour laisser une marge aux
+  # variations légitimes tout en attrapant une vraie régression. Provider
   # `@vitest/coverage-v8` (défaut Angular CLI pour Vitest — voir la migration
   # `migrate-karma-to-vitest`, qui installe toujours `@vitest/coverage-v8` en
   # premier). Limite connue : seuls les fichiers exercés par au moins un spec

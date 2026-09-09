@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -619,5 +620,420 @@ describe('FactureDetailComponent — bandeau d’annulation (rendu réel)', () =
     await flush();
     fixture.detectChanges();
     expect((fixture.nativeElement as HTMLElement).querySelector('.btn--danger-ghost')).toBeNull();
+  });
+});
+
+describe('FactureDetailComponent — statut : la branche PARTIELLE (les deux montants comptent)', () => {
+  it('statutCoherent vaut PARTIELLE quand une partie est payée et qu’il reste un solde', async () => {
+    const { fixture, c } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 4000, soldeRestant: 6000 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    expect(c.statutCoherent()).toBe('PARTIELLE');
+  });
+});
+
+describe('FactureDetailComponent — paiement enregistré depuis le panneau', () => {
+  it('ferme le formulaire, affiche un succès et recharge la facture', async () => {
+    const { fixture, c, getFacture } = monter();
+    fixture.detectChanges();
+    await flush();
+    c.showForm.set(true);
+    getFacture.mockClear();
+    const toast = TestBed.inject(ToastService) as unknown as { success: ReturnType<typeof vi.fn> };
+
+    await c.onPaiementSaved();
+
+    expect(toast.success).toHaveBeenCalled();
+    expect(c.showForm()).toBe(false);
+    expect(getFacture).toHaveBeenCalledWith('f-1');
+  });
+});
+
+describe('FactureDetailComponent — erreurs remontées à l’écran (toast)', () => {
+  it('envoyerRecuPourPaiement affiche l’erreur serveur et relâche le verrou', async () => {
+    const { fixture, c, envoyerRecuPaiement } = monter();
+    fixture.detectChanges();
+    await flush();
+    (envoyerRecuPaiement as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Reçu indisponible'));
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+
+    await c.envoyerRecuPourPaiement(paiement());
+
+    expect(toast.error).toHaveBeenCalledWith('Reçu indisponible');
+    expect(c.envoiRecuEnCours()).toBeNull();
+  });
+
+  it('envoyerWhatsapp affiche l’erreur serveur sans recharger', async () => {
+    const { fixture, c, envoyerFactureWhatsapp, getFacture } = monter();
+    fixture.detectChanges();
+    await flush();
+    (envoyerFactureWhatsapp as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('WhatsApp indisponible'));
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+    getFacture.mockClear();
+
+    await c.envoyerWhatsapp();
+
+    expect(toast.error).toHaveBeenCalledWith('WhatsApp indisponible');
+    expect(getFacture).not.toHaveBeenCalled();
+  });
+
+  it('rejouerEnvoi affiche l’erreur serveur et relâche le verrou', async () => {
+    const { fixture, c, renvoyerEnvoi } = monter();
+    fixture.detectChanges();
+    await flush();
+    (renvoyerEnvoi as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Renvoi impossible'));
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+
+    await c.rejouerEnvoi('e-1');
+
+    expect(toast.error).toHaveBeenCalledWith('Renvoi impossible');
+    expect(c.renvoiEnCours()).toBeNull();
+  });
+
+  it('corrigerStatut affiche l’erreur serveur et relâche le verrou', async () => {
+    const { fixture, c, updateStatutFacture } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 10_000, soldeRestant: 0 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    c.newStatut.set('PAYEE');
+    await c.corrigerStatut(); // 1er clic : arme la confirmation
+    (updateStatutFacture as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Correction refusée'));
+    const toast = TestBed.inject(ToastService) as unknown as { error: ReturnType<typeof vi.fn> };
+
+    await c.corrigerStatut(); // 2e clic : applique, échoue
+
+    expect(toast.error).toHaveBeenCalledWith('Correction refusée');
+    expect(c.changingStatut()).toBe(false);
+  });
+
+  it('annulerCorrection referme la confirmation sans appliquer', async () => {
+    const { fixture, c, updateStatutFacture } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 10_000, soldeRestant: 0 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    c.newStatut.set('PAYEE');
+    await c.corrigerStatut();
+    expect(c.confirmationCorrection()).toBe(true);
+
+    c.annulerCorrection();
+
+    expect(c.confirmationCorrection()).toBe(false);
+    expect(updateStatutFacture).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * Le reste de cette suite exerçait la logique TS sans jamais faire vivre le
+ * gabarit lui-même : `detectChanges()` était appelé une fois, jamais après un
+ * changement d'état ou une interaction. Les blocs qui suivent rendent
+ * réellement `facture-detail.component.html` dans ses différentes branches et
+ * cliquent dans le DOM produit, comme le ferait quelqu'un au clavier/à la
+ * souris.
+ */
+describe('FactureDetailComponent — rendu réel : bandeau d’erreur', () => {
+  it('affiche le bandeau et relance le chargement au clic sur Réessayer', async () => {
+    const { fixture, getFacture } = monter({
+      getFacture: vi
+        .fn()
+        .mockRejectedValueOnce(new Error('Facture indisponible'))
+        .mockResolvedValue(facture()),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bouton = racine.querySelector('.error-banner__retry') as HTMLButtonElement;
+    expect(bouton).toBeTruthy();
+    expect(racine.querySelector('.error-banner__message')?.textContent).toContain('Facture indisponible');
+
+    getFacture.mockClear();
+    bouton.click();
+    await flush();
+
+    expect(getFacture).toHaveBeenCalledWith('f-1');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : en-tête et actions', () => {
+  it('affiche le numéro Mobile Money quand il est renseigné', async () => {
+    const { fixture } = monter({
+      getFacture: vi.fn().mockResolvedValue(facture({ numeroMobileMoney: '655554444' })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.detail-card__mm')?.textContent).toContain('655554444');
+  });
+
+  it('ouvre le PDF au clic sur le bouton et affiche un spinner pendant le chargement', async () => {
+    let resoudre!: () => void;
+    const enVol = new Promise<void>((r) => (resoudre = () => r()));
+    const { fixture, open } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    (open as ReturnType<typeof vi.fn>).mockReturnValue(enVol);
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bouton = racine.querySelector('.btn--outline') as HTMLButtonElement;
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(open).toHaveBeenCalled();
+    expect(racine.querySelector('.btn--outline .pi-spinner')).toBeTruthy();
+
+    resoudre();
+    await flush();
+    fixture.detectChanges();
+    expect(racine.querySelector('.btn--outline .pi-spinner')).toBeNull();
+  });
+
+  it('envoie la facture par WhatsApp au clic sur le bouton d’en-tête', async () => {
+    const { fixture, envoyerFactureWhatsapp } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.btn--dark') as HTMLButtonElement).click();
+    await flush();
+
+    expect(envoyerFactureWhatsapp).toHaveBeenCalledWith('f-1', 'ab-1');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : facture annulée et régénérée', () => {
+  it('affiche la date d’annulation et le lien vers la facture de remplacement', async () => {
+    const { fixture } = monter({
+      getFacture: vi.fn().mockResolvedValue(
+        facture({
+          statut: 'ANNULEE',
+          dateAnnulation: '2026-08-20',
+          annuleePar: 'admin1',
+          remplaceeParId: 'f-2',
+        }),
+      ),
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 0, soldeRestant: 0, statut: 'ANNULEE' })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.annulee-bandeau__meta')?.textContent).toContain('20/08/2026');
+    const lien = racine.querySelector('.annulee-bandeau__lien');
+    expect(lien).toBeTruthy();
+    expect(lien?.textContent).toContain('BANDEAU_REMPLACEE');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : solde antérieur et avoir', () => {
+  it('affiche le détail du solde antérieur, l’avoir imputé et la note d’échéance passée', async () => {
+    const passe = new Date(Date.now() - 5 * 86_400_000).toISOString().slice(0, 10);
+    const { fixture } = monter({
+      getDetteAbonne: vi.fn().mockResolvedValue({ totalDu: 3000, nbFactures: 2, plusAncienneEcheance: passe }),
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ avoirImpute: 1000 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bloc = racine.querySelector('.anterieur') as HTMLElement;
+    expect(bloc).toBeTruthy();
+    expect(bloc.textContent).toContain('FACTURATION.DETAIL.SOLDE_ANTERIEUR');
+    expect(bloc.querySelector('.anterieur__v--avoir')?.textContent).toContain('1');
+    expect(bloc.querySelector('.anterieur__note')?.textContent).toContain('FACTURATION.DETAIL.DEPUIS');
+  });
+
+  it('affiche seulement l’avoir quand il n’y a pas de dette antérieure', async () => {
+    const { fixture } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ avoirImpute: 2000 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bloc = racine.querySelector('.anterieur') as HTMLElement;
+    expect(bloc).toBeTruthy();
+    expect(bloc.querySelector('.anterieur__note')?.textContent).toContain('FACTURATION.DETAIL.AVOIR_ORIGINE');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : sorties du panneau de paiements', () => {
+  it('propage la fermeture du formulaire', async () => {
+    const { fixture, c } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    c.showForm.set(true);
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-paiements-panel'));
+    panel.triggerEventHandler('closeForm', undefined);
+
+    expect(c.showForm()).toBe(false);
+  });
+
+  it('déclenche l’envoi du reçu pour le paiement ciblé par le panneau', async () => {
+    const { fixture, envoyerRecuPaiement } = monter({
+      getPaiements: vi.fn().mockResolvedValue([paiement({ paiementId: 'p-5' })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-paiements-panel'));
+    panel.triggerEventHandler('envoyerRecu', paiement({ paiementId: 'p-5' }));
+    await flush();
+
+    expect(envoyerRecuPaiement).toHaveBeenCalledWith('p-5', 'f-1', 'ab-1');
+  });
+
+  it('ouvre la feuille d’annulation pour le paiement ciblé par le panneau', async () => {
+    const { fixture, c } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-paiements-panel'));
+    panel.triggerEventHandler('ouvrirAnnulation', paiement({ paiementId: 'p-3' }));
+
+    expect(c.annulPaiementOuverte()).toBe(true);
+    expect(c.paiementAAnnuler()?.paiementId).toBe('p-3');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : journal WhatsApp (sortie rejouer)', () => {
+  it('renvoie l’envoi désigné par le panneau', async () => {
+    const { fixture, renvoyerEnvoi } = monter({
+      getEnvois: vi.fn().mockResolvedValue([envoi({ envoiId: 'e-9' })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const panel = fixture.debugElement.query(By.css('app-envois-panel'));
+    panel.triggerEventHandler('rejouer', 'e-9');
+    await flush();
+
+    expect(renvoyerEnvoi).toHaveBeenCalledWith('e-9');
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : actions mobiles', () => {
+  it('bouton PDF mobile déclenche openPdf', async () => {
+    const { fixture, open } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.mactions__icon') as HTMLButtonElement).click();
+    await flush();
+
+    expect(open).toHaveBeenCalled();
+  });
+
+  it('bouton WhatsApp mobile déclenche envoyerWhatsapp', async () => {
+    const { fixture, envoyerFactureWhatsapp } = monter();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.mactions__icon--wa') as HTMLButtonElement).click();
+    await flush();
+
+    expect(envoyerFactureWhatsapp).toHaveBeenCalled();
+  });
+
+  it('bouton "+ Paiement" mobile ouvre le formulaire', async () => {
+    const { fixture, c } = monter({ getSoldeFacture: vi.fn().mockResolvedValue(solde({ soldeRestant: 5000 })) });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bouton = racine.querySelector('.mactions__pay') as HTMLButtonElement;
+    expect(bouton).toBeTruthy();
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(c.showForm()).toBe(true);
+  });
+});
+
+describe('FactureDetailComponent — rendu réel : correction du statut (accordéon)', () => {
+  it('sélectionner un statut cohérent puis confirmer en deux clics appelle le service', async () => {
+    const { fixture, updateStatutFacture } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 10_000, soldeRestant: 0 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const select = fixture.debugElement.query(By.css('p-select'));
+    select.triggerEventHandler('ngModelChange', 'PAYEE');
+    fixture.detectChanges();
+
+    const bouton = racine.querySelector('.correction-apply') as HTMLButtonElement;
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.correction-confirm')).toBeTruthy();
+    expect(updateStatutFacture).not.toHaveBeenCalled();
+
+    bouton.click();
+    await flush();
+    fixture.detectChanges();
+
+    expect(updateStatutFacture).toHaveBeenCalledWith('f-1', 'PAYEE');
+  });
+
+  it('le bouton Annuler referme la confirmation sans appliquer', async () => {
+    const { fixture, updateStatutFacture } = monter({
+      getSoldeFacture: vi.fn().mockResolvedValue(solde({ montantPaye: 10_000, soldeRestant: 0 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const select = fixture.debugElement.query(By.css('p-select'));
+    select.triggerEventHandler('ngModelChange', 'PAYEE');
+    fixture.detectChanges();
+    (fixture.nativeElement.querySelector('.correction-apply') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.correction-annuler') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.correction-confirm')).toBeNull();
+    expect(updateStatutFacture).not.toHaveBeenCalled();
+  });
+
+  it('affiche l’avertissement quand la correction contredit le solde réel', async () => {
+    const { fixture } = monter(); // solde encore entièrement dû (IMPAYEE)
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const select = fixture.debugElement.query(By.css('p-select'));
+    select.triggerEventHandler('ngModelChange', 'PAYEE'); // contredit soldeRestant=10000
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.correction-warning')?.textContent).toContain(
+      'FACTURATION.DETAIL.STATUT_INCOHERENT',
+    );
   });
 });

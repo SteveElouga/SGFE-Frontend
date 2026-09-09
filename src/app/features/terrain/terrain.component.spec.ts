@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { of, throwError } from 'rxjs';
 import { TranslateService, provideTranslateService } from '@ngx-translate/core';
@@ -99,6 +100,12 @@ function monter(over: {
       { provide: AuthService, useValue: { user: signal({ id: 'agent-1', username: 'kamga', role: over.role ?? 'AGENT' }) } },
       { provide: OfflineSaisieService, useValue: offline },
       { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      // La vue « liste » (07) rend <app-page-topbar>, qui rend en permanence
+      // <app-notification-bell> (panneau toujours dans le DOM, ouvert/fermé en
+      // CSS) — son pied de panneau porte un `routerLink="/notifications"` qui
+      // exige `ActivatedRoute` dans l'injecteur, même quand le panneau est fermé.
+      { provide: Router, useValue: { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() } },
+      { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: new Map() }, queryParamMap: of(new Map()) } },
     ],
   });
   const fixture = TestBed.createComponent(TerrainComponent);
@@ -107,6 +114,22 @@ function monter(over: {
 
 async function flush(): Promise<void> {
   for (let i = 0; i < 10; i++) await Promise.resolve();
+}
+
+/**
+ * Les tests ci-dessus n'appellent `detectChanges()` qu'une fois, avant la
+ * résolution des promesses de chargement : le template reste donc figé sur le
+ * spinner de chargement (`view()` ne bouge jamais du côté DOM même quand les
+ * tests changent `view()` en appelant directement les méthodes du composant).
+ * Ce helper referme la boucle : rendu initial → attente des promesses →
+ * second rendu, pour obtenir le DOM une fois les données là.
+ */
+async function monterEtCharger(over: Parameters<typeof monter>[0] = {}) {
+  const m = monter(over);
+  m.fixture.detectChanges();
+  await flush();
+  m.fixture.detectChanges();
+  return m;
 }
 
 describe('TerrainComponent — chargement de la campagne active', () => {
@@ -544,5 +567,366 @@ describe('TerrainComponent — formatage', () => {
     const { fixture, c } = monter();
     fixture.detectChanges();
     expect(c.agentNom()).toBe('kamga');
+  });
+});
+
+/**
+ * Le template a 3 vues (`@switch (view())` : list/saisie/success) mais les
+ * tests ci-dessus ne rendent jamais que le spinner de chargement. Les blocs
+ * suivants cliquent réellement dans le DOM pour faire vivre les 3 écrans.
+ *
+ * Aucun rendu de carte (maplibre-gl) dans ce composant : `terrain.component`
+ * est l'écran agent liste/saisie/succès (07/08/09), pas la carte gestionnaire
+ * (`features/carte`). Tout ce qui suit est donc du DOM Angular classique,
+ * sans limite technique liée à jsdom/WebGL.
+ */
+describe('TerrainComponent — rendu DOM : liste (écran 07)', () => {
+  it('affiche la progression et les lignes après chargement', async () => {
+    const { fixture } = await monterEtCharger({
+      getRelevesParAgent: vi.fn().mockResolvedValue([
+        releve({ abonneId: 'a-1', statut: 'A_RELEVER' }),
+        releve({ abonneId: 'a-2', statut: 'RELEVE', consommation: 12 }),
+      ]),
+    });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const lignes = racine.querySelectorAll('.rows .row');
+    expect(lignes).toHaveLength(2);
+    expect(racine.querySelector('.t-progress-row')?.textContent).toContain('50%');
+    expect(lignes[0].classList.contains('row--action')).toBe(true);
+    expect(lignes[1].classList.contains('row--done')).toBe(true);
+  });
+
+  it('affiche le bandeau hors-ligne quand offline.online() est faux', async () => {
+    const { fixture } = await monterEtCharger({ offline: offlineStub({ online: false }) });
+    expect((fixture.nativeElement as HTMLElement).querySelector('.t-offline')).toBeTruthy();
+  });
+
+  it('masque le bandeau hors-ligne quand la connexion est là', async () => {
+    const { fixture } = await monterEtCharger({ offline: offlineStub({ online: true }) });
+    expect((fixture.nativeElement as HTMLElement).querySelector('.t-offline')).toBeNull();
+  });
+
+  it('affiche le bandeau de synchro en attente et relance la synchro via le bouton du DOM', async () => {
+    const offline = offlineStub();
+    offline.pendingCount.set(2);
+    const { fixture } = await monterEtCharger({ offline });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const carte = racine.querySelector('.sync-card');
+    expect(carte).toBeTruthy();
+    // Sans traductions chargées, `translate` rend la clé littérale (le
+    // pipe ignore les paramètres d'interpolation dans ce cas) : c'est donc
+    // elle qu'on vérifie, plutôt que le compte inséré par une vraie traduction.
+    expect(carte?.textContent).toContain('TERRAIN.SYNC_PENDING');
+
+    (racine.querySelector('.sync-card__retry') as HTMLButtonElement).click();
+    expect(offline.retry).toHaveBeenCalledTimes(1);
+  });
+
+  it('affiche le pictogramme de synchronisation en cours quand syncing() est vrai', async () => {
+    const offline = offlineStub({ syncing: true });
+    offline.pendingCount.set(1);
+    const { fixture } = await monterEtCharger({ offline });
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.sync-card__icon i')?.classList.contains('pi-spin')).toBe(true);
+  });
+
+  it('affiche un état vide explicite sans campagne active', async () => {
+    const { fixture } = await monterEtCharger({
+      campagnesQuery: vi.fn().mockReturnValue(of({ data: { campagnes: [] } })),
+    });
+    expect((fixture.nativeElement as HTMLElement).querySelector('.t-empty')?.textContent).toContain('TERRAIN.NO_CAMPAGNE');
+  });
+
+  it('affiche un état vide quand le filtre ne retient aucune ligne, et se réinitialise via les chips du DOM', async () => {
+    const { fixture } = await monterEtCharger({
+      getRelevesParAgent: vi.fn().mockResolvedValue([releve({ statut: 'RELEVE' })]),
+    });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const chips = racine.querySelectorAll('.fchips__chip');
+    (chips[1] as HTMLButtonElement).click(); // « À relever »
+    fixture.detectChanges();
+
+    expect(racine.querySelectorAll('.rows .row')).toHaveLength(0);
+    expect(racine.querySelector('.t-empty')?.textContent).toContain('TERRAIN.EMPTY');
+
+    (chips[0] as HTMLButtonElement).click(); // « Tous »
+    fixture.detectChanges();
+    expect(racine.querySelectorAll('.rows .row')).toHaveLength(1);
+  });
+
+  it('affiche la bannière d’erreur et relance le chargement via le bouton Réessayer du DOM', async () => {
+    const campagnesQuery = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('hors ligne')))
+      .mockReturnValueOnce(of({ data: { campagnes: [campagneEnCours()] } }));
+    const { fixture } = await monterEtCharger({ campagnesQuery });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    expect(racine.querySelector('.error-banner')).toBeTruthy();
+
+    (racine.querySelector('.error-banner__retry') as HTMLButtonElement).click();
+    await flush();
+    fixture.detectChanges();
+
+    expect(campagnesQuery).toHaveBeenCalledTimes(2);
+    expect(racine.querySelector('.error-banner')).toBeNull();
+  });
+
+  it('une ligne déjà relevée est réellement désactivée dans le DOM (pas seulement en apparence)', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ statut: 'RELEVE' })]) });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const ligne = racine.querySelector('.rows .row') as HTMLButtonElement;
+    expect(ligne.disabled).toBe(true);
+    expect(ligne.classList.contains('row--action')).toBe(false);
+  });
+
+  it('affiche le pictogramme de synchronisation sur une ligne en attente (PENDING)', async () => {
+    const queue: QueuedSaisie[] = [
+      { id: 'q1', kind: 'INDEX', campagneId: 'camp-1', abonneId: 'a-1', abonneNom: 'Jean Dupont', nouveauIndex: 130, consommation: 30, observation: '', ts: 1, state: 'PENDING' },
+    ];
+    const offline = offlineStub({ queue, syncing: true });
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ abonneId: 'a-1' })]), offline });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const ligne = racine.querySelector('.rows .row') as HTMLButtonElement;
+    expect(ligne.classList.contains('row--pending')).toBe(true);
+    const icone = ligne.querySelector('.row__sync');
+    expect(icone).toBeTruthy();
+    expect(icone?.classList.contains('pi-spin')).toBe(true);
+  });
+});
+
+/**
+ * Gardes défensives du template : `@if (saisieEntry(); as e)` et
+ * `@if (success(); as s)` protègent un état qui ne devrait jamais se
+ * produire via le parcours normal de l'écran (`openSaisie`/`confirmSaisie`
+ * posent toujours l'entrée avant de changer de vue). On force l'état ici
+ * directement sur les signaux pour vérifier que l'écran ne casse pas et
+ * n'affiche simplement rien plutôt qu'une exception `e is null`.
+ */
+describe('TerrainComponent — gardes défensives (état théoriquement impossible)', () => {
+  it('vue « saisie » sans entrée : n’affiche pas le corps du formulaire', async () => {
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    c.view.set('saisie'); // saisieEntry() reste null : jamais posé
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.saisie-body')).toBeNull();
+  });
+
+  it('vue « succès » sans résumé : n’affiche pas l’écran de confirmation', async () => {
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    c.view.set('success'); // success() reste null : jamais posé
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.succ-head__title')).toBeNull();
+  });
+
+  it('une valeur de vue inconnue (contrat rompu) n’affiche aucun des 3 écrans', async () => {
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    // `View` est un type fermé ('list' | 'saisie' | 'success') : ce cas n'est
+    // atteignable qu'en cassant le typage, pour vérifier que le `@switch` sans
+    // correspondance n'affiche rien plutôt que de lever une exception.
+    (c.view as unknown as { set: (v: string) => void }).set('inconnu');
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.rows')).toBeNull();
+    expect(racine.querySelector('.saisie-body')).toBeNull();
+    expect(racine.querySelector('.succ-head__title')).toBeNull();
+  });
+});
+
+describe('TerrainComponent — rendu DOM : saisie (écran 08)', () => {
+  it('clique sur une ligne « à relever » ouvre la saisie avec l’ancien index en lecture seule', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ ancienIndex: 250 })]) });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.saisie-body')).toBeTruthy();
+    expect(racine.querySelector('.idx-box--old .idx-box__value')?.textContent).toContain('250');
+  });
+
+  it('le chevron de retour (t-back) de l’en-tête de saisie revient à la liste', async () => {
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    expect(racine.querySelector('.saisie-body')).toBeTruthy();
+
+    (racine.querySelector('.t-back') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(c.view()).toBe('list');
+    expect(racine.querySelector('.rows')).toBeTruthy();
+  });
+
+  it('un index invalide affiche l’erreur et désactive la validation (vrai input DOM)', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ ancienIndex: 100 })]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const champIndex = racine.querySelector('#idx-new') as HTMLInputElement;
+    champIndex.value = '12abc';
+    champIndex.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.idx-box--error')).toBeTruthy();
+    expect((racine.querySelector('.btn-primary') as HTMLButtonElement).disabled).toBe(true);
+    expect(racine.querySelector('.conso-card')).toBeNull();
+  });
+
+  it('un index valide calcule la consommation en direct et avertit si elle est inhabituelle', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ ancienIndex: 100 })]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const champIndex = racine.querySelector('#idx-new') as HTMLInputElement;
+    champIndex.value = '700'; // 600 m³ de conso, > seuil de 500
+    champIndex.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.conso-card__value')?.textContent).toContain('600');
+    expect(racine.querySelector('.conso-card__warn')).toBeTruthy();
+    expect((racine.querySelector('.btn-primary') as HTMLButtonElement).disabled).toBe(false);
+
+    const champObs = racine.querySelector('#obs-input') as HTMLTextAreaElement;
+    champObs.value = 'Compteur bien visible';
+    champObs.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect((fixture.componentInstance as unknown as { observation: () => string }).observation()).toBe('Compteur bien visible');
+  });
+
+  it('ouvre la feuille M-07 depuis le bouton d’exception de la saisie', async () => {
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (racine.querySelector('.btn-exception') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(c.m07Visible()).toBe(true);
+  });
+
+  it('confirme un « estimé » depuis les vrais boutons de la feuille M-07 et revient à la liste', async () => {
+    const offline = offlineStub();
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ abonneId: 'a-1' })]), offline });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (racine.querySelector('.btn-exception') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    // Choix du statut « Estimé » (2e option) via un vrai clic.
+    const options = racine.querySelectorAll('.m07-opt');
+    (options[1] as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const champObsM07 = racine.querySelector('#m07-obs') as HTMLTextAreaElement;
+    champObsM07.value = 'Compteur inaccessible';
+    champObsM07.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const boutonConfirmer = racine.querySelector('.btn-danger') as HTMLButtonElement;
+    expect(boutonConfirmer.disabled).toBe(false);
+    boutonConfirmer.click();
+    fixture.detectChanges();
+
+    expect(offline.enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: 'ESTIME', abonneId: 'a-1', observation: 'Compteur inaccessible' }),
+    );
+    expect(c.view()).toBe('list');
+    expect(c.m07Visible()).toBe(false);
+  });
+
+  it('le bouton confirmer de la feuille M-07 reste désactivé sans observation', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (racine.querySelector('.btn-exception') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect((racine.querySelector('.btn-danger') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('annule la feuille M-07 depuis son propre bouton Annuler sans rien mettre en file', async () => {
+    const offline = offlineStub();
+    const { fixture, c } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve()]), offline });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    (racine.querySelector('.btn-exception') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    (racine.querySelector('.btn-ghost') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(offline.enqueue).not.toHaveBeenCalled();
+    expect(c.m07Visible()).toBe(false);
+    expect(c.view()).toBe('saisie'); // annuler la feuille ne referme pas la saisie elle-même
+  });
+});
+
+describe('TerrainComponent — rendu DOM : succès (écran 09)', () => {
+  it('confirme la saisie depuis le DOM et bascule vers l’écran succès avec le résumé exact', async () => {
+    const { fixture } = await monterEtCharger({
+      getRelevesParAgent: vi.fn().mockResolvedValue([
+        releve({ abonneId: 'a-1', ancienIndex: 100 }),
+        releve({ abonneId: 'a-2', numeroAbonne: 'AB-0002' }),
+      ]),
+    });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    const champIndex = racine.querySelector('#idx-new') as HTMLInputElement;
+    champIndex.value = '130';
+    champIndex.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    (racine.querySelector('.btn-primary') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.succ-head__title')).toBeTruthy();
+    expect(racine.querySelector('.succ-row__conso')?.textContent).toContain('30');
+    expect(racine.querySelector('.next-card')).toBeTruthy(); // a-2 reste à relever
+
+    (racine.querySelector('.btn-success') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    // « Relever le suivant » a rouvert directement la saisie de a-2.
+    expect(racine.querySelector('.saisie-body')).toBeTruthy();
+    expect(racine.querySelector('.succ-head__title')).toBeNull();
+  });
+
+  it('« Retour à la liste » depuis l’écran succès referme le résumé sans proposer de suivant', async () => {
+    const { fixture } = await monterEtCharger({ getRelevesParAgent: vi.fn().mockResolvedValue([releve({ ancienIndex: 100 })]) });
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.rows .row--action') as HTMLButtonElement).click();
+    fixture.detectChanges();
+    const champIndex = racine.querySelector('#idx-new') as HTMLInputElement;
+    champIndex.value = '130';
+    champIndex.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    (racine.querySelector('.btn-primary') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.next-card')).toBeNull(); // plus rien à relever
+    expect(racine.querySelector('.btn-success')).toBeNull();
+
+    (racine.querySelector('.btn-ghost') as HTMLButtonElement).click();
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.rows')).toBeTruthy();
+    expect(racine.querySelector('.succ-head__title')).toBeNull();
   });
 });

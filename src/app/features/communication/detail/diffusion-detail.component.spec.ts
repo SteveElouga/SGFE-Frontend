@@ -14,7 +14,7 @@ import { CommunicationService } from '../../../core/communication/communication.
  * dernière valeur chargée). Ces tests portent sur les deux, et sur le calcul
  * du pourcentage — qui ne doit jamais planter sur un total nul.
  */
-function diffusion(p: Partial<{ diffusionId: string; message: string; nbTotal: number; nbEnvoyes: number; nbEchecs: number }> = {}) {
+function diffusion(p: Partial<{ diffusionId: string; message: string; statut: string; nbTotal: number; nbEnvoyes: number; nbEchecs: number }> = {}) {
   return {
     diffusionId: 'd-1',
     message: 'Coupure prévue demain',
@@ -136,5 +136,59 @@ describe('DiffusionDetailComponent — progression en direct', () => {
 
     expect(c.diffusion()?.message).toBe('Coupure prévue demain');
     expect(c.error()).toBeNull();
+  });
+});
+
+/**
+ * Rendu réel du template : les tests ci-dessus vérifient la logique via les
+ * signaux, mais n'exercent jamais `@if (error()) / @else if (diffusion(); as
+ * d) / @else if (loading())` — un seul `detectChanges()` (avant la résolution
+ * de `getDiffusion`) laisse ces trois branches non rendues.
+ */
+describe('DiffusionDetailComponent — rendu du template', () => {
+  it('affiche l’état de chargement avant toute résolution', () => {
+    const { fixture } = monter();
+    fixture.detectChanges(); // avant `await flush()` : loading() est encore vrai
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.dd-card')).toBeTruthy();
+    expect(racine.querySelector('.dd-header')).toBeNull();
+    expect(racine.querySelector('.dd-error')).toBeNull();
+  });
+
+  it('rend la carte de diffusion en cours, avec ses échecs affichés', async () => {
+    const { fixture } = monter({ getDiffusion: vi.fn().mockResolvedValue(diffusion({ nbEchecs: 3 })) });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.dd-badge--termine')).toBeNull();
+    expect(racine.querySelector('.dd-message')?.textContent).toContain('Coupure prévue demain');
+    expect(racine.querySelector('.dd-progress__echecs')).toBeTruthy();
+  });
+
+  it('marque le badge terminé et masque les échecs à zéro', async () => {
+    const { fixture } = monter({
+      getDiffusion: vi.fn().mockResolvedValue(diffusion({ statut: 'TERMINEE', nbEchecs: 0 })),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.dd-badge--termine')).toBeTruthy();
+    expect(racine.querySelector('.dd-progress__echecs')).toBeNull();
+  });
+
+  it('affiche le bandeau d’erreur quand la diffusion est introuvable', async () => {
+    const { fixture, c } = monter({ getDiffusion: vi.fn().mockResolvedValue(null) });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const banniere = racine.querySelector('.dd-error');
+    expect(banniere).toBeTruthy();
+    expect(banniere?.textContent).toContain(c.error());
   });
 });

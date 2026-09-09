@@ -203,3 +203,187 @@ describe('UtilisateurFormComponent — soumission', () => {
     expect(c.errorMessage()).toContain('droits');
   });
 });
+
+/**
+ * Rendu réel du formulaire : les tests ci-dessus ne rendaient jamais le
+ * template après `detectChanges()` (saisie/validité pilotées uniquement au
+ * niveau des signaux). Ceux-ci saisissent dans les vrais champs, soumettent le
+ * vrai `<form>`, et vérifient les indices d'erreur / le champ e-mail
+ * conditionnel tels qu'ils apparaissent réellement à l'écran.
+ */
+describe('UtilisateurFormComponent — rendu réel (création)', () => {
+  it('affiche l’indice d’erreur d’identifiant seulement entre 1 et 2 caractères', async () => {
+    const { fixture } = monter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champUsername = racine.querySelector<HTMLInputElement>('#username')!;
+
+    expect(racine.querySelector('.user-form__hint--error')).toBeNull();
+
+    champUsername.value = 'ab';
+    champUsername.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(racine.querySelector('.user-form__hint--error')?.textContent).toContain('USERNAME_ERROR');
+
+    champUsername.value = 'abc';
+    champUsername.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(racine.querySelector('.user-form__hint--error')).toBeNull();
+  });
+
+  it('affiche l’indice de téléphone invalide et la classe associée, dans le vrai DOM', async () => {
+    const { fixture } = monter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champPhone = racine.querySelector<HTMLInputElement>('#phoneNumber')!;
+
+    champPhone.value = '12';
+    champPhone.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.user-form__phone-field--invalid')).toBeTruthy();
+    const indices = racine.querySelectorAll('.user-form__hint--error');
+    expect(Array.from(indices).some((el) => el.textContent?.includes('PHONE_ERROR'))).toBe(true);
+
+    champPhone.value = '612345678';
+    champPhone.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(racine.querySelector('.user-form__phone-field--valid')).toBeTruthy();
+    expect(racine.querySelector('.user-form__phone-field--invalid')).toBeNull();
+  });
+
+  it('fait apparaître le champ e-mail dès que le rôle ADMIN est choisi', async () => {
+    const { fixture, c } = monter();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('#email')).toBeNull();
+
+    c.role.set('ADMIN');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const champEmail = racine.querySelector<HTMLInputElement>('#email')!;
+    expect(champEmail).toBeTruthy();
+    champEmail.value = 'admin@x.com';
+    champEmail.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    expect(c.email()).toBe('admin@x.com');
+  });
+
+  it('soumet le vrai formulaire (submit du DOM) et affiche l’erreur serveur telle quelle', async () => {
+    const { fixture, createUser } = monter({
+      createUser: vi.fn().mockRejectedValue(new Error('Erreur inattendue du serveur')),
+    });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champUsername = racine.querySelector<HTMLInputElement>('#username')!;
+    champUsername.value = 'jean.k';
+    champUsername.dispatchEvent(new Event('input'));
+    const champPhone = racine.querySelector<HTMLInputElement>('#phoneNumber')!;
+    champPhone.value = '612345678';
+    champPhone.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    const boutonSubmit = racine.querySelector<HTMLButtonElement>('.user-form__submit')!;
+    expect(boutonSubmit.disabled).toBe(false);
+
+    racine.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await flush();
+    fixture.detectChanges();
+
+    expect(createUser).toHaveBeenCalled();
+    const erreur = racine.querySelector('.user-form__error');
+    expect(erreur?.textContent).toContain('Erreur inattendue du serveur');
+  });
+
+  it('affiche le spinner pendant la soumission puis l’icône de validation une fois terminé', async () => {
+    let resolve!: (u: User) => void;
+    const enVol = new Promise<User>((r) => (resolve = r));
+    const { fixture } = monter({ createUser: vi.fn().mockReturnValue(enVol) });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champUsername = racine.querySelector<HTMLInputElement>('#username')!;
+    champUsername.value = 'jean.k';
+    champUsername.dispatchEvent(new Event('input'));
+    const champPhone = racine.querySelector<HTMLInputElement>('#phoneNumber')!;
+    champPhone.value = '612345678';
+    champPhone.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    racine.querySelector('form')!.dispatchEvent(new Event('submit'));
+    fixture.detectChanges();
+
+    const boutonSubmit = racine.querySelector<HTMLButtonElement>('.user-form__submit')!;
+    expect(boutonSubmit.querySelector('.pi-spinner')).toBeTruthy();
+    expect(boutonSubmit.querySelector('.pi-check')).toBeNull();
+    expect(boutonSubmit.disabled).toBe(true);
+
+    resolve(user());
+    await flush();
+    fixture.detectChanges();
+
+    expect(boutonSubmit.querySelector('.pi-check')).toBeTruthy();
+    expect(boutonSubmit.querySelector('.pi-spinner')).toBeNull();
+  });
+
+  it('clic réel sur Annuler garde un lien routable vers /utilisateurs', async () => {
+    const { fixture } = monter();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    const lienAnnuler = racine.querySelector<HTMLAnchorElement>('.user-form__cancel')!;
+    expect(lienAnnuler).toBeTruthy();
+    expect(lienAnnuler.textContent).toContain('CANCEL');
+  });
+});
+
+describe('UtilisateurFormComponent — rendu réel (édition)', () => {
+  it('affiche le titre et l’état de chargement en mode édition avant résolution', async () => {
+    const { fixture } = monter({ routeId: 'u-1' });
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.user-form-page__title')?.textContent).toContain('EDIT_TITLE');
+    expect(racine.querySelector('.user-form-page__loading')).toBeTruthy();
+
+    await flush();
+    fixture.detectChanges();
+    expect(racine.querySelector('.user-form-page__loading')).toBeNull();
+    // Pas de champ « identifiant » en édition (lecture seule côté fiche).
+    expect(racine.querySelector('#username')).toBeNull();
+  });
+
+  it('modifie un utilisateur existant depuis les vrais champs puis soumet', async () => {
+    const { fixture, updateUser } = monter({ routeId: 'u-1' });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champPhone = racine.querySelector<HTMLInputElement>('#phoneNumber')!;
+    champPhone.value = '698765432';
+    champPhone.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    racine.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await flush();
+
+    expect(updateUser).toHaveBeenCalledWith('u-1', expect.objectContaining({ phoneNumber: '+237698765432' }));
+  });
+});

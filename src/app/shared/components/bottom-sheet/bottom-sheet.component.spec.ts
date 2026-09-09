@@ -156,3 +156,166 @@ describe('BottomSheetComponent · glisser pour fermer', () => {
     expect(hote.fermetures()).toBe(1);
   });
 });
+
+/** Sans `ariaLabel` ni `labelledBy` : la feuille s'ouvre sans nom accessible. */
+@Component({
+  imports: [BottomSheetComponent],
+  template: `
+    <app-bottom-sheet [open]="ouverte()">
+      <button type="button">Contenu</button>
+    </app-bottom-sheet>
+  `,
+})
+class HoteSansNomTest {
+  readonly ouverte = signal(true);
+}
+
+/** Bouton hors de la feuille, pour vérifier la restauration du focus à la fermeture. */
+@Component({
+  imports: [BottomSheetComponent],
+  template: `
+    <button type="button" id="exterieur">Dehors</button>
+    <app-bottom-sheet [open]="ouverte()" ariaLabel="Test" (close)="fermetures.set(fermetures() + 1)">
+      <button type="button" id="premier">Premier</button>
+      <button type="button" id="second">Second</button>
+    </app-bottom-sheet>
+  `,
+})
+class HoteFocusTrapTest {
+  readonly ouverte = signal(false);
+  readonly fermetures = signal(0);
+}
+
+/** Laisse tourner les micro-tâches en attente (le `queueMicrotask(focusFirst)` de l'effet d'ouverture). */
+async function laisserPasserLesMicrotaches(): Promise<void> {
+  for (let i = 0; i < 5; i++) await Promise.resolve();
+}
+
+describe('BottomSheetComponent · garde-fou d’accessibilité (nom manquant)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('avertit en console quand la feuille s’ouvre sans ariaLabel ni labelledBy', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    TestBed.configureTestingModule({ imports: [HoteSansNomTest] });
+    const fixture = TestBed.createComponent(HoteSansNomTest);
+    fixture.detectChanges();
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Ouverte sans nom accessible'),
+    );
+  });
+
+  it('ne dit rien quand un ariaLabel est fourni (cas nominal des autres tests)', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    TestBed.configureTestingModule({ imports: [HoteTest] });
+    const fixture = TestBed.createComponent(HoteTest);
+    fixture.detectChanges();
+
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('BottomSheetComponent · piège de focus (Tab / Shift+Tab)', () => {
+  function monterAvecFocusables() {
+    TestBed.configureTestingModule({ imports: [HoteFocusTrapTest] });
+    const fixture = TestBed.createComponent(HoteFocusTrapTest);
+    const racine = fixture.nativeElement as HTMLElement;
+    document.body.appendChild(racine);
+    fixture.componentInstance.ouverte.set(true); // le piège de focus n'agit que sheet ouverte
+    fixture.detectChanges();
+
+    const premier = racine.querySelector('#premier') as HTMLElement;
+    const second = racine.querySelector('#second') as HTMLElement;
+    // jsdom ne calcule aucune mise en page : `offsetParent` y vaut toujours
+    // `null`. `getFocusables()` s'appuie dessus pour ignorer les éléments
+    // masqués — on le force ici pour simuler des boutons réellement visibles.
+    for (const el of [premier, second]) {
+      Object.defineProperty(el, 'offsetParent', { configurable: true, get: () => document.body });
+    }
+
+    return { fixture, hote: fixture.componentInstance, racine, premier, second };
+  }
+
+  afterEach(() => {
+    document.querySelectorAll('body > *').forEach((el) => el.remove());
+  });
+
+  it('Tab depuis le dernier élément revient au premier', () => {
+    const { premier, second } = monterAvecFocusables();
+    second.focus();
+    expect(document.activeElement).toBe(second);
+
+    const ev = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    document.dispatchEvent(ev);
+
+    expect(document.activeElement).toBe(premier);
+    expect(ev.defaultPrevented).toBe(true);
+  });
+
+  it('Maj+Tab depuis le premier élément revient au dernier', () => {
+    const { premier, second } = monterAvecFocusables();
+    premier.focus();
+    expect(document.activeElement).toBe(premier);
+
+    const ev = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true });
+    document.dispatchEvent(ev);
+
+    expect(document.activeElement).toBe(second);
+    expect(ev.defaultPrevented).toBe(true);
+  });
+
+  it('Tab ne fait rien tant que la feuille est fermée', () => {
+    TestBed.configureTestingModule({ imports: [HoteFocusTrapTest] });
+    const fixture = TestBed.createComponent(HoteFocusTrapTest); // ouverte() = false par défaut
+    const racine = fixture.nativeElement as HTMLElement;
+    document.body.appendChild(racine);
+    fixture.detectChanges();
+    const premier = racine.querySelector('#premier') as HTMLElement;
+    premier.focus();
+
+    const ev = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    document.dispatchEvent(ev);
+
+    // Sheet fermée : le piège de focus est inactif, rien n'est intercepté.
+    expect(ev.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(premier);
+  });
+
+  it('Tab ne boucle pas quand le focus n’est pas sur le dernier élément', () => {
+    const { premier, second } = monterAvecFocusables();
+    premier.focus();
+
+    const ev = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    document.dispatchEvent(ev);
+
+    // Le focus n'était pas sur le dernier élément : onTab ne fait rien, le
+    // navigateur gère lui-même la tabulation normale.
+    expect(ev.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(premier);
+    void second;
+  });
+
+  it('restaure le focus sur l’élément déclencheur à la fermeture de la feuille', async () => {
+    TestBed.configureTestingModule({ imports: [HoteFocusTrapTest] });
+    const fixture = TestBed.createComponent(HoteFocusTrapTest);
+    const racine = fixture.nativeElement as HTMLElement;
+    document.body.appendChild(racine);
+    fixture.detectChanges();
+
+    const exterieur = racine.querySelector('#exterieur') as HTMLElement;
+    exterieur.focus();
+    expect(document.activeElement).toBe(exterieur);
+
+    fixture.componentInstance.ouverte.set(true);
+    fixture.detectChanges();
+    await laisserPasserLesMicrotaches();
+
+    fixture.componentInstance.ouverte.set(false);
+    fixture.detectChanges();
+    await laisserPasserLesMicrotaches();
+
+    expect(document.activeElement).toBe(exterieur);
+  });
+});
