@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { genererNumeroCompteur } from '../fixtures/numero-compteur.util';
 
 /**
  * Résiliation d'un abonné (`ResilierAbonne`, ADMIN uniquement — voir
@@ -64,7 +65,7 @@ test.describe('Abonnés — résiliation', () => {
     // ── Création d'un abonné jetable, identifiable de façon unique ──────────
     const marqueur = `E2ERES${Date.now().toString(36).toUpperCase()}`;
     const telephone = `6${String(Date.now()).slice(-8)}`;
-    const numeroCompteur = String(Date.now()).slice(-6);
+    const numeroCompteur = genererNumeroCompteur(testInfo);
 
     await page.goto('/abonnes/nouveau');
     // `exact: true` : « Prénom * » se termine par « nom * » et matcherait sinon

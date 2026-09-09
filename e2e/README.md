@@ -186,9 +186,52 @@ d'une campagne particulière du jeu de données partagé (fragile — voir
 l'avertissement sur l'état constaté du seed, plus bas), la plupart créent leur
 propre fixture jetable (un abonné, une campagne, un utilisateur) via le
 formulaire réel ou par API GraphQL directe (`request` de Playwright), avant de
-n'exercer l'UI que pour le geste réellement testé. Chaque exécution est donc
-intégralement autonome et rejouable indéfiniment, contrairement à
+n'exercer l'UI que pour le geste réellement testé. `abonnes-resiliation`,
+`abonnes-remplacement-compteur` et `campagnes-correction-releve` sont ainsi
+intégralement autonomes et rejouables indéfiniment, contrairement à
 `terrain-saisie-index.spec.ts` qui reste contrainte par un budget de seed fixe.
+
+> ⚠️ **Corrigé le 09/09/2026** (contre-vérification indépendante) : cette
+> section affirmait la même autonomie pour les **onze** specs sans distinction.
+> Faux pour deux d'entre eux — `paiements-annulation.spec.ts` et
+> `facturation-envoi-whatsapp.spec.ts` passent tous les deux par `/impayes`
+> (vue « Par facture ») et agissent sur la **première ligne** de cette liste
+> partagée et vivante, sans créer leur propre facture. En exécution parallèle
+> (réglage par défaut de Playwright hors CI, `workers: undefined`), deux
+> workers peuvent cibler la même facture au même moment — collision reproduite
+> en conditions réelles (`paiements-annulation.spec.ts` échoue en parallèle,
+> passe systématiquement une fois sérialisé). De même, `numeroCompteur`
+> (contrainte UNIQUE réelle en base, `Compteur.numero_compteur`) était généré
+> par un simple `String(Date.now()).slice(-6)` dans trois specs
+> (`abonnes-resiliation`, `abonnes-remplacement-compteur`,
+> `campagnes-correction-releve`) — collision également reproduite en parallèle
+> (`IntegrityError: duplicate key … numero_compteur=`), corrigée depuis via
+> `e2e/fixtures/numero-compteur.util.ts` (horodatage + index de worker + aléa).
+>
+> **En pratique** : lancer les onze specs de cette section avec
+> `--workers=1` (voir la commande ci-dessous) tant que
+> `paiements-annulation`/`facturation-envoi-whatsapp` n'ont pas été réécrits
+> pour créer leur propre facture jetable (comme `campagnes-correction-releve`
+> le fait déjà pour une campagne/un relevé) — non fait ici, changement plus
+> large que ce correctif ponctuel.
+
+```bash
+E2E_ADMIN_USER=demo_admin E2E_ADMIN_PASSWORD='Demo1234!' \
+E2E_COMPTABLE_USER=demo_comptable E2E_COMPTABLE_PASSWORD='Demo1234!' \
+E2E_LIVE_BACKEND=1 \
+npx playwright test --workers=1 \
+  e2e/specs/abonnes-resiliation.spec.ts \
+  e2e/specs/abonnes-remplacement-compteur.spec.ts \
+  e2e/specs/campagnes-correction-releve.spec.ts \
+  e2e/specs/paiements-annulation.spec.ts \
+  e2e/specs/communication-diffusion.spec.ts \
+  e2e/specs/facturation-envoi-whatsapp.spec.ts \
+  e2e/specs/utilisateurs-creation.spec.ts \
+  e2e/specs/rapports-export.spec.ts \
+  e2e/specs/configuration-parametres.spec.ts \
+  e2e/specs/profil-reset-password.spec.ts \
+  e2e/specs/notifications-marquer-lu.spec.ts
+```
 
 | Spec | Rôle | Écrit | Backend WhatsApp requis ? |
 |---|---|---|---|

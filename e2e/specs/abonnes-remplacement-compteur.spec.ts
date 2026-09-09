@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { genererNumeroCompteur } from '../fixtures/numero-compteur.util';
 
 /**
  * Remplacement du compteur d'un abonné (`RemplacerCompteur`, ADMIN uniquement
@@ -60,7 +61,7 @@ test.describe('Abonnés — remplacement de compteur', () => {
     // ── Création d'un abonné jetable, identifiable de façon unique ──────────
     const marqueur = `E2ECPT${Date.now().toString(36).toUpperCase()}`;
     const telephone = `6${String(Date.now()).slice(-8)}`;
-    const ancienNumeroCompteur = String(Date.now()).slice(-6);
+    const ancienNumeroCompteur = genererNumeroCompteur(testInfo);
 
     await page.goto('/abonnes/nouveau');
     // `exact: true` : « Prénom * » se termine par « nom * » et matcherait sinon
@@ -100,7 +101,7 @@ test.describe('Abonnés — remplacement de compteur', () => {
     // n'est pas résolu (voir `remplacer-compteur-sheet.component.ts::save`).
     await expect(dialog.locator('.meter-old-card__loading')).toHaveCount(0, { timeout: 10_000 });
 
-    const nouveauNumeroCompteur = String(Date.now()).slice(-6);
+    const nouveauNumeroCompteur = genererNumeroCompteur(testInfo);
     await dialog.locator('#newNumero').fill(nouveauNumeroCompteur);
     // Quartier/camp/date de pose sont repris automatiquement de l'ancien
     // compteur (voir `init()`) — rien d'autre à remplir pour un remplacement valide.

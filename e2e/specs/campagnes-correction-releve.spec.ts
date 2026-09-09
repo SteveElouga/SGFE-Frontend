@@ -1,4 +1,5 @@
 import { test, expect, type APIRequestContext } from '@playwright/test';
+import { genererNumeroCompteur } from '../fixtures/numero-compteur.util';
 
 /**
  * Correction d'un relevé déjà saisi (`CorrigerReleve`, ADMIN et SUPERVISEUR —
@@ -99,7 +100,7 @@ test.describe('Campagnes — correction d\'un relevé', () => {
           nom: marqueur,
           prenom: 'Playwright',
           telephoneWhatsapp: `+2376${String(Date.now()).slice(-8)}`,
-          numeroCompteur: Number(String(Date.now()).slice(-6)),
+          numeroCompteur: Number(genererNumeroCompteur(testInfo)),
           quartier: 'Zone E2E',
           camp: 3,
           indexInitial: 0,
