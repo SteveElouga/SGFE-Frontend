@@ -63,7 +63,7 @@
   </div>
 
   @if (vue() === 'abonne') {
-    <ul class="imp-groupes">
+    <ul class="imp-groupes screen-scroll-interne">
       @for (g of groupesAbonnes(); track g.abonneId) {
         <li class="imp-groupe">
           <div class="imp-groupe__tete">
@@ -100,7 +100,7 @@
   }
 
   <!-- Table -->
-  <div class="table-wrap" [hidden]="vue() !== 'facture'">
+  <div class="table-wrap screen-flex-fill" [hidden]="vue() !== 'facture'">
     <app-data-table
       [columns]="columns"
       [rows]="impayesFiltres()"

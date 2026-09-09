@@ -31,12 +31,8 @@
   border-radius: var(--rayon-lg);
   overflow: hidden;
 
-  @media (min-width: 1024px) {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-  }
+  // Le relais de hauteur vers `<app-data-table>` est la classe partagée
+  // `.screen-flex-fill` posée dans le gabarit — voir `styles/global.scss`.
 }
 
 .dl-message {

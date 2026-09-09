@@ -30,16 +30,18 @@
   border: 1px solid var(--filet);
   border-radius: var(--rayon-lg);
   padding: var(--pas-4);
-  // `.dfc-content` est une colonne flex avec `overflow-y: auto` (règle
-  // `.page-scroll` de global.scss) : sans ceci, un enfant flex se laisse
-  // comprimer sous la taille de son contenu dès que la somme des enfants
-  // dépasse la hauteur visible — le `overflow: hidden` de `.dfc-card--table`
-  // absorbe alors tout le débordement en écrasant SA propre boîte à quelques
-  // pixels au lieu de laisser la page défiler. Même défaut, même remède que
-  // `.abonnes-card` (voir son commentaire, `abonnes-list.component.scss`).
+  // La carte texte ne doit pas rétrécir : c'est la carte tableau
+  // (`.dfc-card--table`, `.screen-flex-fill`) qui absorbe la hauteur
+  // restante — voir `styles/global.scss`.
   flex-shrink: 0;
 }
 
+// `.screen-flex-fill` (posée dans le gabarit, voir `styles/global.scss`) fait
+// de cette carte le relais de hauteur vers `<app-data-table>`. Avant cette
+// classe, `<app-data-table>` s'affichait à sa pleine hauteur de contenu (zéro
+// marge de défilement mesurée) et c'était `.dfc-content` — la page entière —
+// qui défilait à sa place : ça fonctionnait par accident, mais pas de la même
+// façon que les sept autres écrans à `<app-data-table>` de ce dépôt.
 .dfc-card--table {
   padding: 0;
   overflow: hidden;
