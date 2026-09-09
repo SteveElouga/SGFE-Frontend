@@ -294,6 +294,11 @@ jobs:
             echo "WHATSAPP_INTERNAL_API_KEY=$(openssl rand -hex 32)"
             echo "BACKUP_ENCRYPTION_KEY=$(openssl rand -hex 48)"
             echo "PII_ENCRYPTION_KEY=$(openssl rand -base64 32 | tr '+/' '-_')"
+            # Clé HMAC du hash de recherche des données personnelles
+            # (auth-service, chiffrement PII) — ajoutée après ce fichier,
+            # jamais reportée ici : `docker compose up` échouait en
+            # interpolation de variable avant même de démarrer un conteneur.
+            echo "PII_LOOKUP_HMAC_KEY=$(openssl rand -base64 32 | tr '+/' '-_')"
           } > .env
 
       # Requis (fail-fast) par auth-service — voir
