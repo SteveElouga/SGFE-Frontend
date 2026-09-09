@@ -16,9 +16,20 @@ export const environment = {
   // nécessaire.
   origineItineraire: { lat: 4.0511, lon: 9.7679 }, // Douala, Cameroun (repère par défaut)
   // DSN du projet GlitchTip (organisation "SGFE", plateforme d'observabilité
-  // externe — voir CLAUDE.md § Observabilité). Vide par défaut : dégradation
-  // gracieuse, même esprit que PYROSCOPE_SERVER_ADDRESS côté backend — les
-  // erreurs restent captées par Faro (-> Loki) quoi qu'il arrive, GlitchTip
-  // est un second exportateur optionnel, jamais une condition de démarrage.
-  glitchtipDsn: '',
+  // externe — voir CLAUDE.md § Observabilité). Dégradation gracieuse si vide,
+  // même esprit que PYROSCOPE_SERVER_ADDRESS côté backend — les erreurs
+  // restent captées par Faro (-> Loki) quoi qu'il arrive, GlitchTip est un
+  // second exportateur optionnel, jamais une condition de démarrage.
+  //
+  // Hôte corrigé par rapport au DSN affiché par GlitchTip lui-même : sa
+  // config (`GLITCHTIP_DOMAIN`, docker-compose.yml de la plateforme
+  // d'observabilité) est restée sur le placeholder documenté
+  // "glitchtip.example.com" (jamais adapté), donc le DSN généré pointe vers
+  // un domaine qui n'existe pas. `localhost:8000` est l'hôte réellement
+  // publié par cette pile de labo (confirmé : `docker ps` mappe
+  // `observability-glitchtip-1` en `0.0.0.0:8000->8080/tcp`). Uniquement
+  // valable en développement local sur cette même machine — voir
+  // environment.prod.ts, resté vide tant qu'un vrai domaine de production
+  // n'existe pas pour cette plateforme.
+  glitchtipDsn: 'http://cf31fd3c1dc743beb1ff28692686b71f@localhost:8000/1',
 };
