@@ -642,6 +642,39 @@ describe('FacturesListComponent — pagination serveur', () => {
       await flush();
       expect(renvoyerFactureWhatsapp).toHaveBeenCalledWith('f-imp');
     });
+
+    // Une facture PARTIELLE reste due — seule PAYEE n'a plus de raison
+    // d'être relancée. Avant ce test, seule IMPAYEE affichait ce bouton :
+    // une facture à moitié payée n'avait aucun moyen d'être relancée par
+    // WhatsApp depuis cette liste, alors que la mutation et le message
+    // (`renvoyerFactureWhatsapp` → `EnvoiService.renvoyer_facture`, backend)
+    // ne distinguent déjà pas le statut de la facture.
+    it('affiche le bouton WhatsApp sur une ligne PARTIELLE et l’appelle avec le bon id', async () => {
+      const partielle = facture({
+        factureId: 'f-part',
+        abonneId: 'a-2',
+        numeroFacture: 'F-PART',
+        statut: 'PARTIELLE',
+      });
+      const payee = facture({ factureId: 'f-paid', abonneId: 'a-3', numeroFacture: 'F-PAID', statut: 'PAYEE' });
+      const annulee = facture({ factureId: 'f-ann', abonneId: 'a-4', numeroFacture: 'F-ANN', statut: 'ANNULEE' });
+      const getFactures = vi.fn().mockResolvedValue([partielle, payee, annulee]);
+      const renvoyerFactureWhatsapp = vi.fn().mockResolvedValue({});
+      const fixture = creer({ getFactures, getFacturesCount: defaultCounts(), renvoyerFactureWhatsapp });
+      fixture.detectChanges();
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      // Une seule ligne (PARTIELLE) porte le bouton : PAYEE et ANNULEE non.
+      const boutonsWa = racine.querySelectorAll('.btn-action--icon');
+      expect(boutonsWa.length).toBe(1);
+
+      (boutonsWa[0] as HTMLButtonElement).click();
+      await flush();
+      expect(renvoyerFactureWhatsapp).toHaveBeenCalledWith('f-part');
+      expect(renvoyerFactureWhatsapp).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('rendu réel : carte mobile et colonne abonné (desktop)', () => {
@@ -820,6 +853,44 @@ describe('FacturesListComponent — pagination serveur', () => {
       await flush();
       fixture.detectChanges();
       expect(racine.querySelector('.btn-generer .pi-spinner')).toBeNull();
+    });
+
+    // Même patron que les deux tests ci-dessus : icône remplacée par le
+    // spinner, bouton désactivé, tant que la promesse est en vol — pour le
+    // bouton WhatsApp individuel d'une ligne (IMPAYEE ou PARTIELLE).
+    it('affiche un spinner sur le bouton WhatsApp d’une ligne pendant l’envoi, et le désactive', async () => {
+      const partielle = facture({
+        factureId: 'f-part',
+        abonneId: 'a-2',
+        numeroFacture: 'F-PART',
+        statut: 'PARTIELLE',
+      });
+      const getFactures = vi.fn().mockResolvedValue([partielle]);
+      let resoudreWaLigne!: (v: unknown) => void;
+      const enVolWaLigne = new Promise((r) => (resoudreWaLigne = r));
+      const renvoyerFactureWhatsapp = vi.fn().mockReturnValue(enVolWaLigne);
+      const fixture = creer({ getFactures, getFacturesCount: defaultCounts(), renvoyerFactureWhatsapp });
+      fixture.detectChanges();
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const boutonWa = racine.querySelector('.btn-action--icon') as HTMLButtonElement;
+      expect(boutonWa.querySelector('.pi-mobile')).toBeTruthy();
+      expect(boutonWa.querySelector('.pi-spinner')).toBeNull();
+
+      boutonWa.click();
+      fixture.detectChanges();
+      expect(boutonWa.disabled).toBe(true);
+      expect(boutonWa.querySelector('.pi-spinner')).toBeTruthy();
+      expect(boutonWa.querySelector('.pi-mobile')).toBeNull();
+
+      resoudreWaLigne({});
+      await flush();
+      fixture.detectChanges();
+      expect(boutonWa.disabled).toBe(false);
+      expect(boutonWa.querySelector('.pi-spinner')).toBeNull();
+      expect(boutonWa.querySelector('.pi-mobile')).toBeTruthy();
     });
   });
 
