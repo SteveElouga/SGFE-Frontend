@@ -180,4 +180,43 @@ describe('CorrigerReleveSheetComponent', () => {
     expect(succes).not.toHaveBeenCalled();
     expect(c.loading()).toBe(false);
   });
+
+  it('affiche un spinner et désactive les boutons pendant la correction en vol', async () => {
+    let resoudre!: (v: unknown) => void;
+    corrigerReleve = vi.fn(() => new Promise((r) => { resoudre = r; }));
+    TestBed.configureTestingModule({
+      imports: [CorrigerReleveSheetComponent],
+      providers: [
+        provideTranslateService({}),
+        { provide: CampagnesService, useValue: { corrigerReleve } },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(CorrigerReleveSheetComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('campagneId', 'camp-1');
+    fixture.componentRef.setInput('releve', releve());
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const confirmer = () => racine.querySelector('.dialog-btn--primary') as HTMLButtonElement;
+    const annuler = () => racine.querySelector('.dialog-btn--ghost') as HTMLButtonElement;
+
+    fixture.componentInstance.nouvelIndex.set('150');
+    fixture.detectChanges();
+
+    confirmer().click();
+    fixture.detectChanges();
+
+    expect(confirmer().disabled).toBe(true);
+    expect(annuler().disabled).toBe(true);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre({ releveId: 'r-1', nouveauIndex: 150, consommation: 50, statut: 'RELEVE', audit: [] });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(confirmer().disabled).toBe(false);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
 });

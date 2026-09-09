@@ -89,8 +89,10 @@
         type="button"
         class="ics__btn ics__btn--primaire"
         [disabled]="!peutImporter()"
+        [attr.aria-busy]="envoiEnCours()"
         (click)="importer()"
       >
+        @if (envoiEnCours()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
         {{ (envoiEnCours() ? 'CARTE.IMPORT.ENVOI_EN_COURS' : 'CARTE.IMPORT.IMPORTER') | translate }}
       </button>
     </div>

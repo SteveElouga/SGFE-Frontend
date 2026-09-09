@@ -210,6 +210,7 @@ describe('ReactiverSheetComponent · ce qui s’affiche', () => {
     expect(confirmer().disabled).toBe(true);
     expect(annuler().disabled).toBe(true);
     expect(texte()).toContain('Réactivation…');
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
 
     resoudre(abonneReactive());
     await fixture.whenStable();
@@ -217,5 +218,6 @@ describe('ReactiverSheetComponent · ce qui s’affiche', () => {
 
     expect(confirmer().disabled).toBe(false);
     expect(texte()).toContain("Réactiver l'abonné");
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
   });
 });

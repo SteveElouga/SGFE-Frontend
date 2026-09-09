@@ -342,4 +342,93 @@ describe('AnnulerSheetComponent · ce qui s’affiche', () => {
     expect(champ).toBeTruthy();
     expect(racine.querySelector('label[for="ann-motif"]')).toBeTruthy();
   });
+
+  // ── Le spinner : annuler une facture ne doit jamais partir deux fois ──────
+
+  it('affiche un spinner et désactive le bouton pendant l’annulation en vol, puis relève le verrou', async () => {
+    let resoudre!: (v: FactureDetail) => void;
+    const annulerFacture = vi.fn(
+      () => new Promise<FactureDetail>((r) => { resoudre = r; }),
+    );
+
+    TestBed.configureTestingModule({
+      imports: [AnnulerSheetComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: FacturesService, useValue: { annulerFacture, regenererFacture: vi.fn() } },
+        { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AnnulerSheetComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('facture', facture());
+    fixture.componentRef.setInput('solde', solde());
+    fixture.componentRef.setInput('envois', []);
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const valider = () =>
+      [...racine.querySelectorAll('button')].find((b) =>
+        b.classList.contains('ann-btn--valider'),
+      ) as HTMLButtonElement;
+    const c = fixture.componentInstance;
+
+    c.motif.set('Index du mauvais compteur');
+    fixture.detectChanges();
+
+    valider().click();
+    fixture.detectChanges();
+
+    expect(valider().disabled).toBe(true);
+    expect(valider().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    // Un deuxième clic pendant l'envoi ne doit rien déclencher de plus.
+    valider().click();
+    expect(annulerFacture).toHaveBeenCalledTimes(1);
+
+    resoudre(facture({ statut: 'ANNULEE' }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Le succès vide aussi le motif : le bouton reste désactivé pour cette
+    // raison, mais le spinner, lui, doit avoir disparu.
+    expect(valider().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
+
+  it('un échec serveur relève le verrou — la feuille ne doit pas rester bloquée en chargement', async () => {
+    const annulerFacture = vi.fn().mockRejectedValueOnce(new Error('Cette facture est déjà annulée.'));
+    const erreur = vi.fn();
+
+    TestBed.configureTestingModule({
+      imports: [AnnulerSheetComponent],
+      providers: [
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: FacturesService, useValue: { annulerFacture, regenererFacture: vi.fn() } },
+        { provide: ToastService, useValue: { success: vi.fn(), error: erreur } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AnnulerSheetComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('facture', facture());
+    fixture.componentRef.setInput('solde', solde());
+    fixture.componentRef.setInput('envois', []);
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const valider = () =>
+      [...racine.querySelectorAll('button')].find((b) =>
+        b.classList.contains('ann-btn--valider'),
+      ) as HTMLButtonElement;
+    const c = fixture.componentInstance;
+
+    c.motif.set('deuxième tentative');
+    fixture.detectChanges();
+    valider().click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(erreur).toHaveBeenCalled();
+    expect(valider().disabled).toBe(false);
+    expect(valider().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
 });

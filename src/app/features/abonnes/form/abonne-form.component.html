@@ -380,8 +380,10 @@
           type="button"
           (click)="submit()"
           [disabled]="saving()"
+          [attr.aria-busy]="saving()"
         >
           @if (saving()) {
+            <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
             {{ 'ABONNES.FORM.SAVING' | translate }}
           } @else if (mode === 'create') {
             {{ 'ABONNES.FORM.SUBMIT_CREATE' | translate }}

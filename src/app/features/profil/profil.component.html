@@ -113,8 +113,17 @@
     </div>
 
     <div class="profil-section__body">
-      <button class="btn btn--danger" (click)="logout()">
-        <i aria-hidden="true" class="pi pi-sign-out"></i>
+      <button
+        class="btn btn--danger"
+        [disabled]="loggingOut()"
+        [attr.aria-busy]="loggingOut()"
+        (click)="logout()"
+      >
+        @if (loggingOut()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i aria-hidden="true" class="pi pi-sign-out"></i>
+        }
         {{ 'PROFIL.LOGOUT' | translate }}
       </button>
     </div>

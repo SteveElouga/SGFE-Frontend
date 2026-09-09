@@ -115,8 +115,10 @@
         type="button"
         class="enc-btn enc-btn--valider"
         [disabled]="!formValide() || submitting()"
+        [attr.aria-busy]="submitting()"
         (click)="submit()"
       >
+        @if (submitting()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
         {{ (submitting() ? 'COMMON.SAVING' : 'PAIEMENTS.ENCAISSEMENT.VALIDER') | translate }}
       </button>
     </div>

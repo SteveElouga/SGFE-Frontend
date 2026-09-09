@@ -68,6 +68,9 @@ export class UtilisateursListComponent implements OnInit {
   readonly filtreRole = signal<Role | null>(null);
   readonly filtreStatut = signal<'TOUS' | 'ACTIF' | 'INACTIF'>('TOUS');
 
+  /** Identifiant de l'utilisateur dont la (dés)activation est en vol — un seul à la fois. */
+  readonly statutEnCoursId = signal<string | null>(null);
+
   readonly columns: DataTableColumn[] = [
     { key: 'username', header: 'UTILISATEURS.USERNAME', sortable: true, sortValue: (r) => (r as { username: string }).username },
     { key: 'email', header: 'UTILISATEURS.EMAIL', sortable: true, sortValue: (r) => (r as { email?: string }).email ?? '' },
@@ -227,6 +230,8 @@ export class UtilisateursListComponent implements OnInit {
   }
 
   private async deactivateUser(user: User): Promise<void> {
+    if (this.statutEnCoursId()) return;
+    this.statutEnCoursId.set(user.id);
     try {
       const updated = await this.usersService.deactivateUser(user.id);
       this.users.update((list) =>
@@ -236,10 +241,14 @@ export class UtilisateursListComponent implements OnInit {
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.statutEnCoursId.set(null);
     }
   }
 
   async reactivate(user: User): Promise<void> {
+    if (this.statutEnCoursId()) return;
+    this.statutEnCoursId.set(user.id);
     try {
       const updated = await this.usersService.reactivateUser(user.id);
       this.users.update((list) =>
@@ -249,6 +258,8 @@ export class UtilisateursListComponent implements OnInit {
     } catch (error: unknown) {
       const { message } = extractGqlError(error);
       this.toast.error(this.translate.instant('ERRORS.GENERIC'), message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.statutEnCoursId.set(null);
     }
   }
 

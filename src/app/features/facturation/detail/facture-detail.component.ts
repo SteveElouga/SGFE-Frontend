@@ -412,9 +412,13 @@ export class FactureDetailComponent implements OnInit {
     await this.reload();
   }
 
+  /** Empêche un double envoi WhatsApp pendant que le premier est en vol. */
+  readonly envoiWhatsappEnCours = signal(false);
+
   async envoyerWhatsapp(): Promise<void> {
     const f = this.facture();
-    if (!f) return;
+    if (!f || this.envoiWhatsappEnCours()) return;
+    this.envoiWhatsappEnCours.set(true);
     try {
       if (this.envois().length === 0) {
         await this.facturesService.envoyerFactureWhatsapp(f.factureId, f.abonneId);
@@ -426,6 +430,8 @@ export class FactureDetailComponent implements OnInit {
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.envoiWhatsappEnCours.set(false);
     }
   }
 
