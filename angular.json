@@ -87,7 +87,21 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "coverageExclude": [
+              "src/main.ts",
+              "src/environments/**",
+              "src/app/graphql/generated.ts"
+            ],
+            "coverageReporters": ["text-summary", "html", "lcov", "json-summary"],
+            "coverageThresholds": {
+              "statements": 70,
+              "branches": 70,
+              "functions": 65,
+              "lines": 75
+            }
+          }
         }
       }
     }

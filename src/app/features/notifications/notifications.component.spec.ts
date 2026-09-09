@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 
 import { NotificationsComponent } from './notifications.component';
-import { AppNotification, NotificationsService } from '../../core/notifications/notifications.service';
+import { AppNotification, NotifAction, NotificationsService } from '../../core/notifications/notifications.service';
+import { ToastService } from '../../shared/services/toast.service';
 
 /**
  * Le fil de notifications est entièrement dérivé côté client de requêtes déjà
@@ -50,18 +51,23 @@ describe('NotificationsComponent', () => {
       relativeTime: vi.fn().mockReturnValue('à l’instant'),
     };
 
+    const router = { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() };
+    const toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+
     TestBed.configureTestingModule({
       imports: [NotificationsComponent],
       providers: [
         provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
         provideRouter([]),
+        { provide: Router, useValue: router },
+        { provide: ToastService, useValue: toast },
         { provide: NotificationsService, useValue: svc },
       ],
     });
 
     const fixture = TestBed.createComponent(NotificationsComponent);
     fixture.detectChanges();
-    return { fixture, component: fixture.componentInstance, svc };
+    return { fixture, component: fixture.componentInstance, svc, router, toast };
   }
 
   function rendus(component: NotificationsComponent): number {
@@ -130,5 +136,143 @@ describe('NotificationsComponent', () => {
     // de détection de changements, pas de manière synchrone sur `set()`.
     fixture.detectChanges();
     expect(rendus(component)).toBe(20);
+  });
+
+  describe('filtrage par onglet', () => {
+    function setupCategories() {
+      const list = [
+        notif('1', { category: 'PAIEMENTS', read: false }),
+        notif('2', { category: 'RELANCES', read: true }),
+        notif('3', { category: 'SYSTEME', read: false }),
+        notif('4', { category: 'PAIEMENTS', read: true }),
+      ];
+      const notifications = signal<AppNotification[]>(list);
+      const svc = {
+        notifications,
+        unreadCount: signal(list.filter((n) => !n.read).length),
+        total: signal(list.length),
+        markAllRead: vi.fn(),
+        markRead: vi.fn(),
+        groupOf: vi.fn().mockReturnValue('TODAY'),
+        relativeTime: vi.fn().mockReturnValue('à l’instant'),
+      };
+      const router = { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() };
+      const toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+      TestBed.configureTestingModule({
+        imports: [NotificationsComponent],
+        providers: [
+          provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+          provideRouter([]),
+          { provide: Router, useValue: router },
+          { provide: ToastService, useValue: toast },
+          { provide: NotificationsService, useValue: svc },
+        ],
+      });
+      const fixture = TestBed.createComponent(NotificationsComponent);
+      fixture.detectChanges();
+      return { component: fixture.componentInstance };
+    }
+
+    it('« Non lues » ne garde que les notifications non lues', () => {
+      const { component } = setupCategories();
+      component.filter.set('UNREAD');
+      expect(rendus(component)).toBe(2);
+    });
+
+    it('un filtre de catégorie ne garde que cette catégorie', () => {
+      const { component } = setupCategories();
+      component.filter.set('PAIEMENTS');
+      expect(rendus(component)).toBe(2);
+
+      component.filter.set('RELANCES');
+      expect(rendus(component)).toBe(1);
+    });
+
+    it('isEmpty reste faux tant qu’au moins une notification correspond au filtre', () => {
+      const { component } = setupCategories();
+      component.filter.set('RELANCES'); // une seule notification de cette catégorie, mais elle existe
+      expect(component.isEmpty()).toBe(false);
+    });
+
+    it('isEmpty devient vrai quand le fil ne contient plus aucune notification', () => {
+      const { component } = setup(0);
+      expect(component.isEmpty()).toBe(true);
+    });
+  });
+
+  describe('actions', () => {
+    function notifAvecAction(action: NotifAction): AppNotification {
+      return notif('n1', { actions: [action] });
+    }
+
+    it('markAllRead délègue au service', () => {
+      const { component, svc } = setup(3);
+      component.markAllRead();
+      expect(svc.markAllRead).toHaveBeenCalledTimes(1);
+    });
+
+    it('onItemClick marque lue une notification non lue', () => {
+      const { component, svc } = setup(3);
+      const n = notif('x', { read: false });
+      component.onItemClick(n);
+      expect(svc.markRead).toHaveBeenCalledWith('x');
+    });
+
+    it('onItemClick ne fait rien sur une notification déjà lue', () => {
+      const { component, svc } = setup(3);
+      const n = notif('x', { read: true });
+      component.onItemClick(n);
+      expect(svc.markRead).not.toHaveBeenCalled();
+    });
+
+    it('onAction arrête la propagation et marque la notification lue', () => {
+      const { component, svc } = setup(3);
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' });
+      component.onAction(n, n.actions![0], event);
+      expect((event.stopPropagation as ReturnType<typeof vi.fn>)).toHaveBeenCalledTimes(1);
+      expect(svc.markRead).toHaveBeenCalledWith('n1');
+    });
+
+    it('RETRY affiche un toast d’information, sans navigation', () => {
+      const { component, router, toast } = setup(3);
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' });
+      component.onAction(n, n.actions![0], event);
+      expect(toast.info).toHaveBeenCalledTimes(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('FIX_NUMBER redirige vers la fiche abonnés', () => {
+      const { component, router } = setup(3);
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'FIX_NUMBER', labelKey: 'K', variant: 'dark' });
+      component.onAction(n, n.actions![0], event);
+      expect(router.navigate).toHaveBeenCalledWith(['/abonnes']);
+    });
+
+    it('VIEW_RECEIPT redirige vers le journal des paiements', () => {
+      const { component, router } = setup(3);
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'VIEW_RECEIPT', labelKey: 'K', variant: 'ghost' });
+      component.onAction(n, n.actions![0], event);
+      expect(router.navigate).toHaveBeenCalledWith(['/paiements']);
+    });
+  });
+
+  describe('chipCount', () => {
+    it('reporte le total pour le chip "Tous" et le nombre de non-lues pour "Non lues"', () => {
+      const { component } = setup(5);
+      const total = component.chips.find((c) => c.value === 'ALL')!;
+      const unread = component.chips.find((c) => c.value === 'UNREAD')!;
+      expect(component.chipCount(total)).toBe(5);
+      expect(component.chipCount(unread)).toBe(5); // toutes non lues (fixture par défaut)
+    });
+
+    it('ne reporte aucun compte pour les chips de catégorie', () => {
+      const { component } = setup(3);
+      const paiements = component.chips.find((c) => c.value === 'PAIEMENTS')!;
+      expect(component.chipCount(paiements)).toBeNull();
+    });
   });
 });

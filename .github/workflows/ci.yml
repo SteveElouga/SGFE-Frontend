@@ -109,6 +109,22 @@ jobs:
   # ── 2. Tests unitaires ───────────────────────────────────────────────────────
   # Ils existaient depuis le début et ne s'exécutaient nulle part : la CI
   # compilait le projet sans jamais lancer une seule assertion.
+  #
+  # Couverture (ajoutée le 09/09/2026) : ni seuil ni rapport n'existaient nulle
+  # part (`angular.json` n'avait aucune option de couverture, cette étape
+  # n'activait pas `--coverage`) — une régression de couverture n'aurait été
+  # remarquée par personne. Les seuils (`angular.json`, cible `test`) sont
+  # mesurés, pas hérités d'un défaut : 1878 tests, 73,17 % lignes de code
+  # (statements), 74,2 % branches, 69,9 % fonctions, 78,64 % lignes — seuils
+  # posés quelques points en dessous (70/70/65/75) pour laisser une marge aux
+  # variations légitimes tout en attrapant une vraie régression. Provider
+  # `@vitest/coverage-v8` (défaut Angular CLI pour Vitest — voir la migration
+  # `migrate-karma-to-vitest`, qui installe toujours `@vitest/coverage-v8` en
+  # premier). Limite connue : seuls les fichiers exercés par au moins un spec
+  # apparaissent dans le rapport — un fichier sans AUCUN test ne fait pas
+  # baisser le pourcentage. Le seuil protège donc la profondeur de ce qui est
+  # déjà testé, pas la largeur ; la revue de PR reste responsable de repérer un
+  # fichier neuf sans spec.
   unit-tests:
     name: Tests unitaires
     runs-on: ubuntu-latest
@@ -124,8 +140,16 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline
 
-      - name: Run unit tests
-        run: npx ng test --no-watch
+      - name: Run unit tests (avec couverture)
+        run: npx ng test --no-watch --coverage
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: coverage/sgfe-frontend/
+          retention-days: 7
 
   # ── 3. Docker build check + scan de sécurité (Trivy) ─────────────────────────
   docker-build:
