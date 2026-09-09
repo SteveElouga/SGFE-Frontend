@@ -79,6 +79,23 @@ describe('CompteurPlaceCardComponent', () => {
     expect(bouton?.disabled).toBe(false);
   });
 
+  it('affiche un spinner et désactive le bouton pendant le calcul de l’itinéraire', () => {
+    const { fixture, racine } = setup();
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('abonne', ABONNE);
+    fixture.componentRef.setInput('geo', GEO);
+    fixture.componentRef.setInput('itineraireLoading', true);
+    fixture.detectChanges();
+    const bouton = racine.querySelector<HTMLButtonElement>('.pc__action--primaire');
+    expect(bouton?.disabled).toBe(true);
+    expect(bouton?.querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    fixture.componentRef.setInput('itineraireLoading', false);
+    fixture.detectChanges();
+    expect(bouton?.disabled).toBe(false);
+    expect(bouton?.querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
+
   it('émet (close) au clic sur le bouton de fermeture', () => {
     const { fixture, racine, c } = setup();
     fixture.componentRef.setInput('open', true);

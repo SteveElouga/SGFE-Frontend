@@ -117,4 +117,46 @@ describe('AnnulerPaiementSheetComponent', () => {
     // Le verrou doit se relever, sinon la feuille reste morte après un échec.
     expect(c.submitting()).toBe(false);
   });
+
+  it('affiche un spinner et désactive les boutons pendant l’annulation en vol', async () => {
+    let resoudre!: (v: PaiementFacture) => void;
+    annulerPaiement = vi.fn(() => new Promise<PaiementFacture>((r) => { resoudre = r; }));
+    succes = vi.fn();
+    erreur = vi.fn();
+    TestBed.configureTestingModule({
+      imports: [AnnulerPaiementSheetComponent],
+      providers: [
+        provideTranslateService({}),
+        { provide: FacturesService, useValue: { annulerPaiement } },
+        { provide: ToastService, useValue: { success: succes, error: erreur } },
+      ],
+    });
+    const fixture = TestBed.createComponent(AnnulerPaiementSheetComponent);
+    fixture.componentRef.setInput('open', true);
+    fixture.componentRef.setInput('paiement', paiement());
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const c = fixture.componentInstance;
+    const confirmer = () => racine.querySelector('.ap-btn--danger') as HTMLButtonElement;
+    const fermer = () => racine.querySelector('.ap-btn--secondaire') as HTMLButtonElement;
+
+    c.motif.set('remboursement en espèces');
+    fixture.detectChanges();
+
+    confirmer().click();
+    fixture.detectChanges();
+
+    expect(confirmer().disabled).toBe(true);
+    expect(fermer().disabled).toBe(true);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre(paiement({ annule: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Le succès vide aussi le motif : le bouton reste désactivé pour cette
+    // raison, mais le spinner, lui, doit avoir disparu.
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
 });

@@ -73,6 +73,31 @@ describe('ImportCoordonneesSheetComponent', () => {
     expect(racine.textContent).toContain('compteur introuvable');
   });
 
+  it('affiche un spinner et désactive le bouton pendant l’import en vol', async () => {
+    let resoudre!: (v: { nbImportees: number; erreurs: never[] }) => void;
+    const importerCoordonnees = vi.fn(
+      () => new Promise<{ nbImportees: number; erreurs: never[] }>((r) => { resoudre = r; }),
+    );
+    const { fixture, c, racine } = setup({ importerCoordonnees });
+    c.lignes.set([
+      { ligne: 1, numeroCompteurBrut: '1234', latitudeBrut: '4.05', longitudeBrut: '9.70', statut: 'A_IMPORTER', erreur: '' },
+    ]);
+    fixture.detectChanges();
+
+    const importerBtn = () => racine.querySelector('.ics__btn--primaire') as HTMLButtonElement;
+    importerBtn().click();
+    fixture.detectChanges();
+
+    expect(importerBtn().disabled).toBe(true);
+    expect(importerBtn().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre({ nbImportees: 1, erreurs: [] });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(importerBtn().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
+
   it('affiche un message d’erreur explicite quand l’import serveur échoue', async () => {
     const { fixture, c, racine } = setup({
       importerCoordonnees: vi.fn().mockRejectedValue(new Error('Gateway indisponible')),

@@ -326,5 +326,91 @@ describe('EncaissementSheetComponent', () => {
       expect(racine.querySelector('.enc-imput')).toBeTruthy();
       expect(racine.querySelectorAll('.enc-imput__ligne')).toHaveLength(1);
     });
+
+    // ── Le spinner : un encaissement ne doit jamais partir deux fois ────────
+
+    it('affiche un spinner et désactive le bouton pendant l’encaissement en vol, puis relève le verrou au succès', async () => {
+      let resoudre!: (v: { paiements: Array<{ paiementId: string }>; excedentEnAvoir: number }) => void;
+      const enregistrerPaiementAbonne = vi.fn(
+        () => new Promise<{ paiements: Array<{ paiementId: string }>; excedentEnAvoir: number }>((r) => { resoudre = r; }),
+      );
+
+      TestBed.configureTestingModule({
+        imports: [EncaissementSheetComponent],
+        providers: [
+          provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+          {
+            provide: FacturesService,
+            useValue: { previsualiserImputation: vi.fn(previsualiserImputationReelle), enregistrerPaiementAbonne },
+          },
+          { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+        ],
+      });
+      const fixture = TestBed.createComponent(EncaissementSheetComponent);
+      fixture.componentRef.setInput('open', true);
+      fixture.componentRef.setInput('abonneId', 'ab-1');
+      fixture.componentRef.setInput('abonneNom', 'Awa Koné');
+      fixture.componentRef.setInput('soldes', [solde()]);
+      const translate = TestBed.inject(TranslateService);
+      translate.setTranslation('fr', fr as unknown as TranslationObject);
+      translate.use('fr');
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const valider = () => racine.querySelector('.enc-btn--valider') as HTMLButtonElement;
+      const c = fixture.componentInstance;
+
+      c.montant.set(5_000);
+      fixture.detectChanges();
+
+      valider().click();
+      fixture.detectChanges();
+
+      expect(valider().disabled).toBe(true);
+      expect(valider().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+      resoudre({ paiements: [{ paiementId: 'p-1' }], excedentEnAvoir: 0 });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(valider().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+    });
+
+    it('un échec serveur relève le verrou, sans laisser le bouton bloqué en chargement', async () => {
+      const enregistrerPaiementAbonne = vi.fn().mockRejectedValueOnce(new Error('Montant invalide.'));
+      const erreur = vi.fn();
+
+      TestBed.configureTestingModule({
+        imports: [EncaissementSheetComponent],
+        providers: [
+          provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+          {
+            provide: FacturesService,
+            useValue: { previsualiserImputation: vi.fn(previsualiserImputationReelle), enregistrerPaiementAbonne },
+          },
+          { provide: ToastService, useValue: { success: vi.fn(), error: erreur } },
+        ],
+      });
+      const fixture = TestBed.createComponent(EncaissementSheetComponent);
+      fixture.componentRef.setInput('open', true);
+      fixture.componentRef.setInput('abonneId', 'ab-1');
+      fixture.componentRef.setInput('abonneNom', 'Awa Koné');
+      fixture.componentRef.setInput('soldes', [solde()]);
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const valider = () => racine.querySelector('.enc-btn--valider') as HTMLButtonElement;
+      const c = fixture.componentInstance;
+
+      c.montant.set(5_000);
+      fixture.detectChanges();
+      valider().click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(erreur).toHaveBeenCalled();
+      expect(valider().disabled).toBe(false);
+      expect(valider().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+    });
   });
 });

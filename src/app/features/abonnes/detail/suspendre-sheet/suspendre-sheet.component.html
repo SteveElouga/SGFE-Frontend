@@ -60,6 +60,7 @@
         [attr.aria-busy]="loading()"
       >
         @if (loading()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
           {{ 'ABONNES.DETAIL.SUSPENDRE_LOADING' | translate }}
         } @else {
           {{ 'ABONNES.DETAIL.SUSPENDRE_BTN' | translate }}

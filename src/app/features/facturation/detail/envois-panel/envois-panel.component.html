@@ -21,9 +21,14 @@
                 type="button"
                 class="journal-entry__retry"
                 [disabled]="renvoiEnCours() === e.envoiId"
+                [attr.aria-busy]="renvoiEnCours() === e.envoiId"
                 (click)="rejouer.emit(e.envoiId)"
               >
-                <i aria-hidden="true" class="pi pi-replay"></i>
+                @if (renvoiEnCours() === e.envoiId) {
+                  <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+                } @else {
+                  <i aria-hidden="true" class="pi pi-replay"></i>
+                }
                 {{ (e.erreur ? 'COMMON.RETRY' : 'ENVOIS.RESEND') | translate }}
               </button>
             </span>

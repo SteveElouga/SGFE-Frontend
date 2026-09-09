@@ -66,6 +66,9 @@ describe('EnvoisPanelComponent', () => {
     const [b1, b2] = retryButtons();
     expect(b1.disabled).toBe(false);
     expect(b2.disabled).toBe(true);
+    // Un spinner, pas seulement une désactivation silencieuse.
+    expect(b1.querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+    expect(b2.querySelector('.pi-spin.pi-spinner')).toBeTruthy();
   });
 
   it('affiche le message d’erreur nettoyé pour un envoi en échec', () => {

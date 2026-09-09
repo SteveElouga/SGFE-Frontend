@@ -393,6 +393,7 @@ describe('RemplacerCompteurSheetComponent · ce qui s’affiche', () => {
     expect(confirmer().disabled).toBe(true);
     expect(annuler().disabled).toBe(true);
     expect(texte()).toContain('Remplacement…');
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
 
     resoudre({ id: 'c-2', numeroCompteur: 2001, quartier: 'Plateau', camp: 3, indexInitial: 0, datePose: '2026-09-04', position: '', statut: 'ACTIF' } as Compteur);
     await fixture.whenStable();
@@ -400,5 +401,6 @@ describe('RemplacerCompteurSheetComponent · ce qui s’affiche', () => {
 
     expect(confirmer().disabled).toBe(false);
     expect(texte()).toContain('Confirmer le remplacement');
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
   });
 });

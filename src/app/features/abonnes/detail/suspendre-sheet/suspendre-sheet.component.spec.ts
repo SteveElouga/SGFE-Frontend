@@ -207,12 +207,14 @@ describe('SuspendreSheetComponent · ce qui s’affiche', () => {
     expect(confirmer().getAttribute('aria-busy')).toBe('true');
     expect(annuler().disabled).toBe(true);
     expect(texte()).toContain('Suspension…');
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
 
     resoudre(abonneSuspendu());
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(confirmer().disabled).toBe(false);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
     expect(confirmer().getAttribute('aria-busy')).toBe('false');
     expect(texte()).toContain("Suspendre l'abonné");
   });

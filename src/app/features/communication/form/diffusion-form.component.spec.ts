@@ -179,6 +179,32 @@ describe('DiffusionFormComponent — envoi', () => {
     await c.envoyer();
     expect(c.submitting()).toBe(false);
   });
+
+  it('affiche un spinner et désactive le bouton envoyer pendant la diffusion en vol', async () => {
+    let resoudre!: (v: { diffusionId: string; nbTotal: number }) => void;
+    const creerDiffusion = vi.fn(
+      () => new Promise<{ diffusionId: string; nbTotal: number }>((r) => { resoudre = r; }),
+    );
+    const { fixture, c } = monter({ creerDiffusion });
+    c.message.set('Bonjour');
+    c.selectedIds.set(new Set(['a-1']));
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const envoyer = () => racine.querySelector('.dfc-footer__envoyer') as HTMLButtonElement;
+
+    envoyer().click();
+    fixture.detectChanges();
+
+    expect(envoyer().disabled).toBe(true);
+    expect(envoyer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre({ diffusionId: 'd-1', nbTotal: 1 });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(envoyer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
 });
 
 describe('DiffusionFormComponent — erreur de chargement', () => {

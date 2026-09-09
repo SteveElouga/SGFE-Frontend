@@ -110,8 +110,9 @@
       <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="loading()">
+      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="loading()" [attr.aria-busy]="loading()">
         @if (loading()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
           {{ 'ABONNES.DETAIL.REPLACEMENT_LOADING' | translate }}
         } @else {
           {{ 'ABONNES.DETAIL.METER_CONFIRMER' | translate }}

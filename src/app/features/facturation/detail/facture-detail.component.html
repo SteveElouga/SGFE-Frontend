@@ -84,8 +84,18 @@
               }
               {{ 'FACTURATION.DETAIL.BTN_PDF' | translate }}
             </button>
-            <button class="btn btn--dark" (click)="envoyerWhatsapp()">
-              <i aria-hidden="true" class="pi pi-whatsapp"></i> {{ waButtonLabel() }}
+            <button
+              class="btn btn--dark"
+              [disabled]="envoiWhatsappEnCours()"
+              [attr.aria-busy]="envoiWhatsappEnCours()"
+              (click)="envoyerWhatsapp()"
+            >
+              @if (envoiWhatsappEnCours()) {
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i aria-hidden="true" class="pi pi-whatsapp"></i>
+              }
+              {{ waButtonLabel() }}
             </button>
             <!-- Discret et à part : effacer une dette est le geste le plus lourd
                  de l'écran, il ne doit pas se trouver sous le doigt de qui
@@ -301,9 +311,15 @@
         type="button"
         class="mactions__icon mactions__icon--wa"
         (click)="envoyerWhatsapp()"
+        [disabled]="envoiWhatsappEnCours()"
+        [attr.aria-busy]="envoiWhatsappEnCours()"
         [attr.aria-label]="waButtonLabel()"
       >
-        <i aria-hidden="true" class="pi pi-whatsapp"></i>
+        @if (envoiWhatsappEnCours()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+        } @else {
+          <i aria-hidden="true" class="pi pi-whatsapp"></i>
+        }
       </button>
     </div>
 

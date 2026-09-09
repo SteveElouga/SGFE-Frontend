@@ -381,9 +381,17 @@ describe('ArriereSheetComponent · ce qui s’affiche', () => {
 
     expect(valider().disabled).toBe(true);
     expect(texte()).not.toContain('Créer la régularisation');
+    // Un texte qui change ne suffit pas : la demande porte sur un spinner
+    // visible, pas seulement sur un libellé différent.
+    expect(valider().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
 
     resoudre(factureRegularisation());
     await fixture.whenStable();
     fixture.detectChanges();
+
+    // Le succès réinitialise aussi le formulaire (nouveau montant vide) : le
+    // bouton reste désactivé, mais pour une tout autre raison que le
+    // chargement. Ce qui doit avoir disparu, c'est le spinner.
+    expect(valider().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
   });
 });
