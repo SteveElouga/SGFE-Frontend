@@ -5,7 +5,13 @@ import { provideTranslateService } from '@ngx-translate/core';
 
 import { NotificationsComponent } from './notifications.component';
 import { AppNotification, NotifAction, NotificationsService } from '../../core/notifications/notifications.service';
+import { FacturesService } from '../../core/factures/factures.service';
 import { ToastService } from '../../shared/services/toast.service';
+
+/** Laisse les micro-tâches (résolution de Promise) s'écouler dans le test. */
+async function flush(): Promise<void> {
+  for (let i = 0; i < 10; i++) await Promise.resolve();
+}
 
 /**
  * Le fil de notifications est entièrement dérivé côté client de requêtes déjà
@@ -45,6 +51,7 @@ describe('NotificationsComponent', () => {
       total: signal(list.length),
       markAllRead: vi.fn(),
       markRead: vi.fn(),
+      refresh: vi.fn().mockResolvedValue(undefined),
       // Un seul groupe : ces tests portent sur le nombre d'éléments rendus,
       // pas sur leur répartition temporelle.
       groupOf: vi.fn().mockReturnValue('TODAY'),
@@ -53,6 +60,7 @@ describe('NotificationsComponent', () => {
 
     const router = { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() };
     const toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+    const factures = { renvoyerEnvoi: vi.fn().mockResolvedValue({ envoiId: 'e-1', statut: 'ENVOYE', dateEnvoi: '', erreur: '' }) };
 
     TestBed.configureTestingModule({
       imports: [NotificationsComponent],
@@ -62,12 +70,13 @@ describe('NotificationsComponent', () => {
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toast },
         { provide: NotificationsService, useValue: svc },
+        { provide: FacturesService, useValue: factures },
       ],
     });
 
     const fixture = TestBed.createComponent(NotificationsComponent);
     fixture.detectChanges();
-    return { fixture, component: fixture.componentInstance, svc, router, toast };
+    return { fixture, component: fixture.componentInstance, svc, router, toast, factures };
   }
 
   function rendus(component: NotificationsComponent): number {
@@ -153,11 +162,13 @@ describe('NotificationsComponent', () => {
         total: signal(list.length),
         markAllRead: vi.fn(),
         markRead: vi.fn(),
+        refresh: vi.fn().mockResolvedValue(undefined),
         groupOf: vi.fn().mockReturnValue('TODAY'),
         relativeTime: vi.fn().mockReturnValue('à l’instant'),
       };
       const router = { navigate: vi.fn(), createUrlTree: vi.fn(), serializeUrl: vi.fn() };
       const toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+      const factures = { renvoyerEnvoi: vi.fn().mockResolvedValue({ envoiId: 'e-1', statut: 'ENVOYE', dateEnvoi: '', erreur: '' }) };
       TestBed.configureTestingModule({
         imports: [NotificationsComponent],
         providers: [
@@ -166,6 +177,7 @@ describe('NotificationsComponent', () => {
           { provide: Router, useValue: router },
           { provide: ToastService, useValue: toast },
           { provide: NotificationsService, useValue: svc },
+          { provide: FacturesService, useValue: factures },
         ],
       });
       const fixture = TestBed.createComponent(NotificationsComponent);
@@ -201,8 +213,8 @@ describe('NotificationsComponent', () => {
   });
 
   describe('actions', () => {
-    function notifAvecAction(action: NotifAction): AppNotification {
-      return notif('n1', { actions: [action] });
+    function notifAvecAction(action: NotifAction, overrides: Partial<AppNotification> = {}): AppNotification {
+      return notif('n1', { actions: [action], ...overrides });
     }
 
     it('markAllRead délègue au service', () => {
@@ -228,19 +240,61 @@ describe('NotificationsComponent', () => {
     it('onAction arrête la propagation et marque la notification lue', () => {
       const { component, svc } = setup(3);
       const event = { stopPropagation: vi.fn() } as unknown as Event;
-      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' });
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' }, { envoiId: 'e-1' });
       component.onAction(n, n.actions![0], event);
       expect((event.stopPropagation as ReturnType<typeof vi.fn>)).toHaveBeenCalledTimes(1);
       expect(svc.markRead).toHaveBeenCalledWith('n1');
     });
 
-    it('RETRY affiche un toast d’information, sans navigation', () => {
-      const { component, router, toast } = setup(3);
+    it('RETRY appelle réellement renvoyerEnvoi (pas seulement un toast) et rafraîchit le fil', async () => {
+      const { component, router, toast, factures, svc } = setup(3);
       const event = { stopPropagation: vi.fn() } as unknown as Event;
-      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' });
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' }, { envoiId: 'e-42' });
+
       component.onAction(n, n.actions![0], event);
-      expect(toast.info).toHaveBeenCalledTimes(1);
+      await flush();
+
+      expect(factures.renvoyerEnvoi).toHaveBeenCalledTimes(1);
+      expect(factures.renvoyerEnvoi).toHaveBeenCalledWith('e-42');
+      expect(toast.success).toHaveBeenCalledTimes(1);
+      expect(toast.info).not.toHaveBeenCalled();
+      expect(svc.refresh).toHaveBeenCalledTimes(1);
       expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('RETRY affiche une erreur et ne rafraîchit pas si le renvoi échoue', async () => {
+      const { component, toast, factures, svc } = setup(3);
+      factures.renvoyerEnvoi.mockRejectedValueOnce(new Error('whatsapp-service indisponible'));
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' }, { envoiId: 'e-42' });
+
+      component.onAction(n, n.actions![0], event);
+      await flush();
+
+      expect(factures.renvoyerEnvoi).toHaveBeenCalledTimes(1);
+      expect(factures.renvoyerEnvoi).toHaveBeenCalledWith('e-42');
+      expect(toast.error).toHaveBeenCalledTimes(1);
+      expect(toast.success).not.toHaveBeenCalled();
+      expect(svc.refresh).not.toHaveBeenCalled();
+      expect(component.retryingEnvoiId()).toBeNull();
+    });
+
+    it('RETRY ignore un second déclenchement pendant que le renvoi est en cours', async () => {
+      let resolve!: () => void;
+      const enVol = new Promise<{ envoiId: string; statut: string; dateEnvoi: string; erreur: string }>(
+        (r) => (resolve = () => r({ envoiId: 'e-42', statut: 'ENVOYE', dateEnvoi: '', erreur: '' })),
+      );
+      const { component, factures } = setup(3);
+      factures.renvoyerEnvoi.mockReturnValue(enVol);
+      const event = { stopPropagation: vi.fn() } as unknown as Event;
+      const n = notifAvecAction({ type: 'RETRY', labelKey: 'K', variant: 'danger' }, { envoiId: 'e-42' });
+
+      component.onAction(n, n.actions![0], event);
+      component.onAction(n, n.actions![0], event);
+      resolve();
+      await flush();
+
+      expect(factures.renvoyerEnvoi).toHaveBeenCalledTimes(1);
     });
 
     it('FIX_NUMBER redirige vers la fiche abonnés', () => {
