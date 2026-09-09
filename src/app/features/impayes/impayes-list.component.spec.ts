@@ -119,6 +119,24 @@ describe('ImpayesListComponent — agrégation', () => {
     await flush();
     expect(c.error()).toBe('Paiement indisponible');
   });
+
+  it('ne passe jamais par Apollo directement : régression du bogue réel « abonnes réservé ADMIN, appelé pour COMPTABLE »', async () => {
+    // Bogue de production corrigé (voir le commentaire de `load()`) :
+    // `impayes-list.component.ts` appelait la query `abonnes` (réservée
+    // ADMIN côté gateway) dans un `Promise.all`, cassant silencieusement cet
+    // écran pour tout COMPTABLE — rôle pourtant autorisé sur `/impayes`
+    // (`roleGuard(['ADMIN', 'COMPTABLE'])`, app.routes.ts). La ligne vient
+    // désormais entièrement de `FacturesService` ; ce test attrape toute
+    // réintroduction d'un appel Apollo direct dans ce composant.
+    const { fixture } = monter({
+      getImpayes: vi.fn().mockResolvedValue([solde()]),
+      getFactures: vi.fn().mockResolvedValue([factureRef()]),
+    });
+    fixture.detectChanges();
+    await flush();
+    const apollo = TestBed.inject(Apollo) as unknown as { query: ReturnType<typeof vi.fn> };
+    expect(apollo.query).not.toHaveBeenCalled();
+  });
 });
 
 describe('ImpayesListComponent — pause post-acompte', () => {

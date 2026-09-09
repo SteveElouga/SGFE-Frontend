@@ -549,7 +549,7 @@ ng build --configuration production
 
 # Tests avec Vitest (défaut Angular 22)
 ng test
-ng test --coverage
+ng test --no-watch --coverage   # seuils + rapports définis dans angular.json (cible `test`)
 
 # Vérifier les types TypeScript
 npm run verify:types      # tsc -b --noEmit
