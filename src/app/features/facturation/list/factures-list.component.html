@@ -191,17 +191,25 @@
               <span class="btn-action__label" aria-hidden="true">{{ 'FACTURATION.ACTION_PAIEMENT' | translate }}</span>
             </button>
           }
-          @if (f.statut === 'IMPAYEE') {
+          @if (f.statut === 'IMPAYEE' || f.statut === 'PARTIELLE') {
             <!-- Bouton à icône seule : son nom accessible ne peut venir que
                  d'un attribut. `title` en tenait lieu, mais en français codé en
                  dur — invisible aux traductions — et il ne s'affiche pas au
-                 doigt. L'infobulle donne le nom aux deux publics à la fois. -->
+                 doigt. L'infobulle donne le nom aux deux publics à la fois.
+                 PARTIELLE reste due au même titre qu'IMPAYEE : seule PAYEE
+                 n'a plus de raison d'être relancée par WhatsApp. -->
             <button
               class="btn-action btn-action--icon"
               [appTooltip]="'FACTURATION.LIST.ENVOYER_WHATSAPP' | translate"
+              [disabled]="envoiWhatsappEnCours() === f.factureId"
+              [attr.aria-busy]="envoiWhatsappEnCours() === f.factureId"
               (click)="envoyerWhatsapp(f.factureId, $event)"
             >
-              <i aria-hidden="true" class="pi pi-mobile"></i>
+              @if (envoiWhatsappEnCours() === f.factureId) {
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i aria-hidden="true" class="pi pi-mobile"></i>
+              }
             </button>
           }
         </div>
