@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   inject,
   isDevMode,
   provideAppInitializer,
@@ -26,6 +27,7 @@ import { AuthService } from './core/auth/auth.service';
 import { apolloProviders, apolloCache } from './core/graphql/apollo.config';
 import { setupCachePersistence } from './core/graphql/apollo-persistence';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
+import { ObservabilityErrorHandler } from './core/observability/observability-error-handler';
 import { AquaBillPreset } from './core/theme/aquabill-preset';
 import { provideServiceWorker } from '@angular/service-worker';
 import { MessageService } from 'primeng/api';
@@ -34,6 +36,11 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
     provideBrowserGlobalErrorListeners(),
+    // Remonte les erreurs (y compris celles que `provideBrowserGlobalErrorListeners`
+    // route ici) à Faro et, si un DSN est configuré, à GlitchTip — voir
+    // `core/observability/observability-error-handler.ts` et
+    // `main.ts::initGlitchtip`.
+    { provide: ErrorHandler, useClass: ObservabilityErrorHandler },
     provideRouter(routes, withViewTransitions()),
     provideHttpClient(withInterceptors([jwtInterceptor])),
     ...apolloProviders,

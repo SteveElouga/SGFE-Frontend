@@ -41,4 +41,26 @@ async function initTelemetry(): Promise<void> {
 
 void initTelemetry().catch((err) => console.error('Faro indisponible :', err));
 
+// GlitchTip (erreurs applicatives, plateforme d'observabilité externe — voir
+// CLAUDE.md § Observabilité) via le SDK Sentry (drop-in, GlitchTip parle le
+// même protocole). Import dynamique pour la même raison que Faro ci-dessus
+// (voir son commentaire) — même si `@sentry/angular` est plus léger, pas de
+// raison de le charger avant le premier rendu pour de la télémétrie.
+// N'initialise RIEN tant qu'aucun DSN n'est configuré (`environment.
+// glitchtipDsn`) : les erreurs restent captées par Faro quoi qu'il arrive
+// (`ObservabilityErrorHandler`, `core/observability/`), GlitchTip est un
+// second exportateur strictement optionnel.
+async function initGlitchtip(): Promise<void> {
+  if (!environment.glitchtipDsn) return;
+  const Sentry = await import('@sentry/angular');
+  Sentry.init({
+    dsn: environment.glitchtipDsn,
+    release: environment.appVersion,
+    environment: environment.production ? 'production' : 'dev',
+    tracesSampleRate: 0, // le tracing est déjà porté par Faro (TracingInstrumentation)
+  });
+}
+
+void initGlitchtip().catch((err) => console.error('GlitchTip indisponible :', err));
+
 bootstrapApplication(App, appConfig).catch((err) => console.error(err));
