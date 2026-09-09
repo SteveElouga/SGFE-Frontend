@@ -58,8 +58,9 @@
       <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="!peutValider()">
+      <button class="dialog-btn dialog-btn--primary" (click)="save()" [disabled]="!peutValider()" [attr.aria-busy]="loading()">
         @if (loading()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
           {{ 'CAMPAGNES.CORRIGER_RELEVE.CHARGEMENT' | translate }}
         } @else {
           {{ 'CAMPAGNES.CORRIGER_RELEVE.CONFIRMER' | translate }}

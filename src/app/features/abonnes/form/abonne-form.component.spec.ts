@@ -351,6 +351,34 @@ describe('AbonneFormComponent', () => {
 
       expect(createAbonne).toHaveBeenCalledTimes(1);
     });
+
+    it('affiche un spinner et désactive le bouton pendant l’enregistrement, puis relève le verrou', async () => {
+      const { fixture, component, createAbonne } = setup({ mode: 'create' });
+      let resoudre!: (v: { id: string; numeroAbonne: string }) => void;
+      createAbonne.mockImplementationOnce(
+        () => new Promise<{ id: string; numeroAbonne: string }>((r) => { resoudre = r; }),
+      );
+      remplirFormulaireValide(component);
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const valider = () => racine.querySelector('.af-btn--primary') as HTMLButtonElement;
+
+      valider().click();
+      fixture.detectChanges();
+
+      expect(valider().disabled).toBe(true);
+      expect(valider().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+      resoudre({ id: 'new-1', numeroAbonne: 'AB-0099' });
+      // La réussite enchaîne un `await router.navigateByUrl(...)` après la
+      // création : `whenStable()` seul ne suffit pas à laisser ce second
+      // maillon se dérouler.
+      await flush();
+      fixture.detectChanges();
+
+      expect(component.saving()).toBe(false);
+    });
   });
 
   // ── Mode édition — chargement ────────────────────────────────────────────────

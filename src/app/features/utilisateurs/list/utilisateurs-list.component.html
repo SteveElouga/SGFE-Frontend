@@ -96,9 +96,15 @@
               class="users-table__action-btn users-table__action-btn--danger"
               [attr.aria-label]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
               [appTooltip]="'UTILISATEURS.DESACTIVER' | translate"
+              [disabled]="statutEnCoursId() === user.id"
+              [attr.aria-busy]="statutEnCoursId() === user.id"
               (click)="confirmDeactivate(user)"
             >
-              <i aria-hidden="true" class="pi pi-ban"></i>
+              @if (statutEnCoursId() === user.id) {
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i aria-hidden="true" class="pi pi-ban"></i>
+              }
               <span class="users-table__action-label">{{ 'UTILISATEURS.DESACTIVER' | translate }}</span>
             </button>
           } @else {
@@ -107,9 +113,15 @@
               class="users-table__action-btn users-table__action-btn--success"
               [attr.aria-label]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
               [appTooltip]="'UTILISATEURS.REACTIVER' | translate"
+              [disabled]="statutEnCoursId() === user.id"
+              [attr.aria-busy]="statutEnCoursId() === user.id"
               (click)="reactivate(user)"
             >
-              <i aria-hidden="true" class="pi pi-refresh"></i>
+              @if (statutEnCoursId() === user.id) {
+                <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
+              } @else {
+                <i aria-hidden="true" class="pi pi-refresh"></i>
+              }
               <span class="users-table__action-label">{{ 'UTILISATEURS.REACTIVER' | translate }}</span>
             </button>
           }
@@ -148,18 +160,30 @@
                 type="button"
                 class="users-table__action-btn users-table__action-btn--danger"
                 [attr.aria-label]="('UTILISATEURS.DESACTIVER' | translate) + ' ' + user.username"
+                [disabled]="statutEnCoursId() === user.id"
+                [attr.aria-busy]="statutEnCoursId() === user.id"
                 (click)="confirmDeactivate(user)"
               >
-                <i class="pi pi-ban" aria-hidden="true"></i>
+                @if (statutEnCoursId() === user.id) {
+                  <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                } @else {
+                  <i class="pi pi-ban" aria-hidden="true"></i>
+                }
               </button>
             } @else {
               <button
                 type="button"
                 class="users-table__action-btn users-table__action-btn--success"
                 [attr.aria-label]="('UTILISATEURS.REACTIVER' | translate) + ' ' + user.username"
+                [disabled]="statutEnCoursId() === user.id"
+                [attr.aria-busy]="statutEnCoursId() === user.id"
                 (click)="reactivate(user)"
               >
-                <i class="pi pi-refresh" aria-hidden="true"></i>
+                @if (statutEnCoursId() === user.id) {
+                  <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                } @else {
+                  <i class="pi pi-refresh" aria-hidden="true"></i>
+                }
               </button>
             }
           </div>

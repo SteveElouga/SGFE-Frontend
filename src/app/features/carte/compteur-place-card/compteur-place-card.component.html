@@ -53,9 +53,14 @@
         class="pc__action pc__action--primaire"
         [disabled]="!geo() || itineraireLoading()"
         [appTooltip]="!geo() ? ('CARTE.PLACE_CARD.NON_GEOLOCALISE' | translate) : ''"
+        [attr.aria-busy]="itineraireLoading()"
         (click)="demanderItineraire.emit()"
       >
-        <i class="pi pi-directions" aria-hidden="true"></i>
+        @if (itineraireLoading()) {
+          <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        } @else {
+          <i class="pi pi-directions" aria-hidden="true"></i>
+        }
         {{ (itineraireLoading() ? 'CARTE.ITINERAIRE.CALCUL_EN_COURS' : 'CARTE.ITINERAIRE.BOUTON') | translate }}
       </button>
     </div>

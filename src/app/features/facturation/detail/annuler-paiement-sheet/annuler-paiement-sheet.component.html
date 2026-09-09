@@ -52,6 +52,7 @@
         [disabled]="!motifValide() || submitting()"
         [attr.aria-busy]="submitting()"
       >
+        @if (submitting()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
         {{ (submitting() ? 'COMMON.LOADING' : 'FACTURATION.ANNUL_PAIEMENT.CONFIRMER') | translate }}
       </button>
     </div>

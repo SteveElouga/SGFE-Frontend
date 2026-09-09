@@ -33,6 +33,7 @@ export class ProfilComponent {
 
   readonly resetSending = signal(false);
   readonly resetSent = signal(false);
+  readonly loggingOut = signal(false);
 
   /**
    * Envoie un lien de réinitialisation de mot de passe à l'e-mail du compte.
@@ -56,6 +57,12 @@ export class ProfilComponent {
   }
 
   async logout(): Promise<void> {
-    await this.authService.logout();
+    if (this.loggingOut()) return;
+    this.loggingOut.set(true);
+    try {
+      await this.authService.logout();
+    } finally {
+      this.loggingOut.set(false);
+    }
   }
 }

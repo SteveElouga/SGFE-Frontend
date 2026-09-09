@@ -488,6 +488,63 @@ describe('FactureDetailComponent — envoi WhatsApp', () => {
     expect(renvoyerEnvoi).toHaveBeenCalledTimes(1);
     expect(renvoyerEnvoi).toHaveBeenCalledWith('e-1');
   });
+
+  it('envoyerWhatsapp ne part pas deux fois si un envoi est déjà en vol', async () => {
+    let resolve!: () => void;
+    const enVol = new Promise<void>((r) => (resolve = () => r()));
+    const { fixture, c, envoyerFactureWhatsapp } = monter();
+    fixture.detectChanges();
+    await flush();
+    (envoyerFactureWhatsapp as ReturnType<typeof vi.fn>).mockReturnValue(enVol);
+
+    const p1 = c.envoyerWhatsapp();
+    const p2 = c.envoyerWhatsapp(); // double clic pendant l'envoi
+    resolve();
+    await Promise.all([p1, p2]);
+
+    expect(envoyerFactureWhatsapp).toHaveBeenCalledTimes(1);
+  });
+
+  it('un échec relève le verrou — l’envoi WhatsApp reste rejouable', async () => {
+    const { fixture, c, envoyerFactureWhatsapp } = monter();
+    fixture.detectChanges();
+    await flush();
+    (envoyerFactureWhatsapp as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('WhatsApp indisponible'));
+
+    await c.envoyerWhatsapp();
+
+    expect(c.envoiWhatsappEnCours()).toBe(false);
+  });
+
+  it('affiche un spinner et désactive le bouton WhatsApp pendant l’envoi en vol', async () => {
+    const { fixture, envoyerFactureWhatsapp } = monter();
+    fixture.detectChanges();
+    await flush();
+    let resoudre!: () => void;
+    (envoyerFactureWhatsapp as ReturnType<typeof vi.fn>).mockImplementationOnce(
+      () => new Promise<void>((r) => { resoudre = r; }),
+    );
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const boutonWa = racine.querySelector('.btn--dark') as HTMLButtonElement;
+
+    boutonWa.click();
+    fixture.detectChanges();
+
+    expect(boutonWa.disabled).toBe(true);
+    expect(boutonWa.querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre();
+    // Le succès enchaîne un `reload()` complet (facture, solde, paiements,
+    // envois...) : plusieurs maillons de promesses après celle qu'on vient de
+    // résoudre, que `whenStable()` seul ne suffit pas à dérouler.
+    await flush();
+    fixture.detectChanges();
+
+    expect(boutonWa.disabled).toBe(false);
+    expect(boutonWa.querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
 });
 
 describe('FactureDetailComponent — après une annulation', () => {

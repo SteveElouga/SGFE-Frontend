@@ -226,6 +226,10 @@ describe('ResilierSheetComponent · ce qui s’affiche', () => {
         [...racine.querySelectorAll('button')].find((b) =>
           b.classList.contains('dialog-btn--danger'),
         ) as HTMLButtonElement,
+      annuler: () =>
+        [...racine.querySelectorAll('button')].find((b) =>
+          b.classList.contains('dialog-btn--ghost'),
+        ) as HTMLButtonElement,
     };
   }
 
@@ -262,6 +266,30 @@ describe('ResilierSheetComponent · ce qui s’affiche', () => {
     await fixture.whenStable();
 
     expect(recu).toEqual(['RESILIE']);
+  });
+
+  it('affiche un spinner et désactive les deux boutons pendant la résiliation en vol', async () => {
+    let resoudre!: (v: { id: string; statut: StatutAbonne }) => void;
+    const resilierAbonne = vi.fn(
+      () => new Promise<{ id: string; statut: StatutAbonne }>((r) => { resoudre = r; }),
+    );
+    const { fixture, checkbox, confirmer, annuler } = monter({ resilierAbonne });
+    checkbox().click();
+    fixture.detectChanges();
+
+    confirmer().click();
+    fixture.detectChanges();
+
+    expect(confirmer().disabled).toBe(true);
+    expect(annuler().disabled).toBe(true);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre(resultatResiliation());
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(confirmer().disabled).toBe(false);
+    expect(confirmer().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
   });
 
   it('affiche le numéro de compteur dans le libellé de la ligne récapitulative', () => {

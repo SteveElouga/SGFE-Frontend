@@ -59,8 +59,9 @@
       <button class="dialog-btn dialog-btn--ghost" (click)="close.emit()" [disabled]="loading()">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button class="dialog-btn dialog-btn--danger" (click)="confirm()" [disabled]="loading() || !confirme()">
+      <button class="dialog-btn dialog-btn--danger" (click)="confirm()" [disabled]="loading() || !confirme()" [attr.aria-busy]="loading()">
         @if (loading()) {
+          <i aria-hidden="true" class="pi pi-spin pi-spinner"></i>
           {{ 'ABONNES.DETAIL.RESILIER_LOADING' | translate }}
         } @else {
           {{ 'ABONNES.DETAIL.RESILIER_DEFINITIF' | translate }}

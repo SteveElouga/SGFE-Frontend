@@ -371,6 +371,14 @@
     @include action-ligne-icone;
   }
 
+  // Même repli que .btn-generer/.btn-whatsapp-tous pendant un envoi en cours
+  // (spinner pi-spin remplaçant l'icône) : premier bouton de ligne à devenir
+  // désactivable, il lui manquait cet état.
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
   // L'action principale d'une ligne impayée : encaisser.
   &--primary {
     background: var(--action);

@@ -157,4 +157,44 @@ describe('ProfilComponent', () => {
     await c.logout();
     expect(logout).toHaveBeenCalledTimes(1);
   });
+
+  it('affiche un spinner et désactive le bouton pendant la déconnexion en vol', async () => {
+    let resolve!: () => void;
+    const enVol = new Promise<void>((r) => (resolve = r));
+    const { fixture, c } = monter(utilisateur(), { logout: vi.fn().mockReturnValue(enVol) });
+    const bouton = () => (fixture.nativeElement as HTMLElement).querySelector('.btn--danger') as HTMLButtonElement;
+
+    const p = c.logout();
+    fixture.detectChanges();
+
+    expect(bouton().disabled).toBe(true);
+    expect(bouton().querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resolve();
+    await p;
+    fixture.detectChanges();
+
+    expect(bouton().disabled).toBe(false);
+    expect(bouton().querySelector('.pi-spin.pi-spinner')).toBeFalsy();
+  });
+
+  it('un échec de déconnexion relève le verrou plutôt que de bloquer le bouton', async () => {
+    const { c } = monter(utilisateur(), { logout: vi.fn().mockRejectedValue(new Error('Panne réseau')) });
+    await expect(c.logout()).rejects.toThrow('Panne réseau');
+    expect(c.loggingOut()).toBe(false);
+  });
+
+  it('ne relance pas une déconnexion pendant qu’une autre est en vol', async () => {
+    let resolve!: () => void;
+    const enVol = new Promise<void>((r) => (resolve = r));
+    const logout = vi.fn().mockReturnValue(enVol);
+    const { c } = monter(utilisateur(), { logout });
+
+    const p1 = c.logout();
+    const p2 = c.logout(); // double clic pendant la déconnexion
+    resolve();
+    await Promise.all([p1, p2]);
+
+    expect(logout).toHaveBeenCalledTimes(1);
+  });
 });

@@ -105,8 +105,10 @@
         type="button"
         class="ann-btn ann-btn--valider"
         [disabled]="!motifValide() || submitting()"
+        [attr.aria-busy]="submitting()"
         (click)="submit()"
       >
+        @if (submitting()) { <i aria-hidden="true" class="pi pi-spin pi-spinner"></i> }
         {{ (submitting() ? 'COMMON.SAVING'
             : mode() === 'regenerer' ? 'FACTURATION.ANNULATION.VALIDER_REGEN'
             : 'FACTURATION.ANNULATION.VALIDER') | translate }}

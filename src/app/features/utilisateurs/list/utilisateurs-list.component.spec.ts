@@ -153,6 +153,102 @@ describe('UtilisateursListComponent — désactivation', () => {
     expect(reactivateUser).toHaveBeenCalledWith('u-1');
     expect(c.users()[0].isActive).toBe(true);
   });
+
+  it('ne réactive pas deux fois pendant qu’une réactivation est déjà en vol', async () => {
+    let resoudre!: (v: User) => void;
+    const reactivateUser = vi.fn(() => new Promise<User>((r) => { resoudre = r; }));
+    const { fixture, c } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ isActive: false })]),
+      reactivateUser,
+    });
+    fixture.detectChanges();
+    await flush();
+
+    const p1 = c.reactivate(c.users()[0]);
+    const p2 = c.reactivate(c.users()[0]); // double clic pendant l'envoi
+    resoudre(user({ isActive: true }));
+    await Promise.all([p1, p2]);
+
+    expect(reactivateUser).toHaveBeenCalledTimes(1);
+  });
+
+  it('un échec de réactivation relève le verrou', async () => {
+    const reactivateUser = vi.fn().mockRejectedValueOnce(new Error('indisponible'));
+    const { fixture, c } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ isActive: false })]),
+      reactivateUser,
+    });
+    fixture.detectChanges();
+    await flush();
+
+    await c.reactivate(c.users()[0]);
+
+    expect(c.statutEnCoursId()).toBeNull();
+  });
+
+  it('affiche un spinner et désactive le bouton pendant la réactivation en vol', async () => {
+    let resoudre!: (v: User) => void;
+    const reactivateUser = vi.fn(() => new Promise<User>((r) => { resoudre = r; }));
+    const { fixture, c } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-9', isActive: false })]),
+      reactivateUser,
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bouton = racine.querySelector('.users-table__action-btn--success') as HTMLButtonElement;
+
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(bouton.disabled).toBe(true);
+    expect(bouton.querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre(user({ id: 'u-9', isActive: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Le succès bascule `isActive` : le bouton "Réactiver" est remplacé par
+    // "Désactiver" dans le DOM (branche `@if`/`@else`) — c'est le verrou côté
+    // composant qu'il faut vérifier, pas une référence DOM devenue caduque.
+    expect(c.statutEnCoursId()).toBeNull();
+  });
+
+  it('affiche un spinner et désactive le bouton pendant la désactivation en vol', async () => {
+    let resoudre!: (v: User) => void;
+    const deactivateUser = vi.fn(() => new Promise<User>((r) => { resoudre = r; }));
+    const { fixture, c, confirmationService } = monter({
+      getUsers: vi.fn().mockResolvedValue([user({ id: 'u-9', isActive: true })]),
+      deactivateUser,
+    });
+    fixture.detectChanges();
+    await flush();
+    vi.spyOn(confirmationService, 'confirm').mockImplementation((opts) => {
+      opts.accept?.();
+      return confirmationService;
+    });
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const bouton = racine.querySelector('.users-table__action-btn--danger') as HTMLButtonElement;
+
+    bouton.click();
+    fixture.detectChanges();
+
+    expect(bouton.disabled).toBe(true);
+    expect(bouton.querySelector('.pi-spin.pi-spinner')).toBeTruthy();
+
+    resoudre(user({ id: 'u-9', isActive: false }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    // Le succès bascule `isActive` : le bouton "Désactiver" est remplacé par
+    // "Réactiver" dans le DOM (branche `@if`/`@else`) — c'est le verrou côté
+    // composant qu'il faut vérifier, pas une référence DOM devenue caduque.
+    expect(c.statutEnCoursId()).toBeNull();
+  });
 });
 
 describe('UtilisateursListComponent — mise à jour en direct', () => {

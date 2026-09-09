@@ -105,6 +105,13 @@ export class FacturesListComponent implements OnInit {
   readonly loading = signal(true);
   readonly generatingFactures = signal(false);
   readonly sendingWhatsapp = signal(false);
+  /**
+   * Facture dont l'envoi WhatsApp individuel (bouton de ligne, IMPAYEE et
+   * PARTIELLE) est en cours — `null` sinon. Distinct de `sendingWhatsapp`
+   * (envoi en masse depuis la topbar) : les deux boutons ne doivent pas se
+   * désactiver l'un l'autre.
+   */
+  readonly envoiWhatsappEnCours = signal<string | null>(null);
   readonly error = signal<string | null>(null);
   readonly factures = signal<FactureLigne[]>([]);
   readonly soldes = signal<Map<string, number>>(new Map());
@@ -777,14 +784,29 @@ export class FacturesListComponent implements OnInit {
     }
   }
 
+  /**
+   * Envoi WhatsApp individuel depuis une ligne — IMPAYEE et PARTIELLE
+   * (une facture PARTIELLE reste due, au même titre qu'une IMPAYEE ; seule
+   * PAYEE n'a plus de raison d'être relancée). Passe par la même mutation et
+   * le même message que le renvoi depuis la fiche détail
+   * (`facture-detail.component.ts::envoyerWhatsapp`) : le backend ne
+   * distingue pas le statut courant de la facture pour ce message, voir
+   * `EnvoiService.renvoyer_facture`/`envoyer_facture`
+   * (services/notification/notifications/services.py) — aucun nouveau
+   * message n'est créé ici.
+   */
   async envoyerWhatsapp(factureId: string, event: Event): Promise<void> {
     event.stopPropagation();
+    if (this.envoiWhatsappEnCours()) return;
+    this.envoiWhatsappEnCours.set(factureId);
     try {
       await this.facturesService.renvoyerFactureWhatsapp(factureId);
       this.toast.success(this.translate.instant('FACTURATION.SUCCESS_WHATSAPP'));
     } catch (err: unknown) {
       const { message } = extractGqlError(err);
       this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.envoiWhatsappEnCours.set(null);
     }
   }
 
