@@ -260,6 +260,9 @@
 }
 
 .notif-act {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pas-2);
   border-radius: var(--rayon-sm);
   padding: var(--pas-2) var(--pas-3);
   font-size: var(--texte-xs);
@@ -269,6 +272,13 @@
   transition:
     opacity 0.12s,
     background 0.12s;
+
+  // Le bouton RETRY se désactive pendant le renvoi effectif (voir
+  // `retryingEnvoiId`) — évite un double-clic pendant l'aller-retour réseau.
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
 
   &--danger {
     background: var(--danger);

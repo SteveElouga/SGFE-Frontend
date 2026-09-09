@@ -37,6 +37,13 @@ export interface AppNotification {
   createdAt: string;
   read: boolean;
   actions?: NotifAction[];
+  /**
+   * Identifiant de l'`Envoi` WhatsApp d'origine — présent uniquement sur une
+   * notification d'échec d'envoi (voir `charger()`). C'est ce qui permet à
+   * l'action RETRY d'appeler réellement `FacturesService.renvoyerEnvoi`,
+   * plutôt que de se contenter d'un toast d'information.
+   */
+  envoiId?: string;
 }
 
 export type NotifGroup = 'TODAY' | 'YESTERDAY' | 'WEEK' | 'OLDER';
@@ -253,6 +260,7 @@ export class NotificationsService {
         }),
         createdAt: e.dateEnvoi,
         read: false,
+        envoiId: e.envoiId,
         actions: [
           { type: 'RETRY', labelKey: 'NOTIFICATIONS.ACTION.RETRY', variant: 'danger' },
           { type: 'FIX_NUMBER', labelKey: 'NOTIFICATIONS.ACTION.FIX_NUMBER', variant: 'ghost' },
