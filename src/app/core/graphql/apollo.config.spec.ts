@@ -16,6 +16,23 @@ import { apolloCache, apolloProviders } from './apollo.config';
  * il n'est exercé qu'à la construction réelle du service `Apollo`, vérifiée
  * ci-dessous par un test d'intégration léger (pas de vrai réseau : le lien
  * WebSocket ne se connecte qu'à la première subscription, jamais ici).
+ *
+ * Note de couverture : une version antérieure de ce fichier tentait
+ * d'espionner/mocker `graphql-ws` (`vi.mock`/`vi.spyOn`) pour inspecter les
+ * arguments réels de `createClient` (URL dérivée de `location`, en-tête
+ * `connectionParams` différé) et ainsi couvrir `urlWebSocketGraphQL` et le
+ * callback d'authentification WS. Les deux approches se sont révélées
+ * incompatibles avec ce test runner : la suite complète exécute tous les
+ * fichiers de specs dans UN SEUL contexte partagé (`isolate: false`, choisi
+ * pour se rapprocher de Karma/Jasmine — voir `angular.json`), donc `graphql-ws`
+ * est déjà chargé pour de vrai par d'autres specs avant que le `vi.mock` de
+ * CE fichier ne s'exécute (erreur `Cannot access '__vi_import_N__' before
+ * initialization`), et son export nommé n'est de toute façon pas
+ * reconfigurable en ESM réel (`vi.spyOn` échoue avec « Module namespace is
+ * not configurable »). Plutôt que de risquer une suite complète instable pour
+ * un gain marginal sur ce fichier, ces deux branches restent non couvertes ici
+ * (voir le rapport de couverture) : `urlWebSocketGraphQL` (le choix ws/wss et
+ * le repli sans `location`) et le contenu du callback `connectionParams`.
  */
 describe('apolloCache · typePolicies', () => {
   it('normalise Campagne par campagneId, pas par id', () => {
@@ -68,5 +85,22 @@ describe('apolloProviders', () => {
     TestBed.configureTestingModule({ providers: [provideHttpClient(), ...apolloProviders] });
     const apollo = TestBed.inject(Apollo);
     expect(apollo.client.cache).toBe(apolloCache);
+  });
+
+  it('construit deux fois de suite sans effet de bord (chaque instance a son propre lien WS différé)', () => {
+    // Reconstruire le service Apollo à froid (nouveau TestBed) exécute à
+    // nouveau `apolloOptionsFactory` en entier — deuxième garde-fou léger
+    // contre une régression dans sa construction (ordre des providers,
+    // double-inscription du lien d'erreurs, etc.), sans dépendre d'un mock
+    // fragile de `graphql-ws` (voir la note de couverture ci-dessus).
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), ...apolloProviders] });
+    const premier = TestBed.inject(Apollo);
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({ providers: [provideHttpClient(), ...apolloProviders] });
+    const second = TestBed.inject(Apollo);
+
+    expect(premier.client).not.toBe(second.client);
+    expect(second.client.cache).toBe(apolloCache);
   });
 });

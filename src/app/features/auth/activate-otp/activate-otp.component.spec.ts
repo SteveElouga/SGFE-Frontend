@@ -63,8 +63,8 @@ describe('ActivateOtpComponent — validité du formulaire', () => {
     const { c } = monter();
     c.phone.set('123');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     expect(c.canSubmit()).toBe(false);
   });
 
@@ -72,8 +72,8 @@ describe('ActivateOtpComponent — validité du formulaire', () => {
     const { c } = monter();
     c.phone.set('612345678');
     c.otpCode.set('12345');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     expect(c.canSubmit()).toBe(false);
   });
 
@@ -90,7 +90,7 @@ describe('ActivateOtpComponent — validité du formulaire', () => {
     const { c } = monter();
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
+    c.password.set('longenough1');
     c.confirmPassword.set('autrepasse2');
     expect(c.canSubmit()).toBe(false);
   });
@@ -99,8 +99,8 @@ describe('ActivateOtpComponent — validité du formulaire', () => {
     const { c } = monter();
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     expect(c.canSubmit()).toBe(true);
   });
 });
@@ -110,10 +110,10 @@ describe('ActivateOtpComponent — soumission', () => {
     const { c, verifyOtpAndSetPassword } = monter();
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     await c.onSubmit();
-    expect(verifyOtpAndSetPassword).toHaveBeenCalledWith('+237612345678', '123456', 'motdepasse1');
+    expect(verifyOtpAndSetPassword).toHaveBeenCalledWith('+237612345678', '123456', 'longenough1');
   });
 
   it('ne soumet rien tant que le formulaire est invalide', async () => {
@@ -126,8 +126,8 @@ describe('ActivateOtpComponent — soumission', () => {
     const { c } = monter();
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     await c.onSubmit();
     expect(c.submitted()).toBe(true);
     expect(c.loading()).toBe(false);
@@ -139,8 +139,8 @@ describe('ActivateOtpComponent — soumission', () => {
     });
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     await c.onSubmit();
     expect(c.errorMessage()).toBe('Code incorrect');
     expect(c.submitted()).toBe(false);
@@ -152,8 +152,8 @@ describe('ActivateOtpComponent — soumission', () => {
     });
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     await c.onSubmit();
     expect(c.errorMessage()).toBe('Erreur temporaire. Réessayez dans quelques instants.');
   });
@@ -164,8 +164,8 @@ describe('ActivateOtpComponent — soumission', () => {
     });
     c.phone.set('612345678');
     c.otpCode.set('123456');
-    c.password.set('motdepasse1');
-    c.confirmPassword.set('motdepasse1');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
     await c.onSubmit();
     expect(c.errorMessage()).toBe('panne réseau');
   });
@@ -194,6 +194,103 @@ describe('ActivateOtpComponent — renvoi du code', () => {
     c.resendCooldown.set(0);
     await c.onResend();
     expect(c.errorMessage()).toBe("Échec de l'envoi WhatsApp. Réessayez dans quelques instants.");
+  });
+});
+
+/**
+ * Les tests ci-dessus rendent déjà le composant une fois (`fixture.detectChanges()`
+ * dans `monter()`), mais n'exercent jamais les deux branches les plus visibles
+ * du template : le champ téléphone conditionnel (`@if (!hasPhoneParam)`) et
+ * l'écran de succès (`@if (!submitted()) … @else …`), ni le compte à rebours
+ * initial de `app-auth-otp-resend`.
+ */
+describe('ActivateOtpComponent — rendu du template', () => {
+  it('saisir dans les VRAIS champs imbriqués (téléphone, code, mots de passe) met à jour les signaux parents', () => {
+    const { fixture, c } = monter({ phone: null });
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const champTel = racine.querySelector<HTMLInputElement>('#activate-phone')!;
+    const champOtp = racine.querySelector<HTMLInputElement>('#activate-otp')!;
+    const champMdp = racine.querySelector<HTMLInputElement>('#activate-password')!;
+    const champConfirm = racine.querySelector<HTMLInputElement>('#activate-confirm')!;
+    expect(champTel).toBeTruthy();
+    expect(champOtp).toBeTruthy();
+    expect(champMdp).toBeTruthy();
+    expect(champConfirm).toBeTruthy();
+
+    champTel.value = '612345678';
+    champTel.dispatchEvent(new Event('input', { bubbles: true }));
+    champOtp.value = '123456';
+    champOtp.dispatchEvent(new Event('input', { bubbles: true }));
+    champMdp.value = 'longenough1';
+    champMdp.dispatchEvent(new Event('input', { bubbles: true }));
+    champConfirm.value = 'longenough1';
+    champConfirm.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+
+    expect(c.phone()).toBe('612345678');
+    expect(c.otpCode()).toBe('123456');
+    expect(c.password()).toBe('longenough1');
+    expect(c.confirmPassword()).toBe('longenough1');
+  });
+
+  it('sans `phone` en query param : affiche le champ téléphone à saisir', () => {
+    const { fixture } = monter({ phone: null });
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('app-auth-phone-input')).toBeTruthy();
+    expect(racine.textContent).toContain('ACTIVATION.SOUS_TITRE');
+  });
+
+  it('avec un `phone` en query param : masque le champ téléphone et affiche le numéro masqué', () => {
+    const { fixture, c } = monter({ phone: '+237612345678' });
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('app-auth-phone-input')).toBeNull();
+    expect(racine.textContent).toContain('ACTIVATION.SOUS_TITRE_TEL');
+    expect(racine.textContent).toContain(c.maskedPhone());
+  });
+
+  it('affiche le compte à rebours au montage (cooldown déjà démarré), pas le bouton "Renvoyer"', () => {
+    const { fixture } = monter();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.auth-otp-resend__countdown')).toBeTruthy();
+    expect(racine.querySelector('.auth-otp-resend__btn')).toBeNull();
+  });
+
+  it('une fois le cooldown écoulé, un clic réel sur "Renvoyer" appelle bien onResend', async () => {
+    const { fixture, c, requestPhoneOtp } = monter({ phone: '+237612345678' });
+    const racine = fixture.nativeElement as HTMLElement;
+    c.resendCooldown.set(0);
+    fixture.detectChanges();
+
+    const bouton = racine.querySelector<HTMLButtonElement>('.auth-otp-resend__btn')!;
+    expect(bouton).toBeTruthy();
+    bouton.click();
+    await Promise.resolve();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(requestPhoneOtp).toHaveBeenCalledWith('+237612345678');
+  });
+
+  it('après soumission réussie (submit réel du formulaire), affiche l’écran de succès et masque le formulaire', async () => {
+    const { fixture, c } = monter({ phone: '+237612345678' });
+    const racine = fixture.nativeElement as HTMLElement;
+    c.otpCode.set('123456');
+    c.password.set('longenough1');
+    c.confirmPassword.set('longenough1');
+    fixture.detectChanges();
+
+    const form = racine.querySelector('form')!;
+    form.dispatchEvent(new Event('submit', { cancelable: true }));
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    fixture.detectChanges();
+
+    expect(c.submitted()).toBe(true);
+    expect(racine.querySelector('form')).toBeNull();
+    expect(racine.querySelector('.auth-screen__success')).toBeTruthy();
+    expect(racine.querySelector('a[routerLink="/login"]')).toBeTruthy();
   });
 });
 

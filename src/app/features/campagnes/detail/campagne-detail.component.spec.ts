@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { Apollo } from 'apollo-angular';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -797,6 +798,106 @@ describe('CampagneDetailComponent', () => {
       fixture.detectChanges();
       const racine = fixture.nativeElement as HTMLElement;
       expect(racine.querySelector('.btn--danger')).toBeTruthy();
+    });
+  });
+
+  /**
+   * Le reste de cette suite exerçait `CampagneDetailComponent` sans jamais
+   * rendre `campagne-detail.component.html` dans ses différentes branches :
+   * `detectChanges()` n'était appelé qu'une fois après le chargement initial.
+   * Les blocs qui suivent rendent réellement le gabarit et cliquent dans le
+   * DOM produit.
+   */
+  describe('rendu réel : en-tête (agents affectés, clôture, actions)', () => {
+    it('affiche les agents affectés et la date de clôture connue dans le méta', async () => {
+      const { fixture } = setup({
+        campagne: campagne({ statut: 'CLOTUREE', dateCloture: '2026-08-27', dateCreation: '2026-07-01' }),
+        agents: [agentAffecte({ username: 'awa.ba' })],
+      });
+      await flush();
+      fixture.detectChanges();
+
+      const meta = (fixture.nativeElement as HTMLElement).querySelector('.detail-header__meta')?.textContent;
+      expect(meta).toContain('awa.ba');
+      expect(meta).toContain('27/08/2026');
+    });
+
+    it('affiche le bouton Démarrer pour une campagne PLANIFIEE et déclenche demarrer() au clic', async () => {
+      const { fixture, demarrerCampagne } = setup({ campagne: campagne({ statut: 'PLANIFIEE' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const bouton = racine.querySelector('.detail-header__actions .btn--primary') as HTMLButtonElement;
+      expect(bouton).toBeTruthy();
+      bouton.click();
+      await flush();
+
+      expect(demarrerCampagne).toHaveBeenCalledWith('camp-1');
+    });
+
+    it('le bouton « Rattacher des abonnés » ouvre la feuille dédiée', async () => {
+      const { fixture, c } = setup({ campagne: campagne({ statut: 'EN_COURS' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      (racine.querySelector('.detail-header__actions .btn--outline') as HTMLButtonElement).click();
+
+      expect(c.showAbonnesSheet()).toBe(true);
+    });
+
+    it('les actions mobiles reprennent les mêmes déclencheurs (clôture, démarrage, abonnés)', async () => {
+      const { fixture, c } = setup({ campagne: campagne({ statut: 'EN_COURS' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      (racine.querySelector('.mactions .mactions__btn--outline') as HTMLButtonElement).click();
+      expect(c.showAbonnesSheet()).toBe(true);
+
+      (racine.querySelector('.mactions .mactions__btn--dark') as HTMLButtonElement).click();
+      expect(c.clotureModalVisible()).toBe(true);
+    });
+
+    it('le bouton Démarrer mobile déclenche aussi demarrer()', async () => {
+      const { fixture, demarrerCampagne } = setup({ campagne: campagne({ statut: 'PLANIFIEE' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      (racine.querySelector('.mactions .mactions__btn--primary') as HTMLButtonElement).click();
+      await flush();
+
+      expect(demarrerCampagne).toHaveBeenCalledWith('camp-1');
+    });
+  });
+
+  describe('rendu réel : sorties des sous-panneaux', () => {
+    it('ouvre la feuille de correction avec le relevé émis par le panneau des relevés', async () => {
+      const r1 = releve({ releveId: 'r-1' });
+      const { fixture, c } = setup({ releves: [r1] });
+      await flush();
+      fixture.detectChanges();
+
+      const panel = fixture.debugElement.query(By.css('app-releves-panel'));
+      panel.triggerEventHandler('corriger', r1);
+
+      expect(c.showCorrigerReleveSheet()).toBe(true);
+      expect(c.releveACorrig()).toEqual(r1);
+    });
+
+    it('rend la feuille de zones avec l’agent ciblé et la referme via sa sortie close', async () => {
+      const { fixture, c } = setup({ agents: [agentAffecte({ agentId: 'ag-1', username: 'koffi' })] });
+      await flush();
+      c.openZonesSheet({ id: 'ag-1', username: 'koffi' });
+      fixture.detectChanges();
+
+      const zonesSheet = fixture.debugElement.query(By.css('app-zones-sheet'));
+      expect(zonesSheet).toBeTruthy();
+      zonesSheet.triggerEventHandler('close', undefined);
+
+      expect(c.showZonesSheet()).toBe(false);
     });
   });
 });

@@ -597,4 +597,172 @@ describe('CampagneFormComponent', () => {
       expect(creerCampagne).not.toHaveBeenCalled();
     });
   });
+
+  /**
+   * Le reste de cette suite exerçait `CampagneFormComponent` sans jamais
+   * rendre `campagne-form.component.html` dans ses branches réelles :
+   * `detectChanges()` n'était appelé qu'une fois, à l'initialisation. Les
+   * blocs qui suivent rendent le gabarit et cliquent dans le DOM produit.
+   */
+  describe('rendu réel : agents et zones affectées', () => {
+    it('ajoute un agent depuis la liste des disponibles, lui affecte une zone, puis le retire', async () => {
+      const { fixture, component } = await setup({
+        agentsDisponibles: [agentDisponible({ id: 'ag-1', username: 'jdupont' })],
+        abonnesActifs: [abonneActif({ compteur: { quartier: 'Plateau', camp: 1 } })],
+      });
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+
+      (racine.querySelector('.agent-tag') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(racine.querySelector('.agent-assign__name')?.textContent).toContain('jdupont');
+      expect(racine.querySelector('.agent-assign__hint')?.textContent).toContain('Aucune zone');
+
+      (racine.querySelector('.agent-zone-chip') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(racine.querySelector('.agent-zone-chip--on')).toBeTruthy();
+      expect(racine.querySelector('.agent-assign__hint')?.textContent).toContain('1 zone');
+      expect(component.agentZoneCount('ag-1')).toBe(1);
+
+      (racine.querySelector('.agent-chip__remove') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(racine.querySelector('.agent-assign')).toBeNull();
+      expect(racine.querySelector('.agent-tag')?.textContent).toContain('jdupont');
+      expect(component.agentZoneCount('ag-1')).toBe(0);
+    });
+  });
+
+  describe('rendu réel : sélection des abonnés par zone', () => {
+    it('bascule en mode FILTRE, avertit tant qu’aucune zone n’est cochée, puis affiche le compte couvert', async () => {
+      const { fixture, component } = await setup({
+        abonnesActifs: [
+          abonneActif({ id: '1', compteur: { quartier: 'Plateau', camp: 1 } }),
+          abonneActif({ id: '2', compteur: { quartier: 'Plateau', camp: 1 } }),
+          abonneActif({ id: '3', compteur: { quartier: 'Bastos', camp: 2 } }),
+        ],
+      });
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+
+      const options = Array.from(racine.querySelectorAll('.abonnes-option'));
+      (options[1] as HTMLButtonElement).click(); // option FILTRE
+      fixture.detectChanges();
+
+      expect(component.selectionMode()).toBe('FILTRE');
+      expect(racine.querySelector('.zones-filter')).toBeTruthy();
+      expect(racine.querySelector('.abonnes-info--warn')?.textContent).toContain('Sélectionnez au moins une zone');
+
+      // Zones triées par nom (Bastos avant Plateau) : on cible explicitement
+      // celle de Plateau, qui couvre les deux abonnés de ce quartier.
+      const zoneChip = Array.from(racine.querySelectorAll('.zone-chip')).find((el) =>
+        el.textContent?.includes('Plateau'),
+      ) as HTMLButtonElement;
+      zoneChip.click();
+      fixture.detectChanges();
+
+      expect(zoneChip.classList.contains('zone-chip--selected')).toBe(true);
+      expect(component.nbAbonnesFiltres()).toBe(2);
+      const info = racine.querySelector('.abonnes-info:not(.abonnes-info--warn)');
+      expect(info?.textContent).toContain('2');
+      expect(info?.textContent).toContain('inclus dans les zones');
+    });
+
+    it('affiche un message dédié quand aucune zone n’est disponible', async () => {
+      const { fixture, component } = await setup({ abonnesActifs: [] });
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+      const options = Array.from(racine.querySelectorAll('.abonnes-option'));
+      (options[1] as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(component.selectionMode()).toBe('FILTRE');
+      expect(racine.querySelector('.zones-empty')?.textContent).toContain('Aucune zone disponible');
+    });
+
+    it('affiche le nombre d’abonnés actifs en mode TOUS', async () => {
+      const { fixture } = await setup({ abonnesActifs: [abonneActif({ id: '1' }), abonneActif({ id: '2' })] });
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelector('.abonnes-info')?.textContent).toContain('2');
+    });
+  });
+
+  describe('rendu réel : Mobile Money invalide', () => {
+    it('affiche le message d’erreur à la saisie d’un numéro incomplet', async () => {
+      const { fixture } = await setup();
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+      const input = racine.querySelector('#mobile-money') as HTMLInputElement;
+
+      input.value = '12345';
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      expect(racine.querySelector('#mobile-money-err')?.textContent).toContain('9 chiffres');
+      expect(input.classList.contains('form-field__input--error')).toBe(true);
+    });
+  });
+
+  describe('rendu réel : soumission depuis le bouton', () => {
+    it('affiche un spinner pendant la soumission puis le masque au succès', async () => {
+      let resoudre!: (v: unknown) => void;
+      const enVol = new Promise((r) => (resoudre = r));
+      const creerCampagne = vi.fn().mockReturnValue(enVol);
+      const { fixture, component, router } = await setup({ creerCampagne });
+      // Navigation réelle non pertinente ici (aucune route déclarée dans ce
+      // test) : on l'espionne pour isoler le comportement du bouton.
+      vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      fixture.detectChanges();
+      component.formNom.set('Test');
+      component.formDatePlanifiee.set(new Date(2026, 8, 15));
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const bouton = racine.querySelector('.form-actions .btn--primary') as HTMLButtonElement;
+      bouton.click();
+      fixture.detectChanges();
+
+      expect(bouton.querySelector('.pi-spinner')).toBeTruthy();
+
+      resoudre({
+        campagneId: 'c-1',
+        nom: 'Test',
+        statut: 'PLANIFIEE',
+        periodeMois: 9,
+        periodeAnnee: 2026,
+        datePlanifiee: '2026-09-15',
+        dateCreation: '',
+        dateCloture: '',
+      });
+      await flush();
+      fixture.detectChanges();
+
+      expect(bouton.querySelector('.pi-spinner')).toBeNull();
+    });
+
+    it('le bouton Annuler du gabarit ne déclenche pas la création', async () => {
+      const { fixture, creerCampagne, router } = await setup();
+      vi.spyOn(router, 'navigate').mockResolvedValue(true);
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+
+      (racine.querySelector('.form-actions .btn--outline') as HTMLButtonElement).click();
+
+      expect(creerCampagne).not.toHaveBeenCalled();
+    });
+
+    it('le bouton de soumission reste désactivé tant que le formulaire est invalide', async () => {
+      const { fixture, component } = await setup();
+      fixture.detectChanges();
+      component.formNom.set('');
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const bouton = racine.querySelector('.form-actions .btn--primary') as HTMLButtonElement;
+      expect(bouton.disabled).toBe(true);
+    });
+  });
 });

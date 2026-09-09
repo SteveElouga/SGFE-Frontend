@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
@@ -572,6 +573,320 @@ describe('AbonneFormComponent', () => {
       });
       await flush();
       expect(component.dateSouscriptionDisplay()).toMatch(/04\/03\/2025|03\/04\/2025/);
+    });
+  });
+
+  // ── Rendu réel du template ───────────────────────────────────────────────────
+  // Les blocs ci-dessus lisent presque toujours `component.xxx()` sans jamais
+  // rappeler `detectChanges()` après un changement d'état : le `@if`/`@else`
+  // du gabarit (squelette, erreur, sections édition/création, messages de
+  // validation) n'était donc presque jamais réellement rendu.
+
+  /** Simule une vraie saisie utilisateur (input + blur), pas juste `signal.set`. */
+  function saisir(input: HTMLInputElement, valeur: string): void {
+    input.value = valeur;
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new Event('blur'));
+  }
+
+  describe('rendu réel du template', () => {
+    it('affiche le squelette de chargement tant que l’abonné n’a pas répondu (mode édition)', async () => {
+      let resoudre!: (a: AbonneDetail) => void;
+      const enAttente = new Promise<AbonneDetail>((res) => { resoudre = res; });
+      const { fixture } = setup({ mode: 'edit', getAbonneImpl: () => enAttente });
+
+      expect(fixture.nativeElement.querySelector('.af-skeleton')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-card')).toBeNull();
+
+      resoudre(abonneFixture());
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('.af-skeleton')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-card')).not.toBeNull();
+    });
+
+    it('affiche le message d’erreur (sans bouton réessayer) quand le chargement échoue', async () => {
+      const { fixture } = setup({ mode: 'edit', getAbonneImpl: () => Promise.reject(new Error('Panne réseau connue')) });
+      await flush();
+      fixture.detectChanges();
+
+      const banniere = fixture.nativeElement.querySelector('.error-banner__message');
+      expect(banniere).not.toBeNull();
+      expect(banniere.textContent).toContain('Panne réseau connue');
+      expect(fixture.nativeElement.querySelector('.error-banner__retry')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-card')).toBeNull();
+    });
+
+    it('en création, le numéro affiche un tiret et aucun statut n’est proposé', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const numero = fixture.nativeElement.querySelector('.af-readonly__value');
+      expect(numero.textContent.trim()).toBe('—');
+      expect(fixture.nativeElement.querySelector('p-select')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-status-badge')).toBeNull();
+    });
+
+    it('en édition (non résilié), le sélecteur de statut est rendu, pas le badge résilié', async () => {
+      const { fixture } = setup({ mode: 'edit', abonne: abonneFixture({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('p-select')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-status-badge--resilie')).toBeNull();
+    });
+
+    it('un abonné résilié affiche le badge RÉSILIÉ, jamais le sélecteur de statut', async () => {
+      const { fixture } = setup({ mode: 'edit', abonne: abonneFixture({ statut: 'RESILIE' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const badge = fixture.nativeElement.querySelector('.af-status-badge--resilie');
+      expect(badge).not.toBeNull();
+      expect(badge.textContent).toContain('RÉSILIÉ');
+      expect(fixture.nativeElement.querySelector('p-select')).toBeNull();
+    });
+
+    it('un vrai blur sur le nom vide affiche l’erreur "requis", puis la fait disparaître une fois corrigé', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afNom');
+
+      saisir(input, '');
+      fixture.detectChanges();
+      let erreur = fixture.nativeElement.querySelector('#afNom-err');
+      expect(erreur).not.toBeNull();
+      expect(erreur.textContent).toBe('ABONNES.FORM.NOM_REQUIRED');
+      expect(input.getAttribute('aria-invalid')).toBe('true');
+      expect(input.classList.contains('ng-invalid')).toBe(true);
+
+      saisir(input, 'Diallo');
+      fixture.detectChanges();
+      erreur = fixture.nativeElement.querySelector('#afNom-err');
+      expect(erreur).toBeNull();
+      expect(input.getAttribute('aria-invalid')).toBeNull();
+    });
+
+    it('un vrai blur sur le prénom trop court affiche "trop court"', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afPrenom');
+
+      saisir(input, 'A');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afPrenom-err').textContent).toBe('COMMON.MIN_2_CHARS');
+    });
+
+    it('un vrai blur sur le quartier vide affiche l’erreur "requis"', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afQuartier');
+
+      saisir(input, '');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afQuartier-err').textContent).toBe('ABONNES.FORM.QUARTIER_REQUIRED');
+    });
+
+    it('un vrai blur sur le camp à zéro affiche l’erreur "invalide"', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afCamp');
+
+      saisir(input, '0');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afCamp-err').textContent).toBe('ABONNES.FORM.CAMP_INVALID');
+    });
+
+    it('un vrai blur sur le numéro de compteur vide affiche une erreur de validation (création)', () => {
+      const { fixture } = setup({ mode: 'create' });
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afNumero');
+
+      // `type="number"` : un champ vidé est lu `null` par le NumberValueAccessor
+      // d'Angular (pas `''`) — `numeroCompteurError` rend alors NUMERO_INVALID
+      // (`String(null)` est non vide), pas NUMERO_REQUIRED comme le donnerait
+      // `component.numeroCompteur.set('')` en direct (voir les tests logique
+      // plus haut). Comportement réel exercé ici, pas un choix arbitraire.
+      saisir(input, '');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afNumero-err').textContent).toBe('ABONNES.FORM.NUMERO_INVALID');
+    });
+
+    it('le téléphone affiche l’indice de format tant qu’aucune erreur, puis l’erreur au blur', () => {
+      const { fixture } = setup({ mode: 'create' });
+      expect(fixture.nativeElement.querySelector('#afTel-hint')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#afTel-err')).toBeNull();
+
+      const input: HTMLInputElement = fixture.nativeElement.querySelector('#afTel');
+      saisir(input, '123');
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afTel-err').textContent).toBe('ABONNES.FORM.PHONE_INVALID');
+      expect(fixture.nativeElement.querySelector('#afTel-hint')).toBeNull();
+    });
+
+    it('en création, l’astérisque de date de souscription est affiché', () => {
+      const { fixture } = setup({ mode: 'create' });
+      expect(fixture.nativeElement.querySelector('label[for="afDate"]').textContent).toContain('*');
+      expect(fixture.nativeElement.querySelector('p-datepicker')).not.toBeNull();
+    });
+
+    it('en édition, la date de souscription est en lecture seule, sans astérisque ni datepicker', async () => {
+      const { fixture } = setup({ mode: 'edit' });
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('label[for="afDate"]').textContent).not.toContain('*');
+      expect(fixture.nativeElement.querySelector('p-datepicker')).toBeNull();
+      expect(fixture.nativeElement.querySelector('.af-readonly__value').textContent?.trim().length).toBeGreaterThan(0);
+    });
+
+    it('l’erreur de date de souscription s’affiche réellement dans le DOM une fois touchée', () => {
+      const { fixture, component } = setup({ mode: 'create' });
+      component.datePoseTouched.set(true);
+      component.datePose.set(null);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afDate-err').textContent).toBe('ABONNES.FORM.DATE_REQUIRED');
+    });
+
+    it('en édition, le numéro et l’index du compteur sont en lecture seule, formatés', async () => {
+      const { fixture } = setup({
+        mode: 'edit',
+        abonne: abonneFixture({
+          compteur: { id: 'c-7', numeroCompteur: 7, quartier: 'X', camp: 1, indexInitial: 0, datePose: '2025-01-01', position: '', statut: 'ACTIF', latitude: null, longitude: null, dateMajPosition: null },
+        }),
+      });
+      await flush();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('#afNumero')).toBeNull();
+      const valeurs = Array.from(fixture.nativeElement.querySelectorAll('.af-readonly__value--mono')) as HTMLElement[];
+      expect(valeurs.some((v) => v.textContent?.includes('C-0007'))).toBe(true);
+      expect(fixture.nativeElement.textContent).toContain('ABONNES.FORM.INDEX_READONLY');
+      expect(fixture.nativeElement.querySelector('.af-readonly__badge--disabled, .af-readonly--disabled')).not.toBeNull();
+    });
+
+    it('un clic réel sur "Enregistrer" avec un formulaire invalide affiche toutes les erreurs à la fois', () => {
+      const { fixture, createAbonne } = setup({ mode: 'create' });
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.af-btn--primary');
+
+      bouton.click();
+      fixture.detectChanges();
+
+      expect(createAbonne).not.toHaveBeenCalled();
+      expect(fixture.nativeElement.querySelector('#afNom-err')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#afPrenom-err')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#afQuartier-err')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#afCamp-err')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('#afNumero-err')).not.toBeNull();
+    });
+
+    it('un clic réel sur "Enregistrer" avec un formulaire valide crée l’abonné et redirige', async () => {
+      const { fixture, createAbonne, router } = setup({ mode: 'create' });
+      saisir(fixture.nativeElement.querySelector('#afNom'), 'Diallo');
+      saisir(fixture.nativeElement.querySelector('#afPrenom'), 'Amadou');
+      saisir(fixture.nativeElement.querySelector('#afTel'), '612345678');
+      saisir(fixture.nativeElement.querySelector('#afQuartier'), 'Bastos');
+      saisir(fixture.nativeElement.querySelector('#afCamp'), '3');
+      saisir(fixture.nativeElement.querySelector('#afNumero'), '1042');
+      fixture.componentInstance.datePose.set(new Date(2026, 0, 15));
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.af-btn--primary');
+      bouton.click();
+      await flush();
+      fixture.detectChanges();
+
+      expect(createAbonne).toHaveBeenCalledTimes(1);
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/abonnes');
+      expect(fixture.nativeElement.querySelector('#afNom-err')).toBeNull();
+    });
+
+    it('pendant l’enregistrement, le bouton affiche "en cours" et devient inerte', async () => {
+      let resoudre!: () => void;
+      const enAttente = new Promise<{ id: string; numeroAbonne: string }>((res) => {
+        resoudre = () => res({ id: 'new-1', numeroAbonne: 'AB-0099' });
+      });
+      const { fixture, component, createAbonne } = setup({ mode: 'create' });
+      createAbonne.mockReturnValue(enAttente);
+      remplirFormulaireValide(component);
+      fixture.detectChanges();
+
+      const promesse = component.submit();
+      fixture.detectChanges();
+
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.af-btn--primary');
+      expect(bouton.disabled).toBe(true);
+      expect(bouton.textContent).toContain('ABONNES.FORM.SAVING');
+
+      resoudre();
+      await promesse;
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelector('.af-btn--primary').disabled).toBe(false);
+    });
+
+    it('un clic réel sur "Annuler" déclenche la navigation attendue selon le mode', () => {
+      const { fixture, router } = setup({ mode: 'create' });
+      const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.af-btn--ghost');
+
+      bouton.click();
+
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/abonnes');
+    });
+
+    it('le titre du topbar reflète le mode création', () => {
+      const { fixture } = setup({ mode: 'create' });
+      expect(fixture.nativeElement.textContent).toContain('ABONNES.FORM.CREATE_TITLE');
+    });
+
+    it('le titre du topbar inclut le n° d’abonné une fois chargé, en édition', async () => {
+      const { fixture } = setup({ mode: 'edit', abonne: abonneFixture({ numeroAbonne: 'AB-0042' }) });
+      await flush();
+      fixture.detectChanges();
+      expect(fixture.nativeElement.textContent).toContain('ABONNES.FORM.EDIT_TITLE AB-0042');
+    });
+
+    it('un vrai changement dans le champ position (libre, optionnel) met à jour le signal', () => {
+      const { fixture, component } = setup({ mode: 'create' });
+      saisir(fixture.nativeElement.querySelector('#afPosition'), 'Fond de cour');
+      expect(component.position()).toBe('Fond de cour');
+    });
+
+    it('un vrai changement dans le champ adresse (libre, optionnel) met à jour le signal', () => {
+      const { fixture, component } = setup({ mode: 'create' });
+      saisir(fixture.nativeElement.querySelector('#afAdresse'), 'Rue 14B');
+      expect(component.adresse()).toBe('Rue 14B');
+    });
+
+    it('un vrai changement dans l’index initial (création) met à jour le signal', () => {
+      const { fixture, component } = setup({ mode: 'create' });
+      // `type="number"` : le NumberValueAccessor d'Angular convertit la
+      // saisie en nombre, pas en chaîne (contrairement à `signal.set('12.5')`
+      // utilisé par les tests logique ci-dessus).
+      saisir(fixture.nativeElement.querySelector('#afIndex'), '12.5');
+      expect(component.indexInitial()).toBe(12.5 as unknown as string);
+    });
+
+    it('un vrai changement de statut via le sélecteur PrimeNG met à jour le signal (édition)', async () => {
+      const { fixture, component } = setup({ mode: 'edit', abonne: abonneFixture({ statut: 'ACTIF' }) });
+      await flush();
+      fixture.detectChanges();
+
+      const select = fixture.debugElement.query(By.css('p-select'));
+      select.triggerEventHandler('ngModelChange', 'SUSPENDU');
+
+      expect(component.selectedStatut()).toBe('SUSPENDU');
+    });
+
+    it('un vrai changement/blur sur le datepicker met à jour le signal et son état "touché" (création)', () => {
+      const { fixture, component } = setup({ mode: 'create' });
+      const datepicker = fixture.debugElement.query(By.css('p-datepicker'));
+
+      const nouvelleDate = new Date(2026, 5, 1);
+      datepicker.triggerEventHandler('ngModelChange', nouvelleDate);
+      expect(component.datePose()).toBe(nouvelleDate);
+
+      expect(component.datePoseTouched()).toBe(false);
+      datepicker.triggerEventHandler('onBlur', undefined);
+      expect(component.datePoseTouched()).toBe(true);
     });
   });
 });

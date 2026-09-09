@@ -91,6 +91,8 @@ describe('CampagnesListComponent', () => {
       role?: 'ADMIN' | 'AGENT' | 'COMPTABLE' | 'SUPERVISEUR';
       agentsParCampagne?: Record<string, AgentAffecte[]>;
       progressionsParCampagne?: Record<string, Progression>;
+      /** Campagnes dont le chargement de la progression échoue (repli heuristique). */
+      progressionsAbsentesPour?: string[];
     } = {},
   ) {
     const queryRef = makeQueryRef(campagnes, opts.valueChanges);
@@ -100,9 +102,10 @@ describe('CampagnesListComponent', () => {
     const getAgentsCampagne = vi
       .fn()
       .mockImplementation(async (id: string) => opts.agentsParCampagne?.[id] ?? []);
-    const getProgression = vi
-      .fn()
-      .mockImplementation(async (id: string) => opts.progressionsParCampagne?.[id] ?? progression({ campagneId: id }));
+    const getProgression = vi.fn().mockImplementation(async (id: string) => {
+      if (opts.progressionsAbsentesPour?.includes(id)) throw new Error('progression indisponible');
+      return opts.progressionsParCampagne?.[id] ?? progression({ campagneId: id });
+    });
 
     const roleSig = signal(opts.role ?? 'ADMIN');
 
@@ -490,6 +493,116 @@ describe('CampagnesListComponent', () => {
 
       expect(toast.error).toHaveBeenCalledWith('Le serveur est indisponible');
       expect(component.cloturantId()).toBeNull();
+    });
+  });
+
+  /**
+   * Le reste de cette suite exerçait la logique TS sans jamais rendre
+   * `campagnes-list.component.html` après l'arrivée des données : le seul
+   * `detectChanges()` de `setup()` a lieu avant que les N+1 (progressions,
+   * agents) ne répondent. Les blocs qui suivent rendent le gabarit une fois
+   * les données chargées, puis interagissent avec le DOM produit.
+   */
+  describe('rendu réel : cellule campagne et avancement', () => {
+    it('affiche relevés/totalAbonnes et une barre pleine pour une campagne clôturée dont la progression est connue', async () => {
+      const { fixture } = await setup([campagne({ campagneId: 'c-1', statut: 'CLOTUREE', dateCloture: '2026-08-20' })], {
+        progressionsParCampagne: { 'c-1': progression({ campagneId: 'c-1', nbReleves: 80, totalAbonnes: 80 }) },
+      });
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelector('.campagne-cell__meta')?.textContent).toContain('relevés');
+      expect(racine.querySelector('.mini-bar__label')?.textContent).toContain('80');
+      expect(racine.querySelector('.mini-bar__fill--done')).toBeTruthy();
+    });
+
+    it('retombe sur la date de clôture (et un squelette d’avancement) quand la progression n’a pas pu être chargée', async () => {
+      const { fixture } = await setup([campagne({ campagneId: 'c-1', statut: 'CLOTUREE', dateCloture: '2026-08-20' })], {
+        progressionsAbsentesPour: ['c-1'],
+      });
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelector('.campagne-cell__meta')?.textContent).toContain('Clôturée');
+      expect(racine.querySelector('.mini-bar__skeleton')).toBeTruthy();
+    });
+
+    it('affiche le nombre d’abonnés pour une campagne non clôturée avec progression connue', async () => {
+      const { fixture } = await setup([campagne({ campagneId: 'c-1', statut: 'PLANIFIEE', dateCreation: '2026-07-01' })], {
+        progressionsParCampagne: { 'c-1': progression({ campagneId: 'c-1', nbReleves: 0, totalAbonnes: 30 }) },
+      });
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelector('.campagne-cell__meta')?.textContent).toContain('30');
+      expect(racine.querySelector('.campagne-cell__meta')?.textContent).toContain('abonnés');
+    });
+
+    it('affiche la barre de progression sur la carte mobile pour une campagne EN_COURS', async () => {
+      const { fixture } = await setup([campagne({ campagneId: 'c-1', statut: 'EN_COURS' })], {
+        progressionsParCampagne: { 'c-1': progression({ campagneId: 'c-1', nbReleves: 5, totalAbonnes: 10 }) },
+      });
+      fixture.detectChanges();
+
+      expect((fixture.nativeElement as HTMLElement).querySelector('.ccard__bar')).toBeTruthy();
+    });
+  });
+
+  describe('rendu réel : actions Démarrer / Clôturer', () => {
+    it('le bouton Démarrer appelle demarrer() et affiche un spinner pendant l’appel', async () => {
+      const { fixture, demarrerCampagne } = await setup([campagne({ campagneId: 'c-1', statut: 'PLANIFIEE' })]);
+      let resoudre!: (v: unknown) => void;
+      const enVol = new Promise((r) => (resoudre = r));
+      (demarrerCampagne as ReturnType<typeof vi.fn>).mockReturnValue(enVol);
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const bouton = racine.querySelector('.btn-action--demarrer') as HTMLButtonElement;
+      expect(bouton).toBeTruthy();
+      bouton.click();
+      fixture.detectChanges();
+
+      expect(demarrerCampagne).toHaveBeenCalledWith('c-1');
+      expect(bouton.querySelector('.pi-spinner')).toBeTruthy();
+
+      resoudre({});
+      await flush();
+      fixture.detectChanges();
+      expect(bouton.querySelector('.pi-spinner')).toBeNull();
+    });
+
+    it('le bouton Clôturer appelle cloturer() et affiche un spinner pendant l’appel', async () => {
+      const { fixture, cloturerCampagne } = await setup([campagne({ campagneId: 'c-1', statut: 'EN_COURS' })]);
+      let resoudre!: (v: unknown) => void;
+      const enVol = new Promise((r) => (resoudre = r));
+      (cloturerCampagne as ReturnType<typeof vi.fn>).mockReturnValue(enVol);
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      const bouton = racine.querySelector('.btn-action--cloturer') as HTMLButtonElement;
+      expect(bouton).toBeTruthy();
+      bouton.click();
+      fixture.detectChanges();
+
+      expect(cloturerCampagne).toHaveBeenCalledWith('c-1');
+      expect(bouton.querySelector('.pi-spinner')).toBeTruthy();
+
+      resoudre({});
+      await flush();
+      fixture.detectChanges();
+      expect(bouton.querySelector('.pi-spinner')).toBeNull();
+    });
+
+    it('n’affiche ni Démarrer ni Clôturer pour un rôle sans droit de création', async () => {
+      const { fixture } = await setup(
+        [campagne({ campagneId: 'c-1', statut: 'PLANIFIEE' }), campagne({ campagneId: 'c-2', statut: 'EN_COURS' })],
+        { role: 'AGENT' },
+      );
+      fixture.detectChanges();
+
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelector('.btn-action--demarrer')).toBeNull();
+      expect(racine.querySelector('.btn-action--cloturer')).toBeNull();
     });
   });
 });

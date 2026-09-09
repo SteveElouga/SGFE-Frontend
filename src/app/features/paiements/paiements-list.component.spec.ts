@@ -317,4 +317,242 @@ describe('PaiementsListComponent — export CSV', () => {
     c.exportCSV();
     expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
   });
+
+  it('clique sur le bouton d’export du bandeau', async () => {
+    const { fixture } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([paiement()]),
+      getFactures: vi.fn().mockResolvedValue([facture()]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.btn-export') as HTMLButtonElement).click();
+    expect(globalThis.URL.createObjectURL).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
+ * Rendu réel du template : les tests ci-dessus exercent `rows()` via les
+ * signaux, mais aucun ne rappelle `detectChanges()` après la résolution du
+ * chargement — le tableau, ses cellules riches (montant partiel/annulé,
+ * référence manquante, badge de statut) et la carte mobile ne s'affichaient
+ * donc jamais réellement.
+ */
+describe('PaiementsListComponent — rendu du template', () => {
+  function creerTroisLignes() {
+    return monter({
+      getAllPaiements: vi.fn().mockResolvedValue([
+        paiement({ paiementId: 'p-1', factureId: 'f-1', modePaiement: 'ESPECES', referenceTransaction: '', annule: false }),
+        paiement({ paiementId: 'p-2', factureId: 'f-1', modePaiement: 'MOBILE_MONEY', referenceTransaction: 'TX-42', annule: false }),
+        paiement({
+          paiementId: 'p-3', factureId: 'f-1', modePaiement: 'VIREMENT', referenceTransaction: '',
+          annule: true, motifAnnulation: 'Erreur de saisie',
+        }),
+      ]),
+      getFactures: vi.fn().mockResolvedValue([facture({ factureId: 'f-1', statut: 'PARTIELLE' })]),
+    });
+  }
+
+  it('affiche le bandeau d’erreur avec bouton « réessayer »', async () => {
+    const load = vi.fn()
+      .mockRejectedValueOnce(new CombinedGraphQLErrors({ data: null }, [{ message: 'Panne' }]))
+      .mockResolvedValue([]);
+    const { fixture } = monter({ getAllPaiements: load });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.error-banner__message')?.textContent).toContain('Panne');
+    (racine.querySelector('.error-banner__retry') as HTMLButtonElement).click();
+    await flush();
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  it('affiche la mention « hors annulés » seulement s’il y a des annulations', async () => {
+    const { fixture } = creerTroisLignes();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.total-kpi__annule')?.textContent).toContain('PAIEMENTS.TOTAL_HORS_ANNULES');
+  });
+
+  it('masque la mention « hors annulés » sans annulation', async () => {
+    const { fixture } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([paiement({ annule: false })]),
+      getFactures: vi.fn().mockResolvedValue([facture()]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.querySelector('.total-kpi__annule')).toBeNull();
+  });
+
+  it('rend chaque cellule du tableau selon l’état du paiement', async () => {
+    const { fixture } = creerTroisLignes();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const lignesTable = [...racine.querySelectorAll('tbody tr.dt__row')];
+    expect(lignesTable).toHaveLength(3);
+
+    // ESPECES sans référence : tiret discret, pas de mention « manquante ».
+    expect(racine.querySelector('.col-reference--none')).toBeTruthy();
+    // MOBILE_MONEY avec référence : affichée telle quelle.
+    const references = [...racine.querySelectorAll('.col-reference')].map((e) => e.textContent);
+    expect(references.some((t) => t?.includes('TX-42'))).toBe(true);
+    // VIREMENT sans référence : signalée manquante.
+    expect(racine.querySelector('.col-reference--missing')).toBeTruthy();
+
+    // Ligne annulée : montant barré/marqué + tag « Annulé » avec son motif en titre.
+    expect(racine.querySelector('.montant--annule')).toBeTruthy();
+    const tagAnnule = racine.querySelector('.annule-tag');
+    expect(tagAnnule).toBeTruthy();
+    expect(tagAnnule?.getAttribute('title')).toBe('Erreur de saisie');
+
+    // Ligne PARTIELLE non annulée : montant marqué partiel.
+    expect(racine.querySelector('.montant--partiel')).toBeTruthy();
+
+    // Badge de statut rendu pour chaque ligne.
+    expect(racine.querySelectorAll('app-badge').length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('rend aussi les cartes mobiles avec les mêmes états', async () => {
+    const { fixture } = creerTroisLignes();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const cartes = [...racine.querySelectorAll('.pcard')];
+    expect(cartes).toHaveLength(3);
+    expect(racine.querySelector('.pcard__reference--missing')).toBeTruthy();
+  });
+
+  it('clique sur une ligne du tableau : navigue vers la facture correspondante', async () => {
+    const { fixture } = creerTroisLignes();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router) as unknown as { navigate: ReturnType<typeof vi.fn> };
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('tbody tr.dt__row') as HTMLElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/factures', 'f-1']);
+  });
+
+  it('clique sur une carte mobile : navigue aussi vers la facture', async () => {
+    const { fixture } = creerTroisLignes();
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const router = TestBed.inject(Router) as unknown as { navigate: ReturnType<typeof vi.fn> };
+    const racine = fixture.nativeElement as HTMLElement;
+    (racine.querySelector('.pcard') as HTMLButtonElement).click();
+    expect(router.navigate).toHaveBeenCalledWith(['/factures', 'f-1']);
+  });
+
+  it('trie la table par montant au clic sur l’en-tête de colonne', async () => {
+    const { fixture, c } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([
+        paiement({ paiementId: 'p-1', factureId: 'f-1', montant: 1000, datePaiement: '2026-08-01' }),
+        paiement({ paiementId: 'p-2', factureId: 'f-1', montant: 9000, datePaiement: '2026-08-02' }),
+      ]),
+      getFactures: vi.fn().mockResolvedValue([facture({ factureId: 'f-1' })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    c.onCampagneChange(null);
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const boutons = [...racine.querySelectorAll<HTMLButtonElement>('.dt__sort-btn')];
+    // Colonnes : date, abonné, facture, montant, mode, référence, statut.
+    const boutonMontant = boutons[3];
+    boutonMontant.click();
+    fixture.detectChanges();
+    const premiereLigneMontant = racine.querySelector('tbody tr.dt__row .col-montant')?.textContent ?? '';
+    expect(premiereLigneMontant).toContain('1');
+  });
+
+  it('onFiltersChange répercute campagne et mode reçus du panneau de filtres', async () => {
+    const { fixture, c } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([
+        paiement({ paiementId: 'p-1', factureId: 'f-1', modePaiement: 'ESPECES' }),
+        paiement({ paiementId: 'p-2', factureId: 'f-2', modePaiement: 'MOBILE_MONEY' }),
+      ]),
+      getFactures: vi.fn().mockResolvedValue([
+        facture({ factureId: 'f-1', campagneId: 'camp-1' }),
+        facture({ factureId: 'f-2', campagneId: 'camp-2', campagneNom: 'Septembre 2026', campagnePeriodeMois: 9 }),
+      ]),
+    });
+    fixture.detectChanges();
+    await flush();
+
+    c.onFiltersChange({ campagne: 'camp-2', mode: 'MOBILE_MONEY' });
+    expect(c.selectedCampagneId()).toBe('camp-2');
+    expect(c.filtreMode()).toBe('MOBILE_MONEY');
+    expect(c.rows().map((r) => r.paiementId)).toEqual(['p-2']);
+
+    c.onFiltersChange({ campagne: null, mode: null });
+    expect(c.selectedCampagneId()).toBeNull();
+    expect(c.filtreMode()).toBe('TOUS');
+  });
+
+  it('tape dans le champ de recherche du panneau de filtres : filtre réellement le tableau après le délai', async () => {
+    const { fixture } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([
+        paiement({ paiementId: 'p-1', factureId: 'f-1' }),
+        paiement({ paiementId: 'p-2', factureId: 'f-2' }),
+      ]),
+      getFactures: vi.fn().mockResolvedValue([
+        facture({ factureId: 'f-1', abonneNom: 'Jean Dupont' }),
+        facture({ factureId: 'f-2', abonneNom: 'Awa Ndiaye' }),
+      ]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const champ = racine.querySelector('input[type="text"]') as HTMLInputElement;
+    expect(champ).toBeTruthy();
+    champ.value = 'ndiaye';
+    champ.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+    await new Promise((r) => setTimeout(r, 300)); // debounceMs=250
+    fixture.detectChanges();
+
+    expect(racine.querySelectorAll('tbody tr.dt__row')).toHaveLength(1);
+    expect(racine.querySelector('.abonne-nom')?.textContent).toContain('Awa Ndiaye');
+  });
+
+  it('clique sur une puce de filtre par mode de paiement : filtre réellement le tableau', async () => {
+    const { fixture } = monter({
+      getAllPaiements: vi.fn().mockResolvedValue([
+        paiement({ paiementId: 'p-1', factureId: 'f-1', modePaiement: 'ESPECES' }),
+        paiement({ paiementId: 'p-2', factureId: 'f-1', modePaiement: 'MOBILE_MONEY' }),
+      ]),
+      getFactures: vi.fn().mockResolvedValue([facture({ factureId: 'f-1' })]),
+    });
+    fixture.detectChanges();
+    await flush();
+    fixture.detectChanges();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    const puces = [...racine.querySelectorAll<HTMLButtonElement>('.fp__chip')];
+    const puceEspeces = puces.find((b) => b.textContent?.includes('FACTURATION.MODE.ESPECES'));
+    expect(puceEspeces).toBeTruthy();
+    puceEspeces!.click();
+    fixture.detectChanges();
+
+    expect(racine.querySelectorAll('tbody tr.dt__row')).toHaveLength(1);
+  });
 });

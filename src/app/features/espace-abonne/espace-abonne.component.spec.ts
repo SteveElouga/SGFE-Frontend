@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { EspaceAbonneComponent } from './espace-abonne.component';
@@ -10,6 +10,7 @@ import {
   EspaceAbonneFacture,
   EspaceAbonneService,
 } from '../../core/espace-abonne/espace-abonne.service';
+import { formatFcfa } from '../../shared/pipes/fcfa.pipe';
 
 /**
  * L'espace abonné est le seul écran que le client final voit. Il le lit sur un
@@ -629,6 +630,339 @@ describe("EspaceAbonneComponent · ce qui justifie le montant", () => {
       '_blank',
       'noopener',
     );
+    ouvrir.mockRestore();
+  });
+});
+
+describe('EspaceAbonneComponent · rendu réel du template', () => {
+  /**
+   * Tous les describes ci-dessus lisent quasiment toujours `component.xxx()`
+   * directement, sans jamais rappeler `fixture.detectChanges()` après un
+   * changement d'état — le `@switch`/`@if`/`@for` du gabarit n'était donc
+   * presque jamais réellement rendu ni exercé dans ses différents états. Ici
+   * on rend, on interagit (vrais clics DOM), on re-rend, et on vérifie le DOM
+   * produit — pas seulement les signaux internes.
+   */
+  function setup(
+    factures: EspaceAbonneFacture[],
+    opts: { token?: string; avoir?: number; tokenExpiration?: string } = {},
+  ) {
+    const token = opts.token ?? 'tok-valide';
+    const data: EspaceAbonneData = {
+      abonne_id: 'ab-1',
+      token_expiration: opts.tokenExpiration ?? jours(30),
+      avoir: opts.avoir,
+      factures,
+    };
+    const svc = {
+      getFactures: vi.fn().mockReturnValue(of(data)),
+      pdfUrl: vi.fn().mockReturnValue('/pdf/xyz'),
+      csvUrl: vi.fn().mockReturnValue('/csv/xyz'),
+      creerPaiementEnLigne: vi.fn(),
+    };
+
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ token }), snapshot: { paramMap: { get: () => token } } },
+        },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(EspaceAbonneComponent);
+    return { fixture, component: fixture.componentInstance, svc };
+  }
+
+  it('rend le squelette de chargement tant que la requête ne répond pas, puis en sort', () => {
+    const sujet = new Subject<EspaceAbonneData>();
+    const svc = { getFactures: vi.fn().mockReturnValue(sujet), pdfUrl: vi.fn(), csvUrl: vi.fn(), creerPaiementEnLigne: vi.fn() };
+    TestBed.configureTestingModule({
+      imports: [EspaceAbonneComponent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService({ lang: 'fr', fallbackLang: 'fr' }),
+        { provide: EspaceAbonneService, useValue: svc },
+        { provide: ActivatedRoute, useValue: { params: of({ token: 'tok' }), snapshot: { paramMap: { get: () => 'tok' } } } },
+      ],
+    });
+    const fixture = TestBed.createComponent(EspaceAbonneComponent);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea__spinner')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[role="status"]').textContent).toContain('ESPACE.LOADING');
+
+    sujet.next({ abonne_id: 'ab-1', token_expiration: jours(30), factures: [] });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea__spinner')).toBeNull();
+  });
+
+  it('rend l’écran « lien invalide » sans appel réseau quand le token est vide', () => {
+    const { fixture, svc } = setup([facture()], { token: '' });
+    fixture.detectChanges();
+
+    expect(svc.getFactures).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('.ea-icone--danger')).not.toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('ESPACE.ERR_TITLE');
+  });
+
+  it('rend l’écran d’incident serveur, et un vrai clic sur « réessayer » recharge la page', () => {
+    const { fixture, component, svc } = setup([facture()]);
+    fixture.detectChanges();
+    expect(component.etat()).toBe('ready');
+
+    svc.getFactures.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 503 })));
+    component.charger();
+    fixture.detectChanges();
+
+    expect(component.etat()).toBe('error');
+    const bouton: HTMLButtonElement = fixture.nativeElement.querySelector('.ea-btn');
+    expect(bouton).not.toBeNull();
+
+    svc.getFactures.mockReturnValue(
+      of({ abonne_id: 'ab-1', token_expiration: jours(30), factures: [facture()] }),
+    );
+    bouton.click(); // vrai clic DOM : exerce le listener (click)="charger()" du gabarit
+    fixture.detectChanges();
+
+    expect(component.etat()).toBe('ready');
+    expect(fixture.nativeElement.querySelector('.ea-btn')).toBeNull();
+  });
+
+  it('rend « tout payé » quand le solde est nul', () => {
+    const { fixture } = setup([facture({ solde_restant: 0, montant_paye: 10_000 })]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea-solde__ok')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-solde--solde')).not.toBeNull();
+  });
+
+  it('rend le régime « à venir » avec le montant total et la prochaine échéance', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(10) })]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea-solde--a-venir')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-solde__val').textContent).toContain(formatFcfa(10_000));
+    expect(fixture.nativeElement.querySelector('.ea-solde__sub').textContent).toContain('ESPACE.RIEN_ECHU');
+  });
+
+  it('rend le régime « à venir » sans date connue — bascule sur le compte de factures à régler', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: '' })]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea-solde__sub').textContent).toContain('ESPACE.FACTURES_A_REGLER');
+  });
+
+  it('rend le régime « retard » (rouge) avec le montant échu', () => {
+    const { fixture } = setup([
+      facture({ facture_id: 'a', date_limite_paiement: jours(10) }),
+      facture({ facture_id: 'b', date_limite_paiement: jours(-5), solde_restant: 3_000 }),
+    ]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea-solde--retard')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-solde__sub').textContent).toContain('ESPACE.DONT_ECHU');
+  });
+
+  it('rend le bloc avoir quand il est positif', () => {
+    const { fixture } = setup([facture()], { avoir: 4_000 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-solde__avoir')).not.toBeNull();
+  });
+
+  it('tait le bloc avoir quand il est nul', () => {
+    const { fixture } = setup([facture()], { avoir: 0 });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-solde__avoir')).toBeNull();
+  });
+
+  it('rend l’échéance du lien quand elle est connue', () => {
+    const { fixture } = setup([facture()], { tokenExpiration: jours(30) });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-solde__expire')).not.toBeNull();
+  });
+
+  it('tait l’échéance du lien quand elle est absente', () => {
+    const { fixture } = setup([facture()], { tokenExpiration: '' });
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-solde__expire')).toBeNull();
+  });
+
+  it('rend le message « aucune facture » quand la liste est vide', () => {
+    const { fixture } = setup([]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-carte--msg')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-liste')).toBeNull();
+  });
+
+  it('rend la liste et le bouton CSV — un vrai clic déclenche bien le téléchargement', () => {
+    const ouvrir = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const { fixture, svc } = setup([facture()]);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ea-liste')).not.toBeNull();
+    const boutonCsv: HTMLButtonElement = fixture.nativeElement.querySelector('.ea-csv');
+    boutonCsv.click();
+
+    expect(svc.csvUrl).toHaveBeenCalledWith('tok-valide');
+    ouvrir.mockRestore();
+  });
+
+  it('rend le motif d’une régularisation quand il existe', () => {
+    const { fixture } = setup([facture({ nature: 'REGULARISATION', motif: 'Arriéré 2025' })]);
+    fixture.detectChanges();
+    const motifTxt = fixture.nativeElement.querySelector('.ea-fac__motif-txt');
+    expect(motifTxt).not.toBeNull();
+    expect(motifTxt.textContent).toContain('Arriéré 2025');
+  });
+
+  it('n’affiche aucun motif quand la régularisation n’en a pas', () => {
+    const { fixture } = setup([facture({ nature: 'REGULARISATION', motif: undefined })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__motif-txt')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-fac__motif')).not.toBeNull();
+  });
+
+  it('affiche la cellule consommation quand elle est renseignée', () => {
+    const { fixture } = setup([facture({ consommation: 43 })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.textContent?.includes('43 m³'))).toBe(true);
+  });
+
+  it('affiche un tiret quand la date de relevé est absente', () => {
+    const { fixture } = setup([facture({ date_releve: '' })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    const releve = cellules.find((c) => c.querySelector('.ea-fac__k')?.textContent?.includes('ESPACE.LABEL_RELEVE'));
+    expect(releve?.querySelector('.ea-fac__v')?.textContent?.trim()).toBe('—');
+  });
+
+  it('n’affiche pas la cellule consommation quand elle est absente', () => {
+    const { fixture } = setup([facture({ consommation: undefined })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.textContent?.includes('m³'))).toBe(false);
+  });
+
+  it('marque en rouge le solde restant d’une ligne échue', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(-5), solde_restant: 3_000 })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__v--due')).not.toBeNull();
+  });
+
+  it('affiche le montant déjà payé quand il est positif', () => {
+    const { fixture } = setup([facture({ montant_paye: 6_000, solde_restant: 4_000 })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.textContent?.includes(formatFcfa(6_000)))).toBe(true);
+  });
+
+  it('n’affiche pas de cellule « payé » quand rien n’a été payé', () => {
+    const { fixture } = setup([facture({ montant_paye: 0 })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.querySelector('.ea-fac__k')?.textContent?.includes('ESPACE.LABEL_PAYE'))).toBe(false);
+  });
+
+  it('affiche l’échéance sur une facture non soldée', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(10), solde_restant: 5_000 })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.querySelector('.ea-fac__k')?.textContent?.includes('ESPACE.LABEL_ECHEANCE'))).toBe(true);
+  });
+
+  it('tait l’échéance sur une facture déjà soldée', () => {
+    const { fixture } = setup([facture({ solde_restant: 0, montant_paye: 10_000 })]);
+    fixture.detectChanges();
+    const cellules = Array.from(fixture.nativeElement.querySelectorAll('.ea-fac__cell')) as HTMLElement[];
+    expect(cellules.some((c) => c.querySelector('.ea-fac__k')?.textContent?.includes('ESPACE.LABEL_ECHEANCE'))).toBe(false);
+  });
+
+  it('affiche le détail vérifiable (index + prix) quand il est disponible', () => {
+    const { fixture } = setup([facture({ ancien_index: 100, nouveau_index: 143, prix_m3: 500 })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__releve')).not.toBeNull();
+  });
+
+  it('tait le détail vérifiable quand les index manquent', () => {
+    const { fixture } = setup([facture({ ancien_index: undefined, nouveau_index: undefined })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__releve')).toBeNull();
+  });
+
+  it('affiche « en retard depuis » sur une ligne en retard, jamais « échéance proche »', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(-10) })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__retard')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-fac__bientot')).toBeNull();
+  });
+
+  it('affiche « échéance proche » quand il reste peu de jours, jamais « en retard »', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(3) })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__bientot')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-fac__retard')).toBeNull();
+  });
+
+  it('n’affiche ni retard ni rappel quand l’échéance est encore loin', () => {
+    const { fixture } = setup([facture({ date_limite_paiement: jours(20) })]);
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.ea-fac__retard')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.ea-fac__bientot')).toBeNull();
+  });
+
+  it('un vrai clic sur « payer » bascule le bouton en état chargement (spinner, désactivé)', () => {
+    const { fixture, svc } = setup([facture({ facture_id: 'f-1', solde_restant: 5_000 })]);
+    svc.creerPaiementEnLigne.mockReturnValue({ subscribe: () => undefined } as never); // requête jamais résolue
+    fixture.detectChanges();
+
+    const boutonPayer: HTMLButtonElement = fixture.nativeElement.querySelector('.ea-payer');
+    expect(boutonPayer.textContent).toContain('ESPACE.PAIEMENT.BOUTON');
+
+    boutonPayer.click();
+    fixture.detectChanges();
+
+    const boutonApres: HTMLButtonElement = fixture.nativeElement.querySelector('.ea-payer');
+    expect(boutonApres.disabled).toBe(true);
+    expect(boutonApres.textContent).toContain('ESPACE.PAIEMENT.EN_COURS');
+  });
+
+  it('affiche le message d’erreur de paiement sous la facture concernée', () => {
+    const { fixture, component, svc } = setup([facture({ facture_id: 'f-1', solde_restant: 5_000 })]);
+    fixture.detectChanges();
+    svc.creerPaiementEnLigne.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));
+
+    component.payerEnLigne(component.lignes()[0]);
+    fixture.detectChanges();
+
+    const erreur = fixture.nativeElement.querySelector('.ea-fac__erreur');
+    expect(erreur).not.toBeNull();
+    expect(erreur.getAttribute('role')).toBe('alert');
+    expect(erreur.textContent).toContain('ESPACE.PAIEMENT.ERREUR');
+  });
+
+  it('un numéro de facture absent retombe sur le libellé générique traduit', () => {
+    const { fixture } = setup([facture({ numero: '' })]);
+    fixture.detectChanges();
+    const num = fixture.nativeElement.querySelector('.ea-fac__num');
+    expect(num.textContent).toContain('ESPACE.FACTURE');
+  });
+
+  it('un vrai clic sur le bouton PDF ouvre le PDF de la bonne facture', () => {
+    const ouvrir = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const { fixture, svc } = setup([facture({ facture_id: 'f-99' })]);
+    fixture.detectChanges();
+
+    const boutonPdf: HTMLButtonElement = fixture.nativeElement.querySelector('.ea-pdf');
+    boutonPdf.click();
+
+    expect(svc.pdfUrl).toHaveBeenCalledWith('tok-valide', 'f-99');
     ouvrir.mockRestore();
   });
 });

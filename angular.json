@@ -101,10 +101,10 @@
             ],
             "coverageReporters": ["text-summary", "html", "lcov", "json-summary"],
             "coverageThresholds": {
-              "statements": 70,
-              "branches": 70,
-              "functions": 65,
-              "lines": 75
+              "statements": 90,
+              "branches": 85,
+              "functions": 84,
+              "lines": 92
             }
           }
         }
