@@ -35,9 +35,16 @@
   }
 
   &--dark {
+    // `--encre-inverse` (blanc fixe), pas `--surface` (redevient une teinte
+    // sombre sous `.p-dark`, donc invisible sur ce fond navy) — bug de
+    // contraste trouvé en vérifiant le thème sombre pendant la refonte de
+    // campagne-detail (voir le même correctif, avec le même commentaire,
+    // dans `campagne-detail.component.scss`). Ce bouton de confirmation est
+    // déclenché depuis cet écran-là ; le corriger ici évite de renvoyer vers
+    // une modale encore cassée après avoir corrigé son déclencheur.
     @include btn-variant(
       var(--navy-nuit),
-      var(--surface),
+      var(--encre-inverse),
       $shadow: var(--ombre-portee),
       $hover-bg: var(--navy-clair)
     );

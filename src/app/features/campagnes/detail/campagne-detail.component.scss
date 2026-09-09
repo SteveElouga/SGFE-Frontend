@@ -5,16 +5,16 @@
   display: block;
 }
 
-// Variantes de libellés courts (mobile MB-02) / longs (desktop)
+// Élément réservé au mobile (ex. `.progress-pct-label`, repli du gros
+// pourcentage masqué sous 1024px). `.u-desktop`, son pendant, a disparu avec
+// la dernière paire de libellés qui s'en servait (le mot « Avancement »
+// s'affiche désormais identique aux deux tailles).
 .u-mobile {
   display: none;
 }
 @media (max-width: 1023px) {
   .u-mobile {
     display: inline;
-  }
-  .u-desktop {
-    display: none;
   }
 }
 
@@ -34,8 +34,14 @@
 // <app-page-topbar> — voir topbarTitle()/topbarSubtitle() dans le TS.
 
 @media (max-width: 1023px) {
-  // Ordre MB-02 : progression → stats → relevés → actions,
-  // les sections agents/zones passent après.
+  // Nouvel ordre : progression (l'état, en un coup d'œil) → actions (le geste
+  // qu'on vient faire) → agents/zones (contexte d'équipe, longueur bornée) →
+  // relevés (EN DERNIER — la seule section dont la hauteur n'est pas bornée :
+  // une campagne à 200 abonnés y ajoute autant de lignes). L'ancien ordre
+  // (progression → relevés → actions → agents) plaçait cette liste sans
+  // plafond avant les actions et avant l'équipe : sur une campagne avancée,
+  // « Clôturer » et « Agents affectés » n'étaient atteignables qu'après avoir
+  // fait défiler la totalité du tableau des relevés.
   //
   // `order` doit porter sur l'élément qui est réellement l'enfant flex de
   // `.detail-page` — depuis la scission en sous-composants (agents-panel,
@@ -51,14 +57,14 @@
     flex-direction: column;
     padding: var(--pas-3) var(--pas-3);
   }
-  app-releves-panel {
-    order: 3;
-  }
   .mactions {
-    order: 4;
+    order: 1;
   }
   app-agents-panel {
-    order: 5;
+    order: 2;
+  }
+  app-releves-panel {
+    order: 3;
   }
 }
 
@@ -129,10 +135,6 @@
     );
   }
 
-  &--danger {
-    @include btn-variant(var(--danger), var(--surface), $hover-bg: var(--danger-encre));
-  }
-
   &--outline {
     @include btn-variant(
       var(--surface),
@@ -144,9 +146,16 @@
   }
 
   &--dark {
+    // `--encre-inverse` (blanc fixe, non redéfini par `.p-dark`), pas
+    // `--surface` : trouvé pendant la vérification thème sombre de cette
+    // refonte — `--surface` devient lui-même une teinte sombre sous `.p-dark`
+    // (carte, dialogue), donc un bouton navy avec un texte `--surface`
+    // devenait illisible (texte sombre sur fond navy) en thème sombre. Le
+    // bouton mobile équivalent (`.mactions__btn--dark`, plus bas dans ce
+    // fichier) utilisait déjà `--encre-inverse` — c'est lui qui avait raison.
     @include btn-variant(
       var(--navy-nuit),
-      var(--surface),
+      var(--encre-inverse),
       $shadow: var(--ombre-portee),
       $hover-bg: var(--navy-clair)
     );
@@ -161,11 +170,10 @@
   align-items: center;
   gap: var(--pas-2);
   flex-shrink: 0;
-
-  @media (max-width: 1023px) {
-    flex-direction: column;
-    align-items: stretch;
-  }
+  // Pas de règle mobile ici : `.detail-header` (son parent) passe entièrement
+  // en `display: none` sous 1024px (tout en bas de ce fichier) — une règle
+  // responsive sur cet élément ne s'appliquerait jamais. Une variante
+  // `flex-direction: column` vivait ici sans jamais pouvoir s'exécuter.
 }
 
 // ── Carte de progression ──────────────────────────────────────────────────────
@@ -293,15 +301,15 @@
   }
 }
 
+// Repli mobile du gros pourcentage (`.progress-card__pct-wrap`, masqué sous
+// 1024px faute de place) — gouverné par `.u-mobile` sur l'élément lui-même,
+// donc pas de media query ici. Poids 800 et `--encre` : même traitement que
+// le grand chiffre desktop (Règle du Chiffre Fort, DESIGN.md), en plus petit.
 .progress-pct-label {
-  font-size: var(--texte-lg);
-  font-weight: 700;
-  color: var(--action);
-
-  @media (max-width: 1023px) {
-    font-size: var(--texte-2xl);
-    font-weight: 800;
-  }
+  font-size: var(--texte-4xl);
+  font-weight: 800;
+  color: var(--encre);
+  line-height: 1;
 }
 
 .progress-bar {
