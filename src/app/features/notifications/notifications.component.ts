@@ -7,6 +7,8 @@ import {
   NotifGroup,
   NotificationsService,
 } from '../../core/notifications/notifications.service';
+import { extractGqlError } from '../../core/auth/auth.service';
+import { FacturesService } from '../../core/factures/factures.service';
 import { PageTopbarComponent } from '../../shared/components/page-topbar/page-topbar.component';
 import { ToastService } from '../../shared/services/toast.service';
 
@@ -35,8 +37,17 @@ export class NotificationsComponent {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly translate = inject(TranslateService);
+  private readonly factures = inject(FacturesService);
 
   readonly filter = signal<NotifFilter>('ALL');
+
+  /**
+   * `envoiId` de l'envoi actuellement en cours de renvoi via l'action RETRY —
+   * `null` sinon. Sert à afficher un spinner sur le bouton concerné et à
+   * empêcher un double-clic, même patron que `resending` dans
+   * `envois-list.component.ts` et `renvoiEnCours` dans `facture-detail.component.ts`.
+   */
+  readonly retryingEnvoiId = signal<string | null>(null);
 
   /**
    * Rendu progressif au défilement, pas de vraie pagination serveur : le fil
@@ -144,7 +155,7 @@ export class NotificationsComponent {
     this.service.markRead(n.id);
     switch (action.type) {
       case 'RETRY':
-        this.toast.info(this.translate.instant('NOTIFICATIONS.TOAST_RETRY'));
+        void this.retryEnvoi(n);
         break;
       case 'FIX_NUMBER':
         void this.router.navigate(['/abonnes']);
@@ -152,6 +163,30 @@ export class NotificationsComponent {
       case 'VIEW_RECEIPT':
         void this.router.navigate(['/paiements']);
         break;
+    }
+  }
+
+  /**
+   * Relance réellement l'envoi WhatsApp en échec — même mutation
+   * (`renvoyerEnvoi`) que le bouton « Réessayer » du journal des envois
+   * (`envois-list.component.ts::renvoyer`) et de la fiche facture
+   * (`facture-detail.component.ts::rejouerEnvoi`).
+   *
+   * Avant ce correctif, ce cas se contentait d'un toast d'information : le
+   * bouton affirmait relancer l'envoi sans jamais appeler le serveur.
+   */
+  private async retryEnvoi(n: AppNotification): Promise<void> {
+    if (!n.envoiId || this.retryingEnvoiId()) return;
+    this.retryingEnvoiId.set(n.envoiId);
+    try {
+      await this.factures.renvoyerEnvoi(n.envoiId);
+      this.toast.success(this.translate.instant('NOTIFICATIONS.TOAST_RETRY'));
+      await this.service.refresh();
+    } catch (err: unknown) {
+      const { message } = extractGqlError(err);
+      this.toast.error(message || this.translate.instant('ERRORS.GENERIC'));
+    } finally {
+      this.retryingEnvoiId.set(null);
     }
   }
 

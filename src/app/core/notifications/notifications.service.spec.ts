@@ -181,6 +181,10 @@ describe('NotificationsService · composition des notifications', () => {
     expect(n.message).toBe('Jean Dupont · F-001 : Numéro invalide. Renvoi manuel requis.');
     expect(n.createdAt).toBe(f.dateEnvoiEchec);
     expect(n.actions?.map((a) => a.type)).toEqual(['RETRY', 'FIX_NUMBER']);
+    // Porté explicitement (pas seulement dans `id`) : c'est ce qui permet à
+    // l'action RETRY d'appeler réellement `FacturesService.renvoyerEnvoi`,
+    // plutôt que de se contenter d'un toast d'information.
+    expect(n.envoiId).toBe('e1');
   });
 
   it('un échec sans raison connue retombe sur le motif générique traduit', async () => {

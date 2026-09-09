@@ -56,8 +56,14 @@
                   <button
                     type="button"
                     class="notif-act notif-act--{{ a.variant }}"
+                    [disabled]="a.type === 'RETRY' && retryingEnvoiId() === n.envoiId"
                     (click)="onAction(n, a, $event)"
-                  >{{ a.labelKey | translate }}</button>
+                  >
+                    @if (a.type === 'RETRY' && retryingEnvoiId() === n.envoiId) {
+                      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+                    }
+                    {{ a.labelKey | translate }}
+                  </button>
                 }
               </div>
             }
