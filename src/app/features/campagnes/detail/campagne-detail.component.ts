@@ -229,17 +229,17 @@ export class CampagneDetailComponent implements OnInit {
     };
   });
 
-  readonly agentsLabel = computed(() => {
-    const agents = this.agentsData();
-    return agents.length ? agents.map((a) => a.username).join(' · ') : null;
-  });
-
   // Les cartes agents, la répartition par zone (<app-agents-panel>) et les
   // filtres/table des relevés (<app-releves-panel>) sont désormais des
   // sous-composants — ce composant garde `agentsData`/`repartData`/`releves`/
-  // `abonnesMap`, qui servent aussi ailleurs (agentsLabel, assignedUsernames,
-  // la carte progression, la modale de clôture), et se contente de les
-  // passer en entrée.
+  // `abonnesMap`, qui servent aussi ailleurs (assignedUsernames, la carte
+  // progression, la modale de clôture), et se contente de les passer en
+  // entrée.
+  //
+  // Le roster d'agents assignés (« agentsLabel ») a été retiré : il ne
+  // vivait que dans la ligne méta de l'en-tête, à quelques centimètres au-
+  // dessus des mêmes noms déjà détaillés (statut, zones, progression) dans
+  // « Agents affectés » juste en dessous — un doublon, pas une information.
 
   ngOnInit(): void {
     // `route.params` en abonnement, pas `route.snapshot` : `/campagnes/:id`

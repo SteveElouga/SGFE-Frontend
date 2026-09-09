@@ -468,33 +468,30 @@ describe('CampagneDetailComponent', () => {
     });
   });
 
-  // ── computed() : agentsLabel / assignedUsernames ────────────────────────────
+  // ── computed() : assignedUsernames ──────────────────────────────────────────
 
-  describe('agentsLabel et assignedUsernames', () => {
-    it('campagne sans agent assigné : pas de libellé', async () => {
+  describe('assignedUsernames', () => {
+    it('campagne sans agent assigné : liste vide', async () => {
       const { c } = setup();
       await flush();
       c.agentsData.set([]);
-      expect(c.agentsLabel()).toBeNull();
       expect(c.assignedUsernames()).toEqual([]);
     });
 
-    it('un seul agent assigné : son nom seul', async () => {
+    it('un seul agent assigné', async () => {
       const { c } = setup();
       await flush();
       c.agentsData.set([agentAffecte({ username: 'awa.ba' })]);
-      expect(c.agentsLabel()).toBe('awa.ba');
       expect(c.assignedUsernames()).toEqual(['awa.ba']);
     });
 
-    it('plusieurs agents : noms joints par « · »', async () => {
+    it('plusieurs agents assignés', async () => {
       const { c } = setup();
       await flush();
       c.agentsData.set([
         agentAffecte({ agentId: 'ag-1', username: 'awa.ba' }),
         agentAffecte({ agentId: 'ag-2', username: 'koffi' }),
       ]);
-      expect(c.agentsLabel()).toBe('awa.ba · koffi');
       expect(c.assignedUsernames()).toEqual(['awa.ba', 'koffi']);
     });
   });
@@ -792,12 +789,42 @@ describe('CampagneDetailComponent', () => {
       expect(racine.querySelector('.detail-header__actions')).toBeNull();
     });
 
-    it('affiche le bouton de clôture pour un ADMIN sur une campagne EN_COURS', async () => {
+    it('affiche le bouton de clôture (`--dark`, pas `--danger` : irréversible mais pas destructif — voir le composant) pour un ADMIN sur une campagne EN_COURS', async () => {
       const { fixture } = setup({ role: 'ADMIN', campagne: campagne({ statut: 'EN_COURS' }) });
       await flush();
       fixture.detectChanges();
       const racine = fixture.nativeElement as HTMLElement;
-      expect(racine.querySelector('.btn--danger')).toBeTruthy();
+      expect(racine.querySelector('.detail-header__actions .btn--dark')).toBeTruthy();
+    });
+  });
+
+  // ── Carte progression : un seul libellé, un repli mobile du pourcentage ────
+
+  describe('carte progression', () => {
+    it('un seul libellé « Avancement », identique à toute largeur (plus de variante mobile/desktop distincte)', async () => {
+      const { fixture } = setup({ progression: progression({ pourcentage: 42 }) });
+      await flush();
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+      expect(racine.querySelectorAll('.progress-label')).toHaveLength(1);
+      expect(racine.querySelector('.progress-label')?.textContent?.trim()).toBe('CAMPAGNES.KPI_AVANCEMENT');
+    });
+
+    it('porte un repli textuel du pourcentage (`.progress-pct-label`, visible seulement sous 1024px via `.u-mobile`) qui reflète `pourcentageAffiche()`', async () => {
+      const { fixture, c } = setup({ progression: progression({ pourcentage: 42 }) });
+      await flush();
+      fixture.detectChanges();
+      const racine = fixture.nativeElement as HTMLElement;
+      const pctMobile = racine.querySelector('.progress-pct-label');
+      expect(pctMobile).toBeTruthy();
+      expect(pctMobile?.classList.contains('u-mobile')).toBe(true);
+      expect(pctMobile?.textContent?.trim()).toBe('42%');
+
+      // Et il suit bien le même calcul que le grand chiffre desktop, pas une
+      // valeur recalculée séparément.
+      c.progression.set(progression({ pourcentage: 77 }));
+      fixture.detectChanges();
+      expect(racine.querySelector('.progress-pct-label')?.textContent?.trim()).toBe(`${c.pourcentageAffiche()}%`);
     });
   });
 
@@ -809,7 +836,7 @@ describe('CampagneDetailComponent', () => {
    * DOM produit.
    */
   describe('rendu réel : en-tête (agents affectés, clôture, actions)', () => {
-    it('affiche les agents affectés et la date de clôture connue dans le méta', async () => {
+    it('la date de clôture connue apparaît dans le méta ; les agents assignés apparaissent dans « Agents affectés », pas dans le méta', async () => {
       const { fixture } = setup({
         campagne: campagne({ statut: 'CLOTUREE', dateCloture: '2026-08-27', dateCreation: '2026-07-01' }),
         agents: [agentAffecte({ username: 'awa.ba' })],
@@ -817,9 +844,15 @@ describe('CampagneDetailComponent', () => {
       await flush();
       fixture.detectChanges();
 
-      const meta = (fixture.nativeElement as HTMLElement).querySelector('.detail-header__meta')?.textContent;
-      expect(meta).toContain('awa.ba');
+      const racine = fixture.nativeElement as HTMLElement;
+      const meta = racine.querySelector('.detail-header__meta')?.textContent;
       expect(meta).toContain('27/08/2026');
+      // Un roster d'agents n'a plus sa place ici (voir le commentaire du
+      // composant) : la seule source de vérité est désormais la carte
+      // « Agents affectés » (app-agents-panel), rendue plus bas dans ce même
+      // gabarit.
+      expect(meta).not.toContain('awa.ba');
+      expect(racine.querySelector('.agent-card__name')?.textContent).toBe('awa.ba');
     });
 
     it('affiche le bouton Démarrer pour une campagne PLANIFIEE et déclenche demarrer() au clic', async () => {

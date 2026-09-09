@@ -30,15 +30,17 @@
           <h2 class="detail-header__nom">{{ c.nom }}</h2>
           <app-badge [tone]="campagneStatutTone(c.statut)" [label]="'CAMPAGNES.STATUT.' + c.statut | translate" />
         </div>
+        <!-- Les agents assignés vivent désormais uniquement dans « Agents
+             affectés » juste en dessous (avatar, statut, zones, progression
+             individuelle) : les y lister aussi ici doublait l'information à
+             quelques centimètres d'écart, et un roster à N agents pouvait
+             faire déborder cette ligne sur plusieurs lignes. Cette ligne ne
+             porte plus que les repères temporels du cycle de vie. -->
         <p class="detail-header__meta">
           {{ 'CAMPAGNES.CREE_LE' | translate }} {{ c.dateCreation | date:'dd/MM/yyyy' }}
           @if (c.datePlanifiee) {
             <span class="meta-sep">·</span>
             {{ 'CAMPAGNES.PLANIFIEE_LE' | translate }} {{ c.datePlanifiee | date:'dd/MM/yyyy' }}
-          }
-          @if (agentsLabel()) {
-            <span class="meta-sep">·</span>
-            {{ 'CAMPAGNES.DETAIL_AGENTS' | translate }} {{ agentsLabel() }}
           }
           @if (c.dateCloture) {
             <span class="meta-sep">·</span>
@@ -58,7 +60,13 @@
             </button>
           }
           @if (c.statut === 'EN_COURS') {
-            <button class="btn btn--danger" (click)="openClotureModal()">
+            <!-- `--dark`, pas `--danger` : la clôture est irréversible mais pas
+                 destructive — c'est l'avancée normale du cycle de vie de la
+                 campagne (elle génère les factures), au même titre que
+                 « Démarrer » plus haut. Le bouton mobile équivalent et le
+                 bouton de confirmation final de la modale (`cloture-modal`)
+                 sont déjà `--dark` ; seul celui-ci divergeait en rouge. -->
+            <button class="btn btn--dark" (click)="openClotureModal()">
               <i aria-hidden="true" class="pi pi-lock"></i> {{ 'CAMPAGNES.CLOTURER_CAMPAGNE' | translate }}
             </button>
           }
@@ -82,14 +90,18 @@
         </div>
         <div class="progress-card__right">
           <div class="progress-label-row">
-            <span class="progress-label">
-              <span class="u-desktop">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</span>
-              <span class="u-mobile">{{ 'CAMPAGNES.COL_PROGRESSION' | translate }}</span>
-            </span>
-            <!-- Le pourcentage était écrit deux fois dans la même carte : en
-                 grand à gauche, et ici en petit au bout du libellé. La barre
-                 en donne déjà la proportion à l'œil, et le chiffre exact est à
-                 quinze centimètres. Un seul suffit — le grand. -->
+            <!-- Même libellé aux deux tailles : « Avancement » sur un bureau et
+                 « Progression » sur un mobile désignaient exactement le même
+                 nombre dans la même carte, sans raison de largeur (les deux
+                 tiennent) — un seul mot pour un seul concept. -->
+            <span class="progress-label">{{ 'CAMPAGNES.KPI_AVANCEMENT' | translate }}</span>
+            <!-- Sur mobile, `.progress-card__pct-wrap` (le gros pourcentage) est
+                 masqué faute de place : sans repli, le chiffre exact
+                 disparaissait entièrement de l'écran le plus consulté au
+                 quotidien — seule restait une barre sans valeur. Repris ici,
+                 seule apparition du chiffre sur cette largeur (pas de doublon
+                 avec le gros pourcentage desktop, qui reste cette fois masqué). -->
+            <span class="progress-pct-label u-mobile">{{ pourcentageAffiche() }}%</span>
           </div>
           <div class="progress-bar">
             <div
