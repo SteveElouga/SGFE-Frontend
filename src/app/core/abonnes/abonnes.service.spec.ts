@@ -12,6 +12,7 @@ import {
 } from '../../graphql/queries/abonnes.queries';
 import {
   CREATE_ABONNE,
+  IMPORTER_COORDONNEES_COMPTEURS,
   REACTIVER_ABONNE,
   REMPLACER_COMPTEUR,
   RESILIER_ABONNE,
@@ -377,6 +378,31 @@ describe('AbonnesService', () => {
           nouveauCamp: 1, nouvelIndexInitial: 0, dateRemplacement: '2026-01-01',
         }),
       ).rejects.toThrow('Réponse invalide du serveur');
+    });
+  });
+
+  describe('importerCoordonneesCompteurs', () => {
+    it('transmet les coordonnées et rafraîchit GET_ABONNES', async () => {
+      const { service, mutateSpy } = setup();
+      const coordonnees = [{ numeroCompteur: '1234', latitude: '4.05', longitude: '9.70' }];
+      const resultat = { nbImportees: 1, erreurs: [] };
+      mutateSpy.mockReturnValue(of({ data: { importerCoordonneesCompteurs: resultat } }));
+
+      const res = await service.importerCoordonneesCompteurs(coordonnees);
+
+      expect(mutateSpy).toHaveBeenCalledWith({
+        mutation: IMPORTER_COORDONNEES_COMPTEURS,
+        variables: { coordonnees },
+        refetchQueries: [{ query: GET_ABONNES }],
+        awaitRefetchQueries: true,
+      });
+      expect(res).toBe(resultat);
+    });
+
+    it('lève une erreur si la réponse est vide', async () => {
+      const { service, mutateSpy } = setup();
+      mutateSpy.mockReturnValue(of({ data: null }));
+      await expect(service.importerCoordonneesCompteurs([])).rejects.toThrow('Réponse invalide du serveur');
     });
   });
 });

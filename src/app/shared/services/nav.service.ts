@@ -41,6 +41,7 @@ export class NavService {
     { label: 'NAV.DASHBOARD', tabLabel: 'NAV.TAB_DASHBOARD', icon: 'pi-th-large', route: '/dashboard', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.TERRAIN', icon: 'pi-map-marker', route: '/terrain', roles: ['ADMIN', 'AGENT', 'SUPERVISEUR'] },
     { label: 'NAV.ABONNES', icon: 'pi-users', route: '/abonnes', roles: ['ADMIN'] },
+    { label: 'NAV.CARTE', icon: 'pi-map-marker', route: '/carte', roles: ['ADMIN'] },
     { label: 'NAV.CAMPAGNES', icon: 'pi-calendar', route: '/campagnes', roles: ['ADMIN', 'SUPERVISEUR', 'AGENT'] },
     { label: 'NAV.FACTURES', icon: 'pi-file', route: '/factures', roles: ['ADMIN', 'COMPTABLE'] },
     { label: 'NAV.PAIEMENTS', icon: 'pi-credit-card', route: '/paiements', roles: ['ADMIN', 'COMPTABLE'] },

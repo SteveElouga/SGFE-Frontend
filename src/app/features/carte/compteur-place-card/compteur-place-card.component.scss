@@ -1,0 +1,160 @@
+:host {
+  // Auto-positionné (pas `display: contents`, à la différence de
+  // `app-bottom-sheet` qui délègue tout à `position: fixed`) : ancré en bas
+  // du conteneur positionné le plus proche — `.carte-map` (position: relative,
+  // voir carte.component.scss) — sans dépendre d'un sélecteur du parent que
+  // l'encapsulation de vue Angular empêcherait d'atteindre `.pc` directement.
+  position: absolute;
+  left: 50%;
+  bottom: var(--pas-4);
+  transform: translateX(-50%);
+  z-index: 5;
+  pointer-events: none; // seul `.pc` (contenu réel) doit intercepter les clics
+}
+
+.pc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-3);
+  width: min(420px, calc(100vw - #{var(--pas-4)} * 2));
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--pas-4);
+  background: var(--surface);
+  border-radius: var(--rayon-lg);
+  box-shadow: var(--ombre-panneau);
+  pointer-events: auto;
+}
+
+.pc__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pas-2);
+}
+
+.pc__titre {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+}
+
+.pc__numero {
+  font-weight: 700;
+  font-size: var(--texte-lg);
+  color: var(--encre);
+}
+
+.pc__fermer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--rayon-rond);
+  background: transparent;
+  color: var(--encre-2);
+  cursor: pointer;
+
+  &:hover { background: var(--fond); }
+}
+
+.pc__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pas-2);
+}
+
+.pc__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--pas-2);
+}
+
+.pc__label {
+  font-size: var(--texte-sm);
+  color: var(--encre-3);
+}
+
+.pc__value {
+  font-size: var(--texte-md);
+  color: var(--encre);
+  font-weight: 600;
+  text-align: right;
+}
+
+.pc__non-geo {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-1);
+  margin: 0;
+  padding: var(--pas-2);
+  border-radius: var(--rayon-sm);
+  background: var(--fond);
+  color: var(--encre-3);
+  font-size: var(--texte-sm);
+}
+
+.pc__itineraire {
+  display: flex;
+  align-items: center;
+  gap: var(--pas-2);
+  padding: var(--pas-2) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  background: var(--info-fond);
+  color: var(--info-encre);
+  font-weight: 600;
+
+  &--estimation {
+    background: var(--attente-fond);
+    color: var(--attente-encre);
+  }
+}
+
+.pc__itineraire-badge {
+  padding: 2px var(--pas-2);
+  border-radius: var(--rayon-rond);
+  background: var(--surface);
+  font-size: var(--texte-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.pc__actions {
+  display: flex;
+  gap: var(--pas-2);
+}
+
+.pc__action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pas-1);
+  padding: var(--pas-2) var(--pas-3);
+  border-radius: var(--rayon-sm);
+  font-weight: 600;
+  font-size: var(--texte-sm);
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+
+  &--secondaire {
+    background: var(--fond);
+    color: var(--encre);
+    border-color: var(--filet);
+  }
+
+  &--primaire {
+    background: var(--action-survol);
+    color: var(--encre-inverse);
+
+    &:disabled {
+      background: var(--fond);
+      color: var(--encre-faible);
+      cursor: not-allowed;
+    }
+  }
+}

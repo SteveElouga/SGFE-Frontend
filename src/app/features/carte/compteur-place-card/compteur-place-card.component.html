@@ -1,0 +1,63 @@
+@if (open() && abonne(); as a) {
+  <div class="pc" role="region" [attr.aria-label]="'CARTE.PLACE_CARD.TITRE' | translate">
+    <div class="pc__header">
+      <div class="pc__titre">
+        <span class="pc__numero">{{ a.compteur?.numeroCompteur | compteur }}</span>
+        <app-status-badge [status]="a.statut" />
+      </div>
+      <button
+        type="button"
+        class="pc__fermer"
+        (click)="close.emit()"
+        [attr.aria-label]="'COMMON.CLOSE' | translate"
+      ><i class="pi pi-times" aria-hidden="true"></i></button>
+    </div>
+
+    <div class="pc__body">
+      <div class="pc__row">
+        <span class="pc__label">{{ 'CARTE.PLACE_CARD.ABONNE' | translate }}</span>
+        <span class="pc__value">{{ a.prenom | nomAbonne: a.nom }}</span>
+      </div>
+      <div class="pc__row">
+        <span class="pc__label">{{ 'CARTE.PLACE_CARD.QUARTIER' | translate }}</span>
+        <span class="pc__value">{{ a.compteur?.quartier ?? '—' }}</span>
+      </div>
+
+      @if (!geo()) {
+        <p class="pc__non-geo">
+          <i class="pi pi-info-circle" aria-hidden="true"></i>
+          {{ 'CARTE.PLACE_CARD.NON_GEOLOCALISE' | translate }}
+        </p>
+      }
+
+      @if (itineraireResultat(); as r) {
+        <div class="pc__itineraire" [class.pc__itineraire--estimation]="r.estimation">
+          @if (r.estimation) {
+            <span class="pc__itineraire-badge">{{ 'CARTE.ITINERAIRE.ESTIMATION' | translate }}</span>
+          }
+          <span class="pc__itineraire-valeur">
+            {{ r.distanceKm | number: '1.1-1' }} km · {{ dureeAffichee() }}
+          </span>
+        </div>
+      }
+    </div>
+
+    <div class="pc__actions">
+      @if (lienAbonne(); as lien) {
+        <a class="pc__action pc__action--secondaire" [routerLink]="lien">
+          {{ 'CARTE.PLACE_CARD.VOIR_FICHE' | translate }}
+        </a>
+      }
+      <button
+        type="button"
+        class="pc__action pc__action--primaire"
+        [disabled]="!geo() || itineraireLoading()"
+        [appTooltip]="!geo() ? ('CARTE.PLACE_CARD.NON_GEOLOCALISE' | translate) : ''"
+        (click)="demanderItineraire.emit()"
+      >
+        <i class="pi pi-directions" aria-hidden="true"></i>
+        {{ (itineraireLoading() ? 'CARTE.ITINERAIRE.CALCUL_EN_COURS' : 'CARTE.ITINERAIRE.BOUTON') | translate }}
+      </button>
+    </div>
+  </div>
+}
