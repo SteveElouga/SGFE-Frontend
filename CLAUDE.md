@@ -5,7 +5,7 @@
 
 ```
 Angular          22.x (dernière stable — juin 2026)
-TypeScript       5.9
+TypeScript       ~6.0
 Apollo Client    @apollo/client + apollo-angular
 PWA              @angular/pwa
 Test runner      Vitest (défaut Angular 22)
@@ -42,9 +42,11 @@ frontend/
 │   │   │   │   ├── auth.service.ts      # JWT, login, logout, refresh
 │   │   │   │   ├── auth.guard.ts        # Protection des routes
 │   │   │   │   └── role.guard.ts        # Protection par rôle
-│   │   │   ├── graphql/
+│   │   │   ├── graphql/                 # 100% standalone, pas de NgModule
 │   │   │   │   ├── apollo.config.ts     # Configuration Apollo Client
-│   │   │   │   └── graphql.module.ts
+│   │   │   │   ├── apollo-persistence.ts
+│   │   │   │   ├── auth-error.link.ts
+│   │   │   │   └── global-error.link.ts
 │   │   │   └── interceptors/
 │   │   │       └── jwt.interceptor.ts   # Injection du JWT dans les requêtes
 │   │   │
@@ -93,17 +95,19 @@ frontend/
 │   │   ├── environment.ts               # Développement
 │   │   └── environment.prod.ts          # Production
 │   │
-│   ├── assets/
-│   │   ├── logo/
-│   │   └── icons/
-│   │
 │   ├── styles/
 │   │   ├── _variables.scss              # Variables SCSS (couleurs, espacements)
 │   │   ├── _mobile.scss                 # Mixins responsive mobile-first
 │   │   └── global.scss                 # Styles globaux
 │   │
-│   ├── manifest.webmanifest            # Configuration PWA
 │   └── index.html
+│
+├── public/                             # Copié tel quel au build (angular.json)
+│   ├── logo.svg
+│   ├── icons/
+│   ├── i18n/
+│   ├── favicon.ico
+│   └── manifest.webmanifest            # Configuration PWA
 │
 ├── CLAUDE.md                           # Ce fichier
 ├── .cursorrules                        # Règles Cursor pour le frontend
@@ -193,11 +197,13 @@ export class SaisirIndexComponent {
 
 ### Composants — sélecteur `app-*`, standalone, OnPush
 
-> ⚠️ **Corrigé le 28 août 2026.** Cette section prescrivait les composants
-> *selectorless*. Mesure faite : **59 composants** déclarent un
-> `selector: 'app-…'`, **aucun** n'est selectorless. La convention réelle est
-> le sélecteur explicite — elle est cohérente, et c'est la prescription qui
-> s'en écartait.
+> ⚠️ **Corrigé le 28 août 2026, nuancé le 09/09/2026.** Cette section prescrivait
+> les composants *selectorless*. Mesure du 28 août : aucun composant n'était
+> selectorless. Depuis, la convention réelle est à deux vitesses : les
+> composants réutilisables (`shared/components/`, sous-composants de feature)
+> gardent un `selector: 'app-…'` explicite, mais les composants de route montés
+> uniquement via `loadComponent` (ex. `TerrainComponent`, `LoginComponent`,
+> `FactureDetailComponent`…) sont désormais selectorless (12 sur 86 aujourd'hui).
 
 ```typescript
 @Component({
@@ -262,11 +268,11 @@ export class DashboardComponent {
 
 ```typescript
 // app.config.ts
-import { ApplicationConfig, provideExperimentalZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideZonelessChangeDetection } from '@angular/core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideExperimentalZonelessChangeDetection(), // Zoneless Angular 22
+    provideZonelessChangeDetection(), // Zoneless Angular 22 — API stable, plus de préfixe Experimental
     // ...
   ]
 };
@@ -478,7 +484,7 @@ $breakpoint-desktop: 1024px;
 // core/auth/auth.service.ts
 import { Injectable, signal, computed } from '@angular/core';
 
-export type Role = 'ADMIN' | 'AGENT' | 'COMPTABLE';
+export type Role = 'ADMIN' | 'AGENT' | 'COMPTABLE' | 'SUPERVISEUR';
 
 interface UserPayload {
   userId: string;
@@ -498,6 +504,7 @@ export class AuthService {
   isAdmin = computed(() => this.role() === 'ADMIN');
   isAgent = computed(() => this.role() === 'AGENT');
   isComptable = computed(() => this.role() === 'COMPTABLE');
+  isSuperviseur = computed(() => this.role() === 'SUPERVISEUR');
 }
 ```
 
@@ -507,16 +514,18 @@ export class AuthService {
 
 ```typescript
 // app.routes.ts
+// authGuard n'est posé qu'une seule fois, sur la route shell parente (path: '')
+// — pas répété sur chaque route enfant comme le suggérait cet exemple.
 export const routes: Routes = [
   { path: 'login', loadComponent: () => import('./features/auth/login.component') },
   {
     path: 'dashboard',
-    canActivate: [authGuard, roleGuard(['ADMIN', 'COMPTABLE'])],
+    canActivate: [roleGuard(['ADMIN', 'COMPTABLE'])],
     loadComponent: () => import('./features/dashboard/dashboard.component'),
   },
   {
     path: 'terrain',
-    canActivate: [authGuard, roleGuard(['ADMIN', 'AGENT'])],
+    canActivate: [roleGuard(['ADMIN', 'AGENT', 'SUPERVISEUR'])],
     loadComponent: () => import('./features/terrain/terrain.component'),
   },
   {
