@@ -290,6 +290,14 @@ export const routes: Routes = [
           ),
       },
       {
+        // Géolocalisation des compteurs — ADMIN uniquement pour l'instant
+        // (AGENT terrain reporté à une phase 2, décision déjà actée).
+        path: 'carte',
+        canActivate: [roleGuard(['ADMIN'])],
+        loadComponent: () =>
+          import('./features/carte/carte.component').then((m) => m.CarteComponent),
+      },
+      {
         path: 'notifications',
         loadComponent: () =>
           import('./features/notifications/notifications.component').then(

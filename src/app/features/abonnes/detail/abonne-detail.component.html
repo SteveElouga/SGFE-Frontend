@@ -224,6 +224,15 @@
                     <span class="abonne-info-row__value">{{ a.compteur.position }}</span>
                   </div>
                 }
+                @if (a.compteur.latitude && a.compteur.longitude) {
+                  <div class="abonne-info-row">
+                    <span class="abonne-info-row__label">{{ 'CARTE.TITRE' | translate }}</span>
+                    <a class="abonne-info-row__value" [routerLink]="['/carte']" [queryParams]="{ compteurAbonneId: a.id }">
+                      <i class="pi pi-map-marker" aria-hidden="true"></i>
+                      {{ 'CARTE.VOIR_SUR_LA_CARTE' | translate }}
+                    </a>
+                  </div>
+                }
                 <div class="abonne-info-row">
                   <span class="abonne-info-row__label">{{ 'COMMON.STATUS' | translate }}</span>
                   <span class="abonne-badge abonne-badge--{{ a.compteur.statut.toLowerCase() }}" style="font-size:11px;padding:2px 8px">{{ a.compteur.statut }}</span>

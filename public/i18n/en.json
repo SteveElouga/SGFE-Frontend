@@ -2,6 +2,7 @@
   "NAV": {
     "DASHBOARD": "Dashboard",
     "ABONNES": "Subscribers",
+    "CARTE": "Map",
     "CAMPAGNES": "Campaigns",
     "FACTURES": "Invoices",
     "PAIEMENTS": "Payments",
@@ -1637,5 +1638,48 @@
     "ACTIVE_AIDE": "Active account, the user can sign in",
     "INACTIVE": "Inactive",
     "INACTIVE_AIDE": "Account disabled, cannot sign in"
+  },
+  "CARTE": {
+    "TITRE": "Map",
+    "IMPORTER_BOUTON": "Import coordinates",
+    "ERREUR_CHARGEMENT": "Could not load the map. Check your connection and reload the page.",
+    "AUCUN_REPERE": "No geolocated meter yet.",
+    "VOIR_SUR_LA_CARTE": "View on map",
+    "LISTE": {
+      "HERO_LABEL": "meters",
+      "VIDE": "No meter matches these filters.",
+      "MASQUER": "Hide panel",
+      "AFFICHER": "Show panel"
+    },
+    "PLACE_CARD": {
+      "TITRE": "Selected meter details",
+      "ABONNE": "Subscriber",
+      "QUARTIER": "District",
+      "NON_GEOLOCALISE": "Meter not geolocated",
+      "VOIR_FICHE": "View subscriber record"
+    },
+    "ITINERAIRE": {
+      "BOUTON": "Directions",
+      "CALCUL_EN_COURS": "Calculating…",
+      "ESTIMATION": "Straight-line estimate",
+      "ERREUR": "Could not calculate a route right now."
+    },
+    "IMPORT": {
+      "TITRE": "Import coordinates",
+      "SOUS_TITRE": "CSV file with at least the columns numero_compteur, latitude, longitude.",
+      "DEPOSER": "Drop a CSV file here",
+      "PARCOURIR": "Browse…",
+      "A_IMPORTER": "{{count}} to import",
+      "FORMAT_INVALIDE": "{{count}} invalid format",
+      "A_IMPORTER_UNE": "To import",
+      "FORMAT_INVALIDE_UNE": "Invalid format",
+      "COL_NUMERO": "Meter number",
+      "COL_LATITUDE": "Latitude",
+      "COL_LONGITUDE": "Longitude",
+      "COL_STATUT": "Status",
+      "RESULTAT_NB": "{{count}} coordinate(s) imported",
+      "IMPORTER": "Import",
+      "ENVOI_EN_COURS": "Sending…"
+    }
   }
 }

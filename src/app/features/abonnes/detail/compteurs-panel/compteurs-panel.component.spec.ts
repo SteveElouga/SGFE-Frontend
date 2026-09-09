@@ -18,6 +18,9 @@ function compteur(p: Partial<Compteur> = {}): Compteur {
     datePose: '2024-01-10',
     position: 'Devant portail',
     statut: 'ACTIF',
+    latitude: null,
+    longitude: null,
+    dateMajPosition: null,
     ...p,
   };
 }

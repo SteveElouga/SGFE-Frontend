@@ -415,6 +415,9 @@ describe('AbonneDetailComponent', () => {
         datePose: '2026-02-01',
         position: '',
         statut: 'ACTIF' as const,
+        latitude: null,
+        longitude: null,
+        dateMajPosition: null,
       };
 
       component.onCompteurRemplace(nouveauCompteur);
@@ -737,6 +740,7 @@ describe('AbonneDetailComponent', () => {
           compteur: {
             id: 'c-1', numeroCompteur: 7, quartier: 'Yoff', camp: 2,
             indexInitial: 0, datePose: '2025-01-01', position: '', statut: 'ACTIF',
+            latitude: null, longitude: null, dateMajPosition: null,
           },
         }),
       });

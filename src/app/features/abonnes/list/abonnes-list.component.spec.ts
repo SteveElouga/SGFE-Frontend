@@ -25,6 +25,9 @@ const mockAbonnes: AbonneLigne[] = [
       quartier: 'Plateau',
       camp: 3,
       statut: 'ACTIF',
+      latitude: null,
+      longitude: null,
+      dateMajPosition: null,
     },
   },
   {
@@ -39,6 +42,9 @@ const mockAbonnes: AbonneLigne[] = [
       quartier: 'Centre',
       camp: 1,
       statut: 'ACTIF',
+      latitude: null,
+      longitude: null,
+      dateMajPosition: null,
     },
   },
   {
@@ -53,6 +59,9 @@ const mockAbonnes: AbonneLigne[] = [
       quartier: 'Plateau',
       camp: 1,
       statut: 'ACTIF',
+      latitude: null,
+      longitude: null,
+      dateMajPosition: null,
     },
   },
 ];

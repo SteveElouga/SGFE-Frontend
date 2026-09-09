@@ -1,0 +1,98 @@
+<app-bottom-sheet [open]="open()" labelledBy="import-coord-title" (close)="close.emit()">
+  <div class="ics">
+    <div class="ics__header">
+      <h3 class="ics__title" id="import-coord-title">{{ 'CARTE.IMPORT.TITRE' | translate }}</h3>
+      <p class="ics__sub">{{ 'CARTE.IMPORT.SOUS_TITRE' | translate }}</p>
+    </div>
+
+    <div
+      class="ics__dropzone"
+      [class.ics__dropzone--survol]="glisseSurvol()"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+      (drop)="onDrop($event)"
+    >
+      <i class="pi pi-upload" aria-hidden="true"></i>
+      @if (nomFichier(); as nom) {
+        <span class="ics__fichier">{{ nom }}</span>
+      } @else {
+        <span>{{ 'CARTE.IMPORT.DEPOSER' | translate }}</span>
+      }
+      <label class="ics__parcourir">
+        {{ 'CARTE.IMPORT.PARCOURIR' | translate }}
+        <input type="file" accept=".csv,text/csv" (change)="onFileInput($event)" hidden />
+      </label>
+    </div>
+
+    @if (lignes().length > 0) {
+      <div class="ics__resume">
+        <span class="ics__pastille ics__pastille--ok">{{ 'CARTE.IMPORT.A_IMPORTER' | translate: { count: lignesValides().length } }}</span>
+        @if (lignesInvalides().length > 0) {
+          <span class="ics__pastille ics__pastille--ko">{{ 'CARTE.IMPORT.FORMAT_INVALIDE' | translate: { count: lignesInvalides().length } }}</span>
+        }
+      </div>
+
+      <div class="ics__table-wrap">
+        <table class="ics__table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>{{ 'CARTE.IMPORT.COL_NUMERO' | translate }}</th>
+              <th>{{ 'CARTE.IMPORT.COL_LATITUDE' | translate }}</th>
+              <th>{{ 'CARTE.IMPORT.COL_LONGITUDE' | translate }}</th>
+              <th>{{ 'CARTE.IMPORT.COL_STATUT' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (l of lignes(); track l.ligne) {
+              <tr [class.ics__row--invalide]="l.statut === 'FORMAT_INVALIDE'">
+                <td>{{ l.ligne }}</td>
+                <td>{{ l.numeroCompteurBrut || '—' }}</td>
+                <td>{{ l.latitudeBrut || '—' }}</td>
+                <td>{{ l.longitudeBrut || '—' }}</td>
+                <td>
+                  @if (l.statut === 'A_IMPORTER') {
+                    <span class="ics__chip ics__chip--ok">{{ 'CARTE.IMPORT.A_IMPORTER_UNE' | translate }}</span>
+                  } @else {
+                    <span class="ics__chip ics__chip--ko" [title]="l.erreur">{{ 'CARTE.IMPORT.FORMAT_INVALIDE_UNE' | translate }}</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (erreurEnvoi(); as msg) {
+      <app-error-banner [message]="msg" [showRetry]="false" />
+    }
+
+    @if (resultatServeur(); as res) {
+      <div class="ics__resultat">
+        <p><strong>{{ 'CARTE.IMPORT.RESULTAT_NB' | translate: { count: res.nbImportees } }}</strong></p>
+        @if (res.erreurs.length > 0) {
+          <ul class="ics__resultat-erreurs">
+            @for (e of res.erreurs; track e.numeroCompteur) {
+              <li>{{ e.numeroCompteur }} — {{ e.message }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
+    <div class="ics__actions">
+      <button type="button" class="ics__btn ics__btn--secondaire" (click)="close.emit()">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button
+        type="button"
+        class="ics__btn ics__btn--primaire"
+        [disabled]="!peutImporter()"
+        (click)="importer()"
+      >
+        {{ (envoiEnCours() ? 'CARTE.IMPORT.ENVOI_EN_COURS' : 'CARTE.IMPORT.IMPORTER') | translate }}
+      </button>
+    </div>
+  </div>
+</app-bottom-sheet>

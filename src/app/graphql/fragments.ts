@@ -19,7 +19,14 @@ import { gql } from '@apollo/client/core';
  * type. La dérive n'est plus possible ; elle devient une erreur de compilation.
  */
 
-/** Un abonné tel que la liste, ses mutations et sa souscription le portent. */
+/**
+ * Un abonné tel que la liste, ses mutations et sa souscription le portent.
+ *
+ * `latitude`/`longitude`/`dateMajPosition` (PR backend #243) sont ici pour
+ * l'écran Carte (`features/carte`), qui construit ses repères à partir de
+ * cette même liste — voir `CarteService.toGeoPoint`. Champs nullables :
+ * absents (`null`) pour un compteur jamais géolocalisé, cas normal.
+ */
 export const ABONNE_LIST_FIELDS = gql`
   fragment AbonneListFields on Abonne {
     id
@@ -33,6 +40,9 @@ export const ABONNE_LIST_FIELDS = gql`
       quartier
       camp
       statut
+      latitude
+      longitude
+      dateMajPosition
     }
   }
 `;
@@ -43,6 +53,9 @@ export const ABONNE_LIST_FIELDS = gql`
  * `GET_ABONNE` et `ABONNE_DETAIL_UPDATED_SUB` alimentent le même signal — la
  * souscription remplace l'objet chargé par la requête. Deux sélections
  * différentes y produiraient un écran qui se vide en partie tout seul.
+ *
+ * `latitude`/`longitude`/`dateMajPosition` (PR backend #243) : lien « Voir sur
+ * la carte » de `abonne-detail`, qui se garde sur ces deux premiers champs.
  */
 export const ABONNE_DETAIL_FIELDS = gql`
   fragment AbonneDetailFields on Abonne {
@@ -62,6 +75,9 @@ export const ABONNE_DETAIL_FIELDS = gql`
       indexInitial
       datePose
       position
+      latitude
+      longitude
+      dateMajPosition
       statut
     }
   }
