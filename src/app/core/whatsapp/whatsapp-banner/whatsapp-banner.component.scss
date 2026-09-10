@@ -1,5 +1,14 @@
 @use '../../../../styles/variables' as *;
 
+// Bloc explicite : le `ResizeObserver` posé sur cet hôte dans le composant
+// (voir whatsapp-banner.component.ts) mesure sa boîte pour publier
+// `--wa-banniere-hauteur` — un hôte resté à son `display: inline` par défaut
+// ne se dimensionnerait pas correctement autour d'un enfant `flex` en dehors
+// d'un contexte flex/grid qui le blockifierait déjà lui-même.
+:host {
+  display: block;
+}
+
 // Sort du flux défilant, comme l'en-tête de page (voir le commentaire sur
 // `.shell__content` dans shell.component.scss) : un bandeau qu'il faudrait
 // remonter pour revoir ne serait plus « permanent » que de nom.
