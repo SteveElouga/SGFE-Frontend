@@ -137,7 +137,7 @@
 
   &--danger {
     @include btn-variant(
-      linear-gradient(135deg, var(--danger), var(--danger-encre)), var(--surface),
+      linear-gradient(135deg, var(--danger), var(--danger-encre)), var(--sur-action),
       $shadow: var(--ombre-action-danger), $hover-opacity: 0.9
     );
   }

@@ -127,9 +127,12 @@
   }
 
   &--primary {
+    // --surface (blanc en clair, #121a2e en sombre) : quasi invisible sur le
+    // fond --action en mode sombre. --sur-action est fixe blanc dans les deux
+    // thèmes — voir configuration.component.scss pour la même correction.
     @include btn-variant(
       var(--action),
-      var(--surface),
+      var(--sur-action),
       $shadow: var(--ombre-action),
       $hover-bg: var(--action-survol)
     );
@@ -393,7 +396,9 @@
   &--estime {
     background: var(--attente-fond);
     .stat-box__value {
-      color: var(--ambre-attente);
+      // --ambre-attente (fixe) échoue en mode sombre sur fond teinté (2,62:1
+      // mesuré) ; --attente-encre est adapté par thème pour ce rôle.
+      color: var(--attente-encre);
     }
   }
   &--non-releve {

@@ -144,13 +144,15 @@
   }
 
   &--dark {
-    @include btn-variant(var(--navy-nuit), var(--surface), $hover-bg: var(--navy-clair));
+    // --surface (blanc en clair, #121a2e en sombre) sur fond --navy-nuit :
+    // quasi identiques en sombre. --sur-action reste blanc dans les deux thèmes.
+    @include btn-variant(var(--navy-nuit), var(--sur-action), $hover-bg: var(--navy-clair));
   }
 
   &--primary {
     @include btn-variant(
       var(--action),
-      var(--surface),
+      var(--sur-action),
       $shadow: var(--ombre-action),
       $hover-bg: var(--action-survol)
     );

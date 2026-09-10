@@ -659,7 +659,7 @@
     flex: 1;
     @include btn-variant(
       var(--action),
-      var(--surface),
+      var(--sur-action),
       $shadow: var(--ombre-action),
       $hover-bg: var(--action-survol)
     );

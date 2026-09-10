@@ -195,7 +195,7 @@
 
   &--primary {
     @include btn-variant(
-      linear-gradient(135deg, var(--action), var(--action-survol)), var(--surface),
+      linear-gradient(135deg, var(--action), var(--action-survol)), var(--sur-action),
       $shadow: var(--ombre-action), $hover-opacity: 0.9
     );
   }
