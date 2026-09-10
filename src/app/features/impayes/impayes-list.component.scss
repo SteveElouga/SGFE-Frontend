@@ -101,10 +101,12 @@
       color: var(--danger-encre);
     }
     &--warn {
-      color: var(--ambre-attente);
+      // --ambre-attente (fixe) échoue en mode sombre sur fond teinté ; voir
+      // dashboard.component.scss pour la même correction.
+      color: var(--attente-encre);
     }
     &--dark {
-      color: var(--rouge-braise);
+      color: var(--danger-encre);
     }
   }
 

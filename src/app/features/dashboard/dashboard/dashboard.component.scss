@@ -379,7 +379,10 @@
       color: var(--danger-encre);
     }
     .dash-kpi__unit {
-      color: var(--rouge-braise);
+      // --rouge-braise (#7f1d1d, fixe) : 1,7:1 sur le fond sombre de
+      // --danger-fond en mode sombre. --danger-encre porte déjà #f87171 en
+      // sombre pour ce rôle exact (texte sur fond teinté).
+      color: var(--danger-encre);
     }
     .dash-kpi__hint {
       color: var(--danger-encre);
@@ -392,13 +395,15 @@
     border-color: var(--attente-trait);
     background: var(--attente-fond);
     .dash-kpi__value {
-      color: var(--ambre-attente);
+      // --ambre-attente (#f59e0b, fixe) : 2,91:1 sur --attente-fond en
+      // sombre. --attente-encre porte déjà #fbbf24 en sombre pour ce rôle.
+      color: var(--attente-encre);
     }
     .dash-kpi__unit {
       color: var(--attente-encre);
     }
     .dash-kpi__hint {
-      color: var(--ambre-attente);
+      color: var(--attente-encre);
       font-weight: 600;
     }
   }
@@ -411,7 +416,9 @@
       color: var(--succes-encre);
     }
     .dash-kpi__unit {
-      color: var(--vert-abysse);
+      // --vert-abysse (#14532d, fixe) : 1,71:1 sur --succes-fond en sombre.
+      // --succes-encre porte déjà #4ade80 en sombre pour ce rôle exact.
+      color: var(--succes-encre);
     }
     .dash-kpi__hint {
       color: var(--succes-encre);
@@ -662,16 +669,21 @@
   // Vert Nappe → Vert Profond (paiement encaissé). L'argent transite du bleu
   // vers le vert, la métaphore eau/monnaie.
   &--releves .dash-step__value {
-    color: var(--action);
-  } // Bleu Rivière — le clair tombait à 2,43:1
+    // --action (#1a56db, fixe) : 2,95:1 sur --surface-douce en mode sombre
+    // (déjà 2,43:1 avec l'ancien --bleu-riviere-clair). --info-encre porte
+    // #60a5fa en sombre — même famille Bleu Rivière, mais adaptée par thème.
+    color: var(--info-encre);
+  } // Bleu Rivière (relevé pris)
   &--factures .dash-step__value {
-    color: var(--action);
+    color: var(--info-encre);
   } // Bleu Rivière (facturation lancée)
   &--envois .dash-step__value {
     color: var(--succes-encre);
   } // Vert Nappe (envoyé au client)
   &--paiements .dash-step__value {
-    color: var(--vert-profond);
+    // --vert-profond (#166534, fixe) : même défaut que --vert-abysse plus
+    // haut. --succes-encre porte déjà #4ade80 en sombre.
+    color: var(--succes-encre);
   } // Vert Profond (encaissé)
 }
 
@@ -859,7 +871,9 @@
 
     &--en_cours {
       background: var(--action-lueur);
-      color: var(--action);
+      // --action (#1a56db, fixe) : 2,36:1 sur --action-lueur en mode sombre.
+      // --info-encre est adapté par thème pour ce rôle (voir dash-step ci-dessus).
+      color: var(--info-encre);
       border: 1px solid var(--action-trait);
     }
     &--planifiee {

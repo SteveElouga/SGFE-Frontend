@@ -93,7 +93,10 @@
   }
 
   &--active {
-    color: var(--action);
+    // --action (fixe) : 2,8:1 sur --surface en mode sombre. --info-encre est
+    // adapté par thème pour ce rôle (voir dashboard.component.scss). Le
+    // soulignement reste --action : c'est un trait (seuil 3:1), déjà conforme.
+    color: var(--info-encre);
     font-weight: 600;
     border-bottom-color: var(--action);
   }
@@ -522,12 +525,14 @@
   &--doux {
     background: var(--attente-fond);
     border-color: var(--attente-trait);
-    color: var(--ambre-attente);
+    // --ambre-attente (fixe) échoue en mode sombre sur fond teinté (2,62:1
+    // mesuré) ; --attente-encre est le jeton adapté par thème pour ce rôle.
+    color: var(--attente-encre);
   }
   &--ferme {
     background: var(--attente-fond);
     border-color: var(--attente-trait);
-    color: var(--ambre-attente);
+    color: var(--attente-encre);
   }
   &--avert {
     background: var(--danger-fond);
@@ -702,7 +707,7 @@
     border: 1px solid var(--succes-trait);
   }
   &--ko {
-    color: var(--ambre-attente);
+    color: var(--attente-encre);
     background: var(--attente-fond);
     border: 1px solid var(--attente-trait);
   }
@@ -815,7 +820,10 @@
   }
 
   &--primary {
-    @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
+    // --surface vaut blanc en clair mais devient #121a2e en sombre — quasi
+    // invisible sur le fond bleu --action (2,8:1 mesuré). --sur-action est le
+    // jeton "texte sur surface d'action", fixe blanc dans les deux thèmes.
+    @include btn-variant(var(--action), var(--sur-action), $hover-bg: var(--action-survol));
   }
 
   &--ghost {
@@ -828,20 +836,27 @@
   }
 
   &--dark-outline {
+    // --navy-nuit en texte/bordure sur --surface : 1,03:1 en sombre (les deux
+    // couleurs sont alors quasi identiques). --encre est l'encre de texte
+    // adaptée par thème (quasi identique à navy-nuit en clair, blanc cassé en
+    // sombre) ; le survol plein (fond navy-nuit + texte inverse) est inchangé.
     @include btn-variant(
       var(--surface),
-      var(--navy-nuit),
-      $border: 1.5px solid var(--navy-nuit),
+      var(--encre),
+      $border: 1.5px solid var(--encre),
       $hover-bg: var(--navy-nuit),
       $hover-color: var(--encre-inverse)
     );
   }
 
   &--danger-outline {
+    // --danger (#dc2626, fixe) en texte/bordure sur --surface : même défaut
+    // que le titre de toast d'erreur (3,59:1 en sombre). --danger-encre est
+    // adapté par thème pour ce rôle.
     @include btn-variant(
       var(--surface),
-      var(--danger),
-      $border: 1px solid var(--danger),
+      var(--danger-encre),
+      $border: 1px solid var(--danger-encre),
       $hover-bg: var(--danger),
       $hover-color: var(--encre-inverse)
     );
