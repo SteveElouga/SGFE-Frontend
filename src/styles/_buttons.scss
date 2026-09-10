@@ -178,7 +178,11 @@
   &--active {
     background: var(--navy-nuit);
     border-color: var(--navy-nuit);
-    color: var(--surface);
+    // --surface vaut blanc en clair (texte lisible sur le navy) mais devient
+    // #121a2e en sombre — quasi identique au fond navy-nuit du chip actif
+    // (1,03:1 mesuré sur /notifications). --sur-action est le jeton "texte
+    // sur surface d'action", fixe blanc dans les deux thèmes.
+    color: var(--sur-action);
     font-weight: 600;
   }
 }

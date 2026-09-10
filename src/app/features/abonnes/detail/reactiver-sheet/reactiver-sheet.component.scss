@@ -104,7 +104,7 @@
 
   &--success {
     @include btn-variant(
-      linear-gradient(135deg, var(--succes), var(--vert-profond)), var(--surface),  // Vert Nappe → Vert Profond
+      linear-gradient(135deg, var(--succes), var(--vert-profond)), var(--sur-action),  // Vert Nappe → Vert Profond
       $shadow: var(--ombre-action-succes), $hover-opacity: 0.9
     );
   }

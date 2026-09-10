@@ -348,7 +348,7 @@
   }
 
   &--primary {
-    @include btn-variant(var(--action), var(--surface), $hover-bg: var(--action-survol));
+    @include btn-variant(var(--action), var(--sur-action), $hover-bg: var(--action-survol));
   }
 
   &--ghost {

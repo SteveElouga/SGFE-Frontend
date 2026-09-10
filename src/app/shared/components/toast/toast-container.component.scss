@@ -40,7 +40,10 @@
     --toast-border: var(--danger-trait);
     --toast-icon-bg: var(--danger-fond);
     --toast-icon-color: var(--danger);
-    --toast-title-color: var(--danger);
+    // --danger (fixe) : 3,59:1 mesuré sur le fond du toast en mode sombre.
+    // --danger-encre est le jeton de texte adapté par thème pour ce rôle
+    // (déjà utilisé par --toast-title-color de la variante --warning).
+    --toast-title-color: var(--danger-encre);
     --toast-action-primary-bg: var(--danger);
     --toast-shadow: var(--ombre-portee);
   }

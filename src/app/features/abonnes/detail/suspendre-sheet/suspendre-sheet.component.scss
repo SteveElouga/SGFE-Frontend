@@ -125,7 +125,7 @@
   // et du --danger rouge (résiliation irréversible).
   &--warning {
     @include btn-variant(
-      linear-gradient(135deg, var(--ambre-attente), var(--attente-encre)), var(--surface),
+      linear-gradient(135deg, var(--ambre-attente), var(--attente-encre)), var(--sur-action),
       $shadow: var(--ombre-action-avert), $hover-opacity: 0.9
     );
     &:focus-visible { outline: 2px solid var(--ambre-attente); outline-offset: 2px; }
