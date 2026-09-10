@@ -187,33 +187,83 @@ l'avertissement sur l'état constaté du seed, plus bas), la plupart créent leu
 propre fixture jetable (un abonné, une campagne, un utilisateur) via le
 formulaire réel ou par API GraphQL directe (`request` de Playwright), avant de
 n'exercer l'UI que pour le geste réellement testé. `abonnes-resiliation`,
-`abonnes-remplacement-compteur` et `campagnes-correction-releve` sont ainsi
-intégralement autonomes et rejouables indéfiniment, contrairement à
+`abonnes-remplacement-compteur`, `campagnes-correction-releve`,
+`paiements-annulation` et `facturation-envoi-whatsapp` sont ainsi intégralement
+autonomes et rejouables indéfiniment, contrairement à
 `terrain-saisie-index.spec.ts` qui reste contrainte par un budget de seed fixe.
 
 > ⚠️ **Corrigé le 09/09/2026** (contre-vérification indépendante) : cette
 > section affirmait la même autonomie pour les **onze** specs sans distinction.
 > Faux pour deux d'entre eux — `paiements-annulation.spec.ts` et
-> `facturation-envoi-whatsapp.spec.ts` passent tous les deux par `/impayes`
-> (vue « Par facture ») et agissent sur la **première ligne** de cette liste
+> `facturation-envoi-whatsapp.spec.ts` passaient tous les deux par `/impayes`
+> (vue « Par facture ») et agissaient sur la **première ligne** de cette liste
 > partagée et vivante, sans créer leur propre facture. En exécution parallèle
 > (réglage par défaut de Playwright hors CI, `workers: undefined`), deux
-> workers peuvent cibler la même facture au même moment — collision reproduite
-> en conditions réelles (`paiements-annulation.spec.ts` échoue en parallèle,
-> passe systématiquement une fois sérialisé). De même, `numeroCompteur`
-> (contrainte UNIQUE réelle en base, `Compteur.numero_compteur`) était généré
-> par un simple `String(Date.now()).slice(-6)` dans trois specs
-> (`abonnes-resiliation`, `abonnes-remplacement-compteur`,
-> `campagnes-correction-releve`) — collision également reproduite en parallèle
-> (`IntegrityError: duplicate key … numero_compteur=`), corrigée depuis via
-> `e2e/fixtures/numero-compteur.util.ts` (horodatage + index de worker + aléa).
+> workers pouvaient cibler la même facture au même moment — collision
+> reproduite en conditions réelles (`paiements-annulation.spec.ts` échouait en
+> parallèle, passait systématiquement une fois sérialisé). De même,
+> `numeroCompteur` (contrainte UNIQUE réelle en base,
+> `Compteur.numero_compteur`) était généré par un simple
+> `String(Date.now()).slice(-6)` dans trois specs (`abonnes-resiliation`,
+> `abonnes-remplacement-compteur`, `campagnes-correction-releve`) — collision
+> également reproduite en parallèle (`IntegrityError: duplicate key …
+> numero_compteur=`), corrigée depuis via `e2e/fixtures/numero-compteur.util.ts`
+> (horodatage + index de worker + aléa).
 >
-> **En pratique** : lancer les onze specs de cette section avec
-> `--workers=1` (voir la commande ci-dessous) tant que
-> `paiements-annulation`/`facturation-envoi-whatsapp` n'ont pas été réécrits
-> pour créer leur propre facture jetable (comme `campagnes-correction-releve`
-> le fait déjà pour une campagne/un relevé) — non fait ici, changement plus
-> large que ce correctif ponctuel.
+> **✅ Corrigé le 10/09/2026** — la collision `/impayes` ci-dessus : les deux
+> specs construisent désormais leur propre fixture dédiée (abonné + campagne
+> `EN_COURS` + relevé + facture, via l'API GraphQL — même mécanisme que
+> `campagnes-correction-releve.spec.ts`, jusqu'à réutiliser
+> `genererNumeroCompteur`) avant de naviguer directement vers
+> `/factures/<id>` (`facturation-envoi-whatsapp`) ou `/factures/<id>?paiement=1`
+> (`paiements-annulation` — l'URL exacte construite par le bouton « + Paiement »
+> réel de `/impayes`, donc le mécanisme UI vérifié n'a pas changé, seule la
+> sélection de la facture cible). Chacune agit désormais sur une facture que
+> nul autre test ne peut toucher. Vérifié par lancers répétés de ces deux
+> specs **et** `communication-diffusion.spec.ts` ensemble, en parallèle réel
+> (`--workers=3`, plusieurs exécutions consécutives) contre un backend réel :
+> plus aucune collision observée. `--workers=1` n'est donc plus nécessaire
+> pour ces trois specs précisément (voir aussi la note sur
+> `communication-diffusion.spec.ts` ci-dessous, jamais concernée par ce risque
+> pour une raison différente).
+>
+> **En pratique** : la commande ci-dessous garde `--workers=1` pour le lot
+> complet des onze specs, car les cinq autres (`utilisateurs-creation`,
+> `rapports-export`, `configuration-parametres`, `profil-reset-password`,
+> `notifications-marquer-lu`) n'ont pas fait l'objet du même audit
+> d'indépendance — prudence, pas un risque avéré. Isolément, les six specs
+> déjà vérifiées autonomes (`abonnes-resiliation`,
+> `abonnes-remplacement-compteur`, `campagnes-correction-releve`,
+> `paiements-annulation`, `facturation-envoi-whatsapp`,
+> `communication-diffusion`) tournent en parallèle sans `--workers=1` :
+>
+> ```bash
+> E2E_ADMIN_USER=demo_admin E2E_ADMIN_PASSWORD='Demo1234!' \
+> E2E_COMPTABLE_USER=demo_comptable E2E_COMPTABLE_PASSWORD='Demo1234!' \
+> E2E_LIVE_BACKEND=1 \
+> npx playwright test --workers=3 --project=chromium \
+>   e2e/specs/paiements-annulation.spec.ts \
+>   e2e/specs/facturation-envoi-whatsapp.spec.ts \
+>   e2e/specs/communication-diffusion.spec.ts
+> ```
+>
+> ### `communication-diffusion.spec.ts` — même sélecteur, aucun risque de mutation
+>
+> Ce spec sélectionne lui aussi la **première ligne** d'une table partagée
+> (abonnés de `/communication/nouvelle`, pas une facture) — même schéma
+> superficiel que les deux specs ci-dessus, mais sans partager leur risque, et
+> jamais mentionné dans l'avertissement d'origine (angle mort documentaire).
+> Vérifié dans le code backend avant d'écrire cette note : `CreerDiffusion`
+> (`DiffusionService.creer_diffusion`, `services/notification/notifications/
+> services.py`) ne fait que **lire** l'abonné ciblé (résolution du téléphone
+> via un appel gRPC à Abonné Service) puis écrit exclusivement ses propres
+> lignes `Diffusion`/`DiffusionEnvoi`, indépendantes d'une exécution à
+> l'autre — jamais un champ de l'abonné lui-même. `traiter_lot_en_attente`
+> (l'envoi de fond) ne touche ensuite que ses propres `DiffusionEnvoi`. Deux
+> workers qui sélectionnent le même abonné créent donc chacun leur propre
+> diffusion indépendante, sans jamais se marcher dessus : aucune ligne
+> partagée n'est jamais modifiée par deux tests à la fois. Confirmé par les
+> lancers parallèles répétés ci-dessus (aucune réécriture nécessaire).
 
 ```bash
 E2E_ADMIN_USER=demo_admin E2E_ADMIN_PASSWORD='Demo1234!' \
@@ -238,9 +288,9 @@ npx playwright test --workers=1 \
 | `abonnes-resiliation.spec.ts` | `ADMIN` | crée + résilie un abonné jetable | Non |
 | `abonnes-remplacement-compteur.spec.ts` | `ADMIN` | crée un abonné + remplace son compteur | Non |
 | `campagnes-correction-releve.spec.ts` | `ADMIN` | crée campagne + abonné + relevé (API), corrige (UI) | Non |
-| `paiements-annulation.spec.ts` | `COMPTABLE` | enregistre + annule un paiement | **Oui** (reçu + relance) |
-| `communication-diffusion.spec.ts` | `ADMIN` | crée une diffusion réelle | **Oui** |
-| `facturation-envoi-whatsapp.spec.ts` | `COMPTABLE` | déclenche l'envoi WhatsApp d'une facture | **Oui** |
+| `paiements-annulation.spec.ts` | ADMIN (fixture) + `COMPTABLE` (geste testé) | crée campagne + abonné + relevé + facture (API), enregistre + annule un paiement (UI) | **Oui** (reçu + relance) |
+| `communication-diffusion.spec.ts` | `ADMIN` | crée une diffusion réelle (abonné du jeu partagé, sans risque — voir note ci-dessus) | **Oui** |
+| `facturation-envoi-whatsapp.spec.ts` | ADMIN (fixture) + `COMPTABLE` (geste testé) | crée campagne + abonné + relevé + facture (API), déclenche l'envoi WhatsApp (UI) | **Oui** |
 | `utilisateurs-creation.spec.ts` | `ADMIN` | crée un compte AGENT + le désactive | **Oui** (⚠️ voir limite connue) |
 | `rapports-export.spec.ts` | `COMPTABLE` | télécharge un PDF (aucune mutation) | Non |
 | `configuration-parametres.spec.ts` | `ADMIN` | modifie puis restaure un paramètre | Non |
