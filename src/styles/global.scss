@@ -345,6 +345,93 @@ a:focus-visible,
   }
 }
 
+// Ni `.screen-flex-fill` ni `.screen-scroll-interne` ne protègent contre
+// TOUT le reste de l'écran : elles rendent l'élément qui les porte
+// compressible jusqu'à 0 (c'est tout leur rôle), mais rien n'empêche ses
+// FRÈRES — un KPI, un panneau de filtres, une bascule de vue — de refuser
+// de rétrécir (comportement par défaut d'un enfant flex sans
+// `min-height: 0`, et souvent voulu : on ne veut pas voir un chiffre-clé se
+// comprimer). Si ces frères réclament, à eux seuls, plus de hauteur que
+// l'écran n'en offre — mesuré : bannière WhatsApp affichée, fenêtre
+// 1280×650, KPI + filtres de `/paiements` = 417px pour 410px disponibles —
+// l'élément à `.screen-flex-fill`/`.screen-scroll-interne` tombe
+// EFFECTIVEMENT à 0, pas seulement en théorie : `<app-data-table>` ou
+// `.imp-groupes` disparaît entièrement, sans la moindre barre pour
+// l'atteindre si l'écran a par ailleurs coupé son propre défilement de
+// page (`overflow: hidden` sur `.xxx-content`, posé à dessein sur les
+// écrans à tableau pour que ce soit LUI qui défile, pas la page — voir
+// `paiements-list.component.scss`).
+//
+// Pas de troisième classe partagée pour ce cas : le plancher de hauteur
+// utile (assez pour voir l'en-tête du tableau + quelques lignes, ou un
+// groupe entier pour `.imp-groupes`) dépend du contenu de CET écran précis
+// — un nombre de colonnes, une hauteur de ligne, un gabarit de carte —, pas
+// d'un mécanisme générique. Chaque écran concerné (`paiements-list`,
+// `impayes-list`) pose donc localement : un `min-height` mesuré sur SA
+// propre zone à `.screen-flex-fill`/`.screen-scroll-interne` (le plancher),
+// et `overflow-y: auto` (pas `hidden`) sur son `.xxx-content` (le filet de
+// secours qui rend ce plancher atteignable par un défilement de PAGE
+// quand — seulement quand — il ne rentre plus). En usage normal (assez de
+// place, ou beaucoup de lignes), les deux ne changent rien : le plancher
+// est déjà dépassé par le `flex: 1`, et il n'y a rien à faire défiler au
+// niveau de la page. Voir le commentaire local de chaque écran pour le
+// calcul du chiffre retenu.
+
+// ── Récidive : min-height en pourcentage sur .xxx-content ──────────────────
+//
+// Trouvé par audit navigateur (fenêtre 1280×650, bannière WhatsApp affichée —
+// hauteur de contenu utile réelle 1280×507) sur `/configuration`, `/profil`
+// et `/rapports` : le bas de la zone `.page-scroll` restait rogné, inatteignable
+// même au scroll interne confirmé à son maximum exact
+// (`scrollTop === scrollHeight - clientHeight`). Ce n'est PAS le même bug que
+// ci-dessus (celui-là existe même sans le moindre défilement possible) : ici,
+// le défilement interne fonctionne, il s'arrête juste avant la fin réelle du
+// contenu.
+//
+// Cause : chacun de ces trois gabarits posait, dans son propre fichier SCSS,
+// `min-height: 100%` sur sa `.xxx-content.page-scroll` — un reliquat d'une
+// époque où la barre de titre (`app-page-topbar`) vivait ENCORE DANS ce
+// conteneur défilant (le commentaire d'origine, retiré avec cette règle,
+// expliquait que le passage à `calc(100% - 54px)` puis à `100%` accompagnait
+// sa sortie du flux). Or `min-height: 100%` se résout contre la hauteur du
+// PARENT — l'hôte du composant routé — qui, lui, inclut TOUJOURS la place de
+// la barre de titre (sortie du conteneur défilant mais restée, comme prévu,
+// à l'intérieur du même parent flex-column). Résultat mesuré sur
+// `/configuration` : parent haut de 465,5px, `.config-content` en réclame
+// 100 % soit 465,5px, alors que la barre de titre au-dessus (55px) n'en
+// laisse réellement que 410,5px avant le bord visible — un débordement de
+// 55px, systématique sur les quatre onglets, qui ne devient visible que là
+// où un élément d'action tombe dans cette bande. `.page-scroll` (ci-dessus)
+// pose déjà `min-height: 0`, la valeur correcte : `flex: 1` (aussi porté par
+// `.page-scroll`) suffit SEUL à remplir toute la hauteur restante quand le
+// contenu est court, sans jamais empêcher l'élément de rétrécir en dessous
+// quand il le faut pour que son propre `overflow-y: auto` ait quelque chose
+// à faire défiler jusqu'au bout.
+//
+// Pourquoi seuls CES TROIS écrans, et pas `/paiements` ni `/impayes` qui
+// portent le même `min-height: 100%` avec le même commentaire historique
+// dans leur SCSS ? Parce que ces deux-là le RÉÉCRASENT ensuite à `0` dans un
+// `@media (min-width: 1024px)` propre à leur écran — pour une raison sans
+// rapport (laisser `<app-data-table>` défiler en interne, voir plus haut) —
+// qui masque accidentellement ce bug-ci au-delà de 1024px. En dessous de
+// 1024px, RIEN ne l'écrase : `/paiements` et `/impayes` portent donc le même
+// défaut latent en mobile, non observé dans cet audit (mené en desktop) mais
+// retiré par précaution (voir leurs SCSS) — la valeur correcte, `0`, doit
+// rester la seule affirmée, pas dépendre d'un second override qui pourrait
+// un jour disparaître.
+//
+// Pas de correctif centralisable ici dans l'autre sens (renforcer
+// `.page-scroll`) : elle porte déjà la bonne valeur. Le bug était la
+// redite locale, fautive, qui la battait par spécificité — la classe de
+// portée `[_ngcontent-xxx]` qu'Angular ajoute à tout sélecteur de style de
+// composant transforme une simple classe (`.page-scroll`, spécificité 0-1-0)
+// en classe + attribut (`.xxx-content[_ngcontent-xxx]`, 0-2-0) qui
+// l'emporte — le même mécanisme que documenté pour `[hidden]` et
+// `.page-scroll.page-scroll` ailleurs dans ce fichier. Le correctif est donc
+// une SUPPRESSION locale (`min-height: 100%` retiré de `configuration`,
+// `profil`, `rapports`, `paiements` et `impayes`), pas un ajout : une fois
+// la redite fautive partie, `.page-scroll` reprend seule la main partout.
+
 // Sous 1024px, `app-bottom-tabs` (barre d'onglets) se fixe en bas de l'écran
 // par-dessus tout le reste (`position: fixed`, voir bottom-tabs.component.scss).
 // Sans dégagement, elle recouvre en permanence la fin de toute liste longue :
