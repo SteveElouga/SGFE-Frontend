@@ -7,11 +7,12 @@
 .rap {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
-  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
-  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
-  // de 54 px en bas de page.
-  min-height: 100%;
+  // PAS de `min-height: 100%` ici — c'était le bug (voir `global.scss`,
+  // section « Récidive : min-height en pourcentage sur .xxx-content »).
+  // `.page-scroll` (classe globale) pose déjà `min-height: 0`, la valeur
+  // correcte : `flex: 1` (aussi posé par `.page-scroll`) suffit à remplir
+  // toute la hauteur restante quand le contenu est court, SANS empêcher
+  // l'élément de rétrécir sous cette hauteur quand il le faut pour défiler.
   display: flex;
   flex-direction: column;
   gap: var(--pas-4);

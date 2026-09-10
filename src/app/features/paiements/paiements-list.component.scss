@@ -60,11 +60,11 @@
 .paiements-content {
   padding: var(--pas-4) var(--pas-5);
   background: var(--fond);
-  // Était `calc(100% - 54px)` : les 54 px compensaient la barre de titre,
-  // qui vivait alors DANS le conteneur défilant. Elle en est sortie — ce
-  // 100 % exclut donc déjà l'en-tête, et la soustraction laissait un vide
-  // de 54 px en bas de page.
-  min-height: 100%;
+  // PAS de `min-height: 100%` ici — c'était un bug (voir `global.scss`,
+  // section « Récidive : min-height en pourcentage sur .xxx-content ») :
+  // masqué au-delà de 1024px par le `min-height: 0` ci-dessous, mais actif
+  // en dessous, où rien ne l'écrasait. `.page-scroll` pose déjà
+  // `min-height: 0`, la valeur correcte à toutes les largeurs.
   display: flex;
   flex-direction: column;
   gap: var(--pas-3);
@@ -180,6 +180,23 @@
 
   // Le relais de hauteur vers `<app-data-table>` est la classe partagée
   // `.screen-flex-fill` posée dans le gabarit — voir `styles/global.scss`.
+
+  // Plancher de hauteur utile : voir `global.scss`, à la suite de
+  // `.screen-scroll-interne` (« ni l'une ni l'autre ne protège contre... »).
+  // Sans lui, `.screen-flex-fill` (`min-height: 0`, nécessaire au
+  // rétrécissement normal) laisse ce wrapper tomber jusqu'à 0px quand le KPI
+  // + les filtres au-dessus — non compressibles à dessein — réclament, à eux
+  // seuls, plus de hauteur que `.paiements-content` n'en offre (mesuré :
+  // bannière WhatsApp affichée, fenêtre 1280×650 → 2px de hauteur réelle,
+  // tableau entier invisible). 230px = en-tête de tableau (30px, mesuré) +
+  // pied de pagination (61px, mesuré) + deux lignes de données (57px chacune,
+  // mesuré) ≈ 205px, arrondi avec un peu d'air : de quoi garder l'en-tête,
+  // la pagination et au moins une ligne complète lisibles. Le manque
+  // restant devient un dépassement de `.paiements-content`, atteignable via
+  // son `overflow-y: auto` (ci-dessous) plutôt que silencieusement perdu.
+  @media (min-width: 1024px) {
+    min-height: 230px;
+  }
 }
 
 .col-date {
@@ -352,16 +369,27 @@
 // atteindre « page suivante ». Mesuré : pagination à 2 494 px pour une fenêtre
 // de 800 sur soixante lignes.
 //
-// Ici on cesse donc de défiler et on cesse d'imposer une hauteur minimale : le
-// conteneur épouse exactement la place disponible, les filtres restent en tête,
-// et `app-data-table` prend le reste (voir son `:host`).
+// Ici on cesse donc d'imposer une hauteur minimale : le conteneur épouse
+// exactement la place disponible, les filtres restent en tête, et
+// `app-data-table` prend le reste (voir son `:host`).
+//
+// `overflow-y: auto`, PAS `hidden` : filet de secours, pas le mécanisme
+// normal. En usage courant, `.table-wrap` (flex + `min-height: 0`) absorbe
+// exactement ce qui reste et c'est `.dt__scroll` qui défile — cette règle ne
+// fait alors rien. Mais si le KPI + les filtres, au-dessus, réclament à eux
+// seuls plus de hauteur que `.paiements-content` n'en reçoit (voir le
+// plancher `min-height: 230px` de `.table-wrap` ci-dessus, et le
+// commentaire correspondant dans `global.scss`), `overflow: hidden` rendait
+// l'excédent invisible ET inatteignable — aucun geste ne pouvait plus le
+// révéler. `overflow-y: auto` transforme cet excédent en défilement de PAGE,
+// seulement quand ce plancher ne rentre plus.
 //
 // En dessous de 1024 px, rien ne change : le tableau devient des cartes et la
 // page reprend son défilement naturel. Deux barres imbriquées sur un écran de
 // 320 px seraient un piège tactile.
 @media (min-width: 1024px) {
   .paiements-content {
-    overflow: hidden;
+    overflow-y: auto;
     min-height: 0;
   }
 }
