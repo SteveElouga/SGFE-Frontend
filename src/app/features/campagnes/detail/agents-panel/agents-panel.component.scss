@@ -45,7 +45,9 @@
     gap: var(--pas-2);
     border: none;
     background: none;
-    color: var(--action);
+    // --action (fixe) : 3,05:1 mesuré sur --fond en mode sombre pour ce lien.
+    // --info-encre est adapté par thème (voir dashboard.component.scss).
+    color: var(--info-encre);
     font-size: var(--texte-xs);
     font-weight: 600;
     cursor: pointer;

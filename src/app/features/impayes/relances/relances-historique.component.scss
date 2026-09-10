@@ -181,7 +181,9 @@
 
   &--suspension {
     font-weight: 700;
-    color: var(--rouge-braise);
+    // --rouge-braise (fixe) échoue en mode sombre sur fond teinté ; voir
+    // dashboard.component.scss pour la même correction.
+    color: var(--danger-encre);
   }
   &--future {
     color: var(--encre-3);
