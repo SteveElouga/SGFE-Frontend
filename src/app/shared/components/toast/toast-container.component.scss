@@ -2,7 +2,11 @@
 
 .toast-stack {
   position: fixed;
-  top: 20px;
+  // `--wa-banniere-hauteur` est publiée par `WhatsappBannerComponent`, un
+  // composant du shell hors de la hiérarchie de celui-ci (voir le commentaire
+  // dans whatsapp-banner.component.ts) — 0 quand le bandeau est masqué, donc
+  // ce `calc` retombe exactement sur `20px` sans lui.
+  top: calc(20px + var(--wa-banniere-hauteur, 0px));
   right: 20px;
   z-index: 9999;
   display: flex;
