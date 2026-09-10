@@ -1,0 +1,73 @@
+// Montserrat auto-hébergée (fichiers dans public/fonts/montserrat/, copiés tels
+// quels au build par angular.json). Remplace le chargement via Google Fonts
+// (index.html) : la police ne dépendait plus que d'un CDN externe, sans repli
+// visible en cas d'échec réseau — toute l'app retombait alors silencieusement
+// sur la police système par défaut (voir historique du 09/09/2026). Fichiers
+// issus du paquet @fontsource/montserrat (licence SIL Open Font License 1.1).
+//
+// Sous-ensemble « latin » uniquement (U+0000-00FF, U+0152-0153 œ/Œ compris,
+// vérifié dans le CSS généré par fontsource) : couvre tous les caractères du
+// français, y compris les ligatures (œuf, cœur, sœurs...). Le sous-ensemble
+// « latin-ext » n'ajoute que des caractères d'Europe centrale/orientale
+// (polonais, tchèque, vietnamien...), non utilisés ici — inutile de l'embarquer.
+//
+// Poids alignés sur ce que chargeait l'ancien lien Google Fonts (300 à 800),
+// plus l'italique 400 (seul poids réellement utilisé en italique dans l'app,
+// voir grep sur font-style: italic). Un poids/style non couvert ici retombe
+// sur l'italique/gras synthétisé par le navigateur à partir du 400 normal —
+// acceptable pour un usage aussi marginal.
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300;
+  src: url('/fonts/montserrat/montserrat-latin-300-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/montserrat/montserrat-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 400;
+  src: url('/fonts/montserrat/montserrat-latin-400-italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url('/fonts/montserrat/montserrat-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url('/fonts/montserrat/montserrat-latin-600-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url('/fonts/montserrat/montserrat-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url('/fonts/montserrat/montserrat-latin-800-normal.woff2') format('woff2');
+}
